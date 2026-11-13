@@ -87,14 +87,13 @@ return [
     | UI-selectable locales
     |--------------------------------------------------------------------------
     |
-    | Shown in language switchers (admin, POS, receipts). ur/hi remain in
-    | config('locales.supported') for translations
-    | and RTL metadata — append them here to surface in UI again.
+    | Shown in language switchers (admin, POS, receipts). ur/hi lang files
+    | remain on disk but are omitted unless added to APP_ENABLED_LOCALES.
     |
     */
     'enabled_locales' => array_values(array_filter(array_map(
         static fn (string $code): string => strtolower(trim($code)),
-        explode(',', (string) env('APP_ENABLED_LOCALES', 'en,ar,bn'))
+        explode(',', (string) env('APP_ENABLED_LOCALES', 'en,bn,ar'))
     ))),
 
     'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
