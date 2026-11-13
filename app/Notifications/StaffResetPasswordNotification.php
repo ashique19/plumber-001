@@ -23,7 +23,7 @@ class StaffResetPasswordNotification extends Notification
 
   public function toMail(object $notifiable): MailMessage
   {
-    $url = route('admin.password.reset', [
+    $url = route('password.reset', [
       'token' => $this->token,
       'email' => $notifiable->email,
     ]);

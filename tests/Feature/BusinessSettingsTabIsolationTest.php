@@ -3,14 +3,14 @@
 use App\Livewire\Admin\BusinessSettings;
 use App\Models\BusinessSetting;
 use App\Models\StaffUser;
-use App\Support\TenantBusinessHours;
-use App\Support\TenantBusinessProfile;
-use Database\Seeders\DemoFancyCoffeeSeeder;
+use App\Support\BusinessHours;
+use App\Support\BusinessProfile;
+use Database\Seeders\DemoStaffSeeder;
 use Livewire\Livewire;
 
 beforeEach(function () {
     $this->withoutVite();
-    (new DemoFancyCoffeeSeeder)->run();
+    (new DemoStaffSeeder)->run();
     $this->business = BusinessSetting::singleton();
     $this->owner = StaffUser::query()->where('email', 'owner@fancy-coffee.test')->firstOrFail();
     $this->actingAs($this->owner, 'staff');
@@ -45,7 +45,7 @@ it('hydrates admin hours from storefront legacy rows', function () {
 });
 
 it('mirrors plumber business hours into content after save', function () {
-    $weekdays = TenantBusinessProfile::normalizeWeekdays(TenantBusinessProfile::defaultWeekdays());
+    $weekdays = BusinessProfile::normalizeWeekdays(BusinessProfile::defaultWeekdays());
     foreach ($weekdays as &$day) {
         $day['closed'] = false;
         $day['open'] = '06:30';
@@ -58,7 +58,7 @@ it('mirrors plumber business hours into content after save', function () {
         ->set('weekdays', $weekdays)
         ->call('saveHours');
 
-    $rowText = TenantBusinessHours::toLegacyRows($weekdays)[0]['value_en'] ?? '';
+    $rowText = BusinessHours::toLegacyRows($weekdays)[0]['value_en'] ?? '';
     $stored = data_get($this->business->fresh()->settings, 'content.plumber.hours.0.value_en');
     expect($stored)->toBe($rowText);
 });

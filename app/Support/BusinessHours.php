@@ -2,7 +2,7 @@
 
 namespace App\Support;
 
-final class TenantBusinessHours
+final class BusinessHours
 {
     /**
      * Render legacy storefront hours rows from structured weekday settings.
@@ -70,7 +70,7 @@ final class TenantBusinessHours
         }
 
         $byKey = [];
-        foreach (TenantBusinessProfile::defaultWeekdays() as $day) {
+        foreach (BusinessProfile::defaultWeekdays() as $day) {
             $byKey[$day['key']] = $day;
         }
 

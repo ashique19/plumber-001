@@ -3,12 +3,12 @@
 use App\Livewire\Ops\BranchDashboard;
 use App\Models\Branch;
 use App\Models\StaffUser;
-use Database\Seeders\DemoFancyCoffeeSeeder;
+use Database\Seeders\DemoStaffSeeder;
 use Livewire\Livewire;
 
 beforeEach(function () {
     $this->withoutVite();
-    (new DemoFancyCoffeeSeeder)->run();
+    (new DemoStaffSeeder)->run();
     $this->branch = Branch::query()->where('code', 'jad-main')->firstOrFail();
     $this->owner = StaffUser::query()->where('email', 'owner@fancy-coffee.test')->firstOrFail();
 });

@@ -5,7 +5,7 @@ namespace App\Support;
 use App\Models\BusinessSetting;
 use App\Models\StaffUser;
 
-final class TenantLandingRoute
+final class StaffLandingRoute
 {
     public static function forUser(BusinessSetting $business, StaffUser $user): string
     {

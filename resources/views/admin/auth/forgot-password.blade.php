@@ -1,8 +1,8 @@
-<x-auth.tenant-shell :tenant="$business" :title="__('auth.forgot_title')">
+<x-auth.staff-shell :business="$business" :title="__('auth.forgot_title')">
     <h1 class="text-xl font-bold text-cafe-espresso sm:text-2xl">{{ __('auth.forgot_title') }}</h1>
-    <p class="mt-2 text-sm text-cafe-mocha">{{ __('auth.forgot_lead') }}</p>
+    <p class="mt-2 text-sm text-plumber-steel">{{ __('auth.forgot_lead') }}</p>
 
-    <form method="POST" action="{{ route('admin.password.email') }}" class="mt-6 space-y-4">
+    <form method="POST" action="{{ route('password.email') }}" class="mt-6 space-y-4">
         @csrf
         <label @class(['auth-field', 'auth-field--invalid' => $errors->has('email')])>
             {{ __('pos.email') }}
@@ -23,6 +23,6 @@
     </form>
 
     <p class="mt-6 text-center text-sm">
-        <a href="{{ route('login') }}" class="font-medium text-cafe-mocha underline-offset-4 hover:underline">{{ __('auth.back_to_login') }}</a>
+        <a href="{{ route('login') }}" class="font-medium text-plumber-steel underline-offset-4 hover:underline">{{ __('auth.back_to_login') }}</a>
     </p>
-</x-auth.tenant-shell>
+</x-auth.staff-shell>

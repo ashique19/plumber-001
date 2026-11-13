@@ -5,8 +5,8 @@ namespace App\Services\Business;
 use App\Models\BusinessSetting;
 use App\Models\StaffUser;
 use App\Support\Storefront\StorefrontBusinessMirror;
-use App\Support\TenantBusinessHours;
-use App\Support\TenantBusinessProfile;
+use App\Support\BusinessHours;
+use App\Support\BusinessProfile;
 
 class BusinessSettingsService
 {
@@ -42,29 +42,29 @@ class BusinessSettingsService
     private function canonicalBusinessBlock(BusinessSetting $tenant, array $settings): array
     {
         $legal = (array) ($settings['legal_entity'] ?? []);
-        $content = TenantBusinessProfile::contentSlice($tenant);
+        $content = BusinessProfile::contentSlice($tenant);
         $existing = (array) data_get($settings, 'business', []);
 
         $brand = array_merge([
-            'display_name_en' => TenantBusinessProfile::scalarString($legal['name_en'] ?? $tenant->name),
-            'display_name_ar' => TenantBusinessProfile::scalarString($legal['name_ar'] ?? ''),
-            'display_name_bn' => TenantBusinessProfile::scalarString(data_get($existing, 'brand.display_name_bn', '')),
-            'tagline_en' => TenantBusinessProfile::scalarString($content['tagline_en'] ?? ''),
-            'tagline_ar' => TenantBusinessProfile::scalarString($content['tagline_ar'] ?? ''),
-            'brand_color_key' => TenantBusinessProfile::scalarString(
-                data_get($existing, 'brand.brand_color_key') ?: TenantBusinessProfile::primaryColorKey($tenant),
+            'display_name_en' => BusinessProfile::scalarString($legal['name_en'] ?? $tenant->name),
+            'display_name_ar' => BusinessProfile::scalarString($legal['name_ar'] ?? ''),
+            'display_name_bn' => BusinessProfile::scalarString(data_get($existing, 'brand.display_name_bn', '')),
+            'tagline_en' => BusinessProfile::scalarString($content['tagline_en'] ?? ''),
+            'tagline_ar' => BusinessProfile::scalarString($content['tagline_ar'] ?? ''),
+            'brand_color_key' => BusinessProfile::scalarString(
+                data_get($existing, 'brand.brand_color_key') ?: BusinessProfile::primaryColorKey($tenant),
             ),
         ], (array) ($existing['brand'] ?? []));
 
         $defaultNa = BusinessSetting::defaultSettings()['legal_entity']['national_address'];
         $legalBlock = array_merge([
-            'name_en' => TenantBusinessProfile::scalarString($legal['name_en'] ?? ''),
-            'name_ar' => TenantBusinessProfile::scalarString($legal['name_ar'] ?? ''),
-            'vat_number' => TenantBusinessProfile::scalarString($legal['vat_number'] ?? ''),
-            'cr_number' => TenantBusinessProfile::scalarString($legal['cr_number'] ?? ''),
+            'name_en' => BusinessProfile::scalarString($legal['name_en'] ?? ''),
+            'name_ar' => BusinessProfile::scalarString($legal['name_ar'] ?? ''),
+            'vat_number' => BusinessProfile::scalarString($legal['vat_number'] ?? ''),
+            'cr_number' => BusinessProfile::scalarString($legal['cr_number'] ?? ''),
             'national_address' => (array) ($legal['national_address'] ?? $defaultNa),
-            'address_en' => TenantBusinessProfile::scalarString($legal['address'] ?? ''),
-            'address_ar' => TenantBusinessProfile::scalarString($legal['address_ar'] ?? ''),
+            'address_en' => BusinessProfile::scalarString($legal['address'] ?? ''),
+            'address_ar' => BusinessProfile::scalarString($legal['address_ar'] ?? ''),
         ], (array) ($existing['legal'] ?? []));
 
         $contactDefaults = [
@@ -82,23 +82,23 @@ class BusinessSettingsService
         ];
         $contact = array_merge(
             $contactDefaults,
-            TenantBusinessProfile::contactFromContent($content),
-            TenantBusinessProfile::normalizeContactBlock((array) ($existing['contact'] ?? [])),
+            BusinessProfile::contactFromContent($content),
+            BusinessProfile::normalizeContactBlock((array) ($existing['contact'] ?? [])),
         );
 
         $storedWeekdays = data_get($existing, 'hours.weekdays');
-        $weekdays = TenantBusinessProfile::normalizeWeekdays($storedWeekdays);
+        $weekdays = BusinessProfile::normalizeWeekdays($storedWeekdays);
         if ($storedWeekdays === null || $storedWeekdays === []) {
-            $contentSlice = TenantBusinessProfile::contentSlice($tenant);
-            $inferred = TenantBusinessHours::weekdaysFromLegacyRows((array) ($contentSlice['hours'] ?? []));
+            $contentSlice = BusinessProfile::contentSlice($tenant);
+            $inferred = BusinessHours::weekdaysFromLegacyRows((array) ($contentSlice['hours'] ?? []));
             if ($inferred !== null) {
-                $weekdays = TenantBusinessProfile::normalizeWeekdays($inferred);
+                $weekdays = BusinessProfile::normalizeWeekdays($inferred);
             }
         }
 
         $hours = [
             'weekdays' => $weekdays,
-            'note' => TenantBusinessProfile::scalarString(data_get($existing, 'hours.note', '')),
+            'note' => BusinessProfile::scalarString(data_get($existing, 'hours.note', '')),
         ];
 
         $extras = array_merge(
@@ -137,17 +137,17 @@ class BusinessSettingsService
         $legal['name_ar'] = (string) ($brand['display_name_ar'] ?? $legal['name_ar'] ?? '');
         $settings['legal_entity'] = $legal;
 
-        $contentKey = TenantBusinessProfile::contentKey($tenant);
+        $contentKey = BusinessProfile::contentKey($tenant);
         $content = (array) data_get($settings, $contentKey, []);
         $content['tagline_en'] = (string) ($brand['tagline_en'] ?? '');
         $content['tagline_ar'] = (string) ($brand['tagline_ar'] ?? '');
         data_set($settings, $contentKey, $content);
 
-        $colorKey = (string) ($brand['brand_color_key'] ?? TenantBusinessProfile::primaryColorKey($tenant));
+        $colorKey = (string) ($brand['brand_color_key'] ?? BusinessProfile::primaryColorKey($tenant));
         $theme = (array) ($settings['theme'] ?? []);
         $palette = $tenant->themeColors();
         if (isset($palette[$colorKey])) {
-            $primaryKey = TenantBusinessProfile::primaryColorKey($tenant);
+            $primaryKey = BusinessProfile::primaryColorKey($tenant);
             $colors = (array) ($theme['colors'] ?? []);
             $colors[$primaryKey] = $palette[$colorKey];
             $theme['colors'] = $colors;
@@ -158,7 +158,7 @@ class BusinessSettingsService
             $previous = data_get($settings, 'theme.logo_url');
             $relative = $this->logos->store($tenant, $logo);
             data_set($settings, 'theme.logo_url', $relative);
-            data_set($settings, 'business.brand.favicon_path', 'img/tenants/'.$tenant->id.'/favicon.png');
+            data_set($settings, 'business.brand.favicon_path', 'img/business/'.$tenant->id.'/favicon.png');
             if ($previous && $previous !== $relative) {
                 $this->logos->deleteTenantLogos($tenant, $relative);
             }
@@ -217,14 +217,14 @@ class BusinessSettingsService
     {
         $settings = $tenant->settings ?? BusinessSetting::defaultSettings();
         $business = $this->canonicalBusinessBlock($tenant, $settings);
-        $contact = TenantBusinessProfile::normalizeContactBlock(array_merge(
+        $contact = BusinessProfile::normalizeContactBlock(array_merge(
             (array) ($business['contact'] ?? []),
             $input,
         ));
         $business['contact'] = $contact;
         $settings['business'] = $business;
 
-        $contentKey = TenantBusinessProfile::contentKey($tenant);
+        $contentKey = BusinessProfile::contentKey($tenant);
         $content = (array) data_get($settings, $contentKey, []);
         $legacyContact = (array) ($content['contact'] ?? []);
         foreach (['phone', 'whatsapp', 'email', 'instagram'] as $key) {
@@ -233,8 +233,8 @@ class BusinessSettingsService
             }
         }
         $content['contact'] = $legacyContact;
-        $lat = TenantBusinessProfile::scalarString($contact['lat'] ?? '');
-        $lng = TenantBusinessProfile::scalarString($contact['lng'] ?? '');
+        $lat = BusinessProfile::scalarString($contact['lat'] ?? '');
+        $lng = BusinessProfile::scalarString($contact['lng'] ?? '');
         if ($lat !== '' && $lng !== '' && is_numeric($lat) && is_numeric($lng)) {
             $content['location'] = array_merge((array) ($content['location'] ?? []), [
                 'lat' => round((float) $lat, 6),
@@ -259,17 +259,17 @@ class BusinessSettingsService
         $business = $this->canonicalBusinessBlock($tenant, $settings);
         $hours = (array) ($business['hours'] ?? []);
         if (isset($input['weekdays']) && is_array($input['weekdays'])) {
-            $hours['weekdays'] = TenantBusinessProfile::normalizeWeekdays($input['weekdays']);
+            $hours['weekdays'] = BusinessProfile::normalizeWeekdays($input['weekdays']);
         }
         if (array_key_exists('note', $input)) {
-            $hours['note'] = TenantBusinessProfile::scalarString($input['note']);
+            $hours['note'] = BusinessProfile::scalarString($input['note']);
         }
         $business['hours'] = $hours;
         $settings['business'] = $business;
 
-        $contentKey = TenantBusinessProfile::contentKey($tenant);
+        $contentKey = BusinessProfile::contentKey($tenant);
         $content = (array) data_get($settings, $contentKey, []);
-        $content['hours'] = TenantBusinessHours::toLegacyRows(
+        $content['hours'] = BusinessHours::toLegacyRows(
             (array) ($hours['weekdays'] ?? []),
             filled($hours['note'] ?? null) ? (string) $hours['note'] : null,
         );

@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Hash;
  *
  * @deprecated Use {@see DatabaseSeeder}; kept for existing test imports.
  */
-class DemoFancyCoffeeSeeder extends Seeder
+class DemoStaffSeeder extends Seeder
 {
     public function run(): void
     {

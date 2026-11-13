@@ -88,7 +88,6 @@ class OwnerAnalytics extends Component
 
         return Branch::query()
             ->withoutGlobalScopes()
-            ->where('tenant_id', $this->tenant->id)
             ->whereKey($this->branchId)
             ->first();
     }

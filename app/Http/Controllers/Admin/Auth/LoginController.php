@@ -6,7 +6,7 @@ use App\Business\BusinessContext;
 use App\Http\Controllers\Controller;
 use App\Models\BusinessSetting;
 use App\Models\StaffUser;
-use App\Support\TenantLandingRoute;
+use App\Support\StaffLandingRoute;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -47,7 +47,7 @@ class LoginController extends Controller
         $business = BusinessSetting::query()->find(1) ?? BusinessSetting::query()->firstOrFail();
         BusinessContext::set($business);
 
-        return redirect()->intended(TenantLandingRoute::forUser($business, $user));
+        return redirect()->intended(StaffLandingRoute::forUser($business, $user));
     }
 
     public function destroy(Request $request): RedirectResponse

@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\File;
 class BusinessLogoService
 {
   /**
-   * Store under public/img/tenants/{id}/ (no storage symlink); path is relative to public/.
+   * Store under public/img/business/{id}/ (no storage symlink); path is relative to public/.
    */
   public function store(BusinessSetting $tenant, UploadedFile $file): string
   {
@@ -18,7 +18,7 @@ class BusinessLogoService
     }
 
     try {
-      $directory = public_path('img/tenants/'.$tenant->id);
+      $directory = public_path('img/business/'.$tenant->id);
       if (! is_dir($directory)) {
         File::makeDirectory($directory, 0755, true, true);
       }
@@ -37,7 +37,7 @@ class BusinessLogoService
         @chmod($absolute, 0644);
         $this->writeFaviconFromRaster(null, $directory);
 
-        return 'img/tenants/'.$tenant->id.'/'.$filename;
+        return 'img/business/'.$tenant->id.'/'.$filename;
       }
 
       $info = @getimagesize($file->getRealPath());
@@ -68,7 +68,7 @@ class BusinessLogoService
       @chmod($absolute, 0644);
       $this->writeFaviconFromRaster($absolute, $directory);
 
-      return 'img/tenants/'.$tenant->id.'/'.$filename;
+      return 'img/business/'.$tenant->id.'/'.$filename;
     } catch (\InvalidArgumentException $e) {
       throw $e;
     } catch (\Throwable $e) {
@@ -79,7 +79,7 @@ class BusinessLogoService
 
   public function deleteTenantLogos(BusinessSetting $tenant, ?string $keepRelative = null): void
   {
-    $directory = public_path('img/tenants/'.$tenant->id);
+    $directory = public_path('img/business/'.$tenant->id);
     if (! is_dir($directory)) {
       return;
     }

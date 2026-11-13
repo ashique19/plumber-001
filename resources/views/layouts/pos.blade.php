@@ -4,7 +4,7 @@
     use App\Models\Branch;
     use App\Models\BusinessSetting;
     use App\Support\AppShellNav;
-    use App\Support\TenantDisplayName;
+    use App\Support\BusinessSettingDisplayName;
 
     $tenant = \App\Business\BusinessContext::get() ?? BusinessSetting::query()->find(1);
     $branch = $branch ?? request()->route('branch');
@@ -13,8 +13,8 @@
     }
     $locale = app()->getLocale();
     $dir = config("locales.supported.{$locale}.dir", 'ltr');
-    $active = AppShellNav::tenantActiveTab();
-    $displayName = $tenant ? TenantDisplayName::for($tenant, $locale) : config('app.name');
+    $active = AppShellNav::activeTab();
+    $displayName = $tenant ? BusinessSettingDisplayName::for($tenant, $locale) : config('app.name');
     $logoUrl = $tenant ? data_get($tenant->settings, 'theme.logo_url') : null;
     $logoAltKey = 'plumber.logo_alt';
     $colors = $tenant?->themeColors() ?? [];

@@ -4,7 +4,7 @@ use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\BusinessSetting;
 use App\Models\StaffUser;
-use Database\Seeders\DemoFancyCoffeeSeeder;
+use Database\Seeders\DemoStaffSeeder;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Livewire;
 use App\Livewire\Catalog\MenuManager;
@@ -15,7 +15,7 @@ afterEach(function () {
 
 beforeEach(function () {
     $this->withoutVite();
-    (new DemoFancyCoffeeSeeder)->run();
+    (new DemoStaffSeeder)->run();
     $this->tenant = BusinessSetting::singleton();
     $this->owner = StaffUser::query()
         ->where('email', 'owner@fancy-coffee.test')->firstOrFail();

@@ -79,13 +79,13 @@ class StaffPasswordReset
     }
 
     $created = Carbon::parse($record->created_at);
-    $expiry = (int) config('auth.passwords.tenant_users.expire', 60);
+    $expiry = (int) config('auth.passwords.staff_users.expire', 60);
 
     return $created->addMinutes($expiry)->isFuture();
   }
 
   protected function table(): string
   {
-    return (string) config('auth.passwords.tenant_users.table', 'password_reset_tokens');
+    return (string) config('auth.passwords.staff_users.table', 'password_reset_tokens');
   }
 }

@@ -7,8 +7,8 @@ use App\Models\BusinessSetting;
 use App\Rules\SaudiVatNumber;
 use App\Services\Business\BusinessSettingsService;
 use App\Support\Geo\GeoMapsUrl;
-use App\Support\TenantBusinessHours;
-use App\Support\TenantBusinessProfile;
+use App\Support\BusinessHours;
+use App\Support\BusinessProfile;
 use App\Support\Upload\LogoUploadConstraints;
 use Illuminate\Support\Facades\Log;
 use App\Business\BusinessContext;
@@ -208,7 +208,7 @@ class BusinessSettings extends Component
             'displayNameBn' => 'nullable|string|max:160',
             'taglineEn' => 'nullable|string|max:240',
             'taglineAr' => 'nullable|string|max:240',
-            'brandColorKey' => ['required', Rule::in(array_keys(TenantBusinessProfile::brandColorOptions($tenant)))],
+            'brandColorKey' => ['required', Rule::in(array_keys(BusinessProfile::brandColorOptions($tenant)))],
             'logoUpload' => LogoUploadConstraints::componentRules(),
         ];
         try {
@@ -365,7 +365,7 @@ class BusinessSettings extends Component
         $this->section = 'hours';
         $this->resetErrorBag();
         $this->tabsWithErrors = [];
-        $this->weekdays = TenantBusinessProfile::normalizeWeekdays($this->weekdays);
+        $this->weekdays = BusinessProfile::normalizeWeekdays($this->weekdays);
         try {
             $this->runSectionValidation([
             'hoursNote' => 'nullable|string|max:500',
@@ -421,7 +421,7 @@ class BusinessSettings extends Component
 
         return view('livewire.admin.business-settings', [
             'tenant' => $tenant,
-            'colorOptions' => TenantBusinessProfile::brandColorOptions($tenant),
+            'colorOptions' => BusinessProfile::brandColorOptions($tenant),
             'teamUrl' => route('admin.team'),
         ]);
     }
@@ -458,7 +458,7 @@ class BusinessSettings extends Component
             return (string) round((float) $value, 6);
         }
 
-        return TenantBusinessProfile::scalarString($value);
+        return BusinessProfile::scalarString($value);
     }
 
     private function hydrateFromTenant(BusinessSetting $tenant): void
@@ -475,7 +475,7 @@ class BusinessSettings extends Component
         $this->displayNameBn = (string) ($brand['display_name_bn'] ?? '');
         $this->taglineEn = (string) ($brand['tagline_en'] ?? '');
         $this->taglineAr = (string) ($brand['tagline_ar'] ?? '');
-        $this->brandColorKey = (string) ($brand['brand_color_key'] ?? TenantBusinessProfile::primaryColorKey($tenant));
+        $this->brandColorKey = (string) ($brand['brand_color_key'] ?? BusinessProfile::primaryColorKey($tenant));
         $this->currentLogo = data_get($settings, 'theme.logo_url');
 
         $this->legalNameEn = (string) ($legal['name_en'] ?? '');
@@ -505,17 +505,17 @@ class BusinessSettings extends Component
         $this->lng = (string) ($contact['lng'] ?? '');
 
         $storedWeekdays = $hours['weekdays'] ?? null;
-        $weekdays = TenantBusinessProfile::normalizeWeekdays($storedWeekdays);
+        $weekdays = BusinessProfile::normalizeWeekdays($storedWeekdays);
         if ($storedWeekdays === null || $storedWeekdays === []) {
-            $inferred = TenantBusinessHours::weekdaysFromLegacyRows(
-                (array) (TenantBusinessProfile::contentSlice($tenant)['hours'] ?? []),
+            $inferred = BusinessHours::weekdaysFromLegacyRows(
+                (array) (BusinessProfile::contentSlice($tenant)['hours'] ?? []),
             );
             if ($inferred !== null) {
-                $weekdays = TenantBusinessProfile::normalizeWeekdays($inferred);
+                $weekdays = BusinessProfile::normalizeWeekdays($inferred);
             }
         }
         $this->weekdays = $weekdays;
-        $this->hoursNote = TenantBusinessProfile::scalarString($hours['note'] ?? '');
+        $this->hoursNote = BusinessProfile::scalarString($hours['note'] ?? '');
 
         $this->plumberEmergency = (bool) ($extras['emergency_24_7'] ?? false);
         $this->plumberLicense = (string) ($extras['license_number'] ?? '');

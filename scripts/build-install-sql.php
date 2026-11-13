@@ -58,8 +58,12 @@ function sqliteSchemaToMysql(string $sql): string
     ) ?? $sql;
 
     $sql = preg_replace_callback(
-        '/^(CREATE TABLE\b[\s\S]*?\)\s*);(\s*(?:\n|$))/mi',
-        static fn (array $m): string => $m[1].') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;'.$m[2],
+        '/CREATE TABLE IF NOT EXISTS[^;]+;/i',
+        static function (array $m): string {
+            $stmt = rtrim($m[0], ";\n\r ");
+
+            return $stmt.' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;';
+        },
         $sql
     ) ?? $sql;
 

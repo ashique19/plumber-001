@@ -6,13 +6,13 @@ use App\Models\BusinessSetting;
 use App\Models\StaffUser;
 use App\Services\Operations\BranchAdminService;
 use App\Business\BusinessContext;
-use Database\Seeders\DemoFancyCoffeeSeeder;
+use Database\Seeders\DemoStaffSeeder;
 use Livewire\Livewire;
 use Spatie\Permission\PermissionRegistrar;
 
 beforeEach(function () {
     $this->withoutVite();
-    (new DemoFancyCoffeeSeeder)->run();
+    (new DemoStaffSeeder)->run();
     $this->tenant = BusinessSetting::query()->firstOrFail();
         $this->owner = StaffUser::query()
         ->where('email', 'owner@fancy-coffee.test')->firstOrFail();

@@ -1,6 +1,6 @@
 # Browser E2E (Playwright)
 
-Real clicks against Laravel served on **MySQL** with `DemoFancyCoffeeSeeder`.
+Real clicks against Laravel served on **MySQL** with `DemoStaffSeeder`.
 
 ## Run
 

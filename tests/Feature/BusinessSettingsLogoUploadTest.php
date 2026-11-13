@@ -4,13 +4,13 @@ use App\Livewire\Admin\BusinessSettings;
 use App\Models\BusinessSetting;
 use App\Models\StaffUser;
 use App\Support\Upload\LogoUploadConstraints;
-use Database\Seeders\DemoFancyCoffeeSeeder;
+use Database\Seeders\DemoStaffSeeder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\File;
 use Livewire\Livewire;
 
 beforeEach(function () {
-    (new DemoFancyCoffeeSeeder)->run();
+    (new DemoStaffSeeder)->run();
     $this->cafe = BusinessSetting::query()->firstOrFail();
     $this->owner = StaffUser::query()
         ->where('email', 'owner@fancy-coffee.test')->firstOrFail();
@@ -56,7 +56,7 @@ it('persists logo via saveBrand independent of client resize', function () {
 
     $logoUrl = data_get($fresh->fresh()->settings, 'theme.logo_url');
     expect($logoUrl)->not->toBeNull()
-        ->and($logoUrl)->toStartWith('img/tenants/')
+        ->and($logoUrl)->toStartWith('img/business/')
         ->and(File::exists(public_path($logoUrl)))->toBeTrue();
 });
 
@@ -69,7 +69,7 @@ it('marks logo awaiting save after temp upload', function () {
 it('dispatches business-logo-removed when logo is cleared', function () {
     $fresh = $this->cafe->fresh();
     $settings = $fresh->settings ?? [];
-    data_set($settings, 'theme.logo_url', 'img/tenants/'.$fresh->id.'/logo-test.webp');
+    data_set($settings, 'theme.logo_url', 'img/business/'.$fresh->id.'/logo-test.webp');
     $fresh->forceFill(['settings' => $settings])->save();
 
     Livewire::test(BusinessSettings::class)

@@ -65,7 +65,6 @@ class PosOrderService
 
         $modifiers = ProductModifier::query()
             ->whereIn('id', $modifierIds)
-            ->where('tenant_id', $order->tenant_id)
             ->where('is_active', true)
             ->get();
 
@@ -287,7 +286,7 @@ class PosOrderService
     {
         $seq = PosOrder::query()
             ->withoutGlobalScopes()
-            ->where('tenant_id', $branch->tenant_id)
+            ->where('branch_id', $branch->id)
             ->whereDate('created_at', today())
             ->count() + 1;
 

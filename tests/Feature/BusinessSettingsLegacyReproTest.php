@@ -5,12 +5,12 @@ use App\Models\BusinessSetting;
 use App\Models\StaffUser;
 use App\Services\Business\BusinessSettingsService;
 use App\Support\Themes\PlumberThemePreset;
-use Database\Seeders\DemoFancyCoffeeSeeder;
+use Database\Seeders\DemoStaffSeeder;
 use Livewire\Livewire;
 
 beforeEach(function () {
     $this->withoutVite();
-    (new DemoFancyCoffeeSeeder)->run();
+    (new DemoStaffSeeder)->run();
     $this->cafe = BusinessSetting::singleton();
     $this->owner = StaffUser::query()
         ->where('email', 'owner@fancy-coffee.test')->firstOrFail();

@@ -8,12 +8,12 @@ use App\Models\BusinessSetting;
 use App\Models\StaffUser;
 use App\Services\Pos\PosCheckoutService;
 use App\Business\BusinessContext;
-use Database\Seeders\DemoFancyCoffeeSeeder;
+use Database\Seeders\DemoStaffSeeder;
 use Livewire\Livewire;
 
 beforeEach(function () {
     $this->withoutVite();
-    (new DemoFancyCoffeeSeeder)->run();
+    (new DemoStaffSeeder)->run();
     $this->tenant = BusinessSetting::singleton();
     $this->branch = Branch::query()
         ->where('code', 'jad-main')->firstOrFail();

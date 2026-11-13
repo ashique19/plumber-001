@@ -13,7 +13,7 @@ it('ships admin location picker alpine component in the app bundle', function ()
 });
 
 it('renders location picker x-data on business contact section', function () {
-    (new Database\Seeders\DemoFancyCoffeeSeeder)->run();
+    (new Database\Seeders\DemoStaffSeeder)->run();
     $tenant = App\Models\BusinessSetting::query()->firstOrFail();
     $owner = App\Models\StaffUser::query()
         ->where('email', 'owner@fancy-coffee.test')->firstOrFail();

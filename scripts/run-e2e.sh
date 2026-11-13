@@ -32,7 +32,7 @@ if [[ -z "${APP_KEY:-}" ]]; then
 fi
 
 echo "Migrating and seeding MySQL (${DB_DATABASE})..."
-php artisan migrate:fresh --force --seeder=DemoFancyCoffeeSeeder
+php artisan migrate:fresh --force --seeder=DemoStaffSeeder
 
 if pgrep -f "artisan serve.*${E2E_PORT}" >/dev/null; then
   echo "Stopping existing artisan serve on :${E2E_PORT} (refresh env after migrate)"

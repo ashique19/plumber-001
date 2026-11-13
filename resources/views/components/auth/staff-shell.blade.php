@@ -1,10 +1,10 @@
-@props(['tenant', 'title'])
+@props(['business', 'title'])
 @php
     $locale = app()->getLocale();
     $dir = config("locales.supported.{$locale}.dir", 'ltr');
-    $displayName = \App\Support\TenantDisplayName::for($tenant, $locale);
-    $colors = $tenant->themeColors();
-    $logoUrl = data_get($tenant->settings, 'theme.logo_url');
+    $displayName = \App\Support\BusinessSettingDisplayName::for($business, $locale);
+    $colors = $business->themeColors();
+    $logoUrl = data_get($business->settings, 'theme.logo_url');
     $hero = asset('images/plumber/hero.webp');
 @endphp
 <!DOCTYPE html>
@@ -24,7 +24,7 @@
     <meta name="color-scheme" content="light dark">
     <title>{{ $title }} — {{ $displayName }}</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    @vite(['resources/css/app.css', 'resources/css/plumber-premium.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="auth-shell min-h-dvh font-sans text-plumber-navy antialiased plumber-auth">
     <div class="auth-shell__bg" aria-hidden="true">

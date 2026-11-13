@@ -1,6 +1,6 @@
-<x-auth.tenant-shell :tenant="$business" :title="__('pos.login_title')">
+<x-auth.staff-shell :business="$business" :title="__('pos.login_title')">
     <h1 class="text-xl font-bold text-cafe-espresso sm:text-2xl">{{ __('pos.login_title') }}</h1>
-    <p class="mt-1 text-sm text-cafe-mocha">{{ data_get($business->settings, 'legal_entity.name_en', $business->name) }}</p>
+    <p class="mt-1 text-sm text-plumber-steel">{{ data_get($business->settings, 'legal_entity.name_en', $business->name) }}</p>
 
     <form method="POST" action="{{ route('login.store') }}" class="mt-6 space-y-4">
         @csrf
@@ -38,10 +38,10 @@
                 <input type="checkbox" name="remember" class="auth-checkbox">
                 {{ __('pos.remember') }}
             </label>
-            <a href="{{ route('admin.password.request') }}" class="min-h-11 inline-flex items-center font-medium text-cafe-mocha underline-offset-4 hover:underline">
+            <a href="{{ route('password.request') }}" class="min-h-11 inline-flex items-center font-medium text-plumber-steel underline-offset-4 hover:underline">
                 {{ __('auth.forgot_password') }}
             </a>
         </div>
         <button type="submit" class="tap-action-primary w-full">{{ __('pos.sign_in') }}</button>
     </form>
-</x-auth.tenant-shell>
+</x-auth.staff-shell>

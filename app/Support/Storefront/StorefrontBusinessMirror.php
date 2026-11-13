@@ -3,8 +3,8 @@
 namespace App\Support\Storefront;
 
 use App\Models\BusinessSetting;
-use App\Support\TenantBusinessHours;
-use App\Support\TenantBusinessProfile;
+use App\Support\BusinessHours;
+use App\Support\BusinessProfile;
 
 /**
  * Publishes settings.business onto legacy content.* blocks.
@@ -21,10 +21,10 @@ final class StorefrontBusinessMirror
         $stored = (array) data_get($settings, 'business', []);
 
         $hours = (array) ($stored['hours'] ?? []);
-        $weekdays = TenantBusinessProfile::normalizeWeekdays((array) ($hours['weekdays'] ?? []));
+        $weekdays = BusinessProfile::normalizeWeekdays((array) ($hours['weekdays'] ?? []));
         if ($weekdays !== []) {
-            $note = TenantBusinessProfile::scalarString($hours['note'] ?? '');
-            $content['hours'] = TenantBusinessHours::toLegacyRows(
+            $note = BusinessProfile::scalarString($hours['note'] ?? '');
+            $content['hours'] = BusinessHours::toLegacyRows(
                 $weekdays,
                 filled($note) ? $note : null,
             );
@@ -41,8 +41,8 @@ final class StorefrontBusinessMirror
             $content['contact'] = $legacyContact;
         }
 
-        $lat = TenantBusinessProfile::scalarString($contact['lat'] ?? '');
-        $lng = TenantBusinessProfile::scalarString($contact['lng'] ?? '');
+        $lat = BusinessProfile::scalarString($contact['lat'] ?? '');
+        $lng = BusinessProfile::scalarString($contact['lng'] ?? '');
         if ($lat !== '' && $lng !== '' && is_numeric($lat) && is_numeric($lng)) {
             $content['location'] = array_merge((array) ($content['location'] ?? []), [
                 'lat' => round((float) $lat, 6),
@@ -77,14 +77,14 @@ final class StorefrontBusinessMirror
     public static function persistToContent(BusinessSetting $business, array &$settings): void
     {
         $stored = (array) data_get($settings, 'business', []);
-        $contentKey = TenantBusinessProfile::contentKey($business);
+        $contentKey = BusinessProfile::contentKey($business);
         $content = (array) data_get($settings, $contentKey, []);
 
         $hours = (array) ($stored['hours'] ?? []);
-        $weekdays = TenantBusinessProfile::normalizeWeekdays((array) ($hours['weekdays'] ?? []));
+        $weekdays = BusinessProfile::normalizeWeekdays((array) ($hours['weekdays'] ?? []));
         if ($weekdays !== []) {
-            $note = TenantBusinessProfile::scalarString($hours['note'] ?? '');
-            $content['hours'] = TenantBusinessHours::toLegacyRows(
+            $note = BusinessProfile::scalarString($hours['note'] ?? '');
+            $content['hours'] = BusinessHours::toLegacyRows(
                 $weekdays,
                 filled($note) ? $note : null,
             );
@@ -99,8 +99,8 @@ final class StorefrontBusinessMirror
         }
         $content['contact'] = $legacyContact;
 
-        $lat = TenantBusinessProfile::scalarString($contact['lat'] ?? '');
-        $lng = TenantBusinessProfile::scalarString($contact['lng'] ?? '');
+        $lat = BusinessProfile::scalarString($contact['lat'] ?? '');
+        $lng = BusinessProfile::scalarString($contact['lng'] ?? '');
         if ($lat !== '' && $lng !== '' && is_numeric($lat) && is_numeric($lng)) {
             $content['location'] = array_merge((array) ($content['location'] ?? []), [
                 'lat' => round((float) $lat, 6),

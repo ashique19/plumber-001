@@ -7,7 +7,7 @@ use App\Models\BusinessSetting;
 /**
  * Canonical read/write paths for business profile stored under settings.business.
  */
-final class TenantBusinessProfile
+final class BusinessProfile
 {
   /**
    * @return array<string, mixed>

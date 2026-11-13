@@ -4,13 +4,13 @@ use App\Livewire\Concerns\DispatchesToasts;
 use App\Models\Branch;
 use App\Models\BusinessSetting;
 use App\Models\StaffUser;
-use Database\Seeders\DemoFancyCoffeeSeeder;
+use Database\Seeders\DemoStaffSeeder;
 use Livewire\Component;
 use Livewire\Livewire;
 
 beforeEach(function () {
     $this->withoutVite();
-    (new DemoFancyCoffeeSeeder)->run();
+    (new DemoStaffSeeder)->run();
     $this->tenant = BusinessSetting::singleton();
     $this->branch = Branch::query()->where('code', 'jad-main')->firstOrFail();
     $this->owner = StaffUser::query()

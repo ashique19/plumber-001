@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Route;
 
 final class AppShellNav
 {
-    public static function tenantActiveTab(): string
+    public static function activeTab(): string
     {
         $name = Route::currentRouteName() ?? '';
 
