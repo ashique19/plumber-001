@@ -282,6 +282,26 @@ class BusinessSettingsService
     }
 
     /**
+     * @param  array{integration_enabled?: bool}  $input
+     */
+    public function saveInvoicing(BusinessSetting $business, array $input, ?StaffUser $actor = null): BusinessSetting
+    {
+        $settings = $business->settings ?? BusinessSetting::defaultSettings();
+        $invoicing = (array) ($settings['invoicing'] ?? BusinessSetting::defaultSettings()['invoicing']);
+        if (array_key_exists('integration_enabled', $input)) {
+            $invoicing['integration_enabled'] = (bool) $input['integration_enabled'];
+        }
+        $settings['invoicing'] = $invoicing;
+
+        $business->forceFill(['settings' => $settings])->save();
+        $this->audit->record($business, 'business.settings.invoicing', [
+            'integration_enabled' => $invoicing['integration_enabled'] ?? false,
+        ], $actor);
+
+        return $business->fresh();
+    }
+
+    /**
      * @param  array<string, mixed>  $input
      */
     public function saveThemeExtras(BusinessSetting $business, array $input, ?StaffUser $actor = null): BusinessSetting

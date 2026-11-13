@@ -90,6 +90,16 @@ class InvoiceIssueService
             $payloadMerge['zheart_request_id'] = $signed['request_id'];
         }
 
+        if (! empty($signed['remote_submission'])) {
+            $payloadMerge['zheart_zatca'] = $signed['remote_submission'];
+        }
+
+        if (filled($signed['reporting_status'] ?? null)) {
+            $payloadMerge['zheart_reporting_status'] = $signed['reporting_status'];
+        }
+
+        $payloadMerge['zheart_remote_submitted'] = (bool) ($signed['remote_submitted'] ?? false);
+
         $invoice->forceFill([
             'status' => InvoiceStatus::Issued,
             'icv' => $signed['icv'],

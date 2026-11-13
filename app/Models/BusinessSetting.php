@@ -86,7 +86,15 @@ class BusinessSetting extends Model
 
   public function invoicingIntegrationEnabled(): bool
   {
-    return (bool) data_get($this->settings, 'invoicing.integration_enabled', false);
+    $stored = data_get($this->settings, 'invoicing.integration_enabled');
+
+    if ($stored === null) {
+      $key = config('zheart.api_key');
+
+      return is_string($key) && $key !== '';
+    }
+
+    return (bool) $stored;
   }
 
   public function defaultInvoiceDocumentType(): InvoiceDocumentType
