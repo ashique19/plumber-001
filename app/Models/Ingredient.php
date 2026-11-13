@@ -56,7 +56,7 @@ class Ingredient extends Model
             );
         }
 
-        return (string) ($this->name_en ?: $this->name);
+        return (string) $this->name_en;
     }
 
     public function isLowStock(): bool
