@@ -19,7 +19,7 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist
       - name: Run suite (sqlite, excluding InstallSql MySQL testsuite)
-        run: php artisan test --testsuite=Unit --testsuite=Feature
+        run: vendor/bin/pest --testsuite=Unit,Feature
 
   install-sql-mysql:
     runs-on: ubuntu-latest
