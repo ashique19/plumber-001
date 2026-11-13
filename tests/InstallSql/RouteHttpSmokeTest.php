@@ -42,11 +42,21 @@ afterEach(function () {
     BusinessContext::clear();
 });
 
+/**
+ * @param  \Illuminate\Testing\TestResponse|\Symfony\Component\HttpFoundation\Response  $response
+ */
+function installSqlSmokeResponseStatus($response): int
+{
+  return $response instanceof \Illuminate\Testing\TestResponse
+      ? $response->status()
+      : $response->getStatusCode();
+}
+
 it('serves every GET route as a guest without a server error', function () {
     foreach ($this->routes as [$url, $name]) {
         $response = $this->get($url);
 
-        expect($response->status())
+        expect(installSqlSmokeResponseStatus($response))
             ->not->toBe(500, "Guest GET {$url}".($name ? " ({$name})" : '').' must not return 500');
     }
 });
@@ -57,7 +67,7 @@ it('serves every GET route as the owner without a server error', function () {
     foreach ($this->routes as [$url, $name]) {
         $response = $this->get($url);
 
-        expect($response->status())
+        expect(installSqlSmokeResponseStatus($response))
             ->not->toBe(500, "Owner GET {$url}".($name ? " ({$name})" : '').' must not return 500');
     }
 });

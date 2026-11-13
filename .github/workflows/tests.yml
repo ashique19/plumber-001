@@ -65,5 +65,5 @@ jobs:
           done
       - name: install.sql parity and MySQL route smoke
         run: |
-          php artisan test tests/Feature/InstallSqlMigrationParityTest.php
-          php artisan test --testsuite=InstallSql
+          vendor/bin/pest tests/Feature/InstallSqlMigrationParityTest.php
+          vendor/bin/pest --testsuite=InstallSql

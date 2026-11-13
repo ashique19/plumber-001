@@ -75,6 +75,15 @@ final class HttpRouteSmokeCatalog
             return ['token' => 'install-sql-smoke-token'];
         }
 
+        if ($name === 'admin.reports.export') {
+            $today = now()->toDateString();
+
+            return [
+                'from' => now()->subDays(7)->toDateString(),
+                'to' => $today,
+            ];
+        }
+
         if (str_contains($uri, '{branch}')) {
             if ($branch->getKey() === null) {
                 return null;

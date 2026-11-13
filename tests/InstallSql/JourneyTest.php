@@ -103,6 +103,7 @@ it('creates catalog products and categories on install.sql schema', function () 
         ->call('saveCategory')
         ->call('startProduct')
         ->set('productNameEn', 'Install SQL Service')
+        ->set('productNameAr', 'خدمة اختبار SQL')
         ->set('productPriceInput', '115.00')
         ->set('productVatRate', 15)
         ->call('saveProduct')
@@ -138,7 +139,10 @@ it('lists invoices and serves print surfaces on install.sql schema', function ()
 
     $this->actingAs($this->owner, 'staff')
         ->get(route('admin.invoices.print', [$invoice]))
-        ->assertOk();
+        ->assertRedirect(route('admin.pos.receipt', [
+            'order' => $order,
+            'locale' => 'ar',
+        ]));
 
     $this->actingAs($this->owner, 'staff')
         ->get(route('admin.pos.receipt', ['order' => $order, 'locale' => 'ar']))
@@ -183,6 +187,9 @@ it('accepts forgot-password posts without server error', function () {
 
 it('exports reports csv for owner on install.sql schema', function () {
     $this->actingAs($this->owner, 'staff')
-        ->get(route('admin.reports.export'))
+        ->get(route('admin.reports.export', [
+            'from' => now()->subDays(7)->toDateString(),
+            'to' => now()->toDateString(),
+        ]))
         ->assertOk();
 });
