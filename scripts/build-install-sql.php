@@ -73,6 +73,264 @@ function sqliteSchemaToMysql(string $sql): string
         $sql
     ) ?? $sql;
 
+    return applyMysqlColumnOverrides($sql);
+}
+
+function applyMysqlColumnOverrides(string $sql): string
+{
+    $jsonTables = [
+        'customers' => ['profile'],
+        'invoices' => ['payload'],
+        'invoice_audit_logs' => ['context'],
+        'pos_orders' => ['line_items', 'metadata'],
+        'loyalty_transactions' => ['metadata'],
+        'shifts' => ['metadata'],
+        'business_settings_audit_logs' => ['snapshot'],
+    ];
+
+    foreach ($jsonTables as $table => $columns) {
+        foreach ($columns as $column) {
+            $sql = preg_replace(
+                "/(CREATE TABLE IF NOT EXISTS `{$table}`[\s\S]*?`{$column}`)\s+TEXT/i",
+                '$1 JSON',
+                $sql,
+                1
+            ) ?? $sql;
+        }
+    }
+
+    $decimal12_3Tables = [
+        'ingredients' => ['quantity_on_hand', 'reorder_level', 'low_stock_threshold'],
+        'inventory_movements' => ['quantity_delta'],
+        'recipe_ingredients' => ['quantity'],
+        'product_ingredients' => ['quantity_per_unit'],
+    ];
+
+    foreach ($decimal12_3Tables as $table => $columns) {
+        $sql = preg_replace_callback(
+            "/CREATE TABLE IF NOT EXISTS `{$table}`[\s\S]*?ENGINE=InnoDB[^;]*;/i",
+            static function (array $m) use ($columns): string {
+                $block = $m[0];
+                foreach ($columns as $column) {
+                    $block = preg_replace(
+                        "/(`{$column}`)\s+DECIMAL\(12,2\)/i",
+                        '$1 DECIMAL(12,3)',
+                        $block,
+                        1
+                    ) ?? $block;
+                }
+
+                return $block;
+            },
+            $sql,
+            1
+        ) ?? $sql;
+    }
+
+    $sql = preg_replace_callback(
+        '/CREATE TABLE IF NOT EXISTS `ingredients`[\s\S]*?ENGINE=InnoDB[^;]*;/i',
+        static function (array $m): string {
+            $block = $m[0];
+            $block = preg_replace('/`name_en`\s+VARCHAR\(255\)/', '`name_en` VARCHAR(160) NOT NULL', $block, 1) ?? $block;
+            $block = preg_replace('/`name_ar`\s+VARCHAR\(255\)/', '`name_ar` VARCHAR(160)', $block, 1) ?? $block;
+            $block = preg_replace('/`name_bn`\s+VARCHAR\(255\)/', '`name_bn` VARCHAR(160)', $block, 1) ?? $block;
+            $block = preg_replace('/`unit`\s+VARCHAR\(255\)/', '`unit` VARCHAR(16) NOT NULL', $block, 1) ?? $block;
+
+            return $block;
+        },
+        $sql,
+        1
+    ) ?? $sql;
+
+    $sql = preg_replace_callback(
+        '/CREATE TABLE IF NOT EXISTS `inventory_movements`[\s\S]*?ENGINE=InnoDB[^;]*;/i',
+        static function (array $m): string {
+            $block = $m[0];
+            $block = preg_replace('/`type`\s+VARCHAR\(255\)/', '`type` VARCHAR(32) NOT NULL', $block, 1) ?? $block;
+            $block = preg_replace('/`reason`\s+VARCHAR\(255\)/', '`reason` VARCHAR(32)', $block, 1) ?? $block;
+
+            return $block;
+        },
+        $sql,
+        1
+    ) ?? $sql;
+
+    $sql = preg_replace_callback(
+        '/CREATE TABLE IF NOT EXISTS `product_categories`[\s\S]*?ENGINE=InnoDB[^;]*;/i',
+        static function (array $m): string {
+            $block = $m[0];
+            $block = preg_replace('/`name_bn`\s+VARCHAR\(255\)/', '`name_bn` VARCHAR(120)', $block, 1) ?? $block;
+            $block = preg_replace('/`icon_key`\s+VARCHAR\(255\)/', '`icon_key` VARCHAR(32)', $block, 1) ?? $block;
+
+            return $block;
+        },
+        $sql,
+        1
+    ) ?? $sql;
+
+    $sql = preg_replace_callback(
+        '/CREATE TABLE IF NOT EXISTS `products`[\s\S]*?ENGINE=InnoDB[^;]*;/i',
+        static function (array $m): string {
+            $block = $m[0];
+            $block = preg_replace('/`item_type`\s+VARCHAR\(255\)/', '`item_type` VARCHAR(16)', $block, 1) ?? $block;
+            $block = preg_replace('/`name_bn`\s+VARCHAR\(255\)/', '`name_bn` VARCHAR(160)', $block, 1) ?? $block;
+
+            return $block;
+        },
+        $sql,
+        1
+    ) ?? $sql;
+
+    $sql = preg_replace_callback(
+        '/CREATE TABLE IF NOT EXISTS `branches`[\s\S]*?ENGINE=InnoDB[^;]*;/i',
+        static function (array $m): string {
+            $block = $m[0];
+            $block = preg_replace('/`code`\s+VARCHAR\(255\)/', '`code` VARCHAR(32) NOT NULL', $block, 1) ?? $block;
+
+            return $block;
+        },
+        $sql,
+        1
+    ) ?? $sql;
+
+    $sql = preg_replace_callback(
+        '/CREATE TABLE IF NOT EXISTS `sessions`[\s\S]*?ENGINE=InnoDB[^;]*;/i',
+        static function (array $m): string {
+            $block = $m[0];
+            $block = preg_replace('/`ip_address`\s+VARCHAR\(255\)/', '`ip_address` VARCHAR(45)', $block, 1) ?? $block;
+
+            return $block;
+        },
+        $sql,
+        1
+    ) ?? $sql;
+
+    $sql = preg_replace_callback(
+        '/CREATE TABLE IF NOT EXISTS `staff_users`[\s\S]*?ENGINE=InnoDB[^;]*;/i',
+        static function (array $m): string {
+            $block = $m[0];
+            $block = preg_replace('/`remember_token`\s+VARCHAR\(255\)/', '`remember_token` VARCHAR(100)', $block, 1) ?? $block;
+
+            return $block;
+        },
+        $sql,
+        1
+    ) ?? $sql;
+
+    $sql = preg_replace_callback(
+        '/CREATE TABLE IF NOT EXISTS `invoices`[\s\S]*?ENGINE=InnoDB[^;]*;/i',
+        static function (array $m): string {
+            $block = $m[0];
+            $block = preg_replace('/`document_type`\s+VARCHAR\(255\)/', '`document_type` VARCHAR(32) NOT NULL', $block, 1) ?? $block;
+            $block = preg_replace('/`status`\s+VARCHAR\(255\)/', '`status` VARCHAR(32)', $block, 1) ?? $block;
+            $block = preg_replace('/`source_type`\s+VARCHAR\(255\)/', '`source_type` VARCHAR(64)', $block, 1) ?? $block;
+            $block = preg_replace('/`invoice_hash`\s+VARCHAR\(255\)/', '`invoice_hash` VARCHAR(512)', $block, 1) ?? $block;
+            $block = preg_replace('/`previous_invoice_hash`\s+VARCHAR\(255\)/', '`previous_invoice_hash` VARCHAR(512)', $block, 1) ?? $block;
+            $block = preg_replace('/`signed_xml`\s+TEXT/', '`signed_xml` LONGTEXT', $block, 1) ?? $block;
+            $block = preg_replace('/`icv`\s+BIGINT\b/', '`icv` BIGINT UNSIGNED', $block, 1) ?? $block;
+
+            return $block;
+        },
+        $sql,
+        1
+    ) ?? $sql;
+
+    $sql = preg_replace_callback(
+        '/CREATE TABLE IF NOT EXISTS `pos_orders`[\s\S]*?ENGINE=InnoDB[^;]*;/i',
+        static function (array $m): string {
+            $block = $m[0];
+            $block = preg_replace('/`status`\s+VARCHAR\(255\)/', '`status` VARCHAR(32)', $block, 1) ?? $block;
+            $block = preg_replace('/`payment_method`\s+VARCHAR\(255\)/', '`payment_method` VARCHAR(32)', $block, 1) ?? $block;
+
+            return $block;
+        },
+        $sql,
+        1
+    ) ?? $sql;
+
+    $sql = preg_replace_callback(
+        '/CREATE TABLE IF NOT EXISTS `loyalty_transactions`[\s\S]*?ENGINE=InnoDB[^;]*;/i',
+        static function (array $m): string {
+            $block = $m[0];
+            $block = preg_replace('/`type`\s+VARCHAR\(255\)/', '`type` VARCHAR(32) NOT NULL', $block, 1) ?? $block;
+            $block = preg_replace('/`points_delta`\s+BIGINT/', '`points_delta` INT NOT NULL', $block, 1) ?? $block;
+
+            return $block;
+        },
+        $sql,
+        1
+    ) ?? $sql;
+
+    $sql = preg_replace_callback(
+        '/CREATE TABLE IF NOT EXISTS `sessions`[\s\S]*?ENGINE=InnoDB[^;]*;/i',
+        static function (array $m): string {
+            $block = $m[0];
+            $block = preg_replace('/`payload`\s+TEXT/', '`payload` LONGTEXT NOT NULL', $block, 1) ?? $block;
+            $block = preg_replace('/`last_activity`\s+BIGINT/', '`last_activity` INT NOT NULL', $block, 1) ?? $block;
+
+            return $block;
+        },
+        $sql,
+        1
+    ) ?? $sql;
+
+    $sql = preg_replace_callback(
+        '/CREATE TABLE IF NOT EXISTS `customers`[\s\S]*?ENGINE=InnoDB[^;]*;/i',
+        static function (array $m): string {
+            $block = $m[0];
+            $block = preg_replace('/`vat_number`\s+VARCHAR\(255\)/', '`vat_number` VARCHAR(32)', $block, 1) ?? $block;
+            $block = preg_replace('/`referral_code`\s+VARCHAR\(255\)/', '`referral_code` VARCHAR(32)', $block, 1) ?? $block;
+            $block = preg_replace('/`points_balance`\s+BIGINT/', '`points_balance` BIGINT UNSIGNED', $block, 1) ?? $block;
+
+            return $block;
+        },
+        $sql,
+        1
+    ) ?? $sql;
+
+    foreach (['product_categories', 'products'] as $table) {
+        $sql = preg_replace_callback(
+            "/CREATE TABLE IF NOT EXISTS `{$table}`[\s\S]*?ENGINE=InnoDB[^;]*;/i",
+            static function (array $m): string {
+                $block = $m[0];
+                $block = preg_replace('/`sort_order`\s+BIGINT/', '`sort_order` SMALLINT UNSIGNED', $block, 1) ?? $block;
+
+                return $block;
+            },
+            $sql,
+            1
+        ) ?? $sql;
+    }
+
+    foreach (['products', 'product_modifiers'] as $table) {
+        $sql = preg_replace_callback(
+            "/CREATE TABLE IF NOT EXISTS `{$table}`[\s\S]*?ENGINE=InnoDB[^;]*;/i",
+            static function (array $m): string {
+                return preg_replace('/`vat_rate`\s+DECIMAL\(12,2\)/', '`vat_rate` DECIMAL(5,2)', $m[0], 1) ?? $m[0];
+            },
+            $sql,
+            1
+        ) ?? $sql;
+    }
+
+    $sql = preg_replace_callback(
+        '/CREATE TABLE IF NOT EXISTS `pos_orders`[\s\S]*?ENGINE=InnoDB[^;]*;/i',
+        static function (array $m): string {
+            $block = $m[0];
+            $block = preg_replace('/`loyalty_points_redeemed`\s+BIGINT/', '`loyalty_points_redeemed` BIGINT UNSIGNED', $block, 1) ?? $block;
+
+            return $block;
+        },
+        $sql,
+        1
+    ) ?? $sql;
+
+    $sql = preg_replace_callback(
+        '/\bCREATE (?:UNIQUE )?INDEX\b[\s\S]*?\)\s*ENGINE=InnoDB[^;]*;/i',
+        static fn (array $m): string => preg_replace('/\s+ENGINE=InnoDB[^;]+/i', '', $m[0]) ?? $m[0],
+        $sql
+    ) ?? $sql;
+
     return $sql;
 }
 
