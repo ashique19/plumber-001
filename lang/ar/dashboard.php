@@ -1,0 +1,31 @@
+<?php
+
+return [
+    'title' => 'لوحة التحكم',
+    'subtitle' => 'مبيعات اليوم والفواتير وحالة إرسال signing service لنشاطك.',
+    'nav' => 'الرئيسية',
+    'open_analytics' => 'تحليلات كاملة',
+    'signing_queue' => 'طابور signing service',
+    'today_orders' => 'طلبات اليوم',
+    'today_sales' => 'مبيعات اليوم',
+    'today_vat' => 'ضريبة اليوم',
+    'today_aov' => 'متوسط الطلب اليوم',
+    'sar' => 'ر.س',
+    'recent_sales' => 'مبيعات حديثة',
+    'last_7_days' => 'آخر 7 أيام',
+    'no_sales_yet' => 'لا طلبات مدفوعة في هذه الفترة بعد.',
+    'invoices_by_type' => 'الفواتير حسب النوع',
+    'invoices_issued_hint' => 'فواتير صادرة لهذا المستأجر (كل الفترات).',
+    'invoice_type' => [
+        'simplified' => 'مبسطة',
+        'standard' => 'قياسية',
+        'credit_note' => 'إشعارات دائنة',
+        'debit_note' => 'إشعارات مدينة',
+    ],
+    'signing_queue' => 'إرسالات signing service',
+    'signing_queue_hint' => 'نتائج الإبلاغ والمقاصة.',
+    'signing_pending' => 'قيد الانتظار',
+    'signing_reported' => 'مُبلَّغ / مقاص',
+    'signing_failed' => 'فشل',
+    'no_submissions' => 'لا إرسالات signing service بعد.',
+];

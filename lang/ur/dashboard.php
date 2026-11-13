@@ -1,0 +1,31 @@
+<?php
+
+return [
+    'title' => 'ڈیش بورڈ',
+    'subtitle' => 'آج کی فروخت، انوائسز، اور signing service جمع کرانے کی حیثیت۔',
+    'nav' => 'ڈیش بورڈ',
+    'open_analytics' => 'مکمل تجزیات',
+    'signing_queue' => 'signing service قطار',
+    'today_orders' => 'آج کے آرڈر',
+    'today_sales' => 'آج کی فروخت',
+    'today_vat' => 'آج کی VAT',
+    'today_aov' => 'آج کا اوسط آرڈر',
+    'sar' => 'SAR',
+    'recent_sales' => 'حالیہ فروخت',
+    'last_7_days' => 'آخری 7 دن',
+    'no_sales_yet' => 'اس مدت میں ابھی کوئی ادا شدہ آرڈر نہیں۔',
+    'invoices_by_type' => 'قسم کے لحاظ سے انوائسز',
+    'invoices_issued_hint' => 'جاری کردہ انوائسز (تمام عرصے)۔',
+    'invoice_type' => [
+        'simplified' => 'آسان',
+        'standard' => 'معیاری',
+        'credit_note' => 'کریڈٹ نوٹ',
+        'debit_note' => 'ڈیبٹ نوٹ',
+    ],
+    'signing_queue' => 'signing service جمع کرانے',
+    'signing_queue_hint' => 'رپورٹنگ اور کلیئرنس کے نتائج۔',
+    'signing_pending' => 'زیر التوا',
+    'signing_reported' => 'رپورٹ / کلیئر',
+    'signing_failed' => 'ناکام',
+    'no_submissions' => 'ابھی کوئی signing service جمع کرانا نہیں۔',
+];
