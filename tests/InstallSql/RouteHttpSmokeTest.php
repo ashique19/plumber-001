@@ -47,9 +47,7 @@ afterEach(function () {
  */
 function installSqlSmokeResponseStatus($response): int
 {
-  return $response instanceof \Illuminate\Testing\TestResponse
-      ? $response->status()
-      : $response->getStatusCode();
+    return $response->getStatusCode();
 }
 
 it('serves every GET route as a guest without a server error', function () {

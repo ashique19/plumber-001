@@ -141,7 +141,7 @@ it('lists invoices and serves print surfaces on install.sql schema', function ()
         ->get(route('admin.invoices.print', [$invoice]))
         ->assertRedirect(route('admin.pos.receipt', [
             'order' => $order,
-            'locale' => 'ar',
+            'locale' => app()->getLocale(),
         ]));
 
     $this->actingAs($this->owner, 'staff')
