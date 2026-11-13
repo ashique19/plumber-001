@@ -32,3 +32,4 @@ Thumbs.db
 .env.e2e
 tests/e2e/report/
 tests/e2e/test-results/
+public/img/business/
