@@ -18,8 +18,12 @@ return [
 
   /*
    | When true, simplified invoices are reported and standard invoices cleared via Z-Heart after sign.
+   | ZHEART_SUBMIT_TO_ZATCA is canonical; ZHEART_AUTO_SUBMIT is a legacy alias.
    */
-  'auto_submit_signed' => filter_var(env('ZHEART_AUTO_SUBMIT', false), FILTER_VALIDATE_BOOL),
+  'auto_submit_signed' => filter_var(
+      env('ZHEART_SUBMIT_TO_ZATCA', env('ZHEART_AUTO_SUBMIT', false)),
+      FILTER_VALIDATE_BOOL
+  ),
 
   'allow_seller_override' => filter_var(env('ZHEART_ALLOW_SELLER_OVERRIDE', false), FILTER_VALIDATE_BOOL),
 ];

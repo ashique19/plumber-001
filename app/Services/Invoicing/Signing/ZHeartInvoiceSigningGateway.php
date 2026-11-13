@@ -19,7 +19,12 @@ final class ZHeartInvoiceSigningGateway implements InvoiceSigningGateway
 
     public function signIssuedInvoice(InvoiceSigningRequest $request, Invoice $invoice): array
     {
-        $payload = $this->payloadBuilder->build($request);
+        try {
+            $payload = $this->payloadBuilder->build($request);
+        } catch (\InvalidArgumentException $e) {
+            throw new InvoiceSigningException($e->getMessage());
+        }
+
         $autoSubmitSigned = config('zheart.auto_submit_signed') && $request->business->invoicingIntegrationEnabled();
 
         try {
@@ -40,6 +45,17 @@ final class ZHeartInvoiceSigningGateway implements InvoiceSigningGateway
             throw InvoiceSigningException::signingFailed(context: 'Z-Heart response missing signed XML.');
         }
 
+        $zatca = is_array($data['zatca'] ?? null)
+            ? $data['zatca']
+            : (is_array($data['submission'] ?? null) ? $data['submission'] : null);
+
+        $reportingStatus = null;
+        if (is_array($zatca) && isset($zatca['status'])) {
+            $reportingStatus = (string) $zatca['status'];
+        } elseif (isset($data['reporting_status'])) {
+            $reportingStatus = (string) $data['reporting_status'];
+        }
+
         return [
             'xml' => $xml,
             'hash' => (string) ($data['invoice_hash'] ?? ''),
@@ -48,8 +64,8 @@ final class ZHeartInvoiceSigningGateway implements InvoiceSigningGateway
             'previous_invoice_hash' => (string) ($data['pih'] ?? ''),
             'invoice_uuid' => (string) ($data['uuid'] ?? $request->invoiceUuid),
             'remote_submitted' => $autoSubmitSigned,
-            'remote_submission' => is_array($data['submission'] ?? null) ? $data['submission'] : null,
-            'reporting_status' => isset($data['reporting_status']) ? (string) $data['reporting_status'] : null,
+            'remote_submission' => $zatca,
+            'reporting_status' => $reportingStatus,
             'cleared_xml' => isset($data['cleared_xml']) ? $this->decodeSignedXml((string) $data['cleared_xml']) : null,
             'request_id' => $result['request_id'] ?? null,
         ];

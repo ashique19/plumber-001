@@ -21,7 +21,7 @@ it('blocks updates to issued invoices', function () {
     $issuer = app(InvoiceIssueService::class);
     $line = [['name' => 'Service', 'quantity' => 1, 'unit_price_ex_vat' => 200, 'vat_rate' => 15]];
 
-    $invoice = $issuer->issueDraft($branch, 'INV-IM-1', InvoiceDocumentType::Standard, $line);
+    $invoice = $issuer->issueDraft($branch, 'INV-IM-1', InvoiceDocumentType::Simplified, $line);
     $invoice = $issuer->issue($invoice);
 
     expect(fn () => $invoice->update(['document_number' => 'HACKED']))
