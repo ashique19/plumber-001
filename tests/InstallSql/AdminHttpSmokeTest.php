@@ -26,7 +26,7 @@ beforeEach(function () {
 
     $this->business = BusinessSetting::singleton();
     BusinessContext::set($this->business);
-    $this->branch = Branch::query()->where('code', 'jad-main')->firstOrFail();
+    $this->branch = Branch::query()->where('code', 'ruh-main')->firstOrFail();
     $this->owner = StaffUser::query()->where('email', 'owner@example.test')->firstOrFail();
 });
 

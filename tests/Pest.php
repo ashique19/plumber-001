@@ -22,6 +22,7 @@ pest()->extend(TestCase::class)->in('Unit');
 
 pest()->extend(TestCase::class)
     ->use(FakesZHeartSigning::class)
+    ->group('install-sql')
     ->beforeEach(function () {
         $this->fakeZHeartSigning();
     })

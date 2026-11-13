@@ -2,7 +2,8 @@
 
 namespace Tests\Support;
 
-use Database\Seeders\DemoStaffSeeder;
+use Database\Seeders\OwnerAdminSeeder;
+use Database\Seeders\PlumberCatalogSeeder;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use PDO;
@@ -48,9 +49,12 @@ final class InstallSqlMysqlTestEnvironment
             return;
         }
 
+        InstallSqlRouteFixtures::reset();
         self::importInstallSql();
         self::applyLaravelMysqlConfig();
-        (new DemoStaffSeeder)->run();
+        (new OwnerAdminSeeder)->run();
+        (new PlumberCatalogSeeder)->run();
+        InstallSqlRouteFixtures::ensurePaidPosOrder();
         self::$bootstrapped = true;
     }
 
