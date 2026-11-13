@@ -18,8 +18,8 @@ jobs:
           coverage: none
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist
-      - name: Run suite (sqlite, excluding install-sql MySQL group)
-        run: php artisan test --exclude-group=install-sql
+      - name: Run suite (sqlite, excluding InstallSql MySQL testsuite)
+        run: php artisan test --testsuite=Unit --testsuite=Feature
 
   install-sql-mysql:
     runs-on: ubuntu-latest
@@ -66,4 +66,4 @@ jobs:
       - name: install.sql parity and MySQL route smoke
         run: |
           php artisan test tests/Feature/InstallSqlMigrationParityTest.php
-          php artisan test --group=install-sql
+          php artisan test --testsuite=InstallSql

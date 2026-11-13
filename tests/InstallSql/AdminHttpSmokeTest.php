@@ -9,8 +9,6 @@ use Illuminate\Support\Facades\DB;
 use Tests\Support\AuthenticatedRouteCatalog;
 use Tests\Support\InstallSqlMysqlTestEnvironment;
 
-uses(Tests\TestCase::class);
-
 beforeEach(function () {
     $this->withoutVite();
 

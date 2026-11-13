@@ -10,8 +10,6 @@ use Tests\Support\HttpRouteSmokeCatalog;
 use Tests\Support\InstallSqlMysqlTestEnvironment;
 use Tests\Support\InstallSqlRouteFixtures;
 
-uses(Tests\TestCase::class);
-
 beforeEach(function () {
     $this->withoutVite();
 
