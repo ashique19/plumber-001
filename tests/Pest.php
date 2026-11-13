@@ -19,3 +19,13 @@ pest()->extend(TestCase::class)
     ->in('Feature');
 
 pest()->extend(TestCase::class)->in('Unit');
+
+pest()->extend(TestCase::class)
+    ->use(FakesZHeartSigning::class)
+    ->beforeEach(function () {
+        $this->fakeZHeartSigning();
+    })
+    ->afterEach(function () {
+        BusinessContext::clear();
+    })
+    ->in('InstallSql');

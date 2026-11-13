@@ -72,7 +72,7 @@ class InventoryManager extends Component
         $this->authorizeManage();
         $ing = $this->query()->findOrFail($id);
         $this->editingId = $ing->id;
-        $this->nameEn = (string) ($ing->name_en ?: $ing->name);
+        $this->nameEn = (string) $ing->name_en;
         $this->nameAr = (string) ($ing->name_ar ?? '');
         $this->nameBn = (string) ($ing->name_bn ?? '');
         $this->unit = (string) $ing->unit;
@@ -179,7 +179,7 @@ class InventoryManager extends Component
     public function render(IngredientStockService $stock): View
     {
         $ingredients = $this->schemaReady
-            ? $this->query()->orderBy('name_en')->orderBy('name')->get()
+            ? $this->query()->orderBy('name_en')->get()
             : collect();
         $movements = IngredientInventorySchema::movementsReady()
             ? InventoryMovement::query()
