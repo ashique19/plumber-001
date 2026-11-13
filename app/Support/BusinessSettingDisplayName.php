@@ -14,7 +14,7 @@ final class BusinessSettingDisplayName
         $locale ??= app()->getLocale();
         $brand = data_get($business->settings, 'business.brand', []);
         $legal = data_get($business->settings, 'legal_entity', []);
-        $useRtlName = in_array($locale, ['ar', 'ur'], true);
+        $useRtlName = EnabledLocales::direction($locale) === 'rtl';
 
         if ($locale === 'bn' && filled($brand['display_name_bn'] ?? null)) {
             return (string) $brand['display_name_bn'];
@@ -27,6 +27,6 @@ final class BusinessSettingDisplayName
 
     public static function usesRtlName(?string $locale = null): bool
     {
-        return in_array($locale ?? app()->getLocale(), ['ar', 'ur'], true);
+        return EnabledLocales::direction($locale ?? app()->getLocale()) === 'rtl';
     }
 }

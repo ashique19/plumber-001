@@ -1,4 +1,7 @@
-<div class="business-settings-page pb-24 lg:pb-8 min-w-0 max-w-full overflow-x-hidden" dir="{{ in_array(app()->getLocale(), ['ar', 'ur'], true) ? 'rtl' : 'ltr' }}" x-data="{ sectionTab: @entangle('section').live }">
+@php
+    use App\Support\EnabledLocales;
+@endphp
+<div class="business-settings-page pb-24 lg:pb-8 min-w-0 max-w-full overflow-x-hidden" dir="{{ EnabledLocales::direction(app()->getLocale()) }}" x-data="{ sectionTab: @entangle('section').live }">
     <header class="mb-4 min-w-0">
         <h1 class="app-page-title break-words">{{ __('business.title') }}</h1>
         <p class="app-page-lead break-words">{{ __('business.subtitle') }}</p>

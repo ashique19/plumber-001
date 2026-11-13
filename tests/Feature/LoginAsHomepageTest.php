@@ -18,7 +18,9 @@ it('serves the staff login form at the site root', function () {
         ->assertSee('auth-shell__bg', false)
         ->assertSee('auth-glass-card', false)
         ->assertSee('name="email"', false)
-        ->assertSee('name="password"', false);
+        ->assertSee('name="password"', false)
+        ->assertDontSee('locale=ur', false)
+        ->assertDontSee('locale=hi', false);
 });
 
 it('authenticates staff via POST login and redirects into admin', function () {

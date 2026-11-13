@@ -11,9 +11,9 @@ final class EnabledLocales
      */
     public static function codes(): array
     {
-        $configured = config('app.enabled_locales', ['en', 'ar', 'bn']);
+        $configured = config('app.enabled_locales', ['en', 'bn', 'ar']);
         if (! is_array($configured)) {
-            $configured = ['en', 'ar', 'bn'];
+            $configured = ['en', 'bn', 'ar'];
         }
 
         $supported = array_keys(config('locales.supported', []));
@@ -38,12 +38,17 @@ final class EnabledLocales
         $codes = self::codes();
         $fallback = $fallback ?? (string) config('locales.default', 'en');
         $locale = is_string($locale) ? strtolower(trim($locale)) : '';
+        $supported = array_keys(config('locales.supported', []));
+
+        if ($locale !== '' && in_array($locale, $supported, true) && ! in_array($locale, $codes, true)) {
+            return in_array('en', $codes, true) ? 'en' : ($codes[0] ?? 'en');
+        }
 
         if ($locale !== '' && in_array($locale, $codes, true)) {
             return $locale;
         }
 
-        $fallback = strtolower(trim($fallback));
+        $fallback = strtolower(trim((string) $fallback));
         if (in_array($fallback, $codes, true)) {
             return $fallback;
         }

@@ -2,17 +2,24 @@
 
 use App\Support\EnabledLocales;
 
-it('exposes configured storefront locales including ur and hi metadata', function () {
-    expect(EnabledLocales::codes())->toContain('en', 'ar', 'bn', 'ur', 'hi');
+it('exposes only en, bn, and ar as UI-enabled locales', function () {
+    expect(EnabledLocales::codes())->toBe(['en', 'bn', 'ar']);
 });
 
-it('resolves locale codes including rtl ar and ur', function () {
-    expect(EnabledLocales::resolve('ur'))->toBe('ur')
-        ->and(EnabledLocales::resolve('hi'))->toBe('hi')
-        ->and(EnabledLocales::resolve('ar'))->toBe('ar');
+it('resolves enabled locale codes', function () {
+    expect(EnabledLocales::resolve('bn'))->toBe('bn')
+        ->and(EnabledLocales::resolve('ar'))->toBe('ar')
+        ->and(EnabledLocales::resolve('en'))->toBe('en');
 });
 
-it('marks arabic and urdu as rtl in locale config', function () {
+it('falls back to english when ur or hi is requested explicitly', function () {
+    expect(EnabledLocales::resolve('ur'))->toBe('en')
+        ->and(EnabledLocales::resolve('hi'))->toBe('en');
+});
+
+it('marks arabic as rtl in locale config while urdu remains in files only', function () {
     expect(config('locales.supported.ar.dir'))->toBe('rtl')
-        ->and(config('locales.supported.ur.dir'))->toBe('rtl');
+        ->and(config('locales.supported.ur.dir'))->toBe('rtl')
+        ->and(config('locales.supported.ur.enabled'))->toBeFalse()
+        ->and(config('locales.supported.hi.enabled'))->toBeFalse();
 });
