@@ -1,0 +1,254 @@
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.form-field__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--app-text);
+}
+
+.form-field__hint {
+    font-size: 0.7rem;
+    color: var(--app-muted);
+    line-height: 1.35;
+}
+
+.form-field__control,
+.app-input {
+    min-height: 2.75rem;
+    width: 100%;
+    border-radius: 0.75rem;
+    border: 1px solid var(--app-border);
+    background: var(--app-surface);
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    color: var(--app-text);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+textarea.form-field__control,
+textarea.app-input {
+    min-height: 5.5rem;
+    resize: vertical;
+    line-height: 1.45;
+}
+
+select.form-field__control,
+select.app-input {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%235c3d2e' d='M3 4.5 6 8l3-3.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    padding-inline-end: 2rem;
+}
+
+.form-file-upload {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    border-radius: 0.75rem;
+    border: 1px dashed color-mix(in srgb, var(--app-border) 80%, var(--cafe-caramel) 20%);
+    background: color-mix(in srgb, var(--cafe-cream, #faf6f0) 18%, var(--app-surface));
+    padding: 0.75rem;
+}
+
+.form-file-upload__preview {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.form-file-upload__thumb {
+    height: 4rem;
+    width: 4rem;
+    border-radius: 0.75rem;
+    object-fit: contain;
+    border: 1px solid var(--app-border);
+    background: var(--app-surface);
+}
+
+.form-file-upload__thumb--alpha {
+    background-color: #e8e8e8;
+    background-image:
+        linear-gradient(45deg, #d0d0d0 25%, transparent 25%),
+        linear-gradient(-45deg, #d0d0d0 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #d0d0d0 75%),
+        linear-gradient(-45deg, transparent 75%, #d0d0d0 75%);
+    background-size: 12px 12px;
+    background-position:
+        0 0,
+        0 6px,
+        6px -6px,
+        -6px 0;
+}
+
+.form-logo-upload__thumb-wrap {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.form-logo-upload__thumb-img {
+    display: block;
+    max-height: 100%;
+    max-width: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+}
+
+.form-logo-upload__placeholder {
+    background: color-mix(in srgb, var(--app-border) 40%, var(--app-surface));
+}
+
+.form-logo-upload__empty {
+    font-size: 0.8rem;
+    color: var(--app-muted);
+    padding: 0.25rem 0;
+}
+
+.form-logo-upload__progress {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-top: 0.35rem;
+}
+
+.form-file-upload__trigger {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    width: fit-content;
+    max-width: 100%;
+    padding: 0.5rem 1rem;
+}
+
+.form-file-upload__status {
+    font-size: 0.75rem;
+    color: var(--app-muted);
+}
+
+.form-logo-upload__meta {
+    flex: 1;
+}
+
+.form-logo-upload__filename {
+    font-size: 0.8rem;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.form-logo-upload__size {
+    font-size: 0.7rem;
+    color: var(--app-muted);
+}
+
+.form-logo-upload__preview {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.form-logo-upload__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.form-logo-upload__progress-track {
+    height: 0.35rem;
+    width: 100%;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--app-border) 70%, transparent);
+    overflow: hidden;
+}
+
+.form-logo-upload__progress-bar {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background: var(--cafe-caramel, #c4a574);
+    transition: width 0.15s ease;
+}
+
+.form-logo-upload__progress-label {
+    font-size: 0.7rem;
+    color: var(--app-muted);
+}
+
+.form-logo-upload__ready {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--cafe-caramel, #a67c52);
+    line-height: 1.4;
+}
+
+.form-field__control:focus {
+    outline: none;
+    border-color: var(--cafe-caramel);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--cafe-caramel) 25%, transparent);
+}
+
+.form-field--invalid .form-field__control,
+.form-field__control.form-field__control--invalid {
+    border-color: rgb(190 24 24);
+    box-shadow: 0 0 0 2px color-mix(in srgb, rgb(190 24 24) 18%, transparent);
+}
+
+.form-field__error {
+    font-size: 0.7rem;
+    color: rgb(190 24 24);
+}
+
+.form-section__head {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+}
+
+.form-section__title {
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.form-section__lead {
+    margin-top: 0.15rem;
+    font-size: 0.8rem;
+    color: var(--app-muted);
+}
+
+.form-toggle {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    cursor: pointer;
+}
+
+.form-toggle__input {
+    margin-top: 0.2rem;
+    height: 1.15rem;
+    width: 1.15rem;
+    border-radius: 0.35rem;
+}
+
+.form-toggle__label {
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.form-toggle__hint {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--app-muted);
+}

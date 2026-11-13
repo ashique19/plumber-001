@@ -1,0 +1,25 @@
+<?php
+
+return [
+    'back_to_site' => 'Back to public site',
+    'footer_nav' => 'Site links',
+    'footer_public' => 'Public site',
+    'footer_contact' => 'Contact',
+    'footer_privacy' => 'Privacy',
+    'forgot_password' => 'Forgot password?',
+    'forgot_title' => 'Reset your password',
+    'forgot_lead' => 'Enter the email for your staff account. We will send reset instructions if it matches this business.',
+    'send_reset_link' => 'Email reset link',
+    'reset_title' => 'Choose a new password',
+    'reset_lead' => 'Use a strong password your team does not share outside the business.',
+    'new_password' => 'New password',
+    'confirm_password' => 'Confirm password',
+    'reset_password' => 'Save new password',
+    'back_to_login' => 'Back to sign in',
+    'reset_link_sent' => 'If that email is registered for this business, you will receive reset instructions shortly.',
+    'password_reset' => 'Your password has been reset. You can sign in now.',
+    'token_invalid' => 'This reset link is invalid or has expired. Request a new one.',
+    'throttled' => 'Please wait before trying again.',
+    'admin_on_tenant_app' => 'Admin sign-in cannot access staff routes. Sign out of the admin console first.',
+    'tenant_session_mismatch' => 'Your staff session does not match this business URL. Sign out, then sign in again for this tenant.',
+];

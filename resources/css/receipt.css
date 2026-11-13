@@ -1,0 +1,327 @@
+/* Thermal receipt (80mm) — screen preview + print */
+
+:root {
+    --receipt-width: 80mm;
+    --receipt-mono: ui-monospace, 'Courier New', Courier, monospace;
+    --receipt-muted: #333;
+    --receipt-border: #bbb;
+}
+
+.receipt-screen {
+    font-family: var(--receipt-mono);
+    color: #000;
+    line-height: 1.25;
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+}
+
+.receipt-sheet {
+    background: #fff;
+    border: 1px solid var(--receipt-border);
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    box-shadow: 0 2px 12px rgb(0 0 0 / 8%);
+}
+
+.receipt-thermal {
+    font-size: 11px;
+    max-width: var(--receipt-width);
+    margin-inline: auto;
+}
+
+.receipt-thermal__center {
+    text-align: center;
+    margin: 0.15rem 0;
+}
+
+.receipt-thermal__xs {
+    font-size: 10px;
+    margin: 0.12rem 0;
+}
+
+.receipt-thermal__header {
+    text-align: center;
+    margin-bottom: 0.35rem;
+}
+
+.receipt-thermal__seller {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    margin-bottom: 0.25rem;
+}
+
+.receipt-thermal__logo {
+    max-height: 2.5rem;
+    width: auto;
+    object-fit: contain;
+}
+
+.receipt-thermal__seller-names {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.35rem;
+    margin: 0;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.receipt-thermal__seller-ar {
+    text-align: end;
+    flex: 1;
+}
+
+.receipt-thermal__seller-en {
+    text-align: start;
+    flex: 1;
+}
+
+.receipt-thermal__trn {
+    font-weight: 700;
+    margin-top: 0.25rem;
+}
+
+.receipt-thermal__qr {
+    text-align: center;
+    margin: 0.35rem 0;
+}
+
+.receipt-thermal__qr canvas {
+    display: inline-block;
+    width: 58mm;
+    max-width: 100%;
+    height: auto;
+}
+
+.receipt-thermal__rule {
+    margin: 0.2rem 0;
+    text-align: center;
+    font-size: 10px;
+    letter-spacing: 0.02em;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.receipt-thermal__title {
+    font-weight: 700;
+    font-size: 11px;
+    margin: 0.1rem 0;
+    text-transform: uppercase;
+}
+
+.receipt-thermal__line {
+    margin: 0.35rem 0;
+}
+
+.receipt-thermal__line-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.25rem;
+}
+
+.receipt-thermal__line-meta-end {
+    text-align: end;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.receipt-thermal__line-ar {
+    text-align: end;
+}
+
+.receipt-thermal__line-en {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.35rem;
+}
+
+.receipt-thermal__amt {
+    float: none;
+    text-align: end;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.receipt-thermal__total-row {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 700;
+    font-size: 11px;
+}
+
+.receipt-thermal__tax-note {
+    margin: 0.35rem 0;
+}
+
+.receipt-thermal__vat-table,
+.receipt-thermal__meta-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.35rem 0;
+    font-variant-numeric: tabular-nums;
+}
+
+.receipt-thermal__vat-table th,
+.receipt-thermal__vat-table td,
+.receipt-thermal__meta-table th,
+.receipt-thermal__meta-table td {
+    border: 1px solid #000;
+    padding: 0.1rem 0.15rem;
+    text-align: center;
+    font-size: 8px;
+    vertical-align: middle;
+}
+
+.receipt-thermal__served {
+    margin-top: 0.35rem;
+}
+
+.receipt-thermal__thanks {
+    margin-top: 0.5rem;
+    font-weight: 600;
+}
+
+.receipt-thermal__barcode-wrap {
+    margin-top: 0.5rem;
+    text-align: center;
+}
+
+.receipt-thermal__barcode {
+    width: 100%;
+    max-width: 72mm;
+    height: auto;
+}
+
+.receipt-success-bar {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    border-radius: 0.75rem;
+    background: rgb(236 253 245 / 0.9);
+    border: 1px solid #a7f3d0;
+    font-family: system-ui, sans-serif;
+}
+
+.receipt-success-bar h2 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.receipt-page-toolbar {
+    font-family: system-ui, sans-serif;
+}
+
+.receipt-badge {
+    margin: 0.75rem 0;
+    padding: 0.5rem 0.65rem;
+    border-radius: 0.5rem;
+    font-size: 0.7rem;
+    line-height: 1.35;
+    text-align: center;
+    font-family: system-ui, sans-serif;
+}
+
+.receipt-badge--sandbox {
+    background: #fef3c7;
+    border: 1px solid #fcd34d;
+    color: #78350f;
+}
+
+.receipt-badge--not_reported {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #7f1d1d;
+}
+
+.receipt-badge--reported {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1e3a8a;
+}
+
+.receipt-qr-note {
+    font-size: 0.65rem;
+    color: var(--receipt-muted);
+    margin-top: 0.35rem;
+    font-family: system-ui, sans-serif;
+}
+
+.receipt-tags-todo {
+    font-size: 0.6rem;
+    margin-top: 0.5rem;
+    text-align: center;
+    color: #92400e;
+    font-family: system-ui, sans-serif;
+}
+
+/* Legacy class hooks (other views/tests) */
+.receipt-header__ar {
+    font-size: 0.95rem;
+}
+
+@media print {
+    .no-print,
+    .app-sidebar,
+    .app-topbar,
+    .app-tabbar,
+    .app-sheet-backdrop,
+    .app-sheet,
+    .livewire-loading-bar,
+    .toast-stack {
+        display: none !important;
+    }
+
+    .app-main,
+    .app-content {
+        margin: 0 !important;
+        padding: 0 !important;
+        max-width: none !important;
+    }
+
+    .receipt-screen {
+        max-width: none;
+        padding: 0;
+    }
+
+    body.app-shell {
+        background: #fff;
+    }
+
+    .receipt-sheet {
+        border: none;
+        box-shadow: none;
+        border-radius: 0;
+        padding: 0;
+        width: var(--receipt-width);
+        max-width: 100%;
+    }
+}
+
+@page {
+    size: 80mm auto;
+    margin: 0;
+}
+
+@media print {
+    @page {
+        size: 80mm auto;
+        margin: 0;
+    }
+}
+
+@media print and (min-width: 210mm) {
+    @page {
+        size: A4;
+        margin: 10mm;
+    }
+
+    .receipt-screen .receipt-sheet {
+        width: 80mm;
+        margin: 0 auto;
+    }
+}

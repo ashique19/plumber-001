@@ -1,0 +1,86 @@
+/* Stable auth form controls — not tied to .app-shell tokens (avoids missing borders on login pages). */
+
+.auth-shell {
+    --auth-field-border: color-mix(in srgb, var(--cafe-mocha, #5c3d2e) 35%, var(--cafe-latte, #e8d4c4));
+    --auth-field-bg: #ffffff;
+    --auth-field-text: var(--cafe-espresso, #2c1810);
+    --auth-field-muted: var(--cafe-mocha, #5c3d2e);
+    --auth-focus-ring: color-mix(in srgb, var(--cafe-caramel, #c68b59) 30%, transparent);
+    --auth-error: #be1818;
+}
+
+@media (prefers-color-scheme: dark) {
+    .auth-shell {
+        --auth-field-border: #5a4338;
+        --auth-field-bg: #2a1c16;
+        --auth-field-text: #faf6f0;
+        --auth-field-muted: #c9b5a8;
+        --auth-focus-ring: color-mix(in srgb, var(--cafe-accent, #d4a574) 35%, transparent);
+        --auth-error: #f87171;
+    }
+
+    .auth-glass-card {
+        background: color-mix(in srgb, #2a1c16 92%, var(--cafe-espresso));
+        border-color: color-mix(in srgb, #faf6f0 22%, transparent);
+    }
+}
+
+.auth-field {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--auth-field-text);
+}
+
+.auth-input {
+    display: block;
+    margin-top: 0.25rem;
+    min-height: 2.75rem;
+    width: 100%;
+    border-radius: 0.75rem;
+    border: 1px solid var(--auth-field-border);
+    background-color: var(--auth-field-bg);
+    padding-block: 0.5rem;
+    padding-inline: 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.35;
+    color: var(--auth-field-text);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.auth-input::placeholder {
+    color: color-mix(in srgb, var(--auth-field-muted) 70%, transparent);
+}
+
+.auth-input:hover:not(:disabled) {
+    border-color: color-mix(in srgb, var(--cafe-caramel, #c68b59) 55%, var(--auth-field-border));
+}
+
+.auth-input:focus,
+.auth-input:focus-visible {
+    outline: none;
+    border-color: var(--cafe-caramel, #c68b59);
+    box-shadow: 0 0 0 3px var(--auth-focus-ring);
+}
+
+.auth-input--invalid,
+.auth-field--invalid .auth-input {
+    border-color: var(--auth-error);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--auth-error) 22%, transparent);
+}
+
+.auth-field__error {
+    margin-top: 0.35rem;
+    font-size: 0.8125rem;
+    line-height: 1.35;
+    color: var(--auth-error);
+}
+
+.auth-checkbox {
+    height: 1.25rem;
+    width: 1.25rem;
+    border-radius: 0.35rem;
+    border: 1px solid var(--auth-field-border);
+    background-color: var(--auth-field-bg);
+    accent-color: var(--cafe-caramel, #c68b59);
+}

@@ -1,0 +1,399 @@
+@import 'tailwindcss';
+@import '@fontsource/tajawal/400.css';
+@import '@fontsource/tajawal/500.css';
+@import '@fontsource/tajawal/700.css';
+@import '@fontsource/instrument-sans/400.css';
+@import '@fontsource/instrument-sans/500.css';
+@import '@fontsource/instrument-sans/600.css';
+@import './cafe-premium.css';
+@import './app-shell.css';
+@import './pos-terminal-premium.css';
+@import './forms.css';
+@import './app-admin-polish.css';
+@import './admin-location-picker.css';
+@import './auth-forms.css';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../../resources/views/**/*.blade.php';
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+    --color-cafe-espresso: var(--cafe-espresso, #2c1810);
+    --color-cafe-cream: var(--cafe-cream, #faf6f0);
+    --color-cafe-caramel: var(--cafe-caramel, #c68b59);
+    --color-cafe-latte: var(--cafe-latte, #e8d4c4);
+    --color-cafe-mocha: var(--cafe-mocha, #5c3d2e);
+    --color-cafe-accent: var(--cafe-accent, #d4a574);
+}
+
+@layer components {
+    .touch-target {
+        min-height: 2.75rem;
+        min-width: 2.75rem;
+    }
+
+    .tap-action {
+        min-height: 2.75rem;
+        min-width: 2.75rem;
+        @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold;
+        @apply active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2;
+        @apply focus-visible:outline-cafe-caramel;
+    }
+
+    /* Border/fill for bare .tap-action lives in app-admin-polish.css */
+
+    .tap-action-primary {
+        @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold;
+        @apply active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2;
+        min-height: 2.75rem;
+        min-width: 2.75rem;
+        @apply border border-cafe-espresso/20 bg-cafe-espresso text-cafe-cream shadow-md;
+        @apply transition-[filter,box-shadow] duration-150 hover:brightness-110;
+        @apply focus-visible:outline-cafe-caramel;
+    }
+
+    .tap-action-muted {
+        @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold;
+        @apply active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2;
+        min-height: 2.75rem;
+        min-width: 2.75rem;
+        color: var(--cafe-mocha, #5c3d2e);
+        border: 1.5px solid color-mix(in srgb, var(--cafe-mocha, #5c3d2e) 28%, var(--cafe-latte, #e8d4c4));
+        background: linear-gradient(
+            180deg,
+            var(--app-surface, #fff) 0%,
+            color-mix(in srgb, var(--cafe-cream, #faf6f0) 55%, var(--app-surface, #fff)) 100%
+        );
+        box-shadow:
+            0 1px 0 rgb(255 255 255 / 0.9) inset,
+            0 1px 3px rgb(44 24 16 / 0.08);
+        @apply transition-[border-color,box-shadow,background] duration-150;
+        @apply hover:border-cafe-caramel hover:shadow-md focus-visible:outline-cafe-caramel;
+    }
+
+    .tap-action-add {
+        @apply mb-3 min-h-11 w-full justify-start gap-3 px-4 sm:w-auto sm:min-w-[12rem];
+        @apply inline-flex items-center rounded-xl py-2.5 text-sm font-semibold;
+        @apply active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2;
+        min-height: 2.75rem;
+        color: var(--cafe-mocha, #5c3d2e);
+        border: 1.5px solid color-mix(in srgb, var(--cafe-caramel, #c68b59) 45%, var(--cafe-mocha, #5c3d2e));
+        background: linear-gradient(
+            180deg,
+            var(--app-surface, #fff) 0%,
+            color-mix(in srgb, var(--cafe-cream, #faf6f0) 55%, var(--app-surface, #fff)) 100%
+        );
+        box-shadow:
+            0 1px 0 rgb(255 255 255 / 0.9) inset,
+            0 1px 3px rgb(44 24 16 / 0.08);
+        @apply transition-[border-color,box-shadow,background] duration-150;
+        @apply hover:border-cafe-caramel hover:shadow-md focus-visible:outline-cafe-caramel;
+        font-weight: 600;
+    }
+
+    .tap-action-add__glyph {
+        @apply flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border;
+        border-color: color-mix(in srgb, var(--cafe-caramel, #c68b59) 40%, var(--cafe-latte, #e8d4c4));
+        background: color-mix(in srgb, var(--cafe-caramel, #c68b59) 14%, var(--app-surface, #fff));
+        color: var(--cafe-espresso, #2c1810);
+    }
+
+    .field-touch {
+        min-height: 2.75rem;
+        width: 100%;
+        border-radius: 0.75rem;
+        border: 1px solid var(--app-border);
+        background: var(--app-surface);
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+        color: var(--app-text);
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .field-touch:focus {
+        outline: none;
+        border-color: var(--cafe-caramel);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--cafe-caramel) 25%, transparent);
+    }
+
+    .pos-shell {
+        @apply mx-auto w-full max-w-6xl px-3 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 sm:px-4 md:px-6;
+    }
+
+    .toast-stack {
+        position: fixed;
+        inset-inline: 0.75rem;
+        bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px));
+        z-index: 60;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+        pointer-events: none;
+        max-width: 24rem;
+        margin-inline-start: auto;
+        margin-inline-end: 0;
+    }
+
+    @media (min-width: 1024px) {
+        .toast-stack {
+            bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+        }
+    }
+
+    .toast-stack.has-app-tab-bar {
+        bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+    }
+
+    .toast-item {
+        pointer-events: auto;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        border-radius: 0.75rem;
+        border-width: 1px;
+        padding: 0.75rem 0.875rem;
+        box-shadow: 0 10px 25px rgba(44, 24, 16, 0.12);
+        font-size: 0.875rem;
+        line-height: 1.35;
+    }
+
+    .toast-item__body {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .toast-item__title {
+        font-weight: 600;
+        margin-bottom: 0.125rem;
+    }
+
+    .toast-item__message {
+        opacity: 0.95;
+    }
+
+    .toast-item__dismiss {
+        flex-shrink: 0;
+        border-radius: 0.5rem;
+        padding: 0.25rem 0.5rem;
+        font-size: 1.125rem;
+        line-height: 1;
+        opacity: 0.85;
+    }
+
+    .toast--success {
+        @apply border-emerald-200 bg-emerald-50 text-emerald-950;
+    }
+
+    .toast--info {
+        @apply border-sky-200 bg-sky-50 text-sky-950;
+    }
+
+    .toast--warning {
+        @apply border-amber-200 bg-amber-50 text-amber-950;
+    }
+
+    .toast--error {
+        @apply border-red-200 bg-red-50 text-red-950;
+    }
+
+    [x-cloak] {
+        display: none !important;
+    }
+
+    dialog#livewire-error {
+        display: none !important;
+    }
+}
+
+@layer utilities {
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border-width: 0;
+    }
+
+    .focus\:not-sr-only:focus {
+        position: static;
+        width: auto;
+        height: auto;
+        padding: inherit;
+        margin: inherit;
+        overflow: visible;
+        clip: auto;
+        white-space: normal;
+    }
+
+    [x-cloak] {
+        display: none !important;
+    }
+
+    /* Café hero: steam vapour + subtle photo motion */
+    .cafe-steam {
+        position: relative;
+        width: 100%;
+        height: 100%;
+    }
+
+    .cafe-steam__wisp {
+        position: absolute;
+        bottom: 0;
+        border-radius: 50%;
+        background: radial-gradient(ellipse at center, rgb(255 255 255 / 0.65), rgb(255 255 255 / 0) 72%);
+        filter: blur(10px);
+        opacity: 0;
+        animation: cafe-steam-rise 5.5s ease-in-out infinite;
+    }
+
+    .cafe-steam__wisp--1 {
+        left: 18%;
+        width: 3.5rem;
+        height: 3.5rem;
+        animation-delay: 0s;
+    }
+
+    .cafe-steam__wisp--2 {
+        left: 38%;
+        width: 4.5rem;
+        height: 4rem;
+        animation-delay: 0.9s;
+    }
+
+    .cafe-steam__wisp--3 {
+        left: 52%;
+        width: 5rem;
+        height: 4.5rem;
+        animation-delay: 1.8s;
+    }
+
+    .cafe-steam__wisp--4 {
+        left: 68%;
+        width: 3.25rem;
+        height: 3.25rem;
+        animation-delay: 2.6s;
+    }
+
+    .cafe-steam__wisp--5 {
+        left: 28%;
+        width: 2.75rem;
+        height: 2.75rem;
+        animation-delay: 3.4s;
+    }
+
+  @keyframes cafe-steam-rise {
+        0% {
+            opacity: 0;
+            transform: translateY(12px) scale(0.85);
+        }
+        18% {
+            opacity: 0.75;
+        }
+        65% {
+            opacity: 0.35;
+        }
+        100% {
+            opacity: 0;
+            transform: translateY(-72px) scale(1.35);
+        }
+    }
+
+    .cafe-hero-media img {
+        animation: cafe-hero-ken-burns 22s ease-in-out infinite alternate;
+        will-change: transform;
+    }
+
+    @keyframes cafe-hero-ken-burns {
+        from {
+            transform: scale(1) translateY(0);
+        }
+        to {
+            transform: scale(1.07) translateY(-1.5%);
+        }
+    }
+
+    .cafe-hero-shine {
+        animation: cafe-hero-shine 8s ease-in-out infinite;
+    }
+
+    @keyframes cafe-hero-shine {
+        0%,
+        100% {
+            opacity: 0.35;
+        }
+        50% {
+            opacity: 0.65;
+        }
+    }
+
+    /* Scroll-linked parallax (progressive enhancement) */
+    @supports (animation-timeline: view()) {
+        .cafe-scroll-float {
+            animation: cafe-scroll-float linear both;
+            animation-timeline: view();
+            animation-range: entry 0% cover 55%;
+        }
+
+        @keyframes cafe-scroll-float {
+            from {
+                opacity: 0.85;
+                transform: translate3d(0, 2.75rem, 0);
+            }
+            to {
+                opacity: 1;
+                transform: translate3d(0, -0.5rem, 0);
+            }
+        }
+
+        .cafe-parallax-layer {
+            animation: cafe-parallax-layer linear both;
+            animation-timeline: view();
+            animation-range: entry -10% cover 90%;
+        }
+
+        @keyframes cafe-parallax-layer {
+            from {
+                transform: translate3d(0, 6%, 0) scale(1.06);
+            }
+            to {
+                transform: translate3d(0, -4%, 0) scale(1);
+            }
+        }
+
+        .cafe-parallax-slow {
+            animation: cafe-parallax-slow linear both;
+            animation-timeline: view();
+            animation-range: entry 0% exit 100%;
+        }
+
+        @keyframes cafe-parallax-slow {
+            from {
+                transform: translate3d(0, 2.5rem, 0);
+            }
+            to {
+                transform: translate3d(0, -2.5rem, 0);
+            }
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .cafe-steam__wisp,
+        .cafe-hero-media img,
+        .cafe-hero-shine {
+            animation: none !important;
+        }
+
+        .cafe-scroll-float,
+        .cafe-parallax-layer,
+        .cafe-parallax-slow {
+            animation: none !important;
+            transform: none !important;
+        }
+    }
+}

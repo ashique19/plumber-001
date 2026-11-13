@@ -1,0 +1,99 @@
+/* Prevent Leaflet CSS probe from requesting relative marker-icon.png on tenant subpaths */
+.leaflet-default-icon-path {
+    display: none !important;
+    background-image: none !important;
+}
+
+.admin-location-picker {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.admin-location-picker__map-wrap {
+    position: relative;
+    z-index: 0;
+    isolation: isolate;
+}
+
+.admin-location-picker__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: stretch;
+}
+
+.admin-location-picker__search {
+    position: relative;
+    flex: 1 1 12rem;
+    min-width: 0;
+}
+
+.admin-location-picker__search-input {
+    min-height: 2.75rem;
+    width: 100%;
+    border-radius: 0.75rem;
+    border: 1px solid var(--app-border);
+    background: var(--app-surface);
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    color: var(--app-text);
+}
+
+.admin-location-picker__results {
+    position: absolute;
+    z-index: 30;
+    margin-top: 0.25rem;
+    max-height: 12rem;
+    width: 100%;
+    overflow-y: auto;
+    border-radius: 0.75rem;
+    border: 1px solid var(--app-border);
+    background: var(--app-surface);
+    box-shadow: var(--app-shadow);
+}
+
+.admin-location-picker__result {
+    display: block;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    text-align: start;
+    font-size: 0.8rem;
+    color: var(--app-text);
+}
+
+.admin-location-picker__result:hover {
+    background: color-mix(in srgb, var(--cafe-caramel, #c68b59) 12%, var(--app-surface));
+}
+
+.admin-location-picker__map {
+    height: 18.75rem;
+    width: 100%;
+    overflow: hidden;
+    border-radius: 0.75rem;
+    border: 1px solid var(--app-border);
+    background: var(--app-border);
+    touch-action: pan-x pan-y;
+}
+
+.admin-location-picker__map .leaflet-container {
+    height: 100%;
+    width: 100%;
+    font-family: inherit;
+}
+
+.admin-location-picker__footer {
+    font-size: 0.65rem;
+    line-height: 1.35;
+    color: var(--app-muted);
+}
+
+.admin-location-picker__footer a {
+    text-decoration: underline;
+}
+
+.admin-location-picker__coords {
+    font-size: 0.75rem;
+    color: var(--app-muted);
+    font-variant-numeric: tabular-nums;
+}

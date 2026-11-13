@@ -1,0 +1,16 @@
+.analytics-chart {
+    min-height: 220px;
+}
+
+.analytics-chart--tall {
+    min-height: 280px;
+}
+
+.owner-analytics .apexcharts-tooltip {
+    direction: inherit;
+    font-family: inherit;
+}
+
+.owner-analytics .apexcharts-legend-text {
+    font-size: 12px !important;
+}

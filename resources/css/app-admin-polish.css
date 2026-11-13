@@ -1,0 +1,163 @@
+@layer components {
+    /* Secondary bordered control — base tap-action hook for layout + visible affordance */
+    .tap-action {
+        border: 1.5px solid color-mix(in srgb, var(--cafe-mocha, #5c3d2e) 22%, var(--cafe-latte, #e8d4c4));
+        background: linear-gradient(
+            180deg,
+            var(--app-surface, #fff) 0%,
+            color-mix(in srgb, var(--cafe-cream, #faf6f0) 45%, var(--app-surface, #fff)) 100%
+        );
+        color: var(--cafe-mocha, #5c3d2e);
+        box-shadow:
+            0 1px 0 rgb(255 255 255 / 0.85) inset,
+            0 1px 2px rgb(44 24 16 / 0.06);
+        @apply transition-[border-color,box-shadow,background,filter] duration-150;
+        @apply hover:border-cafe-caramel hover:shadow-sm;
+    }
+
+    a.tap-action:not([class*='tap-action-']),
+    button.tap-action:not([class*='tap-action-']) {
+        text-decoration: none;
+    }
+
+    .app-segment-tab {
+        @apply min-h-11 shrink-0 rounded-full border px-4 py-2 text-xs font-semibold transition active:scale-[0.98];
+        border-color: var(--app-border);
+        background: var(--app-surface);
+        color: var(--app-muted);
+    }
+
+    .app-section-tabs .app-segment-tab--active,
+    .app-segment-tab.app-segment-tab--active {
+        background-color: var(--cafe-espresso, #2c1810);
+        border-color: var(--cafe-espresso, #2c1810);
+        color: #ffffff;
+        box-shadow: 0 2px 8px rgb(44 24 16 / 0.22);
+    }
+
+    .app-list-card {
+        @apply flex flex-col gap-3 rounded-2xl border p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between;
+        border-color: color-mix(in srgb, var(--app-border) 90%, var(--cafe-mocha, #5c3d2e) 10%);
+        background: var(--app-surface);
+        box-shadow: var(--app-shadow);
+    }
+
+    .app-list-card--stacked {
+        @apply sm:flex-col sm:items-stretch;
+    }
+
+    .app-table-wrap {
+        @apply overflow-x-auto rounded-2xl border p-0 shadow-sm;
+        border-color: color-mix(in srgb, var(--app-border) 90%, var(--cafe-mocha, #5c3d2e) 10%);
+        background: var(--app-surface);
+        box-shadow: var(--app-shadow);
+    }
+
+    .app-table {
+        @apply min-w-full border-collapse text-sm;
+    }
+
+    .app-table thead {
+        @apply bg-[var(--app-border)]/30;
+    }
+
+    .app-table thead th {
+        @apply px-4 py-3 text-start text-xs font-bold uppercase tracking-wider;
+        color: var(--app-muted);
+        border-bottom: 1px solid var(--app-border);
+    }
+
+    .app-table tbody tr {
+        border-bottom: 1px solid color-mix(in srgb, var(--app-border) 85%, transparent);
+    }
+
+    .app-table tbody tr:nth-child(even) {
+        background: color-mix(in srgb, var(--cafe-cream, #faf6f0) 35%, var(--app-surface, #fff));
+    }
+
+    .app-table tbody tr:hover {
+        background: color-mix(in srgb, var(--cafe-caramel, #c68b59) 8%, var(--app-surface, #fff));
+    }
+
+    .app-table tbody td {
+        @apply px-4 py-3 align-middle;
+        color: var(--app-text);
+    }
+
+    .app-table tbody td.app-table__actions {
+        @apply text-end whitespace-nowrap;
+    }
+
+    .app-mini-table {
+        @apply w-full text-sm;
+    }
+
+    .app-mini-table li {
+        @apply flex flex-wrap items-center justify-between gap-2 border-b py-2.5;
+        border-color: color-mix(in srgb, var(--app-border) 90%, transparent);
+    }
+
+    .app-mini-table li:last-child {
+        @apply border-b-0;
+    }
+
+    .app-filter-bar {
+        @apply mb-4 flex flex-col gap-2 rounded-2xl border p-3 shadow-sm sm:flex-row sm:items-center;
+        border-color: color-mix(in srgb, var(--app-border) 90%, var(--cafe-mocha, #5c3d2e) 10%);
+        background: var(--app-surface);
+        box-shadow: var(--app-shadow);
+    }
+
+    .app-field-label {
+        @apply mb-1 block text-xs font-semibold uppercase tracking-wide;
+        color: var(--app-muted);
+    }
+
+    .app-section-heading {
+        @apply text-sm font-bold tracking-tight;
+        color: var(--app-text);
+    }
+
+    .app-inset-panel {
+        @apply rounded-xl border p-3 sm:p-4;
+        border-color: var(--app-border);
+        background: color-mix(in srgb, var(--cafe-cream, #faf6f0) 25%, var(--app-surface, #fff));
+    }
+
+    /* Laravel pagination (Tailwind) */
+    nav[role='navigation'][aria-label*='Pagination'],
+    nav[aria-label='Pagination Navigation'] {
+        @apply mt-4 flex justify-center;
+    }
+
+    nav[role='navigation'] span,
+    nav[role='navigation'] a {
+        @apply inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg border text-sm font-semibold;
+        border-color: var(--app-border);
+        background: var(--app-surface);
+        color: var(--app-text);
+    }
+
+    nav[role='navigation'] span[aria-current='page'] span {
+        @apply border-cafe-caramel bg-cafe-caramel text-white;
+    }
+
+    nav[role='navigation'] a:hover {
+        @apply border-cafe-caramel;
+    }
+
+    .pos-cart-panel {
+        @apply rounded-2xl border p-4 shadow-lg;
+        border-color: var(--app-border);
+        background: color-mix(in srgb, var(--app-surface) 92%, var(--cafe-cream));
+        box-shadow: var(--app-shadow);
+    }
+
+    .pos-checkout-bar {
+        @apply sticky bottom-0 z-30 border-t p-3;
+        border-color: var(--app-border);
+        padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+        background: color-mix(in srgb, var(--app-surface) 94%, transparent);
+        backdrop-filter: blur(12px);
+    }
+}

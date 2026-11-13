@@ -1,0 +1,31 @@
+<?php
+
+return [
+    'title' => 'Dashboard',
+    'subtitle' => 'Today’s sales, invoices, and signing service submission status for your business.',
+    'nav' => 'Dashboard',
+    'open_analytics' => 'Full analytics',
+    'signing_queue' => 'signing service queue',
+    'today_orders' => 'Orders today',
+    'today_sales' => 'Sales today',
+    'today_vat' => 'VAT today',
+    'today_aov' => 'Avg. order today',
+    'sar' => 'SAR',
+    'recent_sales' => 'Recent sales',
+    'last_7_days' => 'Last 7 days',
+    'no_sales_yet' => 'No paid orders in this period yet.',
+    'invoices_by_type' => 'Invoices by type',
+    'invoices_issued_hint' => 'Issued invoices for this tenant (all time).',
+    'invoice_type' => [
+        'simplified' => 'Simplified',
+        'standard' => 'Standard',
+        'credit_note' => 'Credit notes',
+        'debit_note' => 'Debit notes',
+    ],
+    'signing_queue' => 'signing service submissions',
+    'signing_queue_hint' => 'Reporting and clearance queue outcomes.',
+    'signing_pending' => 'Pending',
+    'signing_reported' => 'Reported / cleared',
+    'signing_failed' => 'Failed',
+    'no_submissions' => 'No signing service submissions yet.',
+];
