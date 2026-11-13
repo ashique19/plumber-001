@@ -41,7 +41,7 @@ class DemoStaffSeeder extends Seeder
         );
 
         StaffUser::query()->firstOrCreate(
-            ['email' => 'owner@fancy-coffee.test'],
+            ['email' => 'owner@example.test'],
             [
                 'name' => 'Owner',
                 'password' => Hash::make('TestPassword!2026'),
@@ -51,7 +51,7 @@ class DemoStaffSeeder extends Seeder
         )->assignRole('owner');
 
         StaffUser::query()->firstOrCreate(
-            ['email' => 'cashier@fancy-coffee.test'],
+            ['email' => 'cashier@example.test'],
             [
                 'name' => 'Cashier',
                 'password' => Hash::make('TestPassword!2026'),

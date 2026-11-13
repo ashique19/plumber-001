@@ -5,7 +5,7 @@ import { tenantLogin } from '../helpers/auth.js';
 import { tenantPath } from '../helpers/urls.js';
 import { test, expect } from 'playwright/test';
 
-const forbidden = ['/catalog', '/team', '/reports', '/customers', '/invoices', '/zatca'];
+const forbidden = ['/catalog', '/team', '/reports', '/customers', '/invoices', '/business'];
 
 for (const profile of VIEW_PROFILES) {
     test(`cashier 403 vs allowed POS [${profile.name}]`, async ({ browser }) => {

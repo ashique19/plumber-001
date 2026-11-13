@@ -12,7 +12,7 @@ beforeEach(function () {
     $this->withoutVite();
     (new DemoStaffSeeder)->run();
     $this->business = BusinessSetting::singleton();
-    $this->owner = StaffUser::query()->where('email', 'owner@fancy-coffee.test')->firstOrFail();
+    $this->owner = StaffUser::query()->where('email', 'owner@example.test')->firstOrFail();
     $this->actingAs($this->owner, 'staff');
 });
 

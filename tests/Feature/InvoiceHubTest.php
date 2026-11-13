@@ -20,9 +20,9 @@ beforeEach(function () {
     (new DemoStaffSeeder)->run();
     $this->tenant = BusinessSetting::singleton();
     $this->owner = StaffUser::query()
-        ->where('email', 'owner@fancy-coffee.test')->firstOrFail();
+        ->where('email', 'owner@example.test')->firstOrFail();
     $this->cashier = StaffUser::query()
-        ->where('email', 'cashier@fancy-coffee.test')->firstOrFail();
+        ->where('email', 'cashier@example.test')->firstOrFail();
 
     BusinessContext::set($this->tenant);
     $this->order = seedDemoPaidPosOrder();

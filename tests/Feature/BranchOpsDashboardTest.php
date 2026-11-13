@@ -10,7 +10,7 @@ beforeEach(function () {
     $this->withoutVite();
     (new DemoStaffSeeder)->run();
     $this->branch = Branch::query()->where('code', 'jad-main')->firstOrFail();
-    $this->owner = StaffUser::query()->where('email', 'owner@fancy-coffee.test')->firstOrFail();
+    $this->owner = StaffUser::query()->where('email', 'owner@example.test')->firstOrFail();
 });
 
 it('renders cafe branch ops dashboard with chart scale for hourly totals', function () {

@@ -15,9 +15,9 @@ beforeEach(function () {
     (new DemoStaffSeeder)->run();
     $this->tenant = BusinessSetting::query()->firstOrFail();
         $this->owner = StaffUser::query()
-        ->where('email', 'owner@fancy-coffee.test')->firstOrFail();
+        ->where('email', 'owner@example.test')->firstOrFail();
     $this->cashier = StaffUser::query()
-        ->where('email', 'cashier@fancy-coffee.test')->firstOrFail();
+        ->where('email', 'cashier@example.test')->firstOrFail();
 });
 
 it('stores branch map coordinates', function () {
@@ -55,7 +55,7 @@ it('allows owner to add a branch with contact fields', function () {
         ->set('branchAddress', 'King Fahd Rd')
         ->set('branchCity', 'Riyadh')
         ->set('branchPhone', '+966500000000')
-        ->set('branchEmail', 'hub@fancy-coffee.test')
+        ->set('branchEmail', 'hub@example.test')
         ->set('branchActive', true)
         ->call('saveBranch')
         ->assertHasNoErrors();
@@ -69,7 +69,7 @@ it('allows owner to add a branch with contact fields', function () {
         ->and($branch->contact())
         ->toMatchArray([
             'phone' => '+966500000000',
-            'email' => 'hub@fancy-coffee.test',
+            'email' => 'hub@example.test',
             'city' => 'Riyadh',
         ]);
 });

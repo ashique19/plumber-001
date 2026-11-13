@@ -13,8 +13,8 @@ beforeEach(function () {
     (new DemoStaffSeeder)->run();
     $this->business = BusinessSetting::singleton();
     $this->branch = Branch::query()->where('code', 'jad-main')->firstOrFail();
-    $this->owner = StaffUser::query()->where('email', 'owner@fancy-coffee.test')->firstOrFail();
-    $this->cashier = StaffUser::query()->where('email', 'cashier@fancy-coffee.test')->firstOrFail();
+    $this->owner = StaffUser::query()->where('email', 'owner@example.test')->firstOrFail();
+    $this->cashier = StaffUser::query()->where('email', 'cashier@example.test')->firstOrFail();
     \App\Business\BusinessContext::set($this->business);
 });
 

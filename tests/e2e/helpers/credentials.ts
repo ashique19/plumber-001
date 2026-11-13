@@ -1,13 +1,13 @@
-export const TENANT_SLUG = 'fancy-coffee';
+export const TENANT_SLUG = 'plumber-demo';
 export const PASSWORD = 'TestPassword!2026';
 
 export const owner = {
-    email: 'owner@fancy-coffee.test',
+    email: 'owner@plumber-demo.test',
     password: PASSWORD,
 };
 
 export const cashier = {
-    email: 'cashier@fancy-coffee.test',
+    email: 'cashier@plumber-demo.test',
     password: PASSWORD,
 };
 

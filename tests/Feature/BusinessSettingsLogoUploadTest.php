@@ -13,7 +13,7 @@ beforeEach(function () {
     (new DemoStaffSeeder)->run();
     $this->cafe = BusinessSetting::query()->firstOrFail();
     $this->owner = StaffUser::query()
-        ->where('email', 'owner@fancy-coffee.test')->firstOrFail();
+        ->where('email', 'owner@example.test')->firstOrFail();
     $this->actingAs($this->owner, 'staff');
 });
 

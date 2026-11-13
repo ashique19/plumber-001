@@ -16,7 +16,7 @@ it('renders location picker x-data on business contact section', function () {
     (new Database\Seeders\DemoStaffSeeder)->run();
     $tenant = App\Models\BusinessSetting::query()->firstOrFail();
     $owner = App\Models\StaffUser::query()
-        ->where('email', 'owner@fancy-coffee.test')->firstOrFail();
+        ->where('email', 'owner@example.test')->firstOrFail();
 
     $html = Livewire\Livewire::actingAs($owner, 'staff')
         ->test(App\Livewire\Admin\BusinessSettings::class)

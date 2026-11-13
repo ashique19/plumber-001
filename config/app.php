@@ -87,8 +87,8 @@ return [
     | UI-selectable locales
     |--------------------------------------------------------------------------
     |
-    | Shown in language switchers (tenant admin, POS, storefronts, foundation,
-    | receipts). ur/hi remain in config('locales.supported') for translations
+    | Shown in language switchers (admin, POS, receipts). ur/hi remain in
+    | config('locales.supported') for translations
     | and RTL metadata — append them here to surface in UI again.
     |
     */

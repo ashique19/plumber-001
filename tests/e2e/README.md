@@ -16,8 +16,8 @@ Credentials (demo seed):
 
 | Role | Email | Password |
 |------|--------|----------|
-| Owner | `owner@fancy-coffee.test` | `TestPassword!2026` |
-| Cashier | `cashier@fancy-coffee.test` | `TestPassword!2026` |
+| Owner | `owner@plumber-demo.test` | `TestPassword!2026` |
+| Cashier | `cashier@plumber-demo.test` | `TestPassword!2026` |
 | Platform | `admin@taskeenlab.test` | `TestPassword!2026` |
 
 Failures write screenshots to `/opt/cursor/artifacts/e2e/`.

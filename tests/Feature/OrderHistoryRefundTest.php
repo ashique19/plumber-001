@@ -18,7 +18,7 @@ beforeEach(function () {
     $this->branch = Branch::query()
         ->where('code', 'jad-main')->firstOrFail();
     $this->owner = StaffUser::query()
-        ->where('email', 'owner@fancy-coffee.test')->firstOrFail();
+        ->where('email', 'owner@example.test')->firstOrFail();
     BusinessContext::set($this->tenant);
 
     $this->order = seedDemoPaidPosOrder();

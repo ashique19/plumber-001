@@ -61,7 +61,7 @@ function seedDemoPaidPosOrder(): PosOrder
 {
     $branch = Branch::query()->where('code', 'jad-main')->first()
         ?? Branch::query()->firstOrFail();
-    $cashier = StaffUser::query()->where('email', 'cashier@fancy-coffee.test')->firstOrFail();
+    $cashier = StaffUser::query()->where('email', 'cashier@example.test')->firstOrFail();
     $product = Product::query()->where('sku', 'SRV-LEAK')->firstOrFail();
 
     $orders = app(\App\Services\Pos\PosOrderService::class);

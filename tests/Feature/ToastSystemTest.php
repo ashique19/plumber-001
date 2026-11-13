@@ -14,7 +14,7 @@ beforeEach(function () {
     $this->tenant = BusinessSetting::singleton();
     $this->branch = Branch::query()->where('code', 'jad-main')->firstOrFail();
     $this->owner = StaffUser::query()
-        ->where('email', 'owner@fancy-coffee.test')->firstOrFail();
+        ->where('email', 'owner@example.test')->firstOrFail();
     \App\Business\BusinessContext::set($this->tenant);
 });
 

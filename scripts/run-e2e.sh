@@ -16,10 +16,10 @@ if ! command -v mysqladmin >/dev/null 2>&1; then
   exit 1
 fi
 
-if ! mysqladmin ping -h127.0.0.1 -u"zatca_e2e" -p"zatca_e2e_test" --silent 2>/dev/null; then
-  echo "Starting MariaDB and ensuring zatca_e2e database..."
+if ! mysqladmin ping -h127.0.0.1 -u"plumber_e2e" -p"plumber_e2e_test" --silent 2>/dev/null; then
+  echo "Starting MariaDB and ensuring plumber_e2e database..."
   (sudo service mariadb start 2>/dev/null || true)
-  sudo mysql -e "CREATE DATABASE IF NOT EXISTS zatca_e2e; CREATE USER IF NOT EXISTS 'zatca_e2e'@'localhost' IDENTIFIED BY 'zatca_e2e_test'; GRANT ALL ON zatca_e2e.* TO 'zatca_e2e'@'localhost'; FLUSH PRIVILEGES;" 2>/dev/null || true
+  sudo mysql -e "CREATE DATABASE IF NOT EXISTS plumber_e2e; CREATE USER IF NOT EXISTS 'plumber_e2e'@'localhost' IDENTIFIED BY 'plumber_e2e_test'; GRANT ALL ON plumber_e2e.* TO 'plumber_e2e'@'localhost'; FLUSH PRIVILEGES;" 2>/dev/null || true
 fi
 
 if [[ -f .env.e2e ]]; then
