@@ -2,6 +2,8 @@
 
 namespace Tests\Support;
 
+use App\Business\BusinessContext;
+use App\Models\BusinessSetting;
 use Database\Seeders\OwnerAdminSeeder;
 use Database\Seeders\PlumberCatalogSeeder;
 use Illuminate\Support\Facades\Config;
@@ -54,6 +56,7 @@ final class InstallSqlMysqlTestEnvironment
         self::applyLaravelMysqlConfig();
         (new OwnerAdminSeeder)->run();
         (new PlumberCatalogSeeder)->run();
+        BusinessContext::set(BusinessSetting::singleton());
         InstallSqlRouteFixtures::ensurePaidPosOrder();
         self::$bootstrapped = true;
     }
