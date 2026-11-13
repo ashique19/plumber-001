@@ -35,7 +35,7 @@ final class AppShellNav
     /**
      * @return list<Branch>
      */
-    public static function branchesForSwitcher(BusinessSetting $tenant): array
+    public static function branchesForSwitcher(BusinessSetting $business): array
     {
         return Branch::query()
             ->withoutGlobalScopes()

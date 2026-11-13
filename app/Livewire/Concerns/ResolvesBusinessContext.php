@@ -7,7 +7,7 @@ use App\Models\BusinessSetting;
 
 trait ResolvesBusinessContext
 {
-    public BusinessSetting $tenant;
+    public BusinessSetting $business;
 
     protected function resolveBusiness(): BusinessSetting
     {
@@ -16,7 +16,7 @@ trait ResolvesBusinessContext
             abort(503, __('business.not_configured'));
         }
         BusinessContext::set($business);
-        $this->tenant = $business;
+        $this->business = $business;
 
         return $business;
     }

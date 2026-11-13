@@ -14,8 +14,8 @@ beforeEach(function () {
 });
 
 it('composes thermal receipt with simplified invoice labels', function () {
-    ['tenant' => $tenant, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posTenantSetup();
-    BusinessContext::set($tenant);
+    ['business' => $business, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posBusinessSetup();
+    BusinessContext::set($business);
 
     $orders = app(PosOrderService::class);
     $checkout = app(PosCheckoutService::class);
@@ -24,7 +24,7 @@ it('composes thermal receipt with simplified invoice labels', function () {
     $paid = $checkout->pay($order->fresh(), PosPaymentMethod::Cash, $cashier);
     $invoice = $paid->invoice()->firstOrFail();
 
-    $thermal = ReceiptThermalPresenter::compose($tenant, $paid, $invoice, $branch);
+    $thermal = ReceiptThermalPresenter::compose($business, $paid, $invoice, $branch);
     $compliance = ReceiptSigningStatusLabel::forInvoice($invoice);
 
     expect($thermal['is_simplified'])->toBeTrue()
@@ -34,8 +34,8 @@ it('composes thermal receipt with simplified invoice labels', function () {
 });
 
 it('keeps TLV payload stable for issued invoices', function () {
-    ['tenant' => $tenant, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posTenantSetup();
-    BusinessContext::set($tenant);
+    ['business' => $business, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posBusinessSetup();
+    BusinessContext::set($business);
 
     $orders = app(PosOrderService::class);
     $checkout = app(PosCheckoutService::class);

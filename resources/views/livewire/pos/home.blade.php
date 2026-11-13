@@ -8,14 +8,14 @@
             <article class="app-card p-4 sm:p-5">
                 <h2 class="text-lg font-semibold">{{ $branch->name }}</h2>
                 <div class="mt-4 flex flex-col gap-2">
-                    <a class="tap-action-primary w-full" href="{{ route('admin.pos.terminal', [request()->route('tenant'), $branch]) }}">
+                    <a class="tap-action-primary w-full" href="{{ route('admin.pos.terminal', $branch) }}">
                         <x-app.icon name="cart" class="h-5 w-5" />
                         {{ __('pos.open_terminal') }}
                     </a>
                     <div class="grid grid-cols-3 gap-2">
-                        <a class="tap-action-muted min-h-11 px-2 text-xs sm:text-sm" href="{{ route('admin.pos.history', [request()->route('tenant'), $branch]) }}">{{ __('pos.history') }}</a>
-                        <a class="tap-action-muted min-h-11 px-2 text-xs sm:text-sm" href="{{ route('admin.pos.eod', [request()->route('tenant'), $branch]) }}">{{ __('pos.end_of_day') }}</a>
-                        <a class="tap-action-muted min-h-11 px-2 text-xs sm:text-sm" href="{{ route('admin.pos.ops', [request()->route('tenant'), $branch]) }}">{{ __('pos.nav_ops') }}</a>
+                        <a class="tap-action-muted min-h-11 px-2 text-xs sm:text-sm" href="{{ route('admin.pos.history', $branch) }}">{{ __('pos.history') }}</a>
+                        <a class="tap-action-muted min-h-11 px-2 text-xs sm:text-sm" href="{{ route('admin.pos.eod', $branch) }}">{{ __('pos.end_of_day') }}</a>
+                        <a class="tap-action-muted min-h-11 px-2 text-xs sm:text-sm" href="{{ route('admin.pos.ops', $branch) }}">{{ __('pos.nav_ops') }}</a>
                     </div>
                 </div>
             </article>

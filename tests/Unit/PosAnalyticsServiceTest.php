@@ -11,11 +11,11 @@ use App\Services\Pos\PosAnalyticsService;
 use Illuminate\Support\Carbon;
 
 it('aggregates paid orders and round-trips csv sections', function () {
-    ['tenant' => $tenant, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posTenantSetup();
+    ['business' => $business, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posBusinessSetup();
 
     $paidAt = Carbon::now()->startOfHour();
     PosOrder::query()->create([
-        'tenant_id' => $tenant->id,
+        'tenant_id' => $business->id,
         'branch_id' => $branch->id,
         'cashier_id' => $cashier->id,
         'order_number' => 'T-100',
@@ -40,7 +40,7 @@ it('aggregates paid orders and round-trips csv sections', function () {
     $svc = app(PosAnalyticsService::class);
     $from = $paidAt->copy()->startOfDay();
     $to = $paidAt->copy()->endOfDay();
-    $report = $svc->report($tenant, $branch, $from, $to, 'day');
+    $report = $svc->report($business, $branch, $from, $to, 'day');
 
     expect($report['summary']['order_count'])->toBe(1)
         ->and($report['summary']['gross_inc_vat'])->toBe(23.0)

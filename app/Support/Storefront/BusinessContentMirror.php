@@ -9,7 +9,7 @@ use App\Support\BusinessProfile;
 /**
  * Publishes settings.business onto legacy content.* blocks.
  */
-final class StorefrontBusinessMirror
+final class BusinessContentMirror
 {
     /**
      * @param  array<string, mixed>  $content

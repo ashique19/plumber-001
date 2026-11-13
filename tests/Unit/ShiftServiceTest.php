@@ -8,7 +8,7 @@ use Illuminate\Validation\ValidationException;
 uses(RefreshDatabase::class);
 
 it('prevents two open shifts on the same branch', function () {
-    ['tenant' => $tenant, 'branch' => $branch, 'cashier' => $cashier] = posTenantSetup();
+    ['business' => $business, 'branch' => $branch, 'cashier' => $cashier] = posBusinessSetup();
     $svc = app(ShiftService::class);
 
     $svc->openShift($branch, $cashier, 100.0);

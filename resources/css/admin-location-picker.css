@@ -63,7 +63,7 @@
 }
 
 .admin-location-picker__result:hover {
-    background: color-mix(in srgb, var(--cafe-caramel, #c68b59) 12%, var(--app-surface));
+    background: color-mix(in srgb, var(--plumber-safety, #c68b59) 12%, var(--app-surface));
 }
 
 .admin-location-picker__map {

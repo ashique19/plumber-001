@@ -1,11 +1,11 @@
 /* Stable auth form controls — not tied to .app-shell tokens (avoids missing borders on login pages). */
 
 .auth-shell {
-    --auth-field-border: color-mix(in srgb, var(--cafe-mocha, #5c3d2e) 35%, var(--cafe-latte, #e8d4c4));
+    --auth-field-border: color-mix(in srgb, var(--plumber-steel, #5c3d2e) 35%, var(--plumber-sky, #e8d4c4));
     --auth-field-bg: #ffffff;
-    --auth-field-text: var(--cafe-espresso, #2c1810);
-    --auth-field-muted: var(--cafe-mocha, #5c3d2e);
-    --auth-focus-ring: color-mix(in srgb, var(--cafe-caramel, #c68b59) 30%, transparent);
+    --auth-field-text: var(--plumber-navy, #2c1810);
+    --auth-field-muted: var(--plumber-steel, #5c3d2e);
+    --auth-focus-ring: color-mix(in srgb, var(--plumber-safety, #c68b59) 30%, transparent);
     --auth-error: #be1818;
 }
 
@@ -15,12 +15,12 @@
         --auth-field-bg: #2a1c16;
         --auth-field-text: #faf6f0;
         --auth-field-muted: #c9b5a8;
-        --auth-focus-ring: color-mix(in srgb, var(--cafe-accent, #d4a574) 35%, transparent);
+        --auth-focus-ring: color-mix(in srgb, var(--plumber-accent, #d4a574) 35%, transparent);
         --auth-error: #f87171;
     }
 
     .auth-glass-card {
-        background: color-mix(in srgb, #2a1c16 92%, var(--cafe-espresso));
+        background: color-mix(in srgb, #2a1c16 92%, var(--plumber-navy));
         border-color: color-mix(in srgb, #faf6f0 22%, transparent);
     }
 }
@@ -53,13 +53,13 @@
 }
 
 .auth-input:hover:not(:disabled) {
-    border-color: color-mix(in srgb, var(--cafe-caramel, #c68b59) 55%, var(--auth-field-border));
+    border-color: color-mix(in srgb, var(--plumber-safety, #c68b59) 55%, var(--auth-field-border));
 }
 
 .auth-input:focus,
 .auth-input:focus-visible {
     outline: none;
-    border-color: var(--cafe-caramel, #c68b59);
+    border-color: var(--plumber-safety, #c68b59);
     box-shadow: 0 0 0 3px var(--auth-focus-ring);
 }
 
@@ -82,5 +82,5 @@
     border-radius: 0.35rem;
     border: 1px solid var(--auth-field-border);
     background-color: var(--auth-field-bg);
-    accent-color: var(--cafe-caramel, #c68b59);
+    accent-color: var(--plumber-safety, #c68b59);
 }

@@ -37,8 +37,8 @@ class InvoiceHub extends Component
     public function mount(): void
     {
         $this->resolveBusiness();
-        BusinessContext::set($this->tenant);
-        app(PermissionRegistrar::class)->setPermissionsTeamId($this->tenant->id);
+        BusinessContext::set($this->business);
+        app(PermissionRegistrar::class)->setPermissionsTeamId($this->business->id);
     }
 
     public function updatingSearch(): void

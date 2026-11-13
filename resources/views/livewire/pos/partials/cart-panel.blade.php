@@ -16,7 +16,7 @@
                     wire:click="undoRemoveLine"
                     wire:loading.attr="disabled"
                     wire:target="undoRemoveLine"
-                    class="pos-cart-undo__btn font-semibold text-[var(--cafe-caramel)] underline"
+                    class="pos-cart-undo__btn font-semibold text-[var(--plumber-safety)] underline"
                 >
                     {{ __('pos.undo_remove') }}
                 </button>

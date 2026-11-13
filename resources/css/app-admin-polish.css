@@ -1,18 +1,18 @@
 @layer components {
     /* Secondary bordered control — base tap-action hook for layout + visible affordance */
     .tap-action {
-        border: 1.5px solid color-mix(in srgb, var(--cafe-mocha, #5c3d2e) 22%, var(--cafe-latte, #e8d4c4));
+        border: 1.5px solid color-mix(in srgb, var(--plumber-steel, #5c3d2e) 22%, var(--plumber-sky, #e8d4c4));
         background: linear-gradient(
             180deg,
             var(--app-surface, #fff) 0%,
-            color-mix(in srgb, var(--cafe-cream, #faf6f0) 45%, var(--app-surface, #fff)) 100%
+            color-mix(in srgb, var(--plumber-ice, #faf6f0) 45%, var(--app-surface, #fff)) 100%
         );
-        color: var(--cafe-mocha, #5c3d2e);
+        color: var(--plumber-steel, #5c3d2e);
         box-shadow:
             0 1px 0 rgb(255 255 255 / 0.85) inset,
             0 1px 2px rgb(44 24 16 / 0.06);
         @apply transition-[border-color,box-shadow,background,filter] duration-150;
-        @apply hover:border-cafe-caramel hover:shadow-sm;
+        @apply hover:border-plumber-safety hover:shadow-sm;
     }
 
     a.tap-action:not([class*='tap-action-']),
@@ -29,15 +29,15 @@
 
     .app-section-tabs .app-segment-tab--active,
     .app-segment-tab.app-segment-tab--active {
-        background-color: var(--cafe-espresso, #2c1810);
-        border-color: var(--cafe-espresso, #2c1810);
+        background-color: var(--plumber-navy, #2c1810);
+        border-color: var(--plumber-navy, #2c1810);
         color: #ffffff;
         box-shadow: 0 2px 8px rgb(44 24 16 / 0.22);
     }
 
     .app-list-card {
         @apply flex flex-col gap-3 rounded-2xl border p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between;
-        border-color: color-mix(in srgb, var(--app-border) 90%, var(--cafe-mocha, #5c3d2e) 10%);
+        border-color: color-mix(in srgb, var(--app-border) 90%, var(--plumber-steel, #5c3d2e) 10%);
         background: var(--app-surface);
         box-shadow: var(--app-shadow);
     }
@@ -48,7 +48,7 @@
 
     .app-table-wrap {
         @apply overflow-x-auto rounded-2xl border p-0 shadow-sm;
-        border-color: color-mix(in srgb, var(--app-border) 90%, var(--cafe-mocha, #5c3d2e) 10%);
+        border-color: color-mix(in srgb, var(--app-border) 90%, var(--plumber-steel, #5c3d2e) 10%);
         background: var(--app-surface);
         box-shadow: var(--app-shadow);
     }
@@ -72,11 +72,11 @@
     }
 
     .app-table tbody tr:nth-child(even) {
-        background: color-mix(in srgb, var(--cafe-cream, #faf6f0) 35%, var(--app-surface, #fff));
+        background: color-mix(in srgb, var(--plumber-ice, #faf6f0) 35%, var(--app-surface, #fff));
     }
 
     .app-table tbody tr:hover {
-        background: color-mix(in srgb, var(--cafe-caramel, #c68b59) 8%, var(--app-surface, #fff));
+        background: color-mix(in srgb, var(--plumber-safety, #c68b59) 8%, var(--app-surface, #fff));
     }
 
     .app-table tbody td {
@@ -103,7 +103,7 @@
 
     .app-filter-bar {
         @apply mb-4 flex flex-col gap-2 rounded-2xl border p-3 shadow-sm sm:flex-row sm:items-center;
-        border-color: color-mix(in srgb, var(--app-border) 90%, var(--cafe-mocha, #5c3d2e) 10%);
+        border-color: color-mix(in srgb, var(--app-border) 90%, var(--plumber-steel, #5c3d2e) 10%);
         background: var(--app-surface);
         box-shadow: var(--app-shadow);
     }
@@ -121,7 +121,7 @@
     .app-inset-panel {
         @apply rounded-xl border p-3 sm:p-4;
         border-color: var(--app-border);
-        background: color-mix(in srgb, var(--cafe-cream, #faf6f0) 25%, var(--app-surface, #fff));
+        background: color-mix(in srgb, var(--plumber-ice, #faf6f0) 25%, var(--app-surface, #fff));
     }
 
     /* Laravel pagination (Tailwind) */
@@ -139,17 +139,17 @@
     }
 
     nav[role='navigation'] span[aria-current='page'] span {
-        @apply border-cafe-caramel bg-cafe-caramel text-white;
+        @apply border-plumber-safety bg-plumber-safety text-white;
     }
 
     nav[role='navigation'] a:hover {
-        @apply border-cafe-caramel;
+        @apply border-plumber-safety;
     }
 
     .pos-cart-panel {
         @apply rounded-2xl border p-4 shadow-lg;
         border-color: var(--app-border);
-        background: color-mix(in srgb, var(--app-surface) 92%, var(--cafe-cream));
+        background: color-mix(in srgb, var(--app-surface) 92%, var(--plumber-ice));
         box-shadow: var(--app-shadow);
     }
 

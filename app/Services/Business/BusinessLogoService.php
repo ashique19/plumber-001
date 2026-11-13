@@ -11,14 +11,14 @@ class BusinessLogoService
   /**
    * Store under public/img/business/{id}/ (no storage symlink); path is relative to public/.
    */
-  public function store(BusinessSetting $tenant, UploadedFile $file): string
+  public function store(BusinessSetting $business, UploadedFile $file): string
   {
     if ($file->getSize() > LogoUploadConstraints::MAX_BYTES) {
       throw new \InvalidArgumentException(__('business.logo_upload.errors.too_big', ['limit' => '1 MB']));
     }
 
     try {
-      $directory = public_path('img/business/'.$tenant->id);
+      $directory = public_path('img/business/'.$business->id);
       if (! is_dir($directory)) {
         File::makeDirectory($directory, 0755, true, true);
       }
@@ -37,7 +37,7 @@ class BusinessLogoService
         @chmod($absolute, 0644);
         $this->writeFaviconFromRaster(null, $directory);
 
-        return 'img/business/'.$tenant->id.'/'.$filename;
+        return 'img/business/'.$business->id.'/'.$filename;
       }
 
       $info = @getimagesize($file->getRealPath());
@@ -68,7 +68,7 @@ class BusinessLogoService
       @chmod($absolute, 0644);
       $this->writeFaviconFromRaster($absolute, $directory);
 
-      return 'img/business/'.$tenant->id.'/'.$filename;
+      return 'img/business/'.$business->id.'/'.$filename;
     } catch (\InvalidArgumentException $e) {
       throw $e;
     } catch (\Throwable $e) {
@@ -77,9 +77,9 @@ class BusinessLogoService
     }
   }
 
-  public function deleteTenantLogos(BusinessSetting $tenant, ?string $keepRelative = null): void
+  public function deleteBusinessLogos(BusinessSetting $business, ?string $keepRelative = null): void
   {
-    $directory = public_path('img/business/'.$tenant->id);
+    $directory = public_path('img/business/'.$business->id);
     if (! is_dir($directory)) {
       return;
     }

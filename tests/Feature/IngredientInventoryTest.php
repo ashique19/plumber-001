@@ -10,7 +10,7 @@ beforeEach(function () {
 
 function inventorySetup(): array
 {
-    ['tenant' => $tenant, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posTenantSetup();
+    ['business' => $business, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posBusinessSetup();
 
     $owner = $cashier;
     $owner->syncRoles(['owner']);
@@ -26,7 +26,7 @@ function inventorySetup(): array
         'is_active' => true,
     ]);
 
-    return compact('tenant', 'branch', 'cashier', 'product', 'ingredient');
+    return compact('business', 'branch', 'cashier', 'product', 'ingredient');
 }
 
 it('does not 500 when saveAdjust called without adjust id', function () {

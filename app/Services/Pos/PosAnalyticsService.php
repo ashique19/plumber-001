@@ -18,13 +18,13 @@ class PosAnalyticsService
      * @return array<string, mixed>
      */
     public function report(
-        BusinessSetting $tenant,
+        BusinessSetting $business,
         ?Branch $branch,
         Carbon $from,
         Carbon $to,
         string $granularity = 'day',
     ): array {
-        $orders = $this->paidOrders($tenant, $branch, $from, $to);
+        $orders = $this->paidOrders($business, $branch, $from, $to);
 
         $count = $orders->count();
         $gross = round((float) $orders->sum('total_inc_vat'), 2);
@@ -34,7 +34,7 @@ class PosAnalyticsService
         $prevSpan = $to->diffInSeconds($from);
         $prevFrom = $from->copy()->subSeconds($prevSpan + 1);
         $prevTo = $from->copy()->subSecond();
-        $prev = $this->paidOrders($tenant, $branch, $prevFrom, $prevTo);
+        $prev = $this->paidOrders($business, $branch, $prevFrom, $prevTo);
         $prevGross = (float) $prev->sum('total_inc_vat');
         $trendPct = $prevGross > 0
             ? round((($gross - $prevGross) / $prevGross) * 100, 1)
@@ -51,10 +51,10 @@ class PosAnalyticsService
             'sales_series' => $this->salesSeries($orders, $from, $to, $granularity),
             'hourly_heatmap' => $this->hourlyHeatmap($orders),
             'top_products' => $this->topProducts($orders, 10),
-            'category_mix' => $this->categoryMix($tenant, $orders),
+            'category_mix' => $this->categoryMix($business, $orders),
             'payment_split' => $this->paymentSplit($orders),
-            'branch_comparison' => $branch === null ? $this->branchComparison($tenant, $orders) : [],
-            'cashier_performance' => $this->cashierPerformance($tenant, $orders),
+            'branch_comparison' => $branch === null ? $this->branchComparison($business, $orders) : [],
+            'cashier_performance' => $this->cashierPerformance($business, $orders),
             'meta' => [
                 'from' => $from->toIso8601String(),
                 'to' => $to->toIso8601String(),
@@ -67,7 +67,7 @@ class PosAnalyticsService
     /**
      * @return Collection<int, PosOrder>
      */
-    private function paidOrders(BusinessSetting $tenant, ?Branch $branch, Carbon $from, Carbon $to): Collection
+    private function paidOrders(BusinessSetting $business, ?Branch $branch, Carbon $from, Carbon $to): Collection
     {
         $q = PosOrder::query()
             ->withoutGlobalScopes()
@@ -202,7 +202,7 @@ class PosAnalyticsService
      * @param  Collection<int, PosOrder>  $orders
      * @return list<array{label: string, total: float, pct: float}>
      */
-    private function categoryMix(BusinessSetting $tenant, Collection $orders): array
+    private function categoryMix(BusinessSetting $business, Collection $orders): array
     {
         $productIds = [];
         foreach ($orders as $order) {
@@ -291,7 +291,7 @@ class PosAnalyticsService
      * @param  Collection<int, PosOrder>  $orders
      * @return list<array{branch_id: int, name: string, total: float, orders: int}>
      */
-    private function branchComparison(BusinessSetting $tenant, Collection $orders): array
+    private function branchComparison(BusinessSetting $business, Collection $orders): array
     {
         $branches = Branch::query()
             ->withoutGlobalScopes()
@@ -319,7 +319,7 @@ class PosAnalyticsService
      * @param  Collection<int, PosOrder>  $orders
      * @return list<array{cashier_id: int|null, name: string, total: float, orders: int, aov: float}>
      */
-    private function cashierPerformance(BusinessSetting $tenant, Collection $orders): array
+    private function cashierPerformance(BusinessSetting $business, Collection $orders): array
     {
         $userIds = $orders->pluck('cashier_id')->filter()->unique()->values();
         $users = StaffUser::query()

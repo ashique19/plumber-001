@@ -119,7 +119,7 @@
     @if ($previewUrl)
         <p class="form-field__hint mt-1">
             {{ __('business.logo_upload.stored_at') }}
-            <a href="{{ asset($previewUrl) }}" class="font-semibold text-[var(--cafe-caramel)] underline" target="_blank" rel="noopener noreferrer">{{ asset($previewUrl) }}</a>
+            <a href="{{ asset($previewUrl) }}" class="font-semibold text-[var(--plumber-safety)] underline" target="_blank" rel="noopener noreferrer">{{ asset($previewUrl) }}</a>
         </p>
     @endif
 </div>

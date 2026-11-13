@@ -20,10 +20,10 @@ afterEach(function () {
 
 function stockCapSetup(int $onHandMl = 9600, float $perUnit = 300.0): array
 {
-    ['tenant' => $tenant, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posTenantSetup();
+    ['business' => $business, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posBusinessSetup();
 
     Ingredient::query()->create([
-        'tenant_id' => $tenant->id,
+        'tenant_id' => $business->id,
         'branch_id' => null,
         'name' => 'Beans',
         'name_en' => 'Beans',
@@ -46,12 +46,12 @@ function stockCapSetup(int $onHandMl = 9600, float $perUnit = 300.0): array
         'quantity_per_unit' => $perUnit,
     ]);
 
-    return compact('tenant', 'branch', 'cashier', 'product');
+    return compact('business', 'branch', 'cashier', 'product');
 }
 
 it('dispatches stock cap toast when typing above available inventory', function () {
-    ['tenant' => $tenant, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = stockCapSetup();
-    BusinessContext::set($tenant);
+    ['business' => $business, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = stockCapSetup();
+    BusinessContext::set($business);
 
     Livewire::actingAs($cashier, 'staff')
         ->test(Terminal::class, ['branch' => $branch])
@@ -65,8 +65,8 @@ it('dispatches stock cap toast when typing above available inventory', function 
 });
 
 it('dispatches max qty toast when typing above 999 without server 500', function () {
-    ['tenant' => $tenant, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = stockCapSetup(999_999);
-    BusinessContext::set($tenant);
+    ['business' => $business, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = stockCapSetup(999_999);
+    BusinessContext::set($business);
 
     Livewire::actingAs($cashier, 'staff')
         ->test(Terminal::class, ['branch' => $branch])
@@ -78,8 +78,8 @@ it('dispatches max qty toast when typing above 999 without server 500', function
 });
 
 it('handles rapid increment at stock ceiling without errors', function () {
-    ['tenant' => $tenant, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = stockCapSetup(6000);
-    BusinessContext::set($tenant);
+    ['business' => $business, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = stockCapSetup(6000);
+    BusinessContext::set($business);
 
     $component = Livewire::actingAs($cashier, 'staff')
         ->test(Terminal::class, ['branch' => $branch])

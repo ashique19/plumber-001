@@ -13,7 +13,6 @@
         </div>
         <a
             href="{{ route('admin.reports.export', [
-                'tenant' => $tenant,
                 'from' => $dateFrom,
                 'to' => $dateTo,
                 'granularity' => $granularity,

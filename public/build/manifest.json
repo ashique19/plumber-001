@@ -1,100 +1,7 @@
 {
-  "_leaflet-default-icon-1DTFk8zz.css": {
-    "file": "assets/leaflet-default-icon-1DTFk8zz.css",
-    "src": "_leaflet-default-icon-1DTFk8zz.css"
-  },
-  "_leaflet-default-icon-Czrz-C3a.js": {
-    "file": "assets/leaflet-default-icon-Czrz-C3a.js",
-    "name": "leaflet-default-icon",
-    "imports": [
-      "_rolldown-runtime-WkwZ5CU-.js"
-    ],
-    "css": [
-      "assets/leaflet-default-icon-1DTFk8zz.css"
-    ],
-    "assets": [
-      "assets/marker-icon-2x-_ZA0WGCc.png",
-      "assets/marker-icon-hN30_KVU.png",
-      "assets/marker-shadow-f7SaPCxT.png",
-      "assets/layers-BWBAp2CZ.png",
-      "assets/layers-2x-Bpkbi35X.png"
-    ]
-  },
   "_rolldown-runtime-WkwZ5CU-.js": {
     "file": "assets/rolldown-runtime-WkwZ5CU-.js",
     "name": "rolldown-runtime"
-  },
-  "node_modules/@fontsource/fraunces/files/fraunces-latin-500-normal.woff": {
-    "file": "assets/fraunces-latin-500-normal-BTR4KCeb.woff",
-    "src": "node_modules/@fontsource/fraunces/files/fraunces-latin-500-normal.woff"
-  },
-  "node_modules/@fontsource/fraunces/files/fraunces-latin-500-normal.woff2": {
-    "file": "assets/fraunces-latin-500-normal-DnGCNyPD.woff2",
-    "src": "node_modules/@fontsource/fraunces/files/fraunces-latin-500-normal.woff2"
-  },
-  "node_modules/@fontsource/fraunces/files/fraunces-latin-600-normal.woff": {
-    "file": "assets/fraunces-latin-600-normal-DL5QCzvS.woff",
-    "src": "node_modules/@fontsource/fraunces/files/fraunces-latin-600-normal.woff"
-  },
-  "node_modules/@fontsource/fraunces/files/fraunces-latin-600-normal.woff2": {
-    "file": "assets/fraunces-latin-600-normal-BFCDtZfi.woff2",
-    "src": "node_modules/@fontsource/fraunces/files/fraunces-latin-600-normal.woff2"
-  },
-  "node_modules/@fontsource/fraunces/files/fraunces-latin-700-normal.woff": {
-    "file": "assets/fraunces-latin-700-normal-DTjk5d1Q.woff",
-    "src": "node_modules/@fontsource/fraunces/files/fraunces-latin-700-normal.woff"
-  },
-  "node_modules/@fontsource/fraunces/files/fraunces-latin-700-normal.woff2": {
-    "file": "assets/fraunces-latin-700-normal-CEOla-zY.woff2",
-    "src": "node_modules/@fontsource/fraunces/files/fraunces-latin-700-normal.woff2"
-  },
-  "node_modules/@fontsource/fraunces/files/fraunces-latin-ext-500-normal.woff": {
-    "file": "assets/fraunces-latin-ext-500-normal-BMcFk1Xs.woff",
-    "src": "node_modules/@fontsource/fraunces/files/fraunces-latin-ext-500-normal.woff"
-  },
-  "node_modules/@fontsource/fraunces/files/fraunces-latin-ext-500-normal.woff2": {
-    "file": "assets/fraunces-latin-ext-500-normal-Z5DV8IzT.woff2",
-    "src": "node_modules/@fontsource/fraunces/files/fraunces-latin-ext-500-normal.woff2"
-  },
-  "node_modules/@fontsource/fraunces/files/fraunces-latin-ext-600-normal.woff": {
-    "file": "assets/fraunces-latin-ext-600-normal-B0Dy4lqi.woff",
-    "src": "node_modules/@fontsource/fraunces/files/fraunces-latin-ext-600-normal.woff"
-  },
-  "node_modules/@fontsource/fraunces/files/fraunces-latin-ext-600-normal.woff2": {
-    "file": "assets/fraunces-latin-ext-600-normal-BtzmzP0X.woff2",
-    "src": "node_modules/@fontsource/fraunces/files/fraunces-latin-ext-600-normal.woff2"
-  },
-  "node_modules/@fontsource/fraunces/files/fraunces-latin-ext-700-normal.woff": {
-    "file": "assets/fraunces-latin-ext-700-normal-DuBstVeD.woff",
-    "src": "node_modules/@fontsource/fraunces/files/fraunces-latin-ext-700-normal.woff"
-  },
-  "node_modules/@fontsource/fraunces/files/fraunces-latin-ext-700-normal.woff2": {
-    "file": "assets/fraunces-latin-ext-700-normal-CanUGppC.woff2",
-    "src": "node_modules/@fontsource/fraunces/files/fraunces-latin-ext-700-normal.woff2"
-  },
-  "node_modules/@fontsource/fraunces/files/fraunces-vietnamese-500-normal.woff": {
-    "file": "assets/fraunces-vietnamese-500-normal-B-KbxExq.woff",
-    "src": "node_modules/@fontsource/fraunces/files/fraunces-vietnamese-500-normal.woff"
-  },
-  "node_modules/@fontsource/fraunces/files/fraunces-vietnamese-500-normal.woff2": {
-    "file": "assets/fraunces-vietnamese-500-normal-GOH_-EGq.woff2",
-    "src": "node_modules/@fontsource/fraunces/files/fraunces-vietnamese-500-normal.woff2"
-  },
-  "node_modules/@fontsource/fraunces/files/fraunces-vietnamese-600-normal.woff": {
-    "file": "assets/fraunces-vietnamese-600-normal-DlAl5EAR.woff",
-    "src": "node_modules/@fontsource/fraunces/files/fraunces-vietnamese-600-normal.woff"
-  },
-  "node_modules/@fontsource/fraunces/files/fraunces-vietnamese-600-normal.woff2": {
-    "file": "assets/fraunces-vietnamese-600-normal-BjlAJixd.woff2",
-    "src": "node_modules/@fontsource/fraunces/files/fraunces-vietnamese-600-normal.woff2"
-  },
-  "node_modules/@fontsource/fraunces/files/fraunces-vietnamese-700-normal.woff": {
-    "file": "assets/fraunces-vietnamese-700-normal-DxawQjq2.woff",
-    "src": "node_modules/@fontsource/fraunces/files/fraunces-vietnamese-700-normal.woff"
-  },
-  "node_modules/@fontsource/fraunces/files/fraunces-vietnamese-700-normal.woff2": {
-    "file": "assets/fraunces-vietnamese-700-normal-DH94m5DZ.woff2",
-    "src": "node_modules/@fontsource/fraunces/files/fraunces-vietnamese-700-normal.woff2"
   },
   "node_modules/@fontsource/instrument-sans/files/instrument-sans-latin-400-normal.woff": {
     "file": "assets/instrument-sans-latin-400-normal-D1W7dsQl.woff",
@@ -446,7 +353,7 @@
     "isEntry": true
   },
   "resources/css/app.css": {
-    "file": "assets/app-y4inuqzW.css",
+    "file": "assets/app-fbhbmwAz.css",
     "name": "app",
     "names": [
       "app.css"
@@ -478,24 +385,6 @@
       "assets/instrument-sans-latin-ext-600-normal-DMks36a2.woff",
       "assets/instrument-sans-latin-600-normal-B7fBEWYG.woff2",
       "assets/instrument-sans-latin-600-normal-B9e8oLYv.woff",
-      "assets/fraunces-vietnamese-500-normal-GOH_-EGq.woff2",
-      "assets/fraunces-vietnamese-500-normal-B-KbxExq.woff",
-      "assets/fraunces-latin-ext-500-normal-Z5DV8IzT.woff2",
-      "assets/fraunces-latin-ext-500-normal-BMcFk1Xs.woff",
-      "assets/fraunces-latin-500-normal-DnGCNyPD.woff2",
-      "assets/fraunces-latin-500-normal-BTR4KCeb.woff",
-      "assets/fraunces-vietnamese-600-normal-BjlAJixd.woff2",
-      "assets/fraunces-vietnamese-600-normal-DlAl5EAR.woff",
-      "assets/fraunces-latin-ext-600-normal-BtzmzP0X.woff2",
-      "assets/fraunces-latin-ext-600-normal-B0Dy4lqi.woff",
-      "assets/fraunces-latin-600-normal-BFCDtZfi.woff2",
-      "assets/fraunces-latin-600-normal-DL5QCzvS.woff",
-      "assets/fraunces-vietnamese-700-normal-DH94m5DZ.woff2",
-      "assets/fraunces-vietnamese-700-normal-DxawQjq2.woff",
-      "assets/fraunces-latin-ext-700-normal-CanUGppC.woff2",
-      "assets/fraunces-latin-ext-700-normal-DuBstVeD.woff",
-      "assets/fraunces-latin-700-normal-CEOla-zY.woff2",
-      "assets/fraunces-latin-700-normal-DTjk5d1Q.woff",
       "assets/inter-cyrillic-ext-400-normal-BQZuk6qB.woff2",
       "assets/inter-cyrillic-ext-400-normal-DQukG94-.woff",
       "assets/inter-cyrillic-400-normal-obahsSVq.woff2",
@@ -555,7 +444,7 @@
     ]
   },
   "resources/css/error-pages.css": {
-    "file": "assets/error-pages-K4i9ZrrV.css",
+    "file": "assets/error-pages-Z7snqgLZ.css",
     "name": "error-pages",
     "names": [
       "error-pages.css"
@@ -579,32 +468,22 @@
     "isEntry": true
   },
   "resources/js/app.js": {
-    "file": "assets/app-CksFe5Z7.js",
+    "file": "assets/app-Ci3qU_GR.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
     "imports": [
-      "_rolldown-runtime-WkwZ5CU-.js",
-      "_leaflet-default-icon-Czrz-C3a.js"
-    ]
-  },
-  "resources/js/cafe-branch-map.js": {
-    "file": "assets/cafe-branch-map-c-mKGhvn.js",
-    "name": "cafe-branch-map",
-    "src": "resources/js/cafe-branch-map.js",
-    "isDynamicEntry": true,
-    "imports": [
-      "_rolldown-runtime-WkwZ5CU-.js",
-      "_leaflet-default-icon-Czrz-C3a.js"
-    ]
-  },
-  "resources/js/cafe-storefront.js": {
-    "file": "assets/cafe-storefront-cB4cgTaE.js",
-    "name": "cafe-storefront",
-    "src": "resources/js/cafe-storefront.js",
-    "isEntry": true,
-    "dynamicImports": [
-      "resources/js/cafe-branch-map.js"
+      "_rolldown-runtime-WkwZ5CU-.js"
+    ],
+    "css": [
+      "assets/app-1DTFk8zz.css"
+    ],
+    "assets": [
+      "assets/marker-icon-2x-_ZA0WGCc.png",
+      "assets/marker-icon-hN30_KVU.png",
+      "assets/marker-shadow-f7SaPCxT.png",
+      "assets/layers-BWBAp2CZ.png",
+      "assets/layers-2x-Bpkbi35X.png"
     ]
   },
   "resources/js/receipt.js": {

@@ -15,10 +15,10 @@ beforeEach(function () {
 });
 
 it('builds thermal presenter with sku lines and vat summary', function () {
-    ['tenant' => $tenant, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posTenantSetup();
-    BusinessContext::set($tenant);
+    ['business' => $business, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posBusinessSetup();
+    BusinessContext::set($business);
 
-    $product->update(['name_ar' => 'لاتيه', 'sku' => 'LATTE']);
+    $product->update(['name_ar' => 'فحص تسرب', 'sku' => 'SRV-DEMO']);
 
     $orders = app(PosOrderService::class);
     $checkout = app(PosCheckoutService::class);
@@ -28,10 +28,10 @@ it('builds thermal presenter with sku lines and vat summary', function () {
     $paid->load(['branch', 'cashier', 'customer']);
     $invoice = $paid->invoice()->firstOrFail();
 
-    $thermal = ReceiptThermalPresenter::compose($tenant, $paid, $invoice, $branch);
+    $thermal = ReceiptThermalPresenter::compose($business, $paid, $invoice, $branch);
 
     expect($thermal['lines'])->toHaveCount(1)
-        ->and($thermal['lines'][0]['sku'])->toBe('LATTE')
+        ->and($thermal['lines'][0]['sku'])->toBe('SRV-DEMO')
         ->and($thermal['lines'][0]['tax_code'])->toBe('S6')
         ->and($thermal['item_count'])->toBe(2)
         ->and($thermal['vat_rows'])->not->toBeEmpty()
@@ -40,8 +40,8 @@ it('builds thermal presenter with sku lines and vat summary', function () {
 });
 
 it('shows masked customer block when order has customer', function () {
-    ['tenant' => $tenant, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posTenantSetup();
-    BusinessContext::set($tenant);
+    ['business' => $business, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posBusinessSetup();
+    BusinessContext::set($business);
 
     $customer = Customer::query()->create([
         'name' => 'Jamal Guest',
@@ -58,15 +58,15 @@ it('shows masked customer block when order has customer', function () {
     $paid->load(['branch', 'cashier', 'customer']);
     $invoice = $paid->invoice()->firstOrFail();
 
-    $thermal = ReceiptThermalPresenter::compose($tenant, $paid, $invoice, $branch);
+    $thermal = ReceiptThermalPresenter::compose($business, $paid, $invoice, $branch);
 
     expect($thermal['customer']['masked_phone'])->toEndWith('0244')
         ->and($thermal['customer']['name'])->toBe('Jamal Guest');
 });
 
 it('omits card auth lines when metadata is empty', function () {
-    ['tenant' => $tenant, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posTenantSetup();
-    BusinessContext::set($tenant);
+    ['business' => $business, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posBusinessSetup();
+    BusinessContext::set($business);
 
     $orders = app(PosOrderService::class);
     $checkout = app(PosCheckoutService::class);
@@ -76,7 +76,7 @@ it('omits card auth lines when metadata is empty', function () {
     $paid->load(['branch', 'cashier', 'customer']);
     $invoice = $paid->invoice()->firstOrFail();
 
-    $thermal = ReceiptThermalPresenter::compose($tenant, $paid, $invoice, $branch);
+    $thermal = ReceiptThermalPresenter::compose($business, $paid, $invoice, $branch);
 
     expect($thermal['card'])->toBeNull();
 });

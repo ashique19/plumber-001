@@ -8,14 +8,14 @@ use Illuminate\Support\Str;
 class ThemeAssetCatalog
 {
     /**
-     * @return list<string> Paths relative to /public (e.g. images/fancy-coffee/hero.jpg)
+     * @return list<string> Paths relative to /public (e.g. images/plumber-services/hero.jpg)
      */
-    public static function assetPathsForTenant(BusinessSetting $tenant): array
+    public static function assetPathsForBusiness(BusinessSetting $business): array
     {
         $paths = [];
-        self::walk($tenant->settings ?? [], $paths);
+        self::walk($business->settings ?? [], $paths);
 
-        $logo = data_get($tenant->settings, 'theme.logo_url');
+        $logo = data_get($business->settings, 'theme.logo_url');
         if (is_string($logo) && self::isBundledPath($logo)) {
             $paths[] = ltrim($logo, '/');
         }

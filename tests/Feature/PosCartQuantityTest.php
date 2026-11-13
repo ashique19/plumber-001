@@ -17,8 +17,8 @@ afterEach(function () {
 });
 
 it('increments and decrements line quantity through the order service', function () {
-    ['tenant' => $tenant, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posTenantSetup();
-    BusinessContext::set($tenant);
+    ['business' => $business, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posBusinessSetup();
+    BusinessContext::set($business);
 
     /** @var PosOrderService $orders */
     $orders = app(PosOrderService::class);
@@ -41,8 +41,8 @@ it('increments and decrements line quantity through the order service', function
 });
 
 it('removes a line when quantity is set to zero', function () {
-      ['tenant' => $tenant, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posTenantSetup();
-    BusinessContext::set($tenant);
+      ['business' => $business, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posBusinessSetup();
+    BusinessContext::set($business);
 
     $orders = app(PosOrderService::class);
     $order = $orders->openOrder($branch, $cashier);
@@ -56,8 +56,8 @@ it('removes a line when quantity is set to zero', function () {
 });
 
 it('recomputes totals when livewire increments and decrements cart lines', function () {
-    ['tenant' => $tenant, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posTenantSetup();
-    BusinessContext::set($tenant);
+    ['business' => $business, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posBusinessSetup();
+    BusinessContext::set($business);
 
     $component = Livewire::actingAs($cashier, 'staff')
         ->test(\App\Livewire\Pos\Terminal::class, ['branch' => $branch])
@@ -79,8 +79,8 @@ it('recomputes totals when livewire increments and decrements cart lines', funct
 });
 
 it('captures undo snapshot when decrement removes last unit', function () {
-    ['tenant' => $tenant, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posTenantSetup();
-    BusinessContext::set($tenant);
+    ['business' => $business, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posBusinessSetup();
+    BusinessContext::set($business);
 
     $orders = app(PosOrderService::class);
     $order = $orders->openOrder($branch, $cashier);
@@ -91,14 +91,14 @@ it('captures undo snapshot when decrement removes last unit', function () {
         ->test(\App\Livewire\Pos\Terminal::class, ['branch' => $branch])
         ->set('orderId', $order->id)
         ->call('decrementLine', 0)
-        ->assertSet('undoLineSnapshot.line.name', 'Latte');
+        ->assertSet('undoLineSnapshot.line.name', 'Leak check');
 
     expect($order->fresh()->line_items)->toBe([]);
 });
 
 it('restores a removed line via undo', function () {
-    ['tenant' => $tenant, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posTenantSetup();
-    BusinessContext::set($tenant);
+    ['business' => $business, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posBusinessSetup();
+    BusinessContext::set($business);
 
     $orders = app(PosOrderService::class);
     $order = $orders->openOrder($branch, $cashier);
@@ -113,12 +113,12 @@ it('restores a removed line via undo', function () {
         ->assertSet('undoLineSnapshot', null);
 
     expect($order->fresh()->line_items)->toHaveCount(1)
-        ->and($order->fresh()->line_items[0]['name'])->toBe('Latte');
+        ->and($order->fresh()->line_items[0]['name'])->toBe('Leak check');
 });
 
 it('renders quantity stepper controls on the cart panel', function () {
-    ['tenant' => $tenant, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posTenantSetup();
-    BusinessContext::set($tenant);
+    ['business' => $business, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posBusinessSetup();
+    BusinessContext::set($business);
 
     $html = Livewire::actingAs($cashier, 'staff')
         ->test(\App\Livewire\Pos\Terminal::class, ['branch' => $branch])
@@ -133,8 +133,8 @@ it('renders quantity stepper controls on the cart panel', function () {
 });
 
 it('never throws when applyLineQuantity receives invalid or edge values', function () {
-    ['tenant' => $tenant, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posTenantSetup();
-    BusinessContext::set($tenant);
+    ['business' => $business, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posBusinessSetup();
+    BusinessContext::set($business);
 
     $component = Livewire::actingAs($cashier, 'staff')
         ->test(\App\Livewire\Pos\Terminal::class, ['branch' => $branch])
@@ -151,14 +151,14 @@ it('never throws when applyLineQuantity receives invalid or edge values', functi
 });
 
 it('removes line when remove control is used', function () {
-    ['tenant' => $tenant, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posTenantSetup();
-    BusinessContext::set($tenant);
+    ['business' => $business, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posBusinessSetup();
+    BusinessContext::set($business);
 
     Livewire::actingAs($cashier, 'staff')
         ->test(\App\Livewire\Pos\Terminal::class, ['branch' => $branch])
         ->call('addProduct', $product->id)
         ->call('removeLine', 0)
-        ->assertSet('undoLineSnapshot.line.name', 'Latte');
+        ->assertSet('undoLineSnapshot.line.name', 'Leak check');
 
     expect(PosOrder::query()->latest('id')->first()->line_items)->toBe([]);
 });

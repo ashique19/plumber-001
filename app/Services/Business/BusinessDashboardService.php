@@ -18,28 +18,28 @@ class BusinessDashboardService
     /**
      * @return array<string, mixed>
      */
-    public function snapshot(BusinessSetting $tenant): array
+    public function snapshot(BusinessSetting $business): array
     {
         $tz = config('app.timezone');
         $todayEnd = Carbon::now($tz)->endOfDay();
         $todayStart = Carbon::now($tz)->startOfDay();
         $weekStart = Carbon::now($tz)->subDays(6)->startOfDay();
 
-        $today = $this->analytics->report($tenant, null, $todayStart, $todayEnd, 'day');
-        $recent = $this->analytics->report($tenant, null, $weekStart, $todayEnd, 'day');
+        $today = $this->analytics->report($business, null, $todayStart, $todayEnd, 'day');
+        $recent = $this->analytics->report($business, null, $weekStart, $todayEnd, 'day');
 
         return [
             'today' => $today['summary'],
             'recent_sales_series' => $recent['sales_series'],
-            'invoices_by_type' => $this->invoiceCountsByType($tenant),
-            'signing_queue' => $this->signingQueueCounts($tenant),
+            'invoices_by_type' => $this->invoiceCountsByType($business),
+            'signing_queue' => $this->signingQueueCounts($business),
         ];
     }
 
     /**
      * @return list<array{type: string, label_key: string, count: int}>
      */
-    private function invoiceCountsByType(BusinessSetting $tenant): array
+    private function invoiceCountsByType(BusinessSetting $business): array
     {
         $rows = Invoice::query()
             ->withoutGlobalScopes()
@@ -71,7 +71,7 @@ class BusinessDashboardService
     /**
      * @return array{pending: int, reported: int, failed: int, total: int}
      */
-    private function signingQueueCounts(BusinessSetting $tenant): array
+    private function signingQueueCounts(BusinessSetting $business): array
     {
         return [
             'pending' => 0,

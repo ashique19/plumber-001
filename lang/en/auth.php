@@ -20,6 +20,6 @@ return [
     'password_reset' => 'Your password has been reset. You can sign in now.',
     'token_invalid' => 'This reset link is invalid or has expired. Request a new one.',
     'throttled' => 'Please wait before trying again.',
-    'admin_on_tenant_app' => 'Admin sign-in cannot access staff routes. Sign out of the admin console first.',
-    'tenant_session_mismatch' => 'Your staff session does not match this business URL. Sign out, then sign in again for this tenant.',
+    'admin_on_wrong_console' => 'Admin sign-in cannot access staff routes. Sign out of the admin console first.',
+    'staff_session_mismatch' => 'Your staff session does not match this business URL. Sign out, then sign in again for this business.',
 ];

@@ -278,7 +278,7 @@ final class IngredientStockService
     }
 
     /** @return list<Ingredient> */
-    public function lowStockForTenant(?Branch $branch = null, int $limit = 12): array
+    public function lowStockForBusiness(?Branch $branch = null, int $limit = 12): array
     {
         if (! IngredientInventorySchema::ingredientsReady()) {
             return [];

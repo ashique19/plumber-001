@@ -111,7 +111,7 @@
                 >
                     <x-slot name="advanced">
                         <div class="mt-2" x-data="{ contactAdvancedOpen: false }">
-                            <button type="button" class="text-xs font-semibold text-[var(--cafe-caramel)] underline" @click="contactAdvancedOpen = !contactAdvancedOpen" :aria-expanded="contactAdvancedOpen">
+                            <button type="button" class="text-xs font-semibold text-[var(--plumber-safety)] underline" @click="contactAdvancedOpen = !contactAdvancedOpen" :aria-expanded="contactAdvancedOpen">
                                 {{ __('business.map.advanced') }}
                             </button>
                             <div class="mt-3 grid gap-3 sm:grid-cols-2" x-show="contactAdvancedOpen" x-cloak>

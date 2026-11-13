@@ -26,7 +26,7 @@
                         $barH = ($row['total'] / $maxHour) * 56;
                         $x = $hourlyCount === 1 ? 110 : ($i * (220 / $hourSlotSpan) + 10);
                     @endphp
-                    <rect x="{{ $x }}" y="{{ 60 - $barH }}" width="14" height="{{ max(2, $barH) }}" rx="3" fill="var(--cafe-caramel)" opacity="0.85" />
+                    <rect x="{{ $x }}" y="{{ 60 - $barH }}" width="14" height="{{ max(2, $barH) }}" rx="3" fill="var(--plumber-safety)" opacity="0.85" />
                 @endforeach
             </svg>
         @endif

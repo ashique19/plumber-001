@@ -77,7 +77,7 @@ class OwnerAnalytics extends Component
             ? $this->granularity
             : 'day';
 
-        return $analytics->report($this->tenant, $branch, $from, $to, $granularity);
+        return $analytics->report($this->business, $branch, $from, $to, $granularity);
     }
 
     private function resolveBranch(): ?Branch
@@ -95,9 +95,9 @@ class OwnerAnalytics extends Component
     public function render(PosAnalyticsService $analytics): View
     {
         $report = $this->buildReport($analytics);
-        $branches = AppShellNav::branchesForSwitcher($this->tenant);
+        $branches = AppShellNav::branchesForSwitcher($this->business);
 
-        $colors = $this->tenant->themeColors();
+        $colors = $this->business->themeColors();
 
         return view('livewire.reports.owner-analytics', [
             'report' => $report,

@@ -40,13 +40,13 @@ class PosCheckoutService
             throw new \InvalidArgumentException('Cashier cannot pay orders for another branch.');
         }
 
-        $tenant = BusinessSetting::singleton();
-        if ($tenant->defaultInvoiceDocumentType() === InvoiceDocumentType::Standard) {
+        $business = BusinessSetting::singleton();
+        if ($business->defaultInvoiceDocumentType() === InvoiceDocumentType::Standard) {
             $order->loadMissing('customer');
             StandardBuyerPayload::fromCustomer($order->customer);
         }
 
-        return DB::transaction(function () use ($order, $method, $cashier, $tenant) {
+        return DB::transaction(function () use ($order, $method, $cashier) {
             /** @var PosOrder $locked */
             $locked = PosOrder::query()->whereKey($order->id)->lockForUpdate()->firstOrFail();
             if ($locked->status !== PosOrderStatus::Open) {

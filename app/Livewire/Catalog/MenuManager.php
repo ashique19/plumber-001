@@ -124,7 +124,7 @@ class MenuManager extends Component
     public function mount(): void
     {
         $this->resolveBusiness();
-        BusinessContext::set($this->tenant);
+        BusinessContext::set($this->business);
     }
 
     public function setTab(string $tab): void

@@ -50,8 +50,8 @@ class CustomerHub extends Component
     public function mount(): void
     {
         $this->resolveBusiness();
-        BusinessContext::set($this->tenant);
-        app(PermissionRegistrar::class)->setPermissionsTeamId($this->tenant->id);
+        BusinessContext::set($this->business);
+        app(PermissionRegistrar::class)->setPermissionsTeamId($this->business->id);
     }
 
     public function updatingSearch(): void
@@ -127,7 +127,7 @@ class CustomerHub extends Component
 
     public function render(): View
     {
-        $config = LoyaltyConfig::for($this->tenant);
+        $config = LoyaltyConfig::for($this->business);
 
         return view('livewire.customers.customer-hub', [
             'customers' => $this->customerPage(),

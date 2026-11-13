@@ -18,8 +18,8 @@
                             wire:click="selectCustomer({{ $row->id }})"
                             @class([
                                 'w-full rounded-xl border p-3 text-start transition',
-                                'border-[var(--cafe-caramel)] bg-[var(--cafe-caramel)]/10' => $selected?->id === $row->id,
-                                'border-[var(--app-border)] hover:border-[var(--cafe-caramel)]/50' => $selected?->id !== $row->id,
+                                'border-[var(--plumber-safety)] bg-[var(--plumber-safety)]/10' => $selected?->id === $row->id,
+                                'border-[var(--app-border)] hover:border-[var(--plumber-safety)]/50' => $selected?->id !== $row->id,
                             ])
                         >
                             <p class="font-medium">{{ $row->name ?: __('customers.guest_label') }}</p>

@@ -24,7 +24,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
-<body class="min-h-dvh bg-cafe-cream font-sans text-cafe-espresso antialiased">
+<body class="app-shell min-h-dvh font-sans antialiased">
     <div class="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
         {{ $slot }}
     </div>

@@ -2,7 +2,7 @@
     use App\Support\EnabledLocales;
     use App\Support\Invoicing\InvoiceLineGrouper;
 
-    $legal = $tenant->settings['legal_entity'] ?? [];
+    $legal = $business->settings['legal_entity'] ?? [];
     $groupedLines = InvoiceLineGrouper::sectionsForDisplay($order->line_items ?? [], $locale);
     $receiptLocales = EnabledLocales::codes();
     $showSuccess = request()->boolean('paid');
@@ -57,7 +57,7 @@
                     $localeLink = fn (string $code) => route('admin.pos.receipt', array_merge(['order' => $order], $receiptQuery, ['locale' => $code]));
                 @endphp
                 @foreach ($receiptLocales as $code)
-                    <a href="{{ $localeLink($code) }}" @class(['tap-action-muted min-h-10 px-3 text-xs', 'ring-2 ring-[var(--cafe-caramel)]' => $locale === $code])>{{ strtoupper($code) }}</a>
+                    <a href="{{ $localeLink($code) }}" @class(['tap-action-muted min-h-10 px-3 text-xs', 'ring-2 ring-[var(--plumber-safety)]' => $locale === $code])>{{ strtoupper($code) }}</a>
                 @endforeach
                 <a href="{{ $historyUrl }}" class="tap-action-muted min-h-10 px-3 text-xs">{{ __('pos.history') }}</a>
             </div>

@@ -65,7 +65,7 @@
                             {{ $row['orders'] > 0 ? number_format($row['total'], 0) : '—' }}
                         </span>
                         <div
-                            class="w-full max-w-12 rounded-t-md bg-[var(--cafe-caramel)] transition-[height]"
+                            class="w-full max-w-12 rounded-t-md bg-[var(--plumber-safety)] transition-[height]"
                             style="height: {{ $barHeight }}px; min-height: 4px; opacity: {{ $row['total'] > 0 ? 1 : 0.25 }}"
                         ></div>
                         <span class="truncate text-[0.6rem] font-semibold text-[var(--app-muted)]">{{ $row['label'] }}</span>
@@ -91,7 +91,7 @@
                         </div>
                         <div class="mt-1 h-2 w-full overflow-hidden rounded-full bg-[var(--app-border)]">
                             <div
-                                class="h-full rounded-full bg-[var(--cafe-accent)]"
+                                class="h-full rounded-full bg-[var(--plumber-accent)]"
                                 style="width: {{ $barPct }}%"
                             ></div>
                         </div>

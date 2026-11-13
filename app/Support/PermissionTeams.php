@@ -6,16 +6,16 @@ use Spatie\Permission\PermissionRegistrar;
 
 final class PermissionTeams
 {
-    public static function forPlatform(?PermissionRegistrar $registrar = null): void
+    public static function forBusinessConsole(?PermissionRegistrar $registrar = null): void
     {
         ($registrar ?? app(PermissionRegistrar::class))
-            ->setPermissionsTeamId(PlatformPermissionTeam::TENANT_ID);
+            ->setPermissionsTeamId(1);
     }
 
-    public static function forTenant(int $tenantId, ?PermissionRegistrar $registrar = null): void
+    public static function forBusiness(int $businessId, ?PermissionRegistrar $registrar = null): void
     {
         ($registrar ?? app(PermissionRegistrar::class))
-            ->setPermissionsTeamId($tenantId);
+            ->setPermissionsTeamId($businessId);
     }
 
 }

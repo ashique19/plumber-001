@@ -21,15 +21,15 @@ class AdminDashboard extends Component
     public function mount(): void
     {
         $this->resolveBusiness();
-        BusinessContext::set($this->tenant);
-        app(PermissionRegistrar::class)->setPermissionsTeamId($this->tenant->id);
+        BusinessContext::set($this->business);
+        app(PermissionRegistrar::class)->setPermissionsTeamId($this->business->id);
         $this->authorize('reports.view');
     }
 
     public function render(BusinessDashboardService $dashboard, IngredientStockService $stock): View
     {
-        $snapshot = $dashboard->snapshot($this->tenant);
-        $lowStock = $stock->lowStockForTenant();
+        $snapshot = $dashboard->snapshot($this->business);
+        $lowStock = $stock->lowStockForBusiness();
         $series = $snapshot['recent_sales_series'];
         $seriesTotals = array_map(fn (array $row) => (float) $row['total'], $series);
         $maxTotal = ChartScale::floorMax(1.0, $seriesTotals);

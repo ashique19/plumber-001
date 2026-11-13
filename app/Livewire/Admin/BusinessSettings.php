@@ -28,7 +28,7 @@ class BusinessSettings extends Component
     use DispatchesToasts;
     use WithFileUploads;
 
-    public int $tenantId;
+    public int $businessId;
 
     public string $section = 'brand';
 
@@ -118,10 +118,10 @@ class BusinessSettings extends Component
     {
         $this->resolveBusiness();
         $this->authorize('business.manage');
-        $this->tenantId = $this->tenant->id;
-        BusinessContext::set($this->tenant);
-        $tenant = $service->ensureHydrated($this->tenant);
-        $this->hydrateFromTenant($tenant);
+        $this->businessId = $this->business->id;
+        BusinessContext::set($this->business);
+        $business = $service->ensureHydrated($this->business);
+        $this->hydrateFromBusiness($business);
     }
 
     public function setSection(string $section): void
@@ -200,7 +200,7 @@ class BusinessSettings extends Component
         $this->section = 'brand';
         $this->resetErrorBag();
         $this->tabsWithErrors = [];
-        $tenant = $this->tenant();
+        $business = $this->business();
 
         $rules = [
             'displayNameEn' => 'required|string|max:160',
@@ -208,7 +208,7 @@ class BusinessSettings extends Component
             'displayNameBn' => 'nullable|string|max:160',
             'taglineEn' => 'nullable|string|max:240',
             'taglineAr' => 'nullable|string|max:240',
-            'brandColorKey' => ['required', Rule::in(array_keys(BusinessProfile::brandColorOptions($tenant)))],
+            'brandColorKey' => ['required', Rule::in(array_keys(BusinessProfile::brandColorOptions($business)))],
             'logoUpload' => LogoUploadConstraints::componentRules(),
         ];
         try {
@@ -218,7 +218,7 @@ class BusinessSettings extends Component
         }
 
         try {
-            $tenant = $service->saveBrand($tenant, [
+            $business = $service->saveBrand($business, [
                 'display_name_en' => $this->displayNameEn,
                 'display_name_ar' => $this->displayNameAr,
                 'display_name_bn' => $this->displayNameBn,
@@ -235,7 +235,7 @@ class BusinessSettings extends Component
         $hadNewLogo = $this->logoUpload !== null;
         $this->logoUpload = null;
         $this->logoAwaitingSave = false;
-        $this->currentLogo = data_get($tenant->settings, 'theme.logo_url');
+        $this->currentLogo = data_get($business->settings, 'theme.logo_url');
 
         if ($hadNewLogo && filled($this->currentLogo)) {
             $this->dispatch('business-logo-saved', publicUrl: asset($this->currentLogo));
@@ -248,11 +248,11 @@ class BusinessSettings extends Component
     public function removeLogo(): void
     {
         $this->authorize('business.manage');
-        $tenant = $this->tenant();
-        $settings = $tenant->settings ?? [];
+        $business = $this->business();
+        $settings = $business->settings ?? [];
         data_set($settings, 'theme.logo_url', null);
         data_set($settings, 'business.brand.favicon_path', null);
-        $tenant->forceFill(['settings' => $settings])->save();
+        $business->forceFill(['settings' => $settings])->save();
         $this->currentLogo = null;
         $this->logoUpload = null;
         $this->logoAwaitingSave = false;
@@ -285,7 +285,7 @@ class BusinessSettings extends Component
             return;
         }
 
-        $service->saveLegal($this->tenant(), [
+        $service->saveLegal($this->business(), [
             'name_en' => $this->legalNameEn,
             'name_ar' => $this->legalNameAr,
             'vat_number' => $this->vatNumber,
@@ -338,7 +338,7 @@ class BusinessSettings extends Component
             $mapsUrl = GeoMapsUrl::googleQuery($lat, $lng);
         }
 
-        $service->saveContact($this->tenant(), [
+        $service->saveContact($this->business(), [
             'phone' => $this->phone,
             'whatsapp' => $this->whatsapp,
             'email' => $this->email,
@@ -379,7 +379,7 @@ class BusinessSettings extends Component
             return;
         }
 
-        $service->saveHours($this->tenant(), [
+        $service->saveHours($this->business(), [
             'weekdays' => $this->weekdays,
             'note' => $this->hoursNote,
         ], auth('staff')->user());
@@ -393,7 +393,7 @@ class BusinessSettings extends Component
         $this->section = 'extras';
         $this->resetErrorBag();
         $this->tabsWithErrors = [];
-        $tenant = $this->tenant();
+        $business = $this->business();
         try {
             $this->runSectionValidation([
                 'plumberLicense' => 'nullable|string|max:80',
@@ -404,7 +404,7 @@ class BusinessSettings extends Component
         } catch (ValidationException) {
             return;
         }
-        $service->saveThemeExtras($tenant, [
+        $service->saveThemeExtras($business, [
             'emergency_24_7' => $this->plumberEmergency,
             'license_number' => $this->plumberLicense,
             'service_areas' => $this->plumberServiceAreas,
@@ -417,18 +417,18 @@ class BusinessSettings extends Component
 
     public function render(): View
     {
-        $tenant = $this->tenant();
+        $business = $this->business();
 
         return view('livewire.admin.business-settings', [
-            'tenant' => $tenant,
-            'colorOptions' => BusinessProfile::brandColorOptions($tenant),
+            'business' => $business,
+            'colorOptions' => BusinessProfile::brandColorOptions($business),
             'teamUrl' => route('admin.team'),
         ]);
     }
 
-    private function tenant(): BusinessSetting
+    private function business(): BusinessSetting
     {
-        return BusinessSetting::query()->findOrFail($this->tenantId);
+        return BusinessSetting::query()->findOrFail($this->businessId);
     }
 
     protected function validationAttributes(): array
@@ -461,21 +461,21 @@ class BusinessSettings extends Component
         return BusinessProfile::scalarString($value);
     }
 
-    private function hydrateFromTenant(BusinessSetting $tenant): void
+    private function hydrateFromBusiness(BusinessSetting $business): void
     {
-        $settings = $tenant->settings ?? [];
+        $settings = $business->settings ?? [];
         $brand = (array) data_get($settings, 'business.brand', []);
         $legal = (array) data_get($settings, 'business.legal', data_get($settings, 'legal_entity', []));
         $contact = (array) data_get($settings, 'business.contact', []);
         $hours = (array) data_get($settings, 'business.hours', []);
         $extras = (array) data_get($settings, 'business.theme_extras', []);
 
-        $this->displayNameEn = (string) ($brand['display_name_en'] ?? $legal['name_en'] ?? $tenant->name);
+        $this->displayNameEn = (string) ($brand['display_name_en'] ?? $legal['name_en'] ?? $business->name);
         $this->displayNameAr = (string) ($brand['display_name_ar'] ?? $legal['name_ar'] ?? '');
         $this->displayNameBn = (string) ($brand['display_name_bn'] ?? '');
         $this->taglineEn = (string) ($brand['tagline_en'] ?? '');
         $this->taglineAr = (string) ($brand['tagline_ar'] ?? '');
-        $this->brandColorKey = (string) ($brand['brand_color_key'] ?? BusinessProfile::primaryColorKey($tenant));
+        $this->brandColorKey = (string) ($brand['brand_color_key'] ?? BusinessProfile::primaryColorKey($business));
         $this->currentLogo = data_get($settings, 'theme.logo_url');
 
         $this->legalNameEn = (string) ($legal['name_en'] ?? '');
@@ -508,7 +508,7 @@ class BusinessSettings extends Component
         $weekdays = BusinessProfile::normalizeWeekdays($storedWeekdays);
         if ($storedWeekdays === null || $storedWeekdays === []) {
             $inferred = BusinessHours::weekdaysFromLegacyRows(
-                (array) (BusinessProfile::contentSlice($tenant)['hours'] ?? []),
+                (array) (BusinessProfile::contentSlice($business)['hours'] ?? []),
             );
             if ($inferred !== null) {
                 $weekdays = BusinessProfile::normalizeWeekdays($inferred);

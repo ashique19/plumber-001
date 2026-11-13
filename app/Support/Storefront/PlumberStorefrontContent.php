@@ -100,11 +100,11 @@ final class PlumberStorefrontContent
     /**
      * @return array<string, mixed>
      */
-    public static function enrich(BusinessSetting $tenant, array $stored): array
+    public static function enrich(BusinessSetting $business, array $stored): array
     {
-        $legal = data_get($tenant->settings, 'legal_entity', []);
-        $nameEn = (string) ($legal['name_en'] ?? $tenant->name);
-        $nameAr = (string) ($legal['name_ar'] ?? $tenant->name);
+        $legal = data_get($business->settings, 'legal_entity', []);
+        $nameEn = (string) ($legal['name_en'] ?? $business->name);
+        $nameAr = (string) ($legal['name_ar'] ?? $business->name);
         $canonical = PlumberThemePreset::demoPlumberContent($nameEn, $nameAr);
 
         $merged = array_replace_recursive($canonical, $stored);
@@ -121,7 +121,7 @@ final class PlumberStorefrontContent
             $merged[$key] = $value;
         }
 
-        return StorefrontBusinessMirror::overlay($tenant, $merged);
+        return BusinessContentMirror::overlay($business, $merged);
     }
 
     /**

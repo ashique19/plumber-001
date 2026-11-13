@@ -6,7 +6,7 @@
     use App\Support\AppShellNav;
     use App\Support\BusinessSettingDisplayName;
 
-    $tenant = \App\Business\BusinessContext::get() ?? BusinessSetting::query()->find(1);
+    $business = \App\Business\BusinessContext::get() ?? BusinessSetting::query()->find(1);
     $branch = $branch ?? request()->route('branch');
     if ($branch !== null && ! $branch instanceof Branch) {
         $branch = Branch::query()->withoutGlobalScopes()->find($branch);
@@ -14,12 +14,12 @@
     $locale = app()->getLocale();
     $dir = config("locales.supported.{$locale}.dir", 'ltr');
     $active = AppShellNav::activeTab();
-    $displayName = $tenant ? BusinessSettingDisplayName::for($tenant, $locale) : config('app.name');
-    $logoUrl = $tenant ? data_get($tenant->settings, 'theme.logo_url') : null;
+    $displayName = $business ? BusinessSettingDisplayName::for($business, $locale) : config('app.name');
+    $logoUrl = $business ? data_get($business->settings, 'theme.logo_url') : null;
     $logoAltKey = 'plumber.logo_alt';
-    $colors = $tenant?->themeColors() ?? [];
-    $branches = $tenant ? AppShellNav::branchesForSwitcher($tenant) : [];
-    app(\Spatie\Permission\PermissionRegistrar::class)->setPermissionsTeamId($tenant?->id ?? 1);
+    $colors = $business?->themeColors() ?? [];
+    $branches = $business ? AppShellNav::branchesForSwitcher($business) : [];
+    app(\Spatie\Permission\PermissionRegistrar::class)->setPermissionsTeamId($business?->id ?? 1);
 @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', $locale) }}" dir="{{ $dir }}" class="scroll-smooth"
@@ -31,12 +31,6 @@
         --plumber-safety: {{ $colors['safety'] ?? '#E87722' }};
         --plumber-accent: {{ $colors['accent'] ?? '#1B8A8A' }};
         --plumber-slate: {{ $colors['slate'] ?? '#475569' }};
-        --cafe-espresso: var(--plumber-navy);
-        --cafe-cream: var(--plumber-ice);
-        --cafe-caramel: var(--plumber-safety);
-        --cafe-latte: var(--plumber-sky);
-        --cafe-mocha: var(--plumber-steel);
-        --cafe-accent: var(--plumber-accent);
       ">
 <head>
     <meta charset="utf-8">
@@ -56,7 +50,7 @@
     <div class="livewire-loading-bar" aria-hidden="true"></div>
     <x-toast-stack class="has-app-tab-bar" />
 
-    @if($tenant)
+    @if($business)
         <aside class="app-sidebar" :class="sidebarCollapsed ? 'app-sidebar--collapsed' : ''" aria-label="{{ __('pos.title') }}">
             <div class="flex items-center gap-2 border-b px-3 py-4" style="border-color: var(--app-border)">
                 @if ($logoUrl)
@@ -132,7 +126,7 @@
                         <span class="app-sidebar__label">{{ __('invoices.nav') }}</span>
                     </a>
                     @can('invoices.issue')
-                        @php $altInvoiceMode = $tenant->alternateInvoiceDocumentType()->value; @endphp
+                        @php $altInvoiceMode = $business->alternateInvoiceDocumentType()->value; @endphp
                         <a href="{{ route('admin.invoices.issue', [ $altInvoiceMode]) }}" @class(['app-nav-link', 'app-nav-link--active' => $active === 'invoices-issue'])>
                             <x-app.icon name="clipboard" class="h-5 w-5 shrink-0" />
                             <span class="app-sidebar__label">{{ __('invoices.nav_issue_'.$altInvoiceMode) }}</span>
@@ -249,7 +243,7 @@
                             <li><a class="app-nav-link" href="{{ route('admin.invoices') }}">{{ __('invoices.nav') }}</a></li>
                         @endif
                         @can('invoices.issue')
-                            @php $altInvoiceMode = $tenant->alternateInvoiceDocumentType()->value; @endphp
+                            @php $altInvoiceMode = $business->alternateInvoiceDocumentType()->value; @endphp
                             <li><a class="app-nav-link" href="{{ route('admin.invoices.issue', [ $altInvoiceMode]) }}">{{ __('invoices.nav_issue_'.$altInvoiceMode) }}</a></li>
                         @endcan
                         <li>

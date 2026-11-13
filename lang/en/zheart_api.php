@@ -9,7 +9,7 @@ return [
     'submission_failed' => 'Z-Heart could not report or clear this invoice with signing service.',
     'server_error' => 'Z-Heart returned a server error. Retry later or contact support with request id :id.',
     'generic_failure' => 'Z-Heart signing failed. Check configuration and try again.',
-    'not_configured' => 'Z-Heart base URL or API key is missing for this tenant.',
+    'not_configured' => 'Z-Heart base URL or API key is missing for this business.',
     'health_ok' => 'Z-Heart health check passed.',
     'health_failed' => 'Z-Heart health check failed.',
 ];

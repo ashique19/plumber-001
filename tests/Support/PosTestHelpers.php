@@ -11,13 +11,13 @@ use App\Support\AuthRoleProvisioner;
 use App\Support\Themes\PlumberThemePreset;
 use Illuminate\Support\Facades\Hash;
 
-function posTenantSetup(): array
+function posBusinessSetup(): array
 {
     AuthRoleProvisioner::seedStaffRoles();
 
-    $tenant = BusinessSetting::query()->firstOrCreate(
+    $business = BusinessSetting::query()->firstOrCreate(
         ['id' => 1],
-        ['name' => 'POS Cafe', 'settings' => PlumberThemePreset::settings('POS Cafe', 'مقهى', 'ar')],
+        ['name' => 'POS Demo Plumbing', 'settings' => PlumberThemePreset::settings('POS Demo Plumbing', 'سباكة', 'ar')],
     );
 
     $branch = Branch::query()->firstOrCreate(
@@ -26,7 +26,7 @@ function posTenantSetup(): array
     );
 
     $cashier = StaffUser::query()->firstOrCreate(
-        ['email' => 'cashier@pos-cafe.test'],
+        ['email' => 'cashier@pos-demo.test'],
         [
             'name' => 'Cashier',
             'password' => Hash::make('password'),
@@ -39,22 +39,22 @@ function posTenantSetup(): array
     }
 
     $category = ProductCategory::query()->firstOrCreate(
-        ['name_en' => 'Drinks'],
-        ['name_ar' => 'مشروبات'],
+        ['name_en' => 'Services'],
+        ['name_ar' => 'خدمات'],
     );
 
     $product = Product::query()->firstOrCreate(
-        ['sku' => 'LATTE'],
+        ['sku' => 'SRV-DEMO'],
         [
             'product_category_id' => $category->id,
-            'name_en' => 'Latte',
-            'name_ar' => 'لاتيه',
+            'name_en' => 'Leak check',
+            'name_ar' => 'فحص تسرب',
             'price_ex_vat' => 20,
             'vat_rate' => 15,
         ],
     );
 
-    return ['tenant' => $tenant, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product];
+    return ['business' => $business, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product];
 }
 
 function seedDemoPaidPosOrder(): PosOrder

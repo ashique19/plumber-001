@@ -201,7 +201,7 @@
                 >
                     <x-slot name="advanced">
                         <div class="mt-2">
-                            <button type="button" class="text-xs font-semibold text-[var(--cafe-caramel)] underline" wire:click="$toggle('branchLocationAdvanced')">
+                            <button type="button" class="text-xs font-semibold text-[var(--plumber-safety)] underline" wire:click="$toggle('branchLocationAdvanced')">
                                 {{ __('business.map.advanced') }}
                             </button>
                         </div>

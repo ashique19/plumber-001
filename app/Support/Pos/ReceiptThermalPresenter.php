@@ -16,15 +16,15 @@ final class ReceiptThermalPresenter
      * @return array<string, mixed>
      */
     public static function compose(
-        BusinessSetting $tenant,
+        BusinessSetting $business,
         PosOrder $order,
         Invoice $invoice,
         ?Branch $branch,
     ): array {
-        $legal = $tenant->settings['legal_entity'] ?? [];
-        $theme = $tenant->settings['theme'] ?? [];
-        $contentKey = $tenant->isPlumberTheme() ? 'plumber' : null;
-        $content = $contentKey ? data_get($tenant->settings, "content.{$contentKey}", []) : [];
+        $legal = $business->settings['legal_entity'] ?? [];
+        $theme = $business->settings['theme'] ?? [];
+        $contentKey = $business->isPlumberTheme() ? 'plumber' : null;
+        $content = $contentKey ? data_get($business->settings, "content.{$contentKey}", []) : [];
 
         $productSkus = self::productSkusForLines($order);
         $lines = self::mapLines($order->line_items ?? [], $productSkus);
@@ -65,8 +65,8 @@ final class ReceiptThermalPresenter
             || $invoice->document_type === null;
 
         return [
-            'seller_en' => $legal['name_en'] ?? $tenant->name,
-            'seller_ar' => $legal['name_ar'] ?? $tenant->name,
+            'seller_en' => $legal['name_en'] ?? $business->name,
+            'seller_ar' => $legal['name_ar'] ?? $business->name,
             'logo_url' => filled($theme['logo_url'] ?? null) ? $theme['logo_url'] : null,
             'branch_lines' => $branchLines,
             'phone' => $contact['phone'],
@@ -258,14 +258,14 @@ final class ReceiptThermalPresenter
      */
     private static function contactLines(array $legal, array $content): array
     {
+        $legacy = (array) ($content['contact'] ?? []);
+        $phone = $legacy['phone'] ?? $content['phone'] ?? $legal['phone'] ?? null;
+        $email = $legacy['email'] ?? $content['email'] ?? $legal['email'] ?? null;
+
         return [
-            'phone' => filled($content['phone'] ?? null)
-                ? (string) $content['phone']
-                : (filled($legal['phone'] ?? null) ? (string) $legal['phone'] : null),
+            'phone' => filled($phone) ? (string) $phone : null,
             'fax' => filled($legal['fax'] ?? null) ? (string) $legal['fax'] : null,
-            'email' => filled($content['email'] ?? null)
-                ? (string) $content['email']
-                : (filled($legal['email'] ?? null) ? (string) $legal['email'] : null),
+            'email' => filled($email) ? (string) $email : null,
         ];
     }
 

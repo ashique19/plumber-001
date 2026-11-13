@@ -15,7 +15,7 @@ return [
     'last_7_days' => 'Last 7 days',
     'no_sales_yet' => 'No paid orders in this period yet.',
     'invoices_by_type' => 'Invoices by type',
-    'invoices_issued_hint' => 'Issued invoices for this tenant (all time).',
+    'invoices_issued_hint' => 'Issued invoices for this business (all time).',
     'invoice_type' => [
         'simplified' => 'Simplified',
         'standard' => 'Standard',

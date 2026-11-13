@@ -3,9 +3,9 @@
 @endphp
 <div class="pos-terminal-rich pb-20 lg:pb-0" x-data="{ cartOpen: @entangle('mobileCartOpen').live }">
     <header class="pos-hero mb-4">
-        <p class="relative text-xs font-semibold uppercase tracking-widest text-cafe-cream/80">{{ __('pos.shift_today') }}</p>
+        <p class="relative text-xs font-semibold uppercase tracking-widest text-plumber-ice/80">{{ __('pos.shift_today') }}</p>
         <h1 class="relative text-xl font-bold sm:text-2xl">{{ $branch->name }}</h1>
-        <p class="relative text-sm text-cafe-cream/90">
+        <p class="relative text-sm text-plumber-ice/90">
             @if($activeShift)
                 {{ __('operations.shift_status_open') }}
                 · {{ number_format((float) $activeShift->opening_cash_float, 2) }} SAR

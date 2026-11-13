@@ -41,8 +41,8 @@ it('ensures livewire components with x-form live validation expose validateLiveF
 });
 
 it('business settings validateLiveField accepts blur on contact email', function () {
-    ['tenant' => $tenant, 'cashier' => $cashier] = posTenantSetup();
-    \App\Business\BusinessContext::set($tenant);
+    ['business' => $business, 'cashier' => $cashier] = posBusinessSetup();
+    \App\Business\BusinessContext::set($business);
     $cashier->syncRoles(['owner']);
 
     Livewire::actingAs($cashier, 'staff')

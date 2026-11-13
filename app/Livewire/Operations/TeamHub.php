@@ -91,8 +91,8 @@ class TeamHub extends Component
     public function mount(): void
     {
         $this->resolveBusiness();
-        BusinessContext::set($this->tenant);
-        app(PermissionRegistrar::class)->setPermissionsTeamId($this->tenant->id);
+        BusinessContext::set($this->business);
+        app(PermissionRegistrar::class)->setPermissionsTeamId($this->business->id);
 
         if ($this->shiftBranchId === null) {
             $this->shiftBranchId = Branch::query()
@@ -152,11 +152,11 @@ class TeamHub extends Component
                 $user->update(['password' => Hash::make($validated['staffPassword'])]);
             }
             $staffAdmin->setActive($user, $validated['staffActive']);
-            $staffAdmin->syncRoles($this->tenant, $user, $validated['staffRoles']);
+            $staffAdmin->syncRoles($this->business, $user, $validated['staffRoles']);
             $this->toastSuccess(__('operations.staff_updated'));
         } else {
             $staffAdmin->createUser(
-                $this->tenant,
+                $this->business,
                 $validated['staffName'],
                 $validated['staffEmail'],
                 $validated['staffPassword'],

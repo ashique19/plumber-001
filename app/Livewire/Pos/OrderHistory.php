@@ -22,7 +22,7 @@ class OrderHistory extends Component
 
     public int $branchId;
 
-    public BusinessSetting $tenant;
+    public BusinessSetting $business;
 
     public string $search = '';
 
@@ -46,7 +46,7 @@ class OrderHistory extends Component
         }
 
         $this->branchId = $branch->id;
-        $this->tenant = BusinessSetting::singleton();
+        $this->business = BusinessSetting::singleton();
     }
 
     public function openRefundModal(int $orderId): void

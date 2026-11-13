@@ -19,12 +19,16 @@
 
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
-    --color-cafe-espresso: var(--cafe-espresso, #2c1810);
-    --color-cafe-cream: var(--cafe-cream, #faf6f0);
-    --color-cafe-caramel: var(--cafe-caramel, #c68b59);
-    --color-cafe-latte: var(--cafe-latte, #e8d4c4);
-    --color-cafe-mocha: var(--cafe-mocha, #5c3d2e);
-    --color-cafe-accent: var(--cafe-accent, #d4a574);
+    --color-plumber-navy: var(--plumber-navy, #0B1F3A);
+    --color-plumber-ice: var(--plumber-ice, #F4F8FC);
+    --color-plumber-safety: var(--plumber-safety, #E87722);
+    --color-plumber-sky: var(--plumber-sky, #E8F1FA);
+    --color-plumber-steel: var(--plumber-steel, #2D4A6F);
+    --color-plumber-accent: var(--plumber-accent, #1B8A8A);
+    --color-plumber-slate: var(--plumber-slate, #475569);
+    --color-app-text: var(--app-text, #0B1F3A);
+    --color-app-bg: var(--app-bg, #F4F8FC);
+    --color-app-accent: var(--app-accent, #E87722);
 }
 
 @layer components {
@@ -38,7 +42,7 @@
         min-width: 2.75rem;
         @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold;
         @apply active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2;
-        @apply focus-visible:outline-cafe-caramel;
+        @apply focus-visible:outline-plumber-safety;
     }
 
     /* Border/fill for bare .tap-action lives in app-admin-polish.css */
@@ -48,9 +52,9 @@
         @apply active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2;
         min-height: 2.75rem;
         min-width: 2.75rem;
-        @apply border border-cafe-espresso/20 bg-cafe-espresso text-cafe-cream shadow-md;
+        @apply border border-plumber-navy/20 bg-plumber-navy text-plumber-ice shadow-md;
         @apply transition-[filter,box-shadow] duration-150 hover:brightness-110;
-        @apply focus-visible:outline-cafe-caramel;
+        @apply focus-visible:outline-plumber-safety;
     }
 
     .tap-action-muted {
@@ -58,18 +62,18 @@
         @apply active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2;
         min-height: 2.75rem;
         min-width: 2.75rem;
-        color: var(--cafe-mocha, #5c3d2e);
-        border: 1.5px solid color-mix(in srgb, var(--cafe-mocha, #5c3d2e) 28%, var(--cafe-latte, #e8d4c4));
+        color: var(--plumber-steel, #5c3d2e);
+        border: 1.5px solid color-mix(in srgb, var(--plumber-steel, #5c3d2e) 28%, var(--plumber-sky, #e8d4c4));
         background: linear-gradient(
             180deg,
             var(--app-surface, #fff) 0%,
-            color-mix(in srgb, var(--cafe-cream, #faf6f0) 55%, var(--app-surface, #fff)) 100%
+            color-mix(in srgb, var(--plumber-ice, #faf6f0) 55%, var(--app-surface, #fff)) 100%
         );
         box-shadow:
             0 1px 0 rgb(255 255 255 / 0.9) inset,
             0 1px 3px rgb(44 24 16 / 0.08);
         @apply transition-[border-color,box-shadow,background] duration-150;
-        @apply hover:border-cafe-caramel hover:shadow-md focus-visible:outline-cafe-caramel;
+        @apply hover:border-plumber-safety hover:shadow-md focus-visible:outline-plumber-safety;
     }
 
     .tap-action-add {
@@ -77,26 +81,26 @@
         @apply inline-flex items-center rounded-xl py-2.5 text-sm font-semibold;
         @apply active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2;
         min-height: 2.75rem;
-        color: var(--cafe-mocha, #5c3d2e);
-        border: 1.5px solid color-mix(in srgb, var(--cafe-caramel, #c68b59) 45%, var(--cafe-mocha, #5c3d2e));
+        color: var(--plumber-steel, #5c3d2e);
+        border: 1.5px solid color-mix(in srgb, var(--plumber-safety, #c68b59) 45%, var(--plumber-steel, #5c3d2e));
         background: linear-gradient(
             180deg,
             var(--app-surface, #fff) 0%,
-            color-mix(in srgb, var(--cafe-cream, #faf6f0) 55%, var(--app-surface, #fff)) 100%
+            color-mix(in srgb, var(--plumber-ice, #faf6f0) 55%, var(--app-surface, #fff)) 100%
         );
         box-shadow:
             0 1px 0 rgb(255 255 255 / 0.9) inset,
             0 1px 3px rgb(44 24 16 / 0.08);
         @apply transition-[border-color,box-shadow,background] duration-150;
-        @apply hover:border-cafe-caramel hover:shadow-md focus-visible:outline-cafe-caramel;
+        @apply hover:border-plumber-safety hover:shadow-md focus-visible:outline-plumber-safety;
         font-weight: 600;
     }
 
     .tap-action-add__glyph {
         @apply flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border;
-        border-color: color-mix(in srgb, var(--cafe-caramel, #c68b59) 40%, var(--cafe-latte, #e8d4c4));
-        background: color-mix(in srgb, var(--cafe-caramel, #c68b59) 14%, var(--app-surface, #fff));
-        color: var(--cafe-espresso, #2c1810);
+        border-color: color-mix(in srgb, var(--plumber-safety, #c68b59) 40%, var(--plumber-sky, #e8d4c4));
+        background: color-mix(in srgb, var(--plumber-safety, #c68b59) 14%, var(--app-surface, #fff));
+        color: var(--plumber-navy, #2c1810);
     }
 
     .field-touch {
@@ -113,8 +117,8 @@
 
     .field-touch:focus {
         outline: none;
-        border-color: var(--cafe-caramel);
-        box-shadow: 0 0 0 3px color-mix(in srgb, var(--cafe-caramel) 25%, transparent);
+        border-color: var(--plumber-safety);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--plumber-safety) 25%, transparent);
     }
 
     .pos-shell {
@@ -235,165 +239,4 @@
         display: none !important;
     }
 
-    /* Café hero: steam vapour + subtle photo motion */
-    .cafe-steam {
-        position: relative;
-        width: 100%;
-        height: 100%;
-    }
-
-    .cafe-steam__wisp {
-        position: absolute;
-        bottom: 0;
-        border-radius: 50%;
-        background: radial-gradient(ellipse at center, rgb(255 255 255 / 0.65), rgb(255 255 255 / 0) 72%);
-        filter: blur(10px);
-        opacity: 0;
-        animation: cafe-steam-rise 5.5s ease-in-out infinite;
-    }
-
-    .cafe-steam__wisp--1 {
-        left: 18%;
-        width: 3.5rem;
-        height: 3.5rem;
-        animation-delay: 0s;
-    }
-
-    .cafe-steam__wisp--2 {
-        left: 38%;
-        width: 4.5rem;
-        height: 4rem;
-        animation-delay: 0.9s;
-    }
-
-    .cafe-steam__wisp--3 {
-        left: 52%;
-        width: 5rem;
-        height: 4.5rem;
-        animation-delay: 1.8s;
-    }
-
-    .cafe-steam__wisp--4 {
-        left: 68%;
-        width: 3.25rem;
-        height: 3.25rem;
-        animation-delay: 2.6s;
-    }
-
-    .cafe-steam__wisp--5 {
-        left: 28%;
-        width: 2.75rem;
-        height: 2.75rem;
-        animation-delay: 3.4s;
-    }
-
-  @keyframes cafe-steam-rise {
-        0% {
-            opacity: 0;
-            transform: translateY(12px) scale(0.85);
-        }
-        18% {
-            opacity: 0.75;
-        }
-        65% {
-            opacity: 0.35;
-        }
-        100% {
-            opacity: 0;
-            transform: translateY(-72px) scale(1.35);
-        }
-    }
-
-    .cafe-hero-media img {
-        animation: cafe-hero-ken-burns 22s ease-in-out infinite alternate;
-        will-change: transform;
-    }
-
-    @keyframes cafe-hero-ken-burns {
-        from {
-            transform: scale(1) translateY(0);
-        }
-        to {
-            transform: scale(1.07) translateY(-1.5%);
-        }
-    }
-
-    .cafe-hero-shine {
-        animation: cafe-hero-shine 8s ease-in-out infinite;
-    }
-
-    @keyframes cafe-hero-shine {
-        0%,
-        100% {
-            opacity: 0.35;
-        }
-        50% {
-            opacity: 0.65;
-        }
-    }
-
-    /* Scroll-linked parallax (progressive enhancement) */
-    @supports (animation-timeline: view()) {
-        .cafe-scroll-float {
-            animation: cafe-scroll-float linear both;
-            animation-timeline: view();
-            animation-range: entry 0% cover 55%;
-        }
-
-        @keyframes cafe-scroll-float {
-            from {
-                opacity: 0.85;
-                transform: translate3d(0, 2.75rem, 0);
-            }
-            to {
-                opacity: 1;
-                transform: translate3d(0, -0.5rem, 0);
-            }
-        }
-
-        .cafe-parallax-layer {
-            animation: cafe-parallax-layer linear both;
-            animation-timeline: view();
-            animation-range: entry -10% cover 90%;
-        }
-
-        @keyframes cafe-parallax-layer {
-            from {
-                transform: translate3d(0, 6%, 0) scale(1.06);
-            }
-            to {
-                transform: translate3d(0, -4%, 0) scale(1);
-            }
-        }
-
-        .cafe-parallax-slow {
-            animation: cafe-parallax-slow linear both;
-            animation-timeline: view();
-            animation-range: entry 0% exit 100%;
-        }
-
-        @keyframes cafe-parallax-slow {
-            from {
-                transform: translate3d(0, 2.5rem, 0);
-            }
-            to {
-                transform: translate3d(0, -2.5rem, 0);
-            }
-        }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        .cafe-steam__wisp,
-        .cafe-hero-media img,
-        .cafe-hero-shine {
-            animation: none !important;
-        }
-
-        .cafe-scroll-float,
-        .cafe-parallax-layer,
-        .cafe-parallax-slow {
-            animation: none !important;
-            transform: none !important;
-        }
-    }
 }

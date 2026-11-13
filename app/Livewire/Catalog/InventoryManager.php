@@ -57,7 +57,7 @@ class InventoryManager extends Component
     {
         $this->resolveBusiness();
         $this->schemaReady = IngredientInventorySchema::ingredientsReady();
-        BusinessContext::set($this->tenant);
+        BusinessContext::set($this->business);
     }
 
     public function startCreate(): void
@@ -192,7 +192,7 @@ class InventoryManager extends Component
             'ingredients' => $ingredients,
             'movements' => $movements,
             'canManage' => auth('staff')->user()?->can('inventory.manage') ?? false,
-            'lowStock' => $this->schemaReady ? $stock->lowStockForTenant() : [],
+            'lowStock' => $this->schemaReady ? $stock->lowStockForBusiness() : [],
             'schemaReady' => $this->schemaReady,
         ])->layout('layouts.pos', ['pageTitle' => __('inventory.title')]);
     }

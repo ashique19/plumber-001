@@ -70,7 +70,7 @@
                             @if($product->image_url)
                                 <img src="{{ asset($product->image_url) }}" alt="" class="h-16 w-16 rounded-lg object-cover" loading="lazy">
                             @else
-                                <div class="flex h-16 w-16 items-center justify-center rounded-lg bg-[var(--cafe-latte)] text-xs text-[var(--app-muted)]">—</div>
+                                <div class="flex h-16 w-16 items-center justify-center rounded-lg bg-[var(--plumber-sky)] text-xs text-[var(--app-muted)]">—</div>
                             @endif
                             <div class="min-w-0 flex-1">
                                 <p class="truncate font-semibold">{{ $product->name_en }}</p>

@@ -4,7 +4,7 @@
 declare(strict_types=1);
 
 /**
- * Single-client plumber catalog SQL fragment (no multi-tenant keys).
+ * Single-client plumber catalog SQL fragment (one business scope).
  * Appends to docs/sql/plumber-catalog.sql for manual installs.
  */
 

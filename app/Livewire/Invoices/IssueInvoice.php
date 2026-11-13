@@ -56,9 +56,9 @@ class IssueInvoice extends Component
         $this->resolveBusiness();
         abort_unless(in_array($mode, ['standard', 'simplified'], true), 404);
 
-        $tenant = $this->tenant;
+        $business = $this->business;
         $this->mode = $mode;
-        BusinessContext::set($tenant);
+        BusinessContext::set($business);
 
         abort_unless(auth('staff')->user()?->can('invoices.issue'), 403);
     }

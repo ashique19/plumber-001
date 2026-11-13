@@ -29,8 +29,8 @@ afterEach(function () {
 });
 
 it('pays an order and issues a simplified invoice', function () {
-    ['tenant' => $tenant, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posTenantSetup();
-    BusinessContext::set($tenant);
+    ['business' => $business, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posBusinessSetup();
+    BusinessContext::set($business);
 
     /** @var PosOrderService $orders */
     $orders = app(PosOrderService::class);
@@ -48,8 +48,8 @@ it('pays an order and issues a simplified invoice', function () {
 });
 
 it('summarizes end of day totals by payment method', function () {
-    ['tenant' => $tenant, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posTenantSetup();
-    BusinessContext::set($tenant);
+    ['business' => $business, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posBusinessSetup();
+    BusinessContext::set($business);
 
     $orders = app(PosOrderService::class);
     $checkout = app(PosCheckoutService::class);
@@ -64,8 +64,8 @@ it('summarizes end of day totals by payment method', function () {
 });
 
 it('allows cashier login and loads POS home', function () {
-    ['tenant' => $tenant, 'cashier' => $cashier] = posTenantSetup();
-    BusinessContext::set($tenant);
+    ['business' => $business, 'cashier' => $cashier] = posBusinessSetup();
+    BusinessContext::set($business);
 
     Livewire::actingAs($cashier, 'staff')
         ->test(Home::class)
@@ -73,8 +73,8 @@ it('allows cashier login and loads POS home', function () {
 });
 
 it('runs livewire add and pay flow', function () {
-    ['tenant' => $tenant, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posTenantSetup();
-    BusinessContext::set($tenant);
+    ['business' => $business, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posBusinessSetup();
+    BusinessContext::set($business);
 
     Livewire::actingAs($cashier, 'staff')
         ->withQueryParams([])

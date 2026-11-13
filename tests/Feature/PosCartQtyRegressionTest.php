@@ -9,8 +9,8 @@ beforeEach(function () {
 });
 
 it('supports add then increment scenarios without removing the line', function () {
-    ['tenant' => $tenant, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posTenantSetup();
-    BusinessContext::set($tenant);
+    ['business' => $business, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posBusinessSetup();
+    BusinessContext::set($business);
 
     $component = Livewire::actingAs($cashier, 'staff')
         ->test(\App\Livewire\Pos\Terminal::class, ['branch' => $branch])
@@ -43,8 +43,8 @@ it('supports add then increment scenarios without removing the line', function (
 });
 
 it('ignores blur apply at zero without removing the cart line', function () {
-    ['tenant' => $tenant, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posTenantSetup();
-    BusinessContext::set($tenant);
+    ['business' => $business, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posBusinessSetup();
+    BusinessContext::set($business);
 
     Livewire::actingAs($cashier, 'staff')
         ->test(\App\Livewire\Pos\Terminal::class, ['branch' => $branch])

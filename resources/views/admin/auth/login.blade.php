@@ -1,5 +1,5 @@
 <x-auth.staff-shell :business="$business" :title="__('pos.login_title')">
-    <h1 class="text-xl font-bold text-cafe-espresso sm:text-2xl">{{ __('pos.login_title') }}</h1>
+    <h1 class="text-xl font-bold text-plumber-navy sm:text-2xl">{{ __('pos.login_title') }}</h1>
     <p class="mt-1 text-sm text-plumber-steel">{{ data_get($business->settings, 'legal_entity.name_en', $business->name) }}</p>
 
     <form method="POST" action="{{ route('login.store') }}" class="mt-6 space-y-4">

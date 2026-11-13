@@ -304,7 +304,7 @@ class Terminal extends Component
     public function render(PosCatalogQuery $catalog, PosBranchInsights $insights, ShiftService $shifts, IngredientStockService $stock): View
     {
         $branch = Branch::query()->findOrFail($this->branchId);
-        $tenant = BusinessSetting::singleton();
+        $business = BusinessSetting::singleton();
         $tradesCatalog = false;
         $activeShift = $shifts->openShiftForBranch($branch);
         $order = $this->currentOrder();
@@ -326,7 +326,7 @@ class Terminal extends Component
 
         return view('livewire.pos.terminal', [
             'branch' => $branch,
-            'tenant' => $tenant,
+            'business' => $business,
             'tradesCatalog' => $tradesCatalog,
             'order' => $order,
             'categories' => $categories,

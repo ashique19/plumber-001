@@ -23,7 +23,7 @@
     font-size: 3rem;
     font-weight: 800;
     line-height: 1;
-    color: var(--cafe-caramel, #c4a574);
+    color: var(--plumber-safety, #c4a574);
 }
 
 .error-heading {
@@ -48,7 +48,7 @@
     border-radius: 0.75rem;
     font-weight: 600;
     font-size: 0.9rem;
-    background: var(--cafe-espresso, #2c1810);
-    color: var(--cafe-cream, #faf6f1);
+    background: var(--plumber-navy, #2c1810);
+    color: var(--plumber-ice, #faf6f1);
     text-decoration: none;
 }

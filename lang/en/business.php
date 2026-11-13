@@ -70,9 +70,6 @@ return [
         'open_team' => 'Open branch management',
     ],
     'extras' => [
-        'cafe_wifi' => 'Wi‑Fi available',
-        'cafe_seating_en' => 'Seating note (English)',
-        'cafe_seating_ar' => 'Seating note (Arabic)',
         'delivery_apps' => 'Delivery app links (one URL per line)',
         'storefront_emergency' => '24/7 emergency line',
         'storefront_license' => 'License number',
@@ -135,7 +132,7 @@ return [
             'svg_unsafe' => 'This SVG cannot be used because it contains unsafe content. Export a plain logo without scripts or links.',
             'processing_failed' => 'Could not prepare this image in your browser. Try another file or format.',
             'still_too_large' => 'Image is still too large after compression. Try a smaller or simpler logo.',
-            'store_failed' => 'Could not save the logo on the server. Check folder permissions for public/img/tenants on your host.',
+            'store_failed' => 'Could not save the logo on the server. Check folder permissions for public/img/business on your host.',
             'failed_generic' => 'Logo upload failed before saving.',
             'failed_causes' => 'Upload failed. Common causes: file too large for server limits, storage folder not writable, session expired, or APP_URL not matching your site URL (HTTPS). Run `php artisan app:upload-diagnostics` on the server.',
             'network' => 'Network error while uploading. Check your connection and try again.',

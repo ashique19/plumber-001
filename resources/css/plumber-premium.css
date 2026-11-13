@@ -310,35 +310,35 @@
         @apply text-balance;
     }
 
-    .cafe-branch-map--locked .cafe-branch-map__host {
+    .plumber-branch-map--locked .plumber-branch-map__host {
         pointer-events: none;
     }
 
-    .cafe-branch-map__host .leaflet-control-zoom a {
+    .plumber-branch-map__host .leaflet-control-zoom a {
         @apply min-h-11 min-w-11 leading-[2.75rem];
     }
 
-    .cafe-map-pin-wrap {
+    .plumber-map-pin-wrap {
         background: transparent;
         border: none;
     }
 
-    .cafe-map-pin {
+    .plumber-map-pin {
         display: block;
         width: 1.35rem;
         height: 1.35rem;
         border-radius: 9999px 9999px 9999px 0;
         transform: rotate(-45deg);
-        background: var(--cafe-map-accent, var(--plumber-accent, #1b8a8a));
+        background: var(--plumber-accent, var(--plumber-accent, #1b8a8a));
         border: 3px solid var(--plumber-ice, #f4f8fc);
         box-shadow: 0 8px 18px -4px rgb(11 31 58 / 45%);
     }
 
-    .cafe-map-popup-shell .leaflet-popup-content-wrapper {
+    .plumber-map-popup-shell .leaflet-popup-content-wrapper {
         @apply rounded-2xl border border-plumber-sky bg-plumber-ice shadow-lg;
     }
 
-    .cafe-map-popup-shell .leaflet-popup-content {
+    .plumber-map-popup-shell .leaflet-popup-content {
         @apply m-3 text-sm leading-relaxed text-plumber-navy;
     }
 }

@@ -18,7 +18,7 @@ class ReceiptController extends Controller
             abort(404, 'Invoice not issued for this order.');
         }
 
-        $tenant = BusinessSetting::singleton();
+        $business = BusinessSetting::singleton();
 
         $order->loadMissing(['branch', 'cashier', 'customer']);
         $invoice = $order->invoice()->firstOrFail();
@@ -26,13 +26,13 @@ class ReceiptController extends Controller
         app()->setLocale($locale);
 
         return view('admin.pos.receipt', [
-            'tenant' => $tenant,
+            'business' => $business,
             'order' => $order,
             'invoice' => $invoice,
             'locale' => $locale,
             'branch' => $order->branch,
             'compliance' => ReceiptSigningStatusLabel::forInvoice($invoice),
-            'thermal' => ReceiptThermalPresenter::compose($tenant, $order, $invoice, $order->branch),
+            'thermal' => ReceiptThermalPresenter::compose($business, $order, $invoice, $order->branch),
         ]);
     }
 }
