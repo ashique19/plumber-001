@@ -1,8 +1,7 @@
 <x-auth.staff-shell :business="$business" :title="__('pos.login_title')">
-    <h1 class="text-xl font-bold text-plumber-navy sm:text-2xl">{{ __('pos.login_title') }}</h1>
-    <p class="mt-1 text-sm text-plumber-steel">{{ data_get($business->settings, 'legal_entity.name_en', $business->name) }}</p>
+    <h1 class="text-center text-xl font-bold text-plumber-navy sm:text-2xl">{{ __('pos.login_title') }}</h1>
 
-    <form method="POST" action="{{ route('login.store') }}" class="mt-6 space-y-4">
+    <form method="POST" action="{{ route('login.store') }}" class="mt-6 space-y-4" novalidate>
         @csrf
         <label @class(['auth-field', 'auth-field--invalid' => $errors->has('email')])>
             {{ __('pos.email') }}
@@ -34,11 +33,11 @@
             @enderror
         </label>
         <div class="flex flex-wrap items-center justify-between gap-2 text-sm">
-            <label class="flex min-h-11 items-center gap-2">
-                <input type="checkbox" name="remember" class="auth-checkbox">
-                {{ __('pos.remember') }}
+            <label class="flex min-h-11 items-center gap-2 text-plumber-navy">
+                <input type="checkbox" name="remember" class="auth-checkbox" value="1">
+                <span>{{ __('pos.remember') }}</span>
             </label>
-            <a href="{{ route('password.request') }}" class="min-h-11 inline-flex items-center font-medium text-plumber-steel underline-offset-4 hover:underline">
+            <a href="{{ route('password.request') }}" class="min-h-11 inline-flex items-center font-medium text-plumber-steel underline-offset-4 hover:text-plumber-navy hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-plumber-safety">
                 {{ __('auth.forgot_password') }}
             </a>
         </div>

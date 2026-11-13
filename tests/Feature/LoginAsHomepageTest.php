@@ -14,7 +14,11 @@ beforeEach(function () {
 it('serves the staff login form at the site root', function () {
     $this->get('/')
         ->assertOk()
-        ->assertSee(__('pos.login_title'), false);
+        ->assertSee(__('pos.login_title'), false)
+        ->assertSee('auth-shell__bg', false)
+        ->assertSee('auth-glass-card', false)
+        ->assertSee('name="email"', false)
+        ->assertSee('name="password"', false);
 });
 
 it('authenticates staff via POST login and redirects into admin', function () {
