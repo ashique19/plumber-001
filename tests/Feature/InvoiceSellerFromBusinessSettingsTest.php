@@ -72,7 +72,8 @@ it('reflects legal and contact seller fields on thermal receipt and HTTP receipt
         ->and($thermal['phone'])->toBe('+966501112233')
         ->and($thermal['email'])->toBe('dispatch@pipepros.test')
         ->and($thermal['trn'])->toBe($vat)
-        ->and($legal['address'])->toBe('King Fahd Rd, Riyadh');
+        ->and($legal['address'])->toBe('King Fahd Rd, Riyadh')
+        ->and(collect($thermal['branch_lines'])->join(' '))->toContain('King Fahd Rd');
 
     $response = $this->get(route('admin.pos.receipt', [$paid, 'locale' => 'en']));
     $response->assertOk();
@@ -80,4 +81,5 @@ it('reflects legal and contact seller fields on thermal receipt and HTTP receipt
     $response->assertSee('+966501112233', false);
     $response->assertSee('dispatch@pipepros.test', false);
     $response->assertSee($vat, false);
+    $response->assertSee('King Fahd Rd', false);
 });

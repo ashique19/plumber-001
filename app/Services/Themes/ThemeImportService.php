@@ -21,13 +21,13 @@ class ThemeImportService
             $zip->extractTo($work);
             $zip->close();
 
-            $tenantFile = $work.'/tenant.json';
-            if (! is_file($tenantFile)) {
-                throw new \InvalidArgumentException('Bundle missing tenant.json');
+            $settingsFile = $work.'/business.json';
+            if (! is_file($settingsFile)) {
+                throw new \InvalidArgumentException('Bundle missing business.json');
             }
 
             /** @var array{name: string, settings: array<string, mixed>} $payload */
-            $payload = json_decode(file_get_contents($tenantFile), true, flags: JSON_THROW_ON_ERROR);
+            $payload = json_decode(file_get_contents($settingsFile), true, flags: JSON_THROW_ON_ERROR);
 
             $assetsDir = $work.'/assets';
             if (is_dir($assetsDir)) {

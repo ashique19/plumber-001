@@ -31,7 +31,7 @@ final class EnabledLocales
     }
 
     /**
-     * Map session/query/tenant locale to an enabled code; disabled codes fall back gracefully.
+     * Map session/query locale to an enabled code; disabled codes fall back gracefully.
      */
     public static function resolve(?string $locale, ?string $fallback = null): string
     {

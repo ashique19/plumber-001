@@ -23,7 +23,6 @@ function stockCapSetup(int $onHandMl = 9600, float $perUnit = 300.0): array
     ['business' => $business, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posBusinessSetup();
 
     Ingredient::query()->create([
-        'tenant_id' => $business->id,
         'branch_id' => null,
         'name' => 'Beans',
         'name_en' => 'Beans',

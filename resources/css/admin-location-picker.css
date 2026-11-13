@@ -1,4 +1,4 @@
-/* Prevent Leaflet CSS probe from requesting relative marker-icon.png on tenant subpaths */
+/* Prevent Leaflet CSS probe from requesting relative marker-icon.png on nested URLs */
 .leaflet-default-icon-path {
     display: none !important;
     background-image: none !important;

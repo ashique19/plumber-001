@@ -146,7 +146,7 @@ final class PlumberStorefrontContent
     }
 
     /**
-     * Storefront-only marketing (not persisted in tenant settings or SQL seeds).
+     * Optional marketing copy defaults (not persisted in business settings or SQL seeds).
      *
      * @return array<string, mixed>
      */

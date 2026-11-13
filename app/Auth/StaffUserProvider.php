@@ -5,8 +5,7 @@ namespace App\Auth;
 use Illuminate\Auth\EloquentUserProvider;
 
 /**
- * Tenant staff auth must not use {@see \App\Tenancy\Scopes\TenantScope}: session
- * restore can run before route binding sets tenant context.
+ * Staff session auth without multi-business scoping (single {@see BusinessSetting}).
  */
 class StaffUserProvider extends EloquentUserProvider
 {

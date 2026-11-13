@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Recipe extends Model
 {
 
-    protected $fillable = ['tenant_id', 'product_id'];
+    protected $fillable = ['product_id'];
 
     public function product(): BelongsTo
     {

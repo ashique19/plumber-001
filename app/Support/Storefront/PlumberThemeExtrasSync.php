@@ -5,7 +5,7 @@ namespace App\Support\Storefront;
 final class PlumberThemeExtrasSync
 {
     /**
-     * @param  array<string, mixed>  $settings  Tenant settings (mutated in place)
+     * @param  array<string, mixed>  $settings  Business settings (mutated in place)
      * @param  array<string, mixed>  $extras
      */
     public static function applyToSettings(array &$settings, array $extras): void

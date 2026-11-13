@@ -15,7 +15,6 @@ it('aggregates paid orders and round-trips csv sections', function () {
 
     $paidAt = Carbon::now()->startOfHour();
     PosOrder::query()->create([
-        'tenant_id' => $business->id,
         'branch_id' => $branch->id,
         'cashier_id' => $cashier->id,
         'order_number' => 'T-100',

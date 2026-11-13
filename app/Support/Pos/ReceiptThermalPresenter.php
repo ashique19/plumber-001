@@ -236,6 +236,11 @@ final class ReceiptThermalPresenter
             }
         }
 
+        $legalAddress = $legal['address'] ?? null;
+        if (filled($legalAddress) && ! in_array((string) $legalAddress, $lines, true)) {
+            $lines[] = (string) $legalAddress;
+        }
+
         if ($lines === [] && filled($legal['address'] ?? null)) {
             $lines[] = (string) $legal['address'];
         }

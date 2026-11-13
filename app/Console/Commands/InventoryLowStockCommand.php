@@ -17,7 +17,7 @@ class InventoryLowStockCommand extends Command
             ->withoutGlobalScopes()
             ->whereColumn('quantity_on_hand', '<=', 'reorder_level')
             ->each(function (Ingredient $ingredient) {
-                $this->line("LOW {$ingredient->tenant_id}/branch {$ingredient->branch_id}: {$ingredient->name} = {$ingredient->quantity_on_hand}");
+                $this->line("LOW branch {$ingredient->branch_id}: {$ingredient->name} = {$ingredient->quantity_on_hand}");
             });
 
         return self::SUCCESS;
