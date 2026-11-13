@@ -1,5 +1,126 @@
 /* Stable auth form controls — not tied to .app-shell tokens (avoids missing borders on login pages). */
 
+.plumber-auth {
+    position: relative;
+    min-height: 100dvh;
+    overflow-x: clip;
+}
+
+.auth-shell__bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    background-color: var(--plumber-navy, #0b1f3a);
+}
+
+.auth-shell__bg img {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.auth-shell__gradient {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.auth-shell__gradient--plumber {
+    background: linear-gradient(
+        165deg,
+        color-mix(in srgb, var(--plumber-navy, #0b1f3a) 88%, transparent) 0%,
+        color-mix(in srgb, var(--plumber-navy, #0b1f3a) 72%, transparent) 45%,
+        color-mix(in srgb, var(--plumber-steel, #2d4a6f) 78%, transparent) 100%
+    );
+}
+
+.auth-shell__viewport {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    min-height: 100dvh;
+    flex-direction: column;
+}
+
+.auth-shell__header {
+    flex-shrink: 0;
+}
+
+.auth-shell__main {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-block: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-bottom));
+    padding-inline: max(1rem, env(safe-area-inset-left)) max(1rem, env(safe-area-inset-right));
+}
+
+.auth-shell__footer {
+    flex-shrink: 0;
+}
+
+.auth-glass-card {
+    width: 100%;
+    max-width: 22.5rem;
+    border-radius: 1rem;
+    border: 1px solid color-mix(in srgb, var(--plumber-navy, #0b1f3a) 8%, #ffffff);
+    background: color-mix(in srgb, #ffffff 94%, var(--plumber-ice, #f4f8fc));
+    box-shadow:
+        0 1px 0 rgb(255 255 255 / 0.85) inset,
+        0 18px 48px rgb(11 31 58 / 0.28);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .auth-glass-card {
+        background: #ffffff;
+    }
+}
+
+.auth-card-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    text-align: center;
+}
+
+.auth-card-brand__logo {
+    height: 3.5rem;
+    width: 3.5rem;
+    border-radius: 0.75rem;
+    object-fit: contain;
+    box-shadow:
+        0 4px 12px rgb(11 31 58 / 0.12),
+        0 0 0 1px color-mix(in srgb, var(--plumber-steel, #2d4a6f) 18%, transparent);
+}
+
+.auth-card-brand__name {
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--plumber-navy, #0b1f3a);
+}
+
+.auth-locale-switch {
+    border-color: rgb(255 255 255 / 0.35);
+    background: rgb(11 31 58 / 0.45);
+    color: #ffffff;
+    box-shadow: 0 4px 16px rgb(11 31 58 / 0.2);
+}
+
+.auth-locale-switch a {
+    color: rgb(255 255 255 / 0.92);
+}
+
+.auth-locale-switch a[aria-current='true'] {
+    background: #ffffff;
+    color: var(--plumber-navy, #0b1f3a);
+}
+
 .auth-shell {
     --auth-field-border: color-mix(in srgb, var(--plumber-steel, #5c3d2e) 35%, var(--plumber-sky, #e8d4c4));
     --auth-field-bg: #ffffff;

@@ -1,4 +1,4 @@
-@props(['business', 'title'])
+@props(['business', 'title', 'showBrand' => true])
 @php
     $locale = app()->getLocale();
     $dir = config("locales.supported.{$locale}.dir", 'ltr');
@@ -28,33 +28,39 @@
 </head>
 <body class="auth-shell min-h-dvh font-sans text-plumber-navy antialiased plumber-auth">
     <div class="auth-shell__bg" aria-hidden="true">
-        <img src="{{ $hero }}" alt="" class="h-full w-full object-cover" width="1600" height="900" loading="eager" decoding="async">
+        <img src="{{ $hero }}" alt="" class="h-full w-full object-cover" width="1600" height="900" loading="eager" decoding="async" fetchpriority="high">
         <div class="auth-shell__gradient auth-shell__gradient--plumber"></div>
     </div>
 
-    <header class="auth-shell__header" role="banner">
-        <div class="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
-            <div class="flex min-h-11 min-w-0 items-center gap-2">
-                @if ($logoUrl)
-                    <img src="{{ asset($logoUrl) }}" alt="" class="h-9 w-9 rounded-lg object-contain ring-1 ring-white/30" width="36" height="36">
-                @else
-                    <x-plumber.logo-mark class="h-9 w-9 text-white" aria-hidden="true" />
-                @endif
-                <span class="truncate text-sm font-semibold text-white sm:text-base">{{ $displayName }}</span>
+    <div class="auth-shell__viewport">
+        <header class="auth-shell__header" role="banner">
+            <div class="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
+                <p class="sr-only">{{ $displayName }}</p>
+                <x-app.locale-switch :current="$locale" class="auth-locale-switch ms-auto" />
             </div>
-            <x-app.locale-switch :current="$locale" />
-        </div>
-    </header>
+        </header>
 
-    <x-toast-stack />
-    <main class="auth-shell__main flex flex-1 flex-col items-center justify-center px-4 py-8 sm:px-6">
-        <div class="auth-glass-card w-full max-w-md p-6 sm:p-8">
-            {{ $slot }}
-        </div>
-    </main>
+        <x-toast-stack />
 
-    <footer class="auth-shell__footer px-4 py-6 text-center text-xs text-white/75 sm:px-6" role="contentinfo">
-        <p class="font-medium text-white">{{ $displayName }} · © {{ date('Y') }}</p>
-    </footer>
+        <main class="auth-shell__main" id="main-content">
+            <div class="auth-glass-card p-5 sm:p-8">
+                @if ($showBrand)
+                    <div class="auth-card-brand mb-5 sm:mb-6">
+                        @if ($logoUrl)
+                            <img src="{{ asset($logoUrl) }}" alt="" class="auth-card-brand__logo" width="56" height="56">
+                        @else
+                            <x-plumber.logo-mark class="auth-card-brand__logo h-14 w-14 text-plumber-navy" aria-hidden="true" />
+                        @endif
+                        <p class="auth-card-brand__name">{{ $displayName }}</p>
+                    </div>
+                @endif
+                {{ $slot }}
+            </div>
+        </main>
+
+        <footer class="auth-shell__footer px-4 py-4 text-center text-xs text-white sm:px-6 sm:py-6" role="contentinfo">
+            <p class="font-medium text-white drop-shadow-sm">© {{ date('Y') }} {{ $displayName }}</p>
+        </footer>
+    </div>
 </body>
 </html>

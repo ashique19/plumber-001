@@ -1,6 +1,6 @@
 <x-auth.staff-shell :business="$business" :title="__('auth.forgot_title')">
-    <h1 class="text-xl font-bold text-plumber-navy sm:text-2xl">{{ __('auth.forgot_title') }}</h1>
-    <p class="mt-2 text-sm text-plumber-steel">{{ __('auth.forgot_lead') }}</p>
+    <h1 class="text-center text-xl font-bold text-plumber-navy sm:text-2xl">{{ __('auth.forgot_title') }}</h1>
+    <p class="mt-2 text-center text-sm text-plumber-steel">{{ __('auth.forgot_lead') }}</p>
 
     <form method="POST" action="{{ route('password.email') }}" class="mt-6 space-y-4">
         @csrf
