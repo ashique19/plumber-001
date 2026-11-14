@@ -126,10 +126,17 @@ class PosAnalyticsService
 
     private function bucketLabel(Carbon $dt, string $granularity): string
     {
+        $locale = match (app()->getLocale()) {
+            'bn' => 'bn',
+            'ar' => 'ar',
+            default => 'en',
+        };
+        $localized = $dt->copy()->locale($locale);
+
         return match ($granularity) {
-            'week' => $dt->copy()->startOfWeek(Carbon::MONDAY)->format('d M'),
-            'month' => $dt->format('M Y'),
-            default => $dt->format('d M'),
+            'week' => $localized->copy()->startOfWeek(Carbon::MONDAY)->translatedFormat('j M'),
+            'month' => $localized->translatedFormat('M Y'),
+            default => $localized->translatedFormat('j M'),
         };
     }
 
