@@ -307,14 +307,14 @@ final class IngredientStockService
 
     private function ingredientsQuery(?Branch $branch): Builder
     {
-        return Ingredient::query()
-            
-            ->where(function (Builder $q) use ($branch) {
+        return IngredientInventorySchema::applyDisplayNameOrder(
+            Ingredient::query()->where(function (Builder $q) use ($branch) {
                 $q->whereNull('branch_id');
                 if ($branch !== null) {
                     $q->orWhere('branch_id', $branch->id);
                 }
-            });
+            })
+        );
     }
 
     private function resolveIngredient(?Branch $branch, int $ingredientId): ?Ingredient

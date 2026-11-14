@@ -15,6 +15,10 @@ it('matches install.sql column types to the application migration manifest', fun
     );
 });
 
+it('documents install-schema-repair sql for live drift', function () {
+    expect(base_path('docs/sql/2026-11-14-install-schema-repair.sql'))->toBeReadableFile();
+});
+
 it('does not define a legacy ingredients.name column in install.sql', function () {
     $parsed = InstallSqlTableParser::parseInstallSql(file_get_contents(base_path('docs/sql/install.sql')) ?: '');
 
