@@ -135,13 +135,36 @@
     }
 
     .app-main {
-        @apply min-h-dvh lg:ps-64;
+        @apply min-h-dvh;
         position: relative;
         z-index: 0;
     }
 
+    .app-main--with-sidebar {
+        @apply lg:ps-64;
+    }
+
     .app-main--sidebar-collapsed {
         @apply lg:ps-[4.25rem];
+    }
+
+    .app-topbar__logout {
+        @apply inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-3 text-sm font-semibold;
+        color: var(--app-muted);
+    }
+
+    .app-topbar__logout:hover {
+        background: rgb(212 165 116 / 0.15);
+        color: var(--app-text);
+    }
+
+    .app-topbar__brand {
+        @apply flex min-w-0 items-center gap-2 rounded-xl transition;
+        color: inherit;
+    }
+
+    .app-topbar__brand:hover {
+        background: rgb(212 165 116 / 0.12);
     }
 
     .app-content {

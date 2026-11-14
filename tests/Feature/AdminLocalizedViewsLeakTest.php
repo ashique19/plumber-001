@@ -41,7 +41,9 @@ it('renders dashboard and business settings without raw translation keys', funct
     }
 });
 
-it('shows translated sidebar nav labels in bn and ar', function () {
+it('shows translated admin nav labels in mobile more sheet for bn and ar', function () {
+    config(['ui.admin_sidebar' => false]);
+
     $html = $this->get(route('admin.dashboard', ['locale' => 'bn']))->assertOk()->getContent();
     expect($html)->toContain(__('business.nav', [], 'bn'))
         ->and($html)->toContain(__('catalog.nav', [], 'bn'))

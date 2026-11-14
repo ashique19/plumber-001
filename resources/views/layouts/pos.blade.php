@@ -23,6 +23,8 @@
     $branches = $staffUser ? StaffBranchContext::accessibleBranches($staffUser) : [];
     $showBranchSwitcher = $staffUser && StaffBranchContext::selectorVisible($staffUser);
     $posHomeUrl = $staffUser ? StaffBranchContext::posHomeUrl($staffUser) : route('admin.pos.home');
+    $adminSidebar = (bool) config('ui.admin_sidebar', false);
+    $branchParam = $branch ?? ($staffUser ? StaffBranchContext::resolve($staffUser) : null);
     app(\Spatie\Permission\PermissionRegistrar::class)->setPermissionsTeamId($business?->id ?? 1);
 @endphp
 <!DOCTYPE html>
@@ -55,6 +57,7 @@
     <x-toast-stack class="has-app-tab-bar" />
 
     @if($business)
+        @if ($adminSidebar)
         <aside class="app-sidebar" :class="sidebarCollapsed ? 'app-sidebar--collapsed' : ''" aria-label="{{ __('pos.title') }}">
             <div class="flex items-center gap-2 border-b px-3 py-4" style="border-color: var(--app-border)">
                 @if ($logoUrl)
@@ -65,9 +68,6 @@
                 <span class="app-sidebar__label truncate text-sm font-semibold">{{ $displayName }}</span>
             </div>
             <nav class="flex flex-1 flex-col gap-1 p-2">
-                @php
-                    $branchParam = $branch ?? StaffBranchContext::resolve($staffUser);
-                @endphp
                 @can('reports.view')
                     <a href="{{ route('admin.dashboard') }}" @class(['app-nav-link', 'app-nav-link--active' => $active === 'dashboard'])>
                         <x-app.icon name="home" class="h-5 w-5 shrink-0" />
@@ -143,22 +143,23 @@
                     <x-app.icon name="menu" class="h-5 w-5 shrink-0" />
                     <span class="app-sidebar__label">{{ __('pos.collapse_sidebar') }}</span>
                 </button>
-                <form method="POST" action="{{ route('admin.logout') }}" class="mt-1">
-                    @csrf
-                    <button type="submit" class="app-nav-link w-full">
-                        <x-app.icon name="logout" class="h-5 w-5 shrink-0" />
-                        <span class="app-sidebar__label">{{ __('pos.logout') }}</span>
-                    </button>
-                </form>
             </div>
         </aside>
+        @endif
 
-        <div class="app-main" :class="sidebarCollapsed ? 'app-main--sidebar-collapsed' : ''">
+        <div
+            class="app-main @if($adminSidebar) app-main--with-sidebar @endif"
+            @if($adminSidebar)
+                :class="sidebarCollapsed ? 'app-main--sidebar-collapsed' : ''"
+            @endif
+        >
             <header class="app-topbar">
                 <div class="mx-auto flex max-w-6xl items-center gap-2 px-3 py-2 sm:px-5 sm:py-3">
-                    <div class="flex min-w-0 flex-1 items-center gap-2">
+                    <a href="{{ route('admin.dashboard') }}" class="app-topbar__brand min-w-0 flex-1">
                         @if ($logoUrl)
-                            <img src="{{ asset($logoUrl) }}" alt="{{ __($logoAltKey, ['name' => $displayName]) }}" class="h-8 w-8 rounded-lg object-contain lg:hidden" width="32" height="32">
+                            <img src="{{ asset($logoUrl) }}" alt="{{ __($logoAltKey, ['name' => $displayName]) }}" class="h-8 w-8 shrink-0 rounded-lg object-contain" width="32" height="32">
+                        @else
+                            <x-plumber.logo-mark class="h-8 w-8 shrink-0 text-[var(--app-accent)]" :name="$displayName" />
                         @endif
                         <div class="min-w-0">
                             <p class="truncate text-sm font-semibold">{{ $displayName }}</p>
@@ -179,21 +180,24 @@
                                 </details>
                             @endif
                         </div>
-                    </div>
-                    <x-app.locale-switch :current="$locale" class="hidden sm:flex" />
-                    <div class="relative">
+                    </a>
+                    <x-app.locale-switch :current="$locale" class="hidden min-[380px]:flex" />
+                    <div class="relative min-[380px]:hidden">
                         <button type="button" class="tap-action-muted min-h-11 min-w-11 rounded-full px-3" @click="userOpen = !userOpen" :aria-expanded="userOpen">
                             <span class="sr-only">{{ __('pos.user_menu') }}</span>
                             <x-app.icon name="dots" />
                         </button>
                         <div x-show="userOpen" x-cloak @click.outside="userOpen = false" class="app-card app-card--flat absolute end-0 z-30 mt-1 min-w-[11rem] p-1 shadow-xl">
-                            <x-app.locale-switch :current="$locale" class="flex p-2 sm:hidden" />
-                            <form method="POST" action="{{ route('admin.logout') }}">
-                                @csrf
-                                <button type="submit" class="app-nav-link w-full">{{ __('pos.logout') }}</button>
-                            </form>
+                            <x-app.locale-switch :current="$locale" class="flex p-2" />
                         </div>
                     </div>
+                    <form method="POST" action="{{ route('admin.logout') }}" class="shrink-0">
+                        @csrf
+                        <button type="submit" class="app-topbar__logout">
+                            <x-app.icon name="logout" class="h-5 w-5 shrink-0" />
+                            <span class="max-[420px]:sr-only">{{ __('pos.logout') }}</span>
+                        </button>
+                    </form>
                 </div>
             </header>
 
