@@ -75,6 +75,7 @@ return [
     'line_vat' => 'VAT %',
     'add_line' => 'Add line',
     'remove_line' => 'Remove line',
+    'more_options' => 'More',
     'pick_catalog_product' => 'Pick from catalog',
     'search_catalog_products' => 'Search products and services…',
     'catalog_no_match' => 'No catalog items match your search.',

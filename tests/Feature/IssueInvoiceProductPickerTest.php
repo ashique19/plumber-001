@@ -67,3 +67,33 @@ it('issues simplified invoice after picking a catalog product line', function ()
     expect($invoice->payload['lines'][0]['name'] ?? null)->toBe('Leak repair visit')
         ->and((float) ($invoice->payload['lines'][0]['unit_price_ex_vat'] ?? 0))->toBe(180.0);
 });
+
+it('renders collapsed more section on simplified issue form', function () {
+    app()->setLocale('en');
+
+    $html = Livewire::actingAs($this->owner, 'staff')
+        ->test(IssueInvoice::class, ['mode' => 'simplified'])
+        ->html();
+
+    expect($html)->toContain(__('invoices.more_options'))
+        ->and($html)->toContain('issue-simplified-more')
+        ->and($html)->toContain('moreOpen: false');
+});
+
+it('issues simplified invoice with only picker price and quantity', function () {
+    $before = Invoice::query()->count();
+
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(IssueInvoice::class, ['mode' => 'simplified'])
+        ->call('applyCatalogProduct', 0, $this->product->id)
+        ->set('lines.0.quantity', '2')
+        ->call('issue')
+        ->assertHasNoErrors()
+        ->assertDispatched('toast', type: 'success');
+
+    expect(Invoice::query()->count())->toBe($before + 1);
+
+    $invoice = Invoice::query()->latest('id')->firstOrFail();
+    expect((float) ($invoice->payload['lines'][0]['quantity'] ?? 0))->toBe(2.0)
+        ->and((float) ($invoice->payload['lines'][0]['unit_price_ex_vat'] ?? 0))->toBe(180.0);
+});

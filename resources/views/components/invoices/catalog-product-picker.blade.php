@@ -1,4 +1,4 @@
-@props(['lineIndex', 'products'])
+@props(['lineIndex', 'products', 'compact' => false])
 
 <div
     class="invoice-catalog-picker"
@@ -7,7 +7,11 @@
 >
     <button
         type="button"
-        class="tap-action-muted mb-2 min-h-11 w-full px-3 text-sm font-semibold sm:w-auto"
+        @class([
+            'tap-action-muted mb-2 w-full px-3 text-sm font-semibold',
+            'min-h-12' => $compact,
+            'min-h-11 sm:w-auto' => ! $compact,
+        ])
         @click="toggle()"
         :aria-expanded="open"
     >

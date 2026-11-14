@@ -134,6 +134,7 @@ class IssueInvoice extends Component
 
     public function issue(InvoiceIssueService $issuer): void
     {
+        $this->hydrateCatalogLineNames();
         $this->validate($this->rulesForMode());
 
         $branch = StaffBranchContext::resolve();
@@ -290,6 +291,68 @@ class IssueInvoice extends Component
             })
             ->values()
             ->all();
+    }
+
+    /**
+     * @return array{
+     *     name: string,
+     *     name_ar: string,
+     *     quantity: string,
+     *     unit_price: string,
+     *     vat_rate: string,
+     *     product_id: int|null,
+     *     unit_label: string
+     * }
+     */
+    private function hydrateCatalogLineNames(): void
+    {
+        $productIds = [];
+        foreach ($this->lines as $row) {
+            $productId = $row['product_id'] ?? null;
+            if ($productId && trim((string) ($row['name'] ?? '')) === '') {
+                $productIds[(int) $productId] = true;
+            }
+        }
+
+        if ($productIds === []) {
+            return;
+        }
+
+        $products = Product::query()
+            ->whereIn('id', array_keys($productIds))
+            ->get()
+            ->keyBy('id');
+
+        foreach ($this->lines as $index => $row) {
+            $productId = $row['product_id'] ?? null;
+            if (! $productId || trim((string) ($row['name'] ?? '')) !== '') {
+                continue;
+            }
+
+            $product = $products->get((int) $productId);
+            if ($product === null) {
+                continue;
+            }
+
+            $nameEn = trim((string) ($product->name_en ?? ''));
+            if ($nameEn === '') {
+                $nameEn = $product->displayName('en');
+            }
+
+            $this->lines[$index]['name'] = $nameEn;
+
+            if (trim((string) ($this->lines[$index]['name_ar'] ?? '')) === '') {
+                $this->lines[$index]['name_ar'] = trim((string) ($product->name_ar ?? ''));
+            }
+
+            if (trim((string) ($this->lines[$index]['unit_price'] ?? '')) === '') {
+                $this->lines[$index]['unit_price'] = (string) $product->price_ex_vat;
+            }
+
+            if (trim((string) ($this->lines[$index]['vat_rate'] ?? '')) === '') {
+                $this->lines[$index]['vat_rate'] = (string) $product->vat_rate;
+            }
+        }
     }
 
     /**

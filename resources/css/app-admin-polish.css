@@ -200,4 +200,22 @@
     .invoice-issue-preview-totals {
         box-shadow: var(--app-shadow);
     }
+
+    .invoice-issue-preview-totals--compact {
+        @apply sticky bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-[5];
+    }
+
+    .issue-simplified-line__field .form-field__control {
+        @apply min-h-12 text-base;
+    }
+
+    .issue-simplified-add-line,
+    .issue-simplified-more__toggle {
+        @apply rounded-2xl border;
+        border-color: var(--app-border);
+    }
+
+    .issue-simplified-issue {
+        @apply sticky bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-10 shadow-lg;
+    }
 }

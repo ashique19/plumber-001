@@ -44,6 +44,7 @@ return [
     'line_amount' => 'মোট',
     'add_line' => 'লাইন যোগ',
     'remove_line' => 'লাইন সরান',
+    'more_options' => 'আরও',
     'pick_catalog_product' => 'ক্যাটালগ থেকে বেছে নিন',
     'search_catalog_products' => 'পণ্য বা সেবা খুঁজুন…',
     'catalog_no_match' => 'কোনো ক্যাটালগ আইটেম মিলছে না।',

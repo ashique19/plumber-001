@@ -53,6 +53,7 @@ return [
     'line_vat' => 'ضريبة %',
     'add_line' => 'إضافة بند',
     'remove_line' => 'حذف البند',
+    'more_options' => 'المزيد',
     'pick_catalog_product' => 'اختيار من الكتالوج',
     'search_catalog_products' => 'بحث في المنتجات والخدمات…',
     'catalog_no_match' => 'لا توجد عناصر مطابقة.',
