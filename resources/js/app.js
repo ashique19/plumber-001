@@ -3,6 +3,7 @@ import { registerAdminLocationPicker, wireAdminLocationPickerLifecycle } from '.
 import { registerAdminLogoUpload } from './admin-logo-upload.js';
 import { registerCatalogProductImageUpload } from './product-image-upload.js';
 import { registerPosQtyStepper } from './pos-qty-stepper.js';
+import { registerInvoiceCatalogPicker } from './invoice-catalog-picker.js';
 import { registerToastStack } from './toast-stack.js';
 import { wireLivewireRequestFeedback } from './livewire-feedback.js';
 
@@ -18,6 +19,7 @@ registerAdminLocationPicker(Alpine);
 registerAdminLogoUpload(Alpine);
 registerCatalogProductImageUpload(Alpine);
 registerPosQtyStepper(Alpine);
+registerInvoiceCatalogPicker(Alpine);
 
 document.addEventListener('livewire:init', () => {
     wireAdminLocationPickerLifecycle();

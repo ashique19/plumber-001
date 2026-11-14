@@ -2,11 +2,14 @@
 
 namespace App\Livewire\Invoices;
 
+use App\Data\InvoiceLineData;
 use App\Enums\InvoiceDocumentType;
 use App\Livewire\Concerns\DispatchesToasts;
 use App\Livewire\Concerns\ValidatesFieldsLive;
+use App\Models\Product;
 use App\Models\BusinessSetting;
 use App\Models\Branch;
+use App\Support\Invoicing\InvoiceDocumentTotals;
 use App\Services\InvoiceIssueService;
 use App\Support\StaffBranchContext;
 use App\Support\Validation\FieldValidationRules;
@@ -27,9 +30,19 @@ class IssueInvoice extends Component
 
     public string $mode;
 
-    /** @var list<array{name: string, name_ar: string, quantity: string, unit_price: string, vat_rate: string}> */
+    /**
+     * @var list<array{
+     *     name: string,
+     *     name_ar: string,
+     *     quantity: string,
+     *     unit_price: string,
+     *     vat_rate: string,
+     *     product_id: int|null,
+     *     unit_label: string
+     * }>
+     */
     public array $lines = [
-        ['name' => '', 'name_ar' => '', 'quantity' => '1', 'unit_price' => '', 'vat_rate' => '15'],
+        ['name' => '', 'name_ar' => '', 'quantity' => '1', 'unit_price' => '', 'vat_rate' => '15', 'product_id' => null, 'unit_label' => ''],
     ];
 
     public string $invoiceDiscountExVat = '0';
@@ -76,7 +89,38 @@ class IssueInvoice extends Component
 
     public function addLine(): void
     {
-        $this->lines[] = ['name' => '', 'name_ar' => '', 'quantity' => '1', 'unit_price' => '', 'vat_rate' => '15'];
+        $this->lines[] = $this->emptyLine();
+    }
+
+    public function applyCatalogProduct(int $lineIndex, int $productId): void
+    {
+        if (! isset($this->lines[$lineIndex])) {
+            return;
+        }
+
+        $product = Product::query()->where('is_active', true)->find($productId);
+        if ($product === null) {
+            $this->toastWarning(__('invoices.catalog_product_missing'));
+
+            return;
+        }
+
+        $nameEn = trim((string) ($product->name_en ?? ''));
+        if ($nameEn === '') {
+            $nameEn = $product->displayName('en');
+        }
+
+        $this->lines[$lineIndex] = array_merge($this->lines[$lineIndex], [
+            'name' => $nameEn,
+            'name_ar' => trim((string) ($product->name_ar ?? '')),
+            'quantity' => $this->lines[$lineIndex]['quantity'] !== '' ? $this->lines[$lineIndex]['quantity'] : '1',
+            'unit_price' => (string) $product->price_ex_vat,
+            'vat_rate' => (string) $product->vat_rate,
+            'product_id' => $product->id,
+            'unit_label' => $product->itemType()->label(),
+        ]);
+
+        $this->toastInfo(__('invoices.catalog_product_applied', ['name' => $product->displayName()]));
     }
 
     public function removeLine(int $index): void
@@ -90,6 +134,7 @@ class IssueInvoice extends Component
 
     public function issue(InvoiceIssueService $issuer): void
     {
+        $this->hydrateCatalogLineNames();
         $this->validate($this->rulesForMode());
 
         $branch = StaffBranchContext::resolve();
@@ -177,7 +222,161 @@ class IssueInvoice extends Component
                 ? __('invoices.issue_standard_title')
                 : __('invoices.issue_simplified_title'),
             'isStandard' => $isStandard,
+            'catalogProducts' => $this->catalogProductsForPicker(),
+            'previewTotals' => $this->previewTotals(),
         ]);
+    }
+
+    /**
+     * @return array<string, float>
+     */
+    public function previewTotals(): array
+    {
+        $lines = [];
+        foreach ($this->lines as $row) {
+            $name = trim((string) ($row['name'] ?? ''));
+            $unitPrice = (float) ($row['unit_price'] ?? 0);
+            if ($name === '' && $unitPrice <= 0) {
+                continue;
+            }
+            $lines[] = new InvoiceLineData(
+                name: $name !== '' ? $name : __('invoices.line_name'),
+                quantity: (float) ($row['quantity'] ?? 1),
+                unitPriceExVat: $unitPrice,
+                vatRate: (float) ($row['vat_rate'] ?? 0),
+                nameAr: filled($row['name_ar'] ?? null) ? (string) $row['name_ar'] : null,
+            );
+        }
+
+        $retentionPercent = trim($this->retentionPercent) !== '' ? (float) $this->retentionPercent : null;
+        $retentionFixed = trim($this->retentionFixed) !== '' ? (float) $this->retentionFixed : null;
+
+        return InvoiceDocumentTotals::compute(
+            $lines,
+            (float) $this->invoiceDiscountExVat,
+            $retentionPercent,
+            $retentionFixed,
+        );
+    }
+
+    /**
+     * @return list<array{id: int, label: string, meta: string, search: string}>
+     */
+    protected function catalogProductsForPicker(): array
+    {
+        return Product::query()
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('name_en')
+            ->get()
+            ->map(function (Product $product): array {
+                $label = $product->displayName(app()->getLocale());
+                $search = mb_strtolower(implode(' ', array_filter([
+                    $product->sku,
+                    $product->name_en,
+                    $product->name_ar,
+                    $product->name_bn,
+                ])));
+
+                return [
+                    'id' => $product->id,
+                    'label' => $label,
+                    'meta' => __('invoices.catalog_product_meta', [
+                        'type' => $product->itemType()->label(),
+                        'price' => number_format((float) $product->price_ex_vat, 2),
+                        'vat' => number_format((float) $product->vat_rate, 0),
+                    ]),
+                    'search' => $search,
+                ];
+            })
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return array{
+     *     name: string,
+     *     name_ar: string,
+     *     quantity: string,
+     *     unit_price: string,
+     *     vat_rate: string,
+     *     product_id: int|null,
+     *     unit_label: string
+     * }
+     */
+    private function hydrateCatalogLineNames(): void
+    {
+        $productIds = [];
+        foreach ($this->lines as $row) {
+            $productId = $row['product_id'] ?? null;
+            if ($productId && trim((string) ($row['name'] ?? '')) === '') {
+                $productIds[(int) $productId] = true;
+            }
+        }
+
+        if ($productIds === []) {
+            return;
+        }
+
+        $products = Product::query()
+            ->whereIn('id', array_keys($productIds))
+            ->get()
+            ->keyBy('id');
+
+        foreach ($this->lines as $index => $row) {
+            $productId = $row['product_id'] ?? null;
+            if (! $productId || trim((string) ($row['name'] ?? '')) !== '') {
+                continue;
+            }
+
+            $product = $products->get((int) $productId);
+            if ($product === null) {
+                continue;
+            }
+
+            $nameEn = trim((string) ($product->name_en ?? ''));
+            if ($nameEn === '') {
+                $nameEn = $product->displayName('en');
+            }
+
+            $this->lines[$index]['name'] = $nameEn;
+
+            if (trim((string) ($this->lines[$index]['name_ar'] ?? '')) === '') {
+                $this->lines[$index]['name_ar'] = trim((string) ($product->name_ar ?? ''));
+            }
+
+            if (trim((string) ($this->lines[$index]['unit_price'] ?? '')) === '') {
+                $this->lines[$index]['unit_price'] = (string) $product->price_ex_vat;
+            }
+
+            if (trim((string) ($this->lines[$index]['vat_rate'] ?? '')) === '') {
+                $this->lines[$index]['vat_rate'] = (string) $product->vat_rate;
+            }
+        }
+    }
+
+    /**
+     * @return array{
+     *     name: string,
+     *     name_ar: string,
+     *     quantity: string,
+     *     unit_price: string,
+     *     vat_rate: string,
+     *     product_id: int|null,
+     *     unit_label: string
+     * }
+     */
+    private function emptyLine(): array
+    {
+        return [
+            'name' => '',
+            'name_ar' => '',
+            'quantity' => '1',
+            'unit_price' => '',
+            'vat_rate' => '15',
+            'product_id' => null,
+            'unit_label' => '',
+        ];
     }
 
     /**

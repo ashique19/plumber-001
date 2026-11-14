@@ -160,4 +160,62 @@
         background: color-mix(in srgb, var(--app-surface) 94%, transparent);
         backdrop-filter: blur(12px);
     }
+
+    .invoice-catalog-picker {
+        @apply relative;
+    }
+
+    .invoice-catalog-picker__panel {
+        @apply z-[70] mt-2 flex max-h-[min(70dvh,24rem)] flex-col gap-2 rounded-2xl border p-3 shadow-xl;
+        border-color: var(--app-border);
+        background: var(--app-surface);
+    }
+
+    @media (max-width: 639px) {
+        .invoice-catalog-picker__panel {
+            @apply fixed inset-x-0 bottom-0 max-h-[min(85dvh,32rem)] rounded-b-none rounded-t-3xl pb-[calc(0.75rem+env(safe-area-inset-bottom))];
+        }
+    }
+
+    @media (min-width: 640px) {
+        .invoice-catalog-picker__panel {
+            @apply absolute start-0 end-0 top-full;
+        }
+    }
+
+    .invoice-catalog-picker__head {
+        @apply flex items-center justify-between gap-2;
+    }
+
+    .invoice-catalog-picker__list {
+        @apply min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-xl border;
+        border-color: color-mix(in srgb, var(--app-border) 90%, transparent);
+    }
+
+    .invoice-catalog-picker__option {
+        @apply flex w-full flex-col items-start gap-0.5 border-b px-3 py-3 text-start text-sm last:border-b-0;
+        border-color: color-mix(in srgb, var(--app-border) 85%, transparent);
+    }
+
+    .invoice-issue-preview-totals {
+        box-shadow: var(--app-shadow);
+    }
+
+    .invoice-issue-preview-totals--compact {
+        @apply sticky bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-[5];
+    }
+
+    .issue-simplified-line__field .form-field__control {
+        @apply min-h-12 text-base;
+    }
+
+    .issue-simplified-add-line,
+    .issue-simplified-more__toggle {
+        @apply rounded-2xl border;
+        border-color: var(--app-border);
+    }
+
+    .issue-simplified-issue {
+        @apply sticky bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-10 shadow-lg;
+    }
 }
