@@ -11,6 +11,10 @@ class SaudiVatNumber implements ValidationRule
     {
         $vat = preg_replace('/\D/', '', (string) $value) ?? '';
 
+        if ($vat === '') {
+            return;
+        }
+
         if (! preg_match('/^3\d{13}3$/', $vat)) {
             $fail(__('business.fields.validation.vat_format'));
         }

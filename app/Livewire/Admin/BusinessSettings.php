@@ -88,6 +88,8 @@ class BusinessSettings extends Component
 
     public string $naPostal = '';
 
+    public string $naCountry = 'SA';
+
     public string $naAdditional = '';
 
     public string $phone = '';
@@ -221,10 +223,11 @@ class BusinessSettings extends Component
         $this->resetErrorBag();
         $this->tabsWithErrors = [];
         $business = $this->business();
+        $this->brandColorKey = BusinessProfile::normalizeBrandColorKey($business, $this->brandColorKey);
 
         $rules = [
             'displayNameEn' => 'required|string|max:160',
-            'displayNameAr' => 'required|string|max:160',
+            'displayNameAr' => 'nullable|string|max:160',
             'displayNameBn' => 'nullable|string|max:160',
             'taglineEn' => 'nullable|string|max:240',
             'taglineAr' => 'nullable|string|max:240',
@@ -322,6 +325,7 @@ class BusinessSettings extends Component
             'naCity' => 'nullable|string|max:80',
             'naCityAr' => 'nullable|string|max:80',
             'naPostal' => 'nullable|digits:5',
+            'naCountry' => 'nullable|string|size:2',
             'naAdditional' => 'nullable|string|max:20',
             ], 'legal');
         } catch (ValidationException) {
@@ -349,6 +353,7 @@ class BusinessSettings extends Component
                 'city' => $this->naCity,
                 'city_ar' => $this->naCityAr,
                 'postal_code' => $this->naPostal,
+                'country' => $this->naCountry !== '' ? strtoupper($this->naCountry) : 'SA',
                 'additional' => $this->naAdditional,
             ], static fn (string $v): bool => $v !== ''),
         ], auth('staff')->user());
@@ -526,7 +531,10 @@ class BusinessSettings extends Component
         $this->displayNameBn = (string) ($brand['display_name_bn'] ?? '');
         $this->taglineEn = (string) ($brand['tagline_en'] ?? '');
         $this->taglineAr = (string) ($brand['tagline_ar'] ?? '');
-        $this->brandColorKey = (string) ($brand['brand_color_key'] ?? BusinessProfile::primaryColorKey($business));
+        $this->brandColorKey = BusinessProfile::normalizeBrandColorKey(
+            $business,
+            $brand['brand_color_key'] ?? BusinessProfile::primaryColorKey($business),
+        );
         $this->currentLogo = data_get($settings, 'theme.logo_url');
 
         $this->legalNameEn = (string) ($legal['name_en'] ?? '');
@@ -549,6 +557,7 @@ class BusinessSettings extends Component
         $this->naCity = (string) ($na['city'] ?? '');
         $this->naCityAr = (string) ($na['city_ar'] ?? '');
         $this->naPostal = (string) ($na['postal_code'] ?? '');
+        $this->naCountry = strtoupper((string) ($na['country'] ?? 'SA')) ?: 'SA';
         $this->naAdditional = (string) ($na['additional'] ?? '');
 
         $this->phone = (string) ($contact['phone'] ?? '');

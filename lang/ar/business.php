@@ -46,6 +46,7 @@ return [
         'na_district' => 'الحي',
         'na_city' => 'المدينة',
         'na_postal' => 'الرمز البريدي (5 أرقام)',
+        'na_country' => 'الدولة (رمز ISO)',
         'na_additional' => 'الرقم الإضافي',
         'na_street_ar' => 'الشارع (عربي)',
         'na_district_ar' => 'الحي (عربي)',

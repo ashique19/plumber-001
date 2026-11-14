@@ -41,11 +41,11 @@
     @if ($section === 'brand')
         <form wire:submit="saveBrand" class="app-card flex flex-col gap-4 p-4">
             <x-form.input :label="__('business.brand.display_name_en')" name="displayNameEn" wire:model.blur="displayNameEn" :liveValidate="false" required />
-            <x-form.input :label="__('business.brand.display_name_ar')" name="displayNameAr" wire:model.blur="displayNameAr" :liveValidate="false" required />
+            <x-form.input :label="__('business.brand.display_name_ar')" name="displayNameAr" wire:model.blur="displayNameAr" :liveValidate="false" />
             <x-form.input :label="__('business.brand.display_name_bn')" name="displayNameBn" wire:model.blur="displayNameBn" :liveValidate="false" />
             <x-form.input :label="__('business.brand.tagline_en')" name="taglineEn" wire:model.blur="taglineEn" :liveValidate="false" />
             <x-form.input :label="__('business.brand.tagline_ar')" name="taglineAr" wire:model.blur="taglineAr" :liveValidate="false" />
-            <x-form.select :label="__('business.brand.brand_color')" name="brandColorKey" wire:model="brandColorKey" :liveValidate="false" required>
+            <x-form.select :label="__('business.brand.brand_color')" name="brandColorKey" wire:model="brandColorKey" :liveValidate="false">
                 @foreach ($colorOptions as $key => $label)
                     <option value="{{ $key }}">{{ $label }}</option>
                 @endforeach
@@ -89,6 +89,7 @@
                 <x-form.input :label="__('business.legal.na_city')" name="naCity" wire:model.blur="naCity" :liveValidate="false" />
                 <x-form.input :label="__('business.legal.na_city_ar')" name="naCityAr" wire:model.blur="naCityAr" :liveValidate="false" dir="rtl" />
                 <x-form.input :label="__('business.legal.na_postal')" name="naPostal" wire:model.blur="naPostal" :liveValidate="false" />
+                <x-form.input :label="__('business.legal.na_country')" name="naCountry" wire:model.blur="naCountry" :liveValidate="false" maxlength="2" />
             </div>
             <p class="text-xs text-[var(--app-muted)]">{{ __('business.legal.logo_on_brand') }}</p>
             <div class="flex justify-end">
