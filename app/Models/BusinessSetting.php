@@ -55,7 +55,13 @@ class BusinessSetting extends Model
       $payload['name'] = $name;
     }
 
-    if (! $this->forceFill($payload)->save()) {
+    $this->forceFill($payload);
+
+    if (! $this->isDirty()) {
+      throw new \RuntimeException('Business settings did not change in memory; database write was skipped.');
+    }
+
+    if (! $this->save()) {
       throw new \RuntimeException('Failed to persist business settings.');
     }
   }

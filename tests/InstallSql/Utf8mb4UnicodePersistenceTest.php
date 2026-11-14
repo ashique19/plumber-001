@@ -88,6 +88,11 @@ it('persists bangla and arabic text after install.sql import and utf8mb4 convers
     $business = BusinessSetting::primary()->fresh();
     expect(data_get($business->settings, 'business.brand.display_name_ar'))->toBe('أنابيب الرياض')
         ->and(data_get($business->settings, 'business.brand.display_name_bn'))->toBe('পাইপ ওয়ার্ক্স');
+
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(BusinessSettings::class)
+        ->assertSet('displayNameAr', 'أنابيب الرياض')
+        ->assertSet('displayNameBn', 'পাইপ ওয়ার্ক্স');
 });
 
 it('repairs latin1 product_categories so bangla inserts succeed after utf8mb4 convert script', function () {

@@ -45,4 +45,51 @@ final class TranslationLeakScanner
             "{$context}: untranslated keys in HTML: ".implode(', ', $leaks)
         );
     }
+
+    /**
+     * Spot-check English copy that should never appear on localized business settings pages.
+     */
+    public static function assertBusinessPageHasNoEnglishLabels(string $html, string $locale): void
+    {
+        if ($locale === 'en') {
+            return;
+        }
+
+        $forbidden = [
+            'Business settings',
+            'Brand, legal, contact, and hours',
+            'Legal & tax',
+            'Display name (English)',
+            'Display name (Arabic)',
+            'Display name (Bengali',
+            'Tagline (English)',
+            'Tagline (Arabic)',
+            'Brand color',
+            'Legal name (English)',
+            'Legal name (Arabic)',
+            'VAT number',
+            'Commercial registration (CR)',
+            'Invoice address (English)',
+            'Invoice address (Arabic)',
+            'National address (Saudi)',
+            'Building no.',
+            'Postal code (5 digits)',
+            'Additional no.',
+            'These details must match your Z-Heart',
+            'Save section',
+        ];
+
+        $leaks = [];
+        foreach ($forbidden as $phrase) {
+            if (str_contains($html, $phrase)) {
+                $leaks[] = $phrase;
+            }
+        }
+
+        Assert::assertSame(
+            [],
+            $leaks,
+            "{$locale} business settings page shows English labels: ".implode(', ', $leaks)
+        );
+    }
 }

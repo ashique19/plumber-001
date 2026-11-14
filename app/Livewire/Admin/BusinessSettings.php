@@ -10,6 +10,7 @@ use App\Support\Geo\GeoMapsUrl;
 use App\Support\BusinessHours;
 use App\Support\BusinessProfile;
 use App\Support\Upload\LogoUploadConstraints;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 use App\Business\BusinessContext;
@@ -253,6 +254,7 @@ class BusinessSettings extends Component
             ], auth('staff')->user(), $this->logoUpload);
         } catch (\InvalidArgumentException $e) {
             $this->addError('logoUpload', $e->getMessage());
+            $this->toastError($e->getMessage(), persistent: true);
 
             return;
         } catch (Throwable $e) {
@@ -527,7 +529,13 @@ class BusinessSettings extends Component
 
     private function business(): BusinessSetting
     {
-        return BusinessSetting::query()->findOrFail($this->businessId);
+        $row = BusinessSetting::query()->find($this->businessId);
+        if ($row === null) {
+            $row = BusinessSetting::primary();
+            $this->businessId = $row->id;
+        }
+
+        return $row;
     }
 
     protected function validationAttributes(): array
@@ -672,15 +680,20 @@ class BusinessSettings extends Component
             'section' => $section,
             'business_id' => $this->businessId,
             'message' => $e->getMessage(),
+            'exception' => $e::class,
         ]);
         $this->section = $section;
         $this->tabsWithErrors = [$section];
-        $this->toastError(
-            $e instanceof ValidationException
-                ? __('business.validation.section_failed', ['section' => __('business.sections.'.$section)])
-                : __('business.errors.save_failed'),
-            persistent: true,
-        );
+
+        $message = match (true) {
+            $e instanceof ValidationException => __('business.validation.section_failed', [
+                'section' => __('business.sections.'.$section),
+            ]),
+            $e instanceof QueryException && str_contains($e->getMessage(), 'Incorrect string value') => __('business.errors.charset_save_failed'),
+            default => __('business.errors.save_failed'),
+        };
+
+        $this->toastError($message, persistent: true);
     }
 
     private function liveRulesForProperty(string $property): ?string

@@ -33,6 +33,7 @@ it('renders dashboard and business settings without raw translation keys', funct
 
         $business = $this->get(route('admin.business', ['locale' => $locale]))->assertOk()->getContent();
         TranslationLeakScanner::assertHtmlHasNoLeakedKeys($business, "business settings [{$locale}]");
+        TranslationLeakScanner::assertBusinessPageHasNoEnglishLabels($business, $locale);
 
         if (in_array($locale, ['bn', 'ar'], true)) {
             expect(strtolower($dashboard))->not->toContain('signing service');

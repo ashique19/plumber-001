@@ -37,6 +37,8 @@ it('persists brand and legal tabs after install.sql import and sql patches on my
         ->test(BusinessSettings::class)
         ->set('displayNameEn', 'Pipe Works KSA')
         ->set('displayNameAr', 'أنابيب السعودية')
+        ->set('displayNameBn', 'পাইপ ওয়ার্ক্স কেএসএ')
+        ->set('taglineAr', 'সঠিক নলকাজ')
         ->set('brandColorKey', 'steel')
         ->call('saveBrand')
         ->assertHasNoErrors()
@@ -44,23 +46,46 @@ it('persists brand and legal tabs after install.sql import and sql patches on my
 
     $brand = BusinessSetting::primary()->fresh();
     expect(data_get($brand->settings, 'business.brand.display_name_en'))->toBe('Pipe Works KSA')
+        ->and(data_get($brand->settings, 'business.brand.display_name_ar'))->toBe('أنابيب السعودية')
+        ->and(data_get($brand->settings, 'business.brand.display_name_bn'))->toBe('পাইপ ওয়ার্ক্স কেএসএ')
         ->and(data_get($brand->settings, 'business.brand.brand_color_key'))->toBe('steel')
         ->and($brand->name)->toBe('Pipe Works KSA');
+
+    $reloadedBrand = Livewire::actingAs($this->owner, 'staff')
+        ->test(BusinessSettings::class)
+        ->assertSet('displayNameAr', 'أنابيب السعودية')
+        ->assertSet('displayNameBn', 'পাইপ ওয়ার্ক্স কেএসএ');
+
+    expect($reloadedBrand)->not->toBeNull();
 
     Livewire::actingAs($this->owner, 'staff')
         ->test(BusinessSettings::class)
         ->set('section', 'legal')
+        ->set('legalNameEn', 'Pipe Works LLC')
+        ->set('legalNameAr', 'شركة أنابيب')
         ->set('crNumber', '1011223344')
         ->set('vatNumber', '311122393500003')
         ->set('legalMobile', '+966501122334')
+        ->set('addressAr', 'الرياض، حي العليا')
+        ->set('naStreetAr', 'شارع الأمير')
+        ->set('naCityAr', 'الرياض')
         ->call('saveLegal')
         ->assertHasNoErrors()
         ->assertDispatched('toast');
 
     $legal = BusinessSetting::primary()->fresh();
     expect(data_get($legal->settings, 'business.legal.cr_number'))->toBe('1011223344')
+        ->and(data_get($legal->settings, 'business.legal.name_ar'))->toBe('شركة أنابيب')
         ->and(data_get($legal->settings, 'legal_entity.vat_number'))->toBe('311122393500003')
-        ->and(data_get($legal->settings, 'business.legal.mobile'))->toBe('+966501122334');
+        ->and(data_get($legal->settings, 'business.legal.mobile'))->toBe('+966501122334')
+        ->and(data_get($legal->settings, 'business.legal.address_ar'))->toBe('الرياض، حي العليا');
+
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(BusinessSettings::class)
+        ->set('section', 'legal')
+        ->assertSet('legalNameAr', 'شركة أنابيب')
+        ->assertSet('addressAr', 'الرياض، حي العليا')
+        ->assertSet('naStreetAr', 'شارع الأمير');
 });
 
 it('persists contact tab on mysql install.sql baseline', function () {
