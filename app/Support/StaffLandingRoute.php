@@ -9,12 +9,12 @@ final class StaffLandingRoute
 {
     public static function forUser(BusinessSetting $business, StaffUser $user): string
     {
-        if ($user->can('pos.access')) {
-            return route('admin.pos.home');
-        }
-
         if ($user->can('reports.view')) {
             return route('admin.dashboard');
+        }
+
+        if ($user->can('pos.access')) {
+            return route('admin.pos.home');
         }
 
         return route('admin.business');

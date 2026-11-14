@@ -125,6 +125,11 @@ class MenuManager extends Component
     {
         $this->resolveBusiness();
         BusinessContext::set($this->business);
+
+        if (request()->query('create') === 'product' && auth('staff')->user()?->can('staff.manage')) {
+            $this->tab = 'products';
+            $this->startProduct();
+        }
     }
 
     public function setTab(string $tab): void
