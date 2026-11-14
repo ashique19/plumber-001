@@ -102,7 +102,7 @@
     }
 
     .app-filter-bar {
-        @apply mb-4 flex flex-col gap-2 rounded-2xl border p-3 shadow-sm sm:flex-row sm:items-center;
+        @apply mb-4 flex flex-col gap-2 rounded-2xl border p-3 shadow-sm sm:flex-row sm:items-end;
         border-color: color-mix(in srgb, var(--app-border) 90%, var(--plumber-steel, #5c3d2e) 10%);
         background: var(--app-surface);
         box-shadow: var(--app-shadow);

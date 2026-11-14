@@ -499,8 +499,42 @@
         scroll-snap-align: start;
     }
 
+    .business-settings-page {
+        --business-settings-subhead-height: 7.25rem;
+    }
+
+    @media (min-width: 640px) {
+        .business-settings-page {
+            --business-settings-subhead-height: 9.5rem;
+        }
+    }
+
+    .business-settings-page__sticky-head {
+        position: sticky;
+        top: calc(env(safe-area-inset-top) + var(--app-topbar-height, 3.5rem));
+        z-index: 40;
+        margin-inline: -0.25rem;
+        margin-bottom: 1rem;
+        padding: 0.25rem 0.25rem 0.75rem;
+        background: color-mix(in srgb, var(--app-bg, #f4f8fc) 88%, transparent);
+        box-shadow: 0 1px 0 color-mix(in srgb, var(--app-border) 65%, transparent);
+        isolation: isolate;
+    }
+
+    .business-settings-page .form-field,
+    .business-settings-page .form-section__title,
+    .business-settings-page input.form-field__control,
+    .business-settings-page select.form-field__control,
+    .business-settings-page textarea.form-field__control {
+        scroll-margin-top: calc(
+            env(safe-area-inset-top) + var(--app-topbar-height, 3.5rem) + var(--business-settings-subhead-height, 7.25rem) + 0.75rem
+        );
+    }
+
     .business-settings-page .app-card {
         max-width: 100%;
+        position: relative;
+        z-index: 0;
     }
 
     .app-toolbar-select {

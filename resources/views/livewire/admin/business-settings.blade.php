@@ -2,41 +2,43 @@
     use App\Support\EnabledLocales;
 @endphp
 <div class="business-settings-page pb-24 lg:pb-8 min-w-0 max-w-full overflow-x-hidden" dir="{{ EnabledLocales::direction(app()->getLocale()) }}" x-data="{ sectionTab: @entangle('section').live }">
-    <header class="mb-4 min-w-0">
-        <h1 class="app-page-title break-words">{{ __('business.title') }}</h1>
-        <p class="app-page-lead break-words">{{ __('business.subtitle') }}</p>
-    </header>
+    <div class="business-settings-page__sticky-head">
+        <header class="min-w-0">
+            <h1 class="app-page-title break-words">{{ __('business.title') }}</h1>
+            <p class="app-page-lead break-words">{{ __('business.subtitle') }}</p>
+        </header>
 
-    <label class="mb-4 block min-w-0 sm:hidden">
-        <span class="sr-only">{{ __('business.title') }}</span>
-        <select class="app-toolbar-select w-full max-w-full" wire:model.live="section" x-model="sectionTab" aria-label="{{ __('business.title') }}">
+        <label class="mt-4 block min-w-0 sm:hidden">
+            <span class="sr-only">{{ __('business.title') }}</span>
+            <select class="app-toolbar-select w-full max-w-full" wire:model.live="section" x-model="sectionTab" aria-label="{{ __('business.title') }}">
+                @foreach (['brand', 'legal', 'invoicing', 'contact', 'hours', 'branches', 'extras'] as $key)
+                    <option value="{{ $key }}">{{ __('business.sections.'.$key) }}</option>
+                @endforeach
+            </select>
+        </label>
+
+        <nav class="app-section-tabs app-section-tabs--scroll mt-4 hidden min-w-0 sm:flex" aria-label="{{ __('business.title') }}">
             @foreach (['brand', 'legal', 'invoicing', 'contact', 'hours', 'branches', 'extras'] as $key)
-                <option value="{{ $key }}">{{ __('business.sections.'.$key) }}</option>
+                <button
+                    type="button"
+                    wire:click="setSection('{{ $key }}')"
+                    @click="sectionTab = '{{ $key }}'"
+                    @class([
+                        'app-segment-tab',
+                        'app-segment-tab--active' => $section === $key,
+                    ])
+                    @if ($section === $key) data-active-section @endif
+                >
+                    <span class="inline-flex items-center gap-1">
+                        {{ __('business.sections.'.$key) }}
+                        @if (in_array($key, $tabsWithErrors, true))
+                            <span class="inline-block h-2 w-2 rounded-full bg-amber-600" aria-hidden="true" title="{{ __('business.validation.tab_has_errors') }}"></span>
+                        @endif
+                    </span>
+                </button>
             @endforeach
-        </select>
-    </label>
-
-    <nav class="app-section-tabs app-section-tabs--scroll mb-4 hidden min-w-0 sm:flex" aria-label="{{ __('business.title') }}">
-        @foreach (['brand', 'legal', 'invoicing', 'contact', 'hours', 'branches', 'extras'] as $key)
-            <button
-                type="button"
-                wire:click="setSection('{{ $key }}')"
-                @click="sectionTab = '{{ $key }}'"
-                @class([
-                    'app-segment-tab',
-                    'app-segment-tab--active' => $section === $key,
-                ])
-                @if ($section === $key) data-active-section @endif
-            >
-                <span class="inline-flex items-center gap-1">
-                    {{ __('business.sections.'.$key) }}
-                    @if (in_array($key, $tabsWithErrors, true))
-                        <span class="inline-block h-2 w-2 rounded-full bg-amber-600" aria-hidden="true" title="{{ __('business.validation.tab_has_errors') }}"></span>
-                    @endif
-                </span>
-            </button>
-        @endforeach
-    </nav>
+        </nav>
+    </div>
 
     @if ($errors->isNotEmpty())
         <div class="app-card mb-4 border-amber-200 bg-amber-50 p-4 text-sm text-amber-950" role="alert">
