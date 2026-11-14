@@ -17,9 +17,9 @@ trait DispatchesToasts
         $this->dispatchToast('info', $message, $title);
     }
 
-    protected function toastWarning(string $message, ?string $title = null, bool $dedupe = true): void
+    protected function toastWarning(string $message, ?string $title = null, bool $dedupe = true, bool $persistent = false): void
     {
-        $this->dispatchToast('warning', $message, $title, persistent: false, dedupe: $dedupe);
+        $this->dispatchToast('warning', $message, $title, persistent: $persistent, dedupe: $dedupe);
     }
 
     protected function toastError(string $message, ?string $title = null, bool $persistent = true): void

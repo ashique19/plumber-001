@@ -155,6 +155,8 @@
                 </dl>
             </section>
 
+            <x-invoices.zatca-not-ready-notice :show="$zatcaNotReady" />
+
             <x-ui.livewire-action type="submit" target="issue" loading="issue" class="tap-action-primary issue-simplified-issue min-h-14 w-full text-base font-semibold">
                 {{ __('invoices.issue_submit') }}
             </x-ui.livewire-action>
@@ -232,6 +234,8 @@
                     @endif
                 </dl>
             </section>
+
+            <x-invoices.zatca-not-ready-notice :show="$zatcaNotReady" />
 
             <x-ui.livewire-action type="submit" target="issue" loading="issue" class="tap-action-primary min-h-11 w-full sm:w-auto">
                 {{ __('invoices.issue_submit') }}

@@ -60,12 +60,15 @@
     <div class="space-y-2">
         @forelse ($invoices as $invoice)
             @php
-                $signingKey = filled($invoice->signed_xml)
-                    ? (filled(data_get($invoice->payload, 'zheart_zatca'))
-                        || data_get($invoice->payload, 'zheart_remote_submitted')
-                        ? 'submitted'
-                        : 'signed')
-                    : 'none';
+                $zatcaNotSent = \App\Support\Invoicing\ZatcaSubmissionStatus::invoiceNotSentToZatca($invoice);
+                $signingKey = $zatcaNotSent
+                    ? 'zatca_not_sent'
+                    : (filled($invoice->signed_xml)
+                        ? (filled(data_get($invoice->payload, 'zheart_zatca'))
+                            || data_get($invoice->payload, 'zheart_remote_submitted')
+                            ? 'submitted'
+                            : 'signed')
+                        : 'none');
                 $order = $this->orderFor($invoice);
             @endphp
             <article class="app-list-card" wire:key="inv-{{ $invoice->id }}">
@@ -86,6 +89,7 @@
                             'pos-status-pill',
                             'pos-status-pill--paid' => in_array($signingKey, ['submitted', 'signed'], true),
                             'pos-status-pill--refunded' => $signingKey === 'none',
+                            'pos-status-pill--warning' => $signingKey === 'zatca_not_sent',
                         ])>{{ __('invoices.signing.'.$signingKey) }}</span>
                         @if ($invoice->document_type->value === 'credit_note')
                             <span class="pos-status-pill pos-status-pill--cancelled">{{ __('invoices.credit_badge') }}</span>

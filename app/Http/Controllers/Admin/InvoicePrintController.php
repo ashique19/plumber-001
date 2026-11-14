@@ -9,6 +9,7 @@ use App\Models\Invoice;
 use App\Models\PosOrder;
 use App\Support\EnabledLocales;
 use App\Support\Invoicing\InvoicePrintPresenter;
+use App\Support\Invoicing\ZatcaSubmissionStatus;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -65,6 +66,7 @@ class InvoicePrintController extends Controller
             'receiptUrl' => $receiptUrl,
             'cashUrl' => $layout !== 'cash' ? $printRoute('cash') : null,
             'a4Url' => $layout !== 'a4' ? $printRoute('a4') : null,
+            'zatcaNotSent' => ZatcaSubmissionStatus::invoiceNotSentToZatca($invoice),
         ]);
     }
 }

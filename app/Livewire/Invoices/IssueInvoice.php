@@ -10,6 +10,7 @@ use App\Models\Product;
 use App\Models\BusinessSetting;
 use App\Models\Branch;
 use App\Support\Invoicing\InvoiceDocumentTotals;
+use App\Support\Invoicing\ZatcaSubmissionStatus;
 use App\Exceptions\InvoiceSigningException;
 use App\Services\InvoiceIssueService;
 use App\Support\StaffBranchContext;
@@ -240,9 +241,11 @@ class IssueInvoice extends Component
         $issued = $outcome->invoice;
 
         if (! $outcome->signingSucceeded) {
-            $this->toastWarning(__('invoices.issue_signing_deferred', [
-                'number' => $issued->document_number,
-            ]));
+            $this->toastWarning(
+                __('invoices.issue_saved_not_sent_zatca', ['number' => $issued->document_number]),
+                persistent: true,
+                dedupe: false,
+            );
         }
 
         $this->toastSuccess(__('invoices.issue_success', ['number' => $issued->document_number]));
@@ -270,6 +273,7 @@ class IssueInvoice extends Component
             'isStandard' => $isStandard,
             'catalogProducts' => $this->catalogProductsForPicker(),
             'previewTotals' => $this->previewTotals(),
+            'zatcaNotReady' => ! ZatcaSubmissionStatus::canSubmitToZatca($this->business),
         ]);
     }
 

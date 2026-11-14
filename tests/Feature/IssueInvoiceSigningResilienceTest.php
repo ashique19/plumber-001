@@ -7,6 +7,7 @@ use App\Models\BusinessSetting;
 use App\Models\Invoice;
 use App\Services\InvoiceIssueService;
 use App\Business\BusinessContext;
+use App\Livewire\Invoices\InvoiceHub;
 use App\Support\Invoicing\InvoicePrintPresenter;
 use App\Support\Themes\PlumberThemePreset;
 use Database\Seeders\DemoStaffSeeder;
@@ -33,7 +34,7 @@ it('issues simplified invoice without zheart credentials', function () {
         ])
         ->call('issue')
         ->assertHasNoErrors()
-        ->assertDispatched('toast', type: 'warning')
+        ->assertDispatched('toast', type: 'warning', persistent: true)
         ->assertDispatched('toast', type: 'success');
 
     expect(Invoice::query()->count())->toBe($before + 1);
@@ -88,6 +89,41 @@ it('issues standard invoice without zheart via service', function () {
     BusinessContext::clear();
 });
 
+it('shows zatca not ready notice above issue button when creds missing', function () {
+    app()->setLocale('bn');
+
+    $html = Livewire::actingAs($this->owner, 'staff')
+        ->test(IssueInvoice::class, ['mode' => 'simplified'])
+        ->html();
+
+    expect($html)->toContain('invoice-zatca-notice')
+        ->and($html)->toContain(__('invoices.zatca_not_ready_notice', locale: 'bn'));
+});
+
+it('shows zatca not sent badge on invoice hub list', function () {
+    app()->setLocale('bn');
+
+    $invoice = Invoice::query()->create([
+        'branch_id' => \App\Models\Branch::query()->first()?->id,
+        'document_number' => 'SIMP-ZATCA-1',
+        'document_type' => InvoiceDocumentType::Simplified,
+        'status' => \App\Enums\InvoiceStatus::Issued,
+        'issued_at' => now(),
+        'payload' => [
+            'lines' => [['name' => 'Svc', 'quantity' => 1, 'unit_price_ex_vat' => 10, 'vat_rate' => 15]],
+            'signing_submission_status' => 'not_submitted',
+            'zheart_reporting_status' => 'pending',
+        ],
+    ]);
+
+    $html = Livewire::actingAs($this->owner, 'staff')
+        ->test(InvoiceHub::class)
+        ->html();
+
+    expect($html)->toContain(__('invoices.signing.zatca_not_sent', locale: 'bn'))
+        ->and($html)->toContain($invoice->document_number);
+});
+
 it('renders issue loading label on simplified issue form', function () {
     app()->setLocale('bn');
 
@@ -97,6 +133,25 @@ it('renders issue loading label on simplified issue form', function () {
 
     expect($html)->toContain(__('loading.issue', locale: 'bn'))
         ->and($html)->toContain('wire:target="issue"');
+});
+
+it('shows zatca not sent banner on print view', function () {
+    $invoice = Invoice::query()->create([
+        'branch_id' => \App\Models\Branch::query()->first()?->id,
+        'document_number' => 'SIMP-PRINT-ZATCA',
+        'document_type' => InvoiceDocumentType::Simplified,
+        'status' => \App\Enums\InvoiceStatus::Issued,
+        'issued_at' => now(),
+        'payload' => [
+            'lines' => [['name' => 'Svc', 'quantity' => 1, 'unit_price_ex_vat' => 10, 'vat_rate' => 15]],
+            'signing_submission_status' => 'not_submitted',
+        ],
+    ]);
+
+    $this->actingAs($this->owner, 'staff')
+        ->get(route('admin.invoices.print', ['invoice' => $invoice, 'layout' => 'cash']))
+        ->assertOk()
+        ->assertSee(__('invoices.signing.zatca_not_sent'), false);
 });
 
 it('includes buyer mobile and due date on A4 print data', function () {

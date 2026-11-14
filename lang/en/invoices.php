@@ -26,7 +26,9 @@ return [
         'none' => 'Not signed',
         'signed' => 'Signed locally',
         'submitted' => 'Submitted to Z-Heart',
+        'zatca_not_sent' => 'Not sent to ZATCA',
     ],
+    'zatca_not_ready_notice' => 'ZATCA (Zakat) integration is not connected yet. The invoice will be saved, but it will not be sent to ZATCA.',
     'nav_issue_standard' => 'Standard invoice',
     'nav_issue_simplified' => 'Simplified invoice',
     'issue_standard_title' => 'Issue standard invoice',
@@ -89,6 +91,7 @@ return [
     'issue_submit' => 'Issue invoice',
     'issue_success' => 'Invoice :number issued.',
     'issue_signing_deferred' => 'Invoice :number saved. Cryptographic signing is pending — complete Z-Heart setup to submit later.',
+    'issue_saved_not_sent_zatca' => 'Invoice :number saved locally. It was not sent to ZATCA — complete Z-Heart setup, then submit.',
     'buyer_id_hint' => 'Provide a VAT number for VAT-registered buyers, or a CR number when not registered.',
     'errors' => [
         'buyer_id_required' => 'Enter a VAT number or CR number for the buyer.',
