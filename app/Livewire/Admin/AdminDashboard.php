@@ -54,11 +54,6 @@ class AdminDashboard extends Component
         $seriesTotals = array_map(fn (array $row) => (float) $row['total'], $series);
         $maxTotal = ChartScale::floorMax(1.0, $seriesTotals);
 
-        $invoiceMax = ChartScale::floorMax(1, array_column($snapshot['invoices_by_type'], 'count'));
-
-        $signingQueue = $snapshot['signing_queue'];
-        $signingMax = max(1, $signingQueue['pending'], $signingQueue['reported'], $signingQueue['failed']);
-
         $user = auth('staff')->user();
 
         return view('livewire.admin.admin-dashboard', [
@@ -66,9 +61,6 @@ class AdminDashboard extends Component
             'snapshot' => $snapshot,
             'series' => $series,
             'maxTotal' => $maxTotal,
-            'invoiceMax' => $invoiceMax,
-            'signingQueue' => $signingQueue,
-            'signingMax' => $signingMax,
             'lowStock' => $lowStock,
             'invoiceIssueMode' => $this->business->alternateInvoiceDocumentType()->value,
             'canIssueInvoice' => $user?->can('invoices.issue') ?? false,

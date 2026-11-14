@@ -26,6 +26,19 @@ it('does not render the removed today average order card', function () {
         ->assertDontSee('আজকের গড় অর্ডার', false);
 });
 
+it('does not render invoices by type or signing queue summary cards', function () {
+    foreach (['en', 'bn', 'ar'] as $locale) {
+        app()->setLocale($locale);
+
+        Livewire::actingAs($this->owner, 'staff')
+            ->withQueryParams(['locale' => $locale])
+            ->test(AdminDashboard::class)
+            ->assertDontSee(__('dashboard.invoices_by_type', [], $locale), false)
+            ->assertDontSee(__('dashboard.invoices_issued_hint', [], $locale), false)
+            ->assertDontSee(__('dashboard.signing_queue_hint', [], $locale), false);
+    }
+});
+
 it('renders bangla monthly report section with document labels and month title', function () {
     $tz = ReconcileIssueDateFilter::BUSINESS_TZ;
     $now = Carbon::now($tz);
