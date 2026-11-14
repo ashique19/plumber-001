@@ -89,6 +89,7 @@ final class MysqlInformationSchema
         $type = preg_replace('/\btinyint\(\d+\)/', 'tinyint(1)', $type) ?? $type;
         $type = preg_replace('/\bdecimal\((\d+),(\d+)\)/', 'decimal($1,$2)', $type) ?? $type;
         $type = preg_replace('/\bvarchar\((\d+)\)\s*character set \w+/', 'varchar($1)', $type) ?? $type;
+        $type = preg_replace('/\bdatetime(\(\d+\))?/', 'timestamp$1', $type) ?? $type;
         $type = preg_replace('/\s+/', ' ', $type) ?? $type;
 
         return $type;

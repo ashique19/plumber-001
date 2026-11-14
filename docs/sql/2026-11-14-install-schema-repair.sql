@@ -21,28 +21,28 @@ SET @ing_has_name_en := (
 SET @ddl := IF(
   @ing_legacy_name > 0 AND @ing_has_name_en = 0,
   'ALTER TABLE `ingredients` CHANGE COLUMN `name` `name_en` VARCHAR(160) NOT NULL',
-  'SELECT 1'
+  'DO 0'
 );
 PREPARE stmt FROM @ddl; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
 SET @ddl := IF(
   @ing_has_name_en = 0 AND @ing_legacy_name = 0,
   'ALTER TABLE `ingredients` ADD COLUMN `name_en` VARCHAR(160) NOT NULL DEFAULT '''' AFTER `branch_id`',
-  'SELECT 1'
+  'DO 0'
 );
 PREPARE stmt FROM @ddl; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
 SET @ddl := IF(
   @ing_legacy_name > 0 AND @ing_has_name_en > 0,
   'UPDATE `ingredients` SET `name_en` = `name` WHERE (`name_en` IS NULL OR `name_en` = '''') AND `name` IS NOT NULL AND `name` <> ''''',
-  'SELECT 1'
+  'DO 0'
 );
 PREPARE stmt FROM @ddl; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
 SET @ddl := IF(
   @ing_legacy_name > 0,
   'ALTER TABLE `ingredients` DROP COLUMN `name`',
-  'SELECT 1'
+  'DO 0'
 );
 PREPARE stmt FROM @ddl; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
@@ -50,35 +50,35 @@ PREPARE stmt FROM @ddl; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 SET @ddl := IF(
   (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'ingredients' AND COLUMN_NAME = 'name_ar') = 0,
   'ALTER TABLE `ingredients` ADD COLUMN `name_ar` VARCHAR(160) NULL AFTER `name_en`',
-  'SELECT 1'
+  'DO 0'
 );
 PREPARE stmt FROM @ddl; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
 SET @ddl := IF(
   (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'ingredients' AND COLUMN_NAME = 'name_bn') = 0,
   'ALTER TABLE `ingredients` ADD COLUMN `name_bn` VARCHAR(160) NULL AFTER `name_ar`',
-  'SELECT 1'
+  'DO 0'
 );
 PREPARE stmt FROM @ddl; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
 SET @ddl := IF(
   (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'ingredients' AND COLUMN_NAME = 'low_stock_threshold') = 0,
   'ALTER TABLE `ingredients` ADD COLUMN `low_stock_threshold` DECIMAL(12,3) NOT NULL DEFAULT 0 AFTER `reorder_level`',
-  'SELECT 1'
+  'DO 0'
 );
 PREPARE stmt FROM @ddl; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
 SET @ddl := IF(
   (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'inventory_movements' AND COLUMN_NAME = 'reason') = 0,
   'ALTER TABLE `inventory_movements` ADD COLUMN `reason` VARCHAR(32) NULL AFTER `type`',
-  'SELECT 1'
+  'DO 0'
 );
 PREPARE stmt FROM @ddl; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
 SET @ddl := IF(
   (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'invoices' AND COLUMN_NAME = 'due_date') = 0,
   'ALTER TABLE `invoices` ADD COLUMN `due_date` DATE NULL AFTER `issued_at`',
-  'SELECT 1'
+  'DO 0'
 );
 PREPARE stmt FROM @ddl; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 

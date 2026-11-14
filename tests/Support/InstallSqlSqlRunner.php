@@ -56,6 +56,17 @@ final class InstallSqlSqlRunner
                 continue;
             }
             $pdo->exec($statement);
+            self::drainPendingResults($pdo);
+        }
+    }
+
+    private static function drainPendingResults(PDO $pdo): void
+    {
+        try {
+            $stmt = $pdo->query('DO 0');
+            $stmt?->closeCursor();
+        } catch (\PDOException) {
+            // Connection is idle.
         }
     }
 
