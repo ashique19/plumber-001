@@ -2,7 +2,6 @@
 
 use App\Business\BusinessContext;
 use App\Livewire\Catalog\MenuManager;
-use App\Models\Branch;
 use App\Models\BusinessSetting;
 use App\Models\StaffUser;
 use Database\Seeders\DemoStaffSeeder;
@@ -30,21 +29,20 @@ it('renders standard invoice issue buyer labels without raw translation keys', f
 
 it('renders dashboard and business settings without raw translation keys', function () {
     foreach (['en', 'bn', 'ar'] as $locale) {
+        app()->setLocale($locale);
+
         $dashboard = $this->get(route('admin.dashboard', ['locale' => $locale]))->assertOk()->getContent();
         TranslationLeakScanner::assertHtmlHasNoLeakedKeys($dashboard, "dashboard [{$locale}]");
+        TranslationLeakScanner::assertLocaleHasNoEnglishSigningService($dashboard, $locale, "dashboard [{$locale}]");
 
         $business = $this->get(route('admin.business', ['locale' => $locale]))->assertOk()->getContent();
         TranslationLeakScanner::assertHtmlHasNoLeakedKeys($business, "business settings [{$locale}]");
         TranslationLeakScanner::assertBusinessPageHasNoEnglishLabels($business, $locale);
-
-        if (in_array($locale, ['bn', 'ar'], true)) {
-            expect(strtolower($dashboard))->not->toContain('signing service');
-        }
     }
 });
 
 it('renders catalog list and product/category modals without raw keys or English labels in bn and ar', function () {
-  foreach (['bn', 'ar'] as $locale) {
+    foreach (['bn', 'ar'] as $locale) {
         app()->setLocale($locale);
 
         $page = $this->get(route('admin.catalog', ['locale' => $locale]))->assertOk()->getContent();
@@ -72,8 +70,13 @@ it('shows translated dashboard quick actions and settings nav in bn and ar', fun
     config(['ui.admin_sidebar' => false]);
 
     $html = $this->get(route('admin.dashboard', ['locale' => 'bn']))->assertOk()->getContent();
+
     expect($html)->toContain(__('dashboard.add_products', [], 'bn'))
-        ->and($html)->toContain(__('dashboard.quick_actions', [], 'bn'));
+        ->and($html)->toContain(__('dashboard.quick_actions', [], 'bn'))
+        ->and($html)->toContain(__('pos.nav_pos', [], 'bn'))
+        ->and($html)->toContain(__('business.nav', [], 'bn'))
+        ->and($html)->toContain(__('catalog.nav', [], 'bn'))
+        ->and($html)->toContain(__('inventory.nav', [], 'bn'));
 
     $business = $this->get(route('admin.business', ['locale' => 'bn']))->assertOk()->getContent();
     expect($business)->toContain(__('business.title', [], 'bn'));

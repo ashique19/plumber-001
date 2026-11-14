@@ -46,6 +46,18 @@ final class TranslationLeakScanner
         );
     }
 
+    public static function assertLocaleHasNoEnglishSigningService(string $html, string $locale, string $context): void
+    {
+        if (! in_array($locale, ['bn', 'ar'], true)) {
+            return;
+        }
+
+        Assert::assertFalse(
+            str_contains(strtolower($html), 'signing service'),
+            "{$context}: English phrase \"signing service\" must not appear for locale [{$locale}]"
+        );
+    }
+
     /**
      * Spot-check English copy that should never appear on localized business settings pages.
      */
@@ -152,7 +164,7 @@ final class TranslationLeakScanner
         );
     }
 
-  /** Ignore Livewire wire:* payloads and scripts so method names do not look like UI copy. */
+    /** Ignore Livewire wire:* payloads and scripts so method names do not look like UI copy. */
     private static function stripNonVisibleLivewireMarkup(string $html): string
     {
         $html = preg_replace('/\swire:[a-z0-9_.-]+(?:="[^"]*")?/i', '', $html) ?? $html;

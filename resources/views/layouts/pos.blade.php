@@ -25,6 +25,9 @@
     $posHomeUrl = $staffUser ? StaffBranchContext::posHomeUrl($staffUser) : route('admin.pos.home');
     $adminSidebar = (bool) config('ui.admin_sidebar', false);
     $branchParam = $branch ?? ($staffUser ? StaffBranchContext::resolve($staffUser) : null);
+    $brandHomeUrl = ($staffUser && $business)
+        ? StaffLandingRoute::forUser($business, $staffUser)
+        : route('admin.pos.home');
     app(\Spatie\Permission\PermissionRegistrar::class)->setPermissionsTeamId($business?->id ?? 1);
 @endphp
 <!DOCTYPE html>
@@ -164,7 +167,7 @@
         >
             <header class="app-topbar">
                 <div class="app-topbar__inner">
-                    <a href="{{ route('admin.dashboard') }}" class="app-topbar__brand min-w-0 flex-1">
+                    <a href="{{ $brandHomeUrl }}" class="app-topbar__brand min-w-0 flex-1">
                         @if ($logoUrl)
                             <img src="{{ asset($logoUrl) }}" alt="{{ __($logoAltKey, ['name' => $displayName]) }}" class="h-7 w-7 shrink-0 rounded-lg object-contain sm:h-8 sm:w-8" width="32" height="32">
                         @else

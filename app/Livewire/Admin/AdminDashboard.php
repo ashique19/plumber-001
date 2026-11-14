@@ -2,7 +2,9 @@
 
 namespace App\Livewire\Admin;
 
+use App\Models\Branch;
 use App\Models\BusinessSetting;
+use App\Services\Business\DashboardMonthlyInvoiceReportService;
 use App\Services\Inventory\IngredientStockService;
 use App\Services\Business\BusinessDashboardService;
 use App\Support\ChartScale;
@@ -26,9 +28,27 @@ class AdminDashboard extends Component
         $this->authorize('reports.view');
     }
 
-    public function render(BusinessDashboardService $dashboard, IngredientStockService $stock): View
+    private function resolveBranch(): ?Branch
     {
+        $user = auth('staff')->user();
+        if ($user?->branch_id === null) {
+            return null;
+        }
+
+        return Branch::query()
+            ->withoutGlobalScopes()
+            ->whereKey($user->branch_id)
+            ->first();
+    }
+
+    public function render(
+        BusinessDashboardService $dashboard,
+        DashboardMonthlyInvoiceReportService $monthlyReports,
+        IngredientStockService $stock,
+    ): View {
+        $branch = $this->resolveBranch();
         $snapshot = $dashboard->snapshot($this->business);
+        $monthlyReport = $monthlyReports->report($this->business, $branch, app()->getLocale());
         $lowStock = $stock->lowStockForBusiness();
         $series = $snapshot['recent_sales_series'];
         $seriesTotals = array_map(fn (array $row) => (float) $row['total'], $series);
@@ -42,6 +62,7 @@ class AdminDashboard extends Component
         $user = auth('staff')->user();
 
         return view('livewire.admin.admin-dashboard', [
+            'monthlyReport' => $monthlyReport,
             'snapshot' => $snapshot,
             'series' => $series,
             'maxTotal' => $maxTotal,
