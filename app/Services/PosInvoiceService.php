@@ -66,7 +66,7 @@ class PosInvoiceService
             ]),
         ])->save();
 
-        $issued = $this->invoiceIssueService->issue($draft);
+        $issued = $this->invoiceIssueService->issue($draft)->invoice;
 
         $order->forceFill(['invoice_id' => $issued->id])->save();
 
@@ -111,7 +111,7 @@ class PosInvoiceService
             ]),
         ])->save();
 
-        $issued = $this->invoiceIssueService->issue($draft);
+        $issued = $this->invoiceIssueService->issue($draft)->invoice;
 
         $order->forceFill(['invoice_id' => $issued->id])->save();
 
@@ -148,7 +148,7 @@ class PosInvoiceService
             ])),
         ])->save();
 
-        $issued = $this->invoiceIssueService->issue($credit);
+        $issued = $this->invoiceIssueService->issue($credit)->invoice;
 
         $order->forceFill([
             'status' => PosOrderStatus::Refunded,

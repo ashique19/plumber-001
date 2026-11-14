@@ -43,6 +43,7 @@ return [
     'retention_fixed' => 'Retention (SAR, after VAT)',
     'buyer_phone' => 'Buyer mobile',
     'buyer_email' => 'Buyer email',
+    'buyer_country' => 'Buyer country (ISO)',
     'due_date' => 'Due date',
     'payment_terms_days' => 'Payment terms (days)',
     'subtotal_ex_vat' => 'Subtotal (ex VAT)',
@@ -87,11 +88,13 @@ return [
     'retention_amount' => 'Retention',
     'issue_submit' => 'Issue invoice',
     'issue_success' => 'Invoice :number issued.',
+    'issue_signing_deferred' => 'Invoice :number saved. Cryptographic signing is pending — complete Z-Heart setup to submit later.',
     'buyer_id_hint' => 'Provide a VAT number for VAT-registered buyers, or a CR number when not registered.',
     'errors' => [
         'buyer_id_required' => 'Enter a VAT number or CR number for the buyer.',
         'buyer_cr_invalid' => 'CR number must be up to 10 digits.',
         'signing_failed' => 'This invoice could not be cryptographically signed. Check Z-Heart configuration, then try again.',
-        'signing_credentials_invalid' => 'Signing credentials could not be loaded. Share the technical detail below with support if needed.',
+        'signing_credentials_invalid' => 'Signing credentials could not be loaded. Complete Z-Heart onboarding in business settings, then try again.',
+        'issue_failed' => 'This invoice could not be issued. Check the form and try again.',
     ],
 ];

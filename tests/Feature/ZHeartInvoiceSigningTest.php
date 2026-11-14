@@ -27,7 +27,7 @@ it('issues a simplified invoice via zheart sign and stores receipt fields', func
         [['name' => 'Latte', 'quantity' => 1, 'unit_price_ex_vat' => 20, 'vat_rate' => 15]],
     );
 
-    $issued = app(InvoiceIssueService::class)->issue($invoice);
+    $issued = app(InvoiceIssueService::class)->issue($invoice)->invoice;
 
     expect($issued->status->value)->toBe('issued')
         ->and($issued->signed_xml)->toContain('Invoice')

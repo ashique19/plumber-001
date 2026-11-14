@@ -38,6 +38,14 @@
                 <x-form.input :label="__('business.fields.city')" name="addrCity" wire:model.blur="addrCity" required />
                 <x-form.input :label="__('business.fields.postal')" name="addrPostal" wire:model.blur="addrPostal" required />
                 <x-form.input :label="__('business.fields.additional')" name="addrAdditional" wire:model.blur="addrAdditional" />
+                <div class="grid gap-2 sm:grid-cols-2">
+                    <x-form.input :label="__('invoices.buyer_phone')" name="buyerPhone" wire:model.blur="buyerPhone" inputmode="tel" />
+                    <x-form.input type="email" :label="__('invoices.buyer_email')" name="buyerEmail" wire:model.blur="buyerEmail" />
+                </div>
+                <div class="grid gap-2 sm:grid-cols-2">
+                    <x-form.input type="date" :label="__('invoices.due_date')" name="dueDate" wire:model.live="dueDate" required />
+                    <x-form.input :label="__('invoices.buyer_country')" name="buyerCountry" wire:model.blur="buyerCountry" maxlength="2" pattern="[A-Za-z]{2}" required />
+                </div>
             </fieldset>
 
             <div class="grid gap-2 sm:grid-cols-3">
