@@ -160,5 +160,6 @@ it('renders mobile section select and hours cards markup', function () {
 
     expect($html)->toContain('business-hours-cards')
         ->and($html)->toContain('app-toolbar-select')
-        ->and($html)->toContain('business-settings-page');
+        ->and($html)->toContain('business-settings-page')
+        ->and($html)->toContain('business-settings-page__sticky-head');
 });
