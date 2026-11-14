@@ -24,6 +24,8 @@
     $branches = $staffUser ? StaffBranchContext::accessibleBranches($staffUser) : [];
     $showBranchSwitcher = $staffUser && StaffBranchContext::selectorVisible($staffUser);
     $posHomeUrl = $staffUser ? StaffBranchContext::posHomeUrl($staffUser) : route('admin.pos.home');
+    $adminSidebar = (bool) config('ui.admin_sidebar', false);
+    $branchParam = $branch ?? ($staffUser ? StaffBranchContext::resolve($staffUser) : null);
     $brandHomeUrl = ($staffUser && $business)
         ? StaffLandingRoute::forUser($business, $staffUser)
         : route('admin.pos.home');
@@ -54,28 +56,31 @@
     @stack('head')
     @livewireStyles
 </head>
-<body class="app-shell antialiased" x-data="{ sidebarCollapsed: false, moreOpen: false, userOpen: false }" @keydown.escape.window="moreOpen = false; userOpen = false">
+<body
+    class="app-shell antialiased"
+    data-mobile-tabbar="{{ $business && $adminSidebar ? '1' : '0' }}"
+    @if ($business && $adminSidebar)
+        x-data="{ sidebarCollapsed: false, moreOpen: false, userOpen: false }"
+        @keydown.escape.window="moreOpen = false; userOpen = false"
+    @else
+        x-data="{}"
+    @endif
+>
     <div class="livewire-loading-bar" aria-hidden="true"></div>
-    <x-toast-stack class="has-app-tab-bar" />
+    <x-toast-stack @class(['has-app-tab-bar' => $business && $adminSidebar]) />
 
     @if($business)
+        @if ($adminSidebar)
         <aside class="app-sidebar" :class="sidebarCollapsed ? 'app-sidebar--collapsed' : ''" aria-label="{{ __('pos.title') }}">
-            <a
-                href="{{ $brandHomeUrl }}"
-                class="app-brand-home flex items-center gap-2 border-b px-3 py-4 no-underline transition-opacity hover:opacity-90"
-                style="border-color: var(--app-border); color: inherit"
-            >
+            <div class="flex items-center gap-2 border-b px-3 py-4" style="border-color: var(--app-border)">
                 @if ($logoUrl)
                     <img src="{{ asset($logoUrl) }}" alt="{{ __($logoAltKey, ['name' => $displayName]) }}" class="h-9 w-9 shrink-0 rounded-lg object-contain" width="36" height="36">
                 @else
                     <x-plumber.logo-mark class="h-9 w-9 shrink-0 text-[var(--app-accent)]" :name="$displayName" />
                 @endif
                 <span class="app-sidebar__label truncate text-sm font-semibold">{{ $displayName }}</span>
-            </a>
+            </div>
             <nav class="flex flex-1 flex-col gap-1 p-2">
-                @php
-                    $branchParam = $branch ?? StaffBranchContext::resolve($staffUser);
-                @endphp
                 @can('reports.view')
                     <a href="{{ route('admin.dashboard') }}" @class(['app-nav-link', 'app-nav-link--active' => $active === 'dashboard'])>
                         <x-app.icon name="home" class="h-5 w-5 shrink-0" />
@@ -151,69 +156,75 @@
                     <x-app.icon name="menu" class="h-5 w-5 shrink-0" />
                     <span class="app-sidebar__label">{{ __('pos.collapse_sidebar') }}</span>
                 </button>
-                <form method="POST" action="{{ route('admin.logout') }}" class="mt-1">
-                    @csrf
-                    <button type="submit" class="app-nav-link w-full">
-                        <x-app.icon name="logout" class="h-5 w-5 shrink-0" />
-                        <span class="app-sidebar__label">{{ __('pos.logout') }}</span>
-                    </button>
-                </form>
             </div>
         </aside>
+        @endif
 
-        <div class="app-main" :class="sidebarCollapsed ? 'app-main--sidebar-collapsed' : ''">
+        <div
+            class="app-main @if($adminSidebar) app-main--with-sidebar @endif"
+            @if($adminSidebar)
+                :class="sidebarCollapsed ? 'app-main--sidebar-collapsed' : ''"
+            @endif
+        >
             <header class="app-topbar">
-                <div class="mx-auto flex max-w-6xl items-center gap-2 px-3 py-2 sm:px-5 sm:py-3">
-                    <div class="flex min-w-0 flex-1 flex-col gap-0.5 lg:hidden">
-                        <a
-                            href="{{ $brandHomeUrl }}"
-                            class="app-brand-home flex min-w-0 items-center gap-2 no-underline"
-                            style="color: inherit"
-                        >
-                            @if ($logoUrl)
-                                <img src="{{ asset($logoUrl) }}" alt="{{ __($logoAltKey, ['name' => $displayName]) }}" class="h-8 w-8 shrink-0 rounded-lg object-contain" width="32" height="32">
-                            @endif
-                            <p class="truncate text-sm font-semibold">{{ $displayName }}</p>
-                        </a>
-                        @if($branch)
-                            <p class="truncate text-xs text-[var(--app-muted)]">{{ $branch->name }}</p>
-                        @elseif($branchParam && ! $showBranchSwitcher)
-                            <p class="truncate text-xs text-[var(--app-muted)]">{{ $branchParam->name }}</p>
-                        @elseif($showBranchSwitcher)
-                            <details class="relative text-xs">
-                                <summary class="cursor-pointer list-none text-[var(--app-accent)]">{{ __('pos.switch_branch') }}</summary>
-                                <ul class="app-card app-card--flat absolute z-20 mt-1 min-w-[12rem] p-1 shadow-lg">
-                                    @foreach($branches as $b)
-                                        <li>
-                                            <a class="app-nav-link" href="{{ route('admin.pos.terminal', [ $b]) }}">{{ $b->name }}</a>
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            </details>
+                <div class="app-topbar__inner">
+                    <a href="{{ $brandHomeUrl }}" class="app-topbar__brand app-brand-home min-w-0 flex-1">
+                        @if ($logoUrl)
+                            <img src="{{ asset($logoUrl) }}" alt="{{ __($logoAltKey, ['name' => $displayName]) }}" class="h-7 w-7 shrink-0 rounded-lg object-contain sm:h-8 sm:w-8" width="32" height="32">
+                        @else
+                            <x-plumber.logo-mark class="h-7 w-7 shrink-0 text-[var(--app-accent)] sm:h-8 sm:w-8" :name="$displayName" />
                         @endif
-                    </div>
-                    <x-app.locale-switch :current="$locale" class="hidden sm:flex" />
-                    <div class="relative">
-                        <button type="button" class="tap-action-muted min-h-11 min-w-11 rounded-full px-3" @click="userOpen = !userOpen" :aria-expanded="userOpen">
-                            <span class="sr-only">{{ __('pos.user_menu') }}</span>
-                            <x-app.icon name="dots" />
-                        </button>
-                        <div x-show="userOpen" x-cloak @click.outside="userOpen = false" class="app-card app-card--flat absolute end-0 z-30 mt-1 min-w-[11rem] p-1 shadow-xl">
-                            <x-app.locale-switch :current="$locale" class="flex p-2 sm:hidden" />
-                            <form method="POST" action="{{ route('admin.logout') }}">
-                                @csrf
-                                <button type="submit" class="app-nav-link w-full">{{ __('pos.logout') }}</button>
-                            </form>
+                        <div class="min-w-0">
+                            <p class="truncate text-xs font-semibold sm:text-sm">{{ $displayName }}</p>
+                            @if ($adminSidebar)
+                                @if($branch)
+                                    <p class="truncate text-xs text-[var(--app-muted)]">{{ $branch->name }}</p>
+                                @elseif($branchParam && ! $showBranchSwitcher)
+                                    <p class="truncate text-xs text-[var(--app-muted)]">{{ $branchParam->name }}</p>
+                                @elseif($showBranchSwitcher)
+                                    <details class="relative text-xs">
+                                        <summary class="cursor-pointer list-none text-[var(--app-accent)]">{{ __('pos.switch_branch') }}</summary>
+                                        <ul class="app-card app-card--flat absolute z-20 mt-1 min-w-[12rem] p-1 shadow-lg">
+                                            @foreach($branches as $b)
+                                                <li>
+                                                    <a class="app-nav-link" href="{{ route('admin.pos.terminal', [ $b]) }}">{{ $b->name }}</a>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    </details>
+                                @endif
+                            @endif
                         </div>
-                    </div>
+                    </a>
+                    @if ($adminSidebar)
+                        <x-app.locale-switch :current="$locale" class="hidden min-[380px]:flex shrink-0" />
+                        <div class="relative min-[380px]:hidden">
+                            <button type="button" class="tap-action-muted min-h-11 min-w-11 rounded-full px-3" @click="userOpen = !userOpen" :aria-expanded="userOpen">
+                                <span class="sr-only">{{ __('pos.user_menu') }}</span>
+                                <x-app.icon name="dots" />
+                            </button>
+                            <div x-show="userOpen" x-cloak @click.outside="userOpen = false" class="app-card app-card--flat absolute end-0 z-30 mt-1 min-w-[11rem] p-1 shadow-xl">
+                                <x-app.locale-switch :current="$locale" class="flex p-2" />
+                            </div>
+                        </div>
+                    @else
+                        <x-app.locale-switch :current="$locale" class="app-locale-switch--compact shrink-0" />
+                    @endif
+                    <form method="POST" action="{{ route('admin.logout') }}" class="shrink-0">
+                        @csrf
+                        <button type="submit" class="app-topbar__logout app-topbar__logout--compact">
+                            <x-app.icon name="logout" class="h-4 w-4 shrink-0 sm:h-5 sm:w-5" />
+                            <span class="text-xs sm:text-sm">{{ __('pos.logout') }}</span>
+                        </button>
+                    </form>
                 </div>
             </header>
 
-            <main class="app-content">
+            <main @class(['app-content', 'app-content--no-tabbar' => ! $adminSidebar])>
                 {{ $slot }}
             </main>
 
-            @if($branchParam)
+            @if ($adminSidebar && $branchParam)
                 <nav class="app-tabbar" aria-label="{{ __('pos.mobile_nav') }}">
                     <a href="{{ route('admin.pos.terminal', [ $branchParam]) }}" class="app-tab @if($active === 'pos') app-tab--active @endif">
                         <x-app.icon name="cart" />
@@ -272,7 +283,7 @@
                         </li>
                     </ul>
                 </div>
-            @else
+            @elseif ($adminSidebar)
                 <nav class="app-tabbar" aria-label="{{ __('pos.mobile_nav') }}">
                     <a href="{{ route('admin.pos.home') }}" class="app-tab app-tab--active">
                         <x-app.icon name="home" />

@@ -1,4 +1,4 @@
-<div class="catalog-admin pb-24 lg:pb-8">
+<div class="catalog-admin min-w-0 max-w-full overflow-x-hidden pb-20 lg:pb-8">
     <header class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
             <h1 class="app-page-title">{{ __('catalog.title') }}</h1>
@@ -7,7 +7,7 @@
         <p class="text-xs text-[var(--app-muted)]">{{ __('catalog.price_hint') }}</p>
     </header>
 
-    <div class="app-section-tabs">
+    <div class="app-section-tabs min-w-0 max-w-full flex-wrap gap-2 overflow-x-hidden">
         @foreach (['products' => __('catalog.tab_products'), 'categories' => __('catalog.tab_categories'), 'modifiers' => __('catalog.tab_modifiers')] as $key => $label)
             <button
                 type="button"
@@ -35,9 +35,9 @@
                         <div class="flex items-center gap-2">
                             <x-app.icon :name="$cat->icon_key ?: 'cup'" class="h-5 w-5 text-[var(--app-accent)]" />
                             <div>
-                                <p class="font-medium">{{ $cat->name_en }}</p>
-                                @if($cat->name_ar)
-                                    <p class="text-xs text-[var(--app-muted)]">{{ $cat->name_ar }}</p>
+                                <p class="font-medium">{{ $cat->displayName() }}</p>
+                                @if($cat->name_ar && $cat->displayName() !== $cat->name_ar)
+                                    <p class="text-xs text-[var(--app-muted)]" dir="rtl">{{ $cat->name_ar }}</p>
                                 @endif
                             </div>
                         </div>
@@ -61,9 +61,9 @@
     @if ($tab === 'products')
         <section class="mt-4">
             @if($canWrite)
-                <x-app.add-button type="button" wire:click="startProduct()">{{ __('catalog.add_product') }}</x-app.add-button>
+                <x-app.add-button type="button" variant="primary" wire:click="startProduct()">{{ __('catalog.add_product') }}</x-app.add-button>
             @endif
-            <ul class="grid gap-3 sm:grid-cols-2">
+            <ul class="grid grid-cols-1 gap-3 lg:grid-cols-2">
                 @forelse($products as $product)
                     <li class="app-card overflow-hidden p-0">
                         <div class="flex gap-3 p-3">
@@ -73,10 +73,10 @@
                                 <div class="flex h-16 w-16 items-center justify-center rounded-lg bg-[var(--plumber-sky)] text-xs text-[var(--app-muted)]">—</div>
                             @endif
                             <div class="min-w-0 flex-1">
-                                <p class="truncate font-semibold">{{ $product->name_en }}</p>
-                                <p class="text-xs text-[var(--app-muted)]">{{ $product->category?->name_en }}</p>
+                                <p class="truncate font-semibold">{{ $product->displayName() }}</p>
+                                <p class="text-xs text-[var(--app-muted)]">{{ $product->category?->displayName() }}</p>
                                 <p class="mt-1 text-sm font-medium tabular-nums">
-                                    {{ number_format(\App\Support\VatPricing::incFromEx((float) $product->price_ex_vat, (float) $product->vat_rate), 2) }} SAR
+                                    {{ number_format(\App\Support\VatPricing::incFromEx((float) $product->price_ex_vat, (float) $product->vat_rate), 2) }} {{ __('dashboard.sar') }}
                                 </p>
                                 @if($storefrontVisibilityReady ?? false)
                                     <p class="mt-2 flex flex-wrap gap-1.5 text-[0.65rem] font-semibold uppercase tracking-wide text-[var(--app-muted)]">
@@ -109,7 +109,7 @@
                         @endif
                     </li>
                 @empty
-                    <li class="app-empty sm:col-span-2"><p class="text-sm text-[var(--app-muted)]">{{ __('catalog.empty_products') }}</p></li>
+                    <li class="app-empty lg:col-span-2"><p class="text-sm text-[var(--app-muted)]">{{ __('catalog.empty_products') }}</p></li>
                 @endforelse
             </ul>
         </section>
@@ -124,9 +124,9 @@
                 @forelse($modifiers as $mod)
                     <li class="app-card flex items-center justify-between gap-2 p-3">
                         <div>
-                            <p class="font-medium">{{ $mod->name_en }}</p>
+                            <p class="font-medium">{{ $mod->displayName() }}</p>
                             <p class="text-sm tabular-nums text-[var(--app-muted)]">
-                                + {{ number_format(\App\Support\VatPricing::incFromEx((float) $mod->price_ex_vat, (float) $mod->vat_rate), 2) }} SAR
+                                + {{ number_format(\App\Support\VatPricing::incFromEx((float) $mod->price_ex_vat, (float) $mod->vat_rate), 2) }} {{ __('dashboard.sar') }}
                             </p>
                         </div>
                         @if($canWrite)
@@ -144,113 +144,140 @@
     @endif
 
     @if($showCategoryForm && $canWrite)
-        <div class="app-sheet-backdrop fixed inset-0 z-40 bg-black/40" wire:click="$set('showCategoryForm', false)"></div>
-        <div class="app-sheet fixed inset-x-0 bottom-0 z-50 max-h-[85vh] overflow-y-auto p-4 sm:inset-auto sm:start-1/2 sm:top-1/2 sm:w-full sm:max-w-md sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl" role="dialog">
-            <h2 class="text-lg font-semibold">{{ $editingCategoryId ? __('catalog.edit_category') : __('catalog.add_category') }}</h2>
-            <form class="mt-4 space-y-3" wire:submit="saveCategory">
+        <div class="app-sheet-backdrop" wire:click="$set('showCategoryForm', false)"></div>
+        <x-ui.admin-sheet
+            :title="$editingCategoryId ? __('catalog.edit_category') : __('catalog.add_category')"
+            close-wire='$set("showCategoryForm", false)'
+            form-id="catalog-category-form"
+            submit-target="saveCategory"
+        >
+            <form id="catalog-category-form" class="app-admin-form" wire:submit="saveCategory">
                 <x-form.input :label="__('catalog.name_en')" name="categoryNameEn" wire:model="categoryNameEn" required />
                 <x-form.input :label="__('catalog.name_ar')" name="categoryNameAr" wire:model="categoryNameAr" dir="rtl" />
-                @if($catalogI18nReady ?? false)
+                @if($categoryBanglaFieldsReady ?? false)
                     <x-form.input :label="__('catalog.name_bn')" name="categoryNameBn" wire:model="categoryNameBn" />
-                    <x-form.textarea :label="__('catalog.description_en')" name="categoryDescriptionEn" wire:model="categoryDescriptionEn" wrapperClass="sm:col-span-2" />
-                    <x-form.textarea :label="__('catalog.description_ar')" name="categoryDescriptionAr" wire:model="categoryDescriptionAr" dir="rtl" wrapperClass="sm:col-span-2" />
-                    <x-form.textarea :label="__('catalog.description_bn')" name="categoryDescriptionBn" wire:model="categoryDescriptionBn" wrapperClass="sm:col-span-2" />
+                @endif
+                @if($categoryDescriptionFieldsReady ?? false)
+                    <x-form.textarea :label="__('catalog.description_en')" name="categoryDescriptionEn" wire:model="categoryDescriptionEn" />
+                    <x-form.textarea :label="__('catalog.description_ar')" name="categoryDescriptionAr" wire:model="categoryDescriptionAr" dir="rtl" />
+                    <x-form.textarea :label="__('catalog.description_bn')" name="categoryDescriptionBn" wire:model="categoryDescriptionBn" />
                 @endif
                 <x-form.input :label="__('catalog.icon_key')" name="categoryIconKey" wire:model="categoryIconKey" />
                 <x-form.toggle wire:model="categoryActive" name="categoryActive" :label="__('catalog.active')" />
-                <x-ui.livewire-action type="submit" target="saveCategory" loading="saving" class="tap-action-primary w-full" variant="primary">{{ __('catalog.save') }}</x-ui.livewire-action>
             </form>
-        </div>
+        </x-ui.admin-sheet>
     @endif
 
     @if($showProductForm && $canWrite)
-        <div class="app-sheet-backdrop fixed inset-0 z-40 bg-black/40" wire:click="$set('showProductForm', false)"></div>
-        <div class="app-sheet fixed inset-x-0 bottom-0 z-50 max-h-[90vh] overflow-y-auto p-4 sm:inset-auto sm:start-1/2 sm:top-1/2 sm:w-full sm:max-w-lg sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl">
-            <h2 class="text-lg font-semibold">{{ $editingProductId ? __('catalog.edit_product') : __('catalog.add_product') }}</h2>
-            <form class="mt-4 grid gap-3 sm:grid-cols-2" wire:submit="saveProduct">
-                <x-form.input :label="__('catalog.name_en')" name="productNameEn" wire:model="productNameEn" required wrapperClass="sm:col-span-2" />
-                <x-form.input :label="__('catalog.name_ar')" name="productNameAr" wire:model="productNameAr" dir="rtl" required wrapperClass="sm:col-span-2" />
+        <div class="app-sheet-backdrop" wire:click="$set('showProductForm', false)"></div>
+        <x-ui.admin-sheet
+            :title="$editingProductId ? __('catalog.edit_product') : __('catalog.add_product')"
+            close-wire='$set("showProductForm", false)'
+            form-id="catalog-product-form"
+            submit-target="saveProduct"
+            wide
+        >
+            <form id="catalog-product-form" class="app-admin-form" wire:submit="saveProduct">
+                <x-form.input :label="__('catalog.name_en')" name="productNameEn" wire:model="productNameEn" required />
+                <x-form.input :label="__('catalog.name_ar')" name="productNameAr" wire:model="productNameAr" dir="rtl" required />
                 @if($catalogI18nReady ?? false)
-                    <x-form.input :label="__('catalog.name_bn')" name="productNameBn" wire:model="productNameBn" wrapperClass="sm:col-span-2" />
-                    <x-form.textarea :label="__('catalog.description_en')" name="productDescriptionEn" wire:model="productDescriptionEn" wrapperClass="sm:col-span-2" />
-                    <x-form.textarea :label="__('catalog.description_ar')" name="productDescriptionAr" wire:model="productDescriptionAr" dir="rtl" wrapperClass="sm:col-span-2" />
-                    <x-form.textarea :label="__('catalog.description_bn')" name="productDescriptionBn" wire:model="productDescriptionBn" wrapperClass="sm:col-span-2" />
+                    <x-form.input :label="__('catalog.name_bn')" name="productNameBn" wire:model="productNameBn" />
+                    <x-form.textarea :label="__('catalog.description_en')" name="productDescriptionEn" wire:model="productDescriptionEn" />
+                    <x-form.textarea :label="__('catalog.description_ar')" name="productDescriptionAr" wire:model="productDescriptionAr" dir="rtl" />
+                    <x-form.textarea :label="__('catalog.description_bn')" name="productDescriptionBn" wire:model="productDescriptionBn" />
                 @endif
-                <x-form.input :label="__('catalog.sku')" name="productSku" wire:model="productSku" />
-                <x-form.select :label="__('catalog.category')" name="productCategoryId" wire:model="productCategoryId">
-                    <option value="">—</option>
-                    @foreach($categories as $cat)
-                        <option value="{{ $cat->id }}">{{ $cat->name_en }}</option>
-                    @endforeach
-                </x-form.select>
-                <x-form.input :label="__('catalog.image_url')" name="productImageUrl" wire:model="productImageUrl" placeholder="images/catalog/service-call.webp" wrapperClass="sm:col-span-2" />
-                <x-form.input type="number" :label="__('catalog.price').' ('.($priceMode === 'inc' ? __('catalog.inc_short') : __('catalog.ex_short')).')'" name="productPriceInput" wire:model="productPriceInput" required />
-                <x-form.input type="number" :label="__('catalog.vat_rate')" name="productVatRate" wire:model="productVatRate" />
-                <fieldset class="sm:col-span-2">
-                    <legend class="text-xs font-medium text-[var(--app-muted)]">{{ __('catalog.modifiers') }}</legend>
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <x-form.input :label="__('catalog.sku')" name="productSku" wire:model="productSku" />
+                    <x-form.select :label="__('catalog.category')" name="productCategoryId" wire:model="productCategoryId">
+                        <option value="">{{ __('catalog.none') }}</option>
+                        @foreach($categories as $cat)
+                            <option value="{{ $cat->id }}">{{ $cat->displayName() }}</option>
+                        @endforeach
+                    </x-form.select>
+                </div>
+                <x-form.product-image-upload
+                    :label="__('catalog.product_image.label')"
+                    wire-model="productImageUpload"
+                    :preview-url="$productImageRemove ? null : $productExistingImage"
+                />
+                <div class="app-admin-form__row--price grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <x-form.input type="number" :label="__('catalog.price').' ('.($priceMode === 'inc' ? __('catalog.inc_short') : __('catalog.ex_short')).')'" name="productPriceInput" wire:model="productPriceInput" required inputmode="decimal" />
+                    <x-form.input type="number" :label="__('catalog.vat_rate')" name="productVatRate" wire:model="productVatRate" inputmode="decimal" />
+                </div>
+                <fieldset>
+                    <legend class="text-xs font-medium leading-snug text-[var(--app-muted)]">{{ __('catalog.modifiers') }}</legend>
                     <div class="mt-2 flex flex-wrap gap-2">
                         @foreach($modifiers as $mod)
-                            <label class="flex items-center gap-1 rounded-full px-2 py-1 text-xs ring-1" style="border-color: var(--app-border)">
-                                <input type="checkbox" value="{{ $mod->id }}" wire:model="productModifierIds"> {{ $mod->name_en }}
+                            <label class="app-admin-form__modifier-chip" style="border-color: var(--app-border)">
+                                <input type="checkbox" class="h-4 w-4 shrink-0" value="{{ $mod->id }}" wire:model="productModifierIds">
+                                <span class="min-w-0 break-words">{{ $mod->displayName() }}</span>
                             </label>
                         @endforeach
                     </div>
                 </fieldset>
-                <x-form.toggle wire:model="productActive" name="productActive" :label="__('catalog.active')" class="sm:col-span-2" />
-                @if($storefrontVisibilityReady ?? false)
-                    <x-form.toggle wire:model="productShowOnHomepage" name="productShowOnHomepage" :label="__('catalog.show_on_homepage')" class="sm:col-span-1" />
-                    <x-form.toggle wire:model="productShowOnMenu" name="productShowOnMenu" :label="__('catalog.show_on_menu')" class="sm:col-span-1" />
-                @endif
-                <x-ui.livewire-action type="submit" target="saveProduct" loading="saving" class="tap-action-primary w-full sm:col-span-2" variant="primary">{{ __('catalog.save') }}</x-ui.livewire-action>
+                <x-form.toggle wire:model="productActive" name="productActive" :label="__('catalog.active')" />
             </form>
-        </div>
+        </x-ui.admin-sheet>
     @endif
 
     @if($showIngredientsModal && $canWrite)
-        <div class="app-sheet-backdrop fixed inset-0 z-40 bg-black/40" wire:click="$set('showIngredientsModal', false)"></div>
-        <div class="app-sheet fixed inset-x-0 bottom-0 z-50 max-h-[90vh] overflow-y-auto p-4 sm:inset-auto sm:start-1/2 sm:top-1/2 sm:w-full sm:max-w-lg sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl">
-            <h2 class="text-lg font-semibold">{{ __('inventory.ingredients_modal_title') }}</h2>
-            <div class="mt-3 space-y-3">
+        <div class="app-sheet-backdrop" wire:click="$set('showIngredientsModal', false)"></div>
+        <x-ui.admin-sheet
+            :title="__('inventory.ingredients_modal_title')"
+            close-wire='$set("showIngredientsModal", false)'
+            wide
+        >
+            <x-slot name="footer">
+                <button type="button" class="tap-action-muted min-h-11 flex-1 text-sm font-semibold" wire:click="$set('showIngredientsModal', false)">{{ __('catalog.cancel') }}</button>
+                <x-ui.livewire-action wire:click="saveProductIngredients" target="saveProductIngredients" loading="saving" class="tap-action-primary min-h-11 flex-1 text-sm font-semibold" variant="primary">{{ __('catalog.save') }}</x-ui.livewire-action>
+            </x-slot>
+            <div class="app-admin-form">
                 @foreach($ingredientLines as $index => $line)
-                    <div class="flex flex-wrap items-end gap-2" wire:key="ing-line-{{ $index }}">
-                        <div class="min-w-0 flex-1">
-                            <x-form.select :label="__('inventory.nav')" name="ingredientLines.{{ $index }}.ingredient_id" wire:model="ingredientLines.{{ $index }}.ingredient_id">
-                                <option value="">—</option>
-                                @foreach($ingredientOptions as $opt)
-                                    <option value="{{ $opt->id }}">{{ $opt->displayName() }} ({{ $opt->unit }})</option>
-                                @endforeach
-                            </x-form.select>
+                    <div class="grid grid-cols-1 gap-2 border-b pb-3 sm:grid-cols-1" style="border-color: var(--app-border)" wire:key="ing-line-{{ $index }}">
+                        <x-form.select :label="__('inventory.nav')" name="ingredientLines.{{ $index }}.ingredient_id" wire:model="ingredientLines.{{ $index }}.ingredient_id">
+                            <option value="">{{ __('catalog.none') }}</option>
+                            @foreach($ingredientOptions as $opt)
+                                <option value="{{ $opt->id }}">{{ $opt->displayName() }} ({{ $opt->unit }})</option>
+                            @endforeach
+                        </x-form.select>
+                        <div class="flex flex-wrap items-end gap-2">
+                            <div class="min-w-0 flex-1">
+                                <x-form.input type="number" :label="__('inventory.quantity_per_unit')" name="ingredientLines.{{ $index }}.quantity_per_unit" wire:model="ingredientLines.{{ $index }}.quantity_per_unit" inputmode="decimal" />
+                            </div>
+                            <button type="button" class="tap-action-muted min-h-11 shrink-0 px-3 text-sm text-rose-600" wire:click="removeIngredientLine({{ $index }})">{{ __('catalog.delete') }}</button>
                         </div>
-                        <x-form.input type="number" :label="__('inventory.quantity_per_unit')" name="ingredientLines.{{ $index }}.quantity_per_unit" wire:model="ingredientLines.{{ $index }}.quantity_per_unit" />
-                        <button type="button" class="tap-action-muted text-xs text-rose-600" wire:click="removeIngredientLine({{ $index }})">{{ __('catalog.delete') }}</button>
                     </div>
                 @endforeach
-                <button type="button" class="tap-action-muted text-sm" wire:click="addIngredientLine">{{ __('inventory.add') }}</button>
+                <button type="button" class="tap-action-muted min-h-11 w-full text-sm font-semibold" wire:click="addIngredientLine">{{ __('inventory.add') }}</button>
+                <form class="rounded-xl border p-3" style="border-color: var(--app-border)" wire:submit="quickCreateIngredient">
+                    <p class="text-xs font-medium text-[var(--app-muted)]">{{ __('inventory.quick_create') }}</p>
+                    <div class="mt-2 grid grid-cols-1 gap-2">
+                        <x-form.input :label="__('catalog.name_en')" name="quickIngredientNameEn" wire:model="quickIngredientNameEn" />
+                        <x-form.input :label="__('inventory.unit')" name="quickIngredientUnit" wire:model="quickIngredientUnit" />
+                    </div>
+                    <x-ui.livewire-action type="submit" target="quickCreateIngredient" loading="saving" class="tap-action-muted mt-2 min-h-11 w-full text-sm" variant="muted">{{ __('inventory.quick_create') }}</x-ui.livewire-action>
+                </form>
             </div>
-            <form class="mt-4 rounded-xl border p-3" style="border-color: var(--app-border)" wire:submit="quickCreateIngredient">
-                <p class="text-xs font-medium text-[var(--app-muted)]">{{ __('inventory.quick_create') }}</p>
-                <div class="mt-2 grid gap-2 sm:grid-cols-2">
-                    <x-form.input :label="__('catalog.name_en')" name="quickIngredientNameEn" wire:model="quickIngredientNameEn" />
-                    <x-form.input :label="__('inventory.unit')" name="quickIngredientUnit" wire:model="quickIngredientUnit" />
-                </div>
-                <x-ui.livewire-action type="submit" target="quickCreateIngredient" loading="saving" class="tap-action-muted mt-2 text-sm" variant="muted">{{ __('inventory.quick_create') }}</x-ui.livewire-action>
-            </form>
-            <x-ui.livewire-action wire:click="saveProductIngredients" target="saveProductIngredients" loading="saving" class="tap-action-primary mt-4 w-full" variant="primary">{{ __('catalog.save') }}</x-ui.livewire-action>
-        </div>
+        </x-ui.admin-sheet>
     @endif
 
     @if($showModifierForm && $canWrite)
-        <div class="app-sheet-backdrop fixed inset-0 z-40 bg-black/40" wire:click="$set('showModifierForm', false)"></div>
-        <div class="app-sheet fixed inset-x-0 bottom-0 z-50 max-h-[85vh] overflow-y-auto p-4 sm:inset-auto sm:start-1/2 sm:top-1/2 sm:w-full sm:max-w-md sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl">
-            <h2 class="text-lg font-semibold">{{ $editingModifierId ? __('catalog.edit_modifier') : __('catalog.add_modifier') }}</h2>
-            <form class="mt-4 space-y-3" wire:submit="saveModifier">
+        <div class="app-sheet-backdrop" wire:click="$set('showModifierForm', false)"></div>
+        <x-ui.admin-sheet
+            :title="$editingModifierId ? __('catalog.edit_modifier') : __('catalog.add_modifier')"
+            close-wire='$set("showModifierForm", false)'
+            form-id="catalog-modifier-form"
+            submit-target="saveModifier"
+        >
+            <form id="catalog-modifier-form" class="app-admin-form" wire:submit="saveModifier">
                 <x-form.input :label="__('catalog.name_en')" name="modifierNameEn" wire:model="modifierNameEn" required />
                 <x-form.input :label="__('catalog.name_ar')" name="modifierNameAr" wire:model="modifierNameAr" dir="rtl" />
-                <x-form.input type="number" :label="__('catalog.price')" name="modifierPriceInput" wire:model="modifierPriceInput" required />
-                <x-form.input type="number" :label="__('catalog.vat_rate')" name="modifierVatRate" wire:model="modifierVatRate" />
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <x-form.input type="number" :label="__('catalog.price')" name="modifierPriceInput" wire:model="modifierPriceInput" required inputmode="decimal" />
+                    <x-form.input type="number" :label="__('catalog.vat_rate')" name="modifierVatRate" wire:model="modifierVatRate" inputmode="decimal" />
+                </div>
                 <x-form.toggle wire:model="modifierActive" name="modifierActive" :label="__('catalog.active')" />
-                <x-ui.livewire-action type="submit" target="saveModifier" loading="saving" class="tap-action-primary w-full" variant="primary">{{ __('catalog.save') }}</x-ui.livewire-action>
             </form>
-        </div>
+        </x-ui.admin-sheet>
     @endif
 </div>

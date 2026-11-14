@@ -48,6 +48,47 @@ it('lets owner manage catalog products with inc vat entry', function () {
     }
 });
 
+it('does not show storefront visibility toggles in the product form', function () {
+    $html = Livewire::actingAs($this->owner, 'staff')
+        ->test(\App\Livewire\Catalog\MenuManager::class)
+        ->call('startProduct')
+        ->html();
+
+    expect($html)->not->toContain(__('catalog.show_on_homepage'))
+        ->and($html)->not->toContain(__('catalog.show_on_menu'));
+});
+
+it('renders mobile admin sheet chrome for product modal', function () {
+    $html = Livewire::actingAs($this->owner, 'staff')
+        ->test(MenuManager::class)
+        ->call('startProduct')
+        ->html();
+
+    expect($html)->toContain('app-sheet--admin')
+        ->and($html)->toContain('app-sheet__footer')
+        ->and($html)->toContain('catalog-product-form')
+        ->and($html)->toContain(__('catalog.cancel'));
+});
+
+it('preserves storefront visibility columns when editing a product', function () {
+    $product = Product::query()->firstOrFail();
+    $product->update([
+        'show_on_homepage' => true,
+        'show_on_menu' => false,
+    ]);
+
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(\App\Livewire\Catalog\MenuManager::class)
+        ->call('startProduct', $product->id)
+        ->set('productNameEn', $product->name_en.' updated')
+        ->call('saveProduct')
+        ->assertHasNoErrors();
+
+    $fresh = $product->fresh();
+    expect($fresh->show_on_homepage)->toBeTrue()
+        ->and($fresh->show_on_menu)->toBeFalse();
+});
+
 it('forbids cashier from catalog route', function () {
     expect($this->cashier->can('inventory.manage'))->toBeFalse();
 });

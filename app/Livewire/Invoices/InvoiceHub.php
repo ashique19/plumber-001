@@ -58,8 +58,11 @@ class InvoiceHub extends Component
 
     public function render(): View
     {
+        $user = auth('staff')->user();
+
         return view('livewire.invoices.invoice-hub', [
             'invoices' => $this->invoicePage(),
+            'canIssueInvoice' => $user?->can('invoices.issue') ?? false,
         ]);
     }
 

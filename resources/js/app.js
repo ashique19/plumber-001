@@ -1,6 +1,7 @@
 import { Livewire, Alpine } from '../../vendor/livewire/livewire/dist/livewire.esm';
 import { registerAdminLocationPicker, wireAdminLocationPickerLifecycle } from './admin-location-picker.js';
 import { registerAdminLogoUpload } from './admin-logo-upload.js';
+import { registerCatalogProductImageUpload } from './product-image-upload.js';
 import { registerPosQtyStepper } from './pos-qty-stepper.js';
 import { registerToastStack } from './toast-stack.js';
 import { wireLivewireRequestFeedback } from './livewire-feedback.js';
@@ -15,6 +16,7 @@ const toastCopy = window.__toastCopy ?? {};
 registerToastStack(Alpine, toastCopy);
 registerAdminLocationPicker(Alpine);
 registerAdminLogoUpload(Alpine);
+registerCatalogProductImageUpload(Alpine);
 registerPosQtyStepper(Alpine);
 
 document.addEventListener('livewire:init', () => {

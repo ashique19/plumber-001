@@ -8,6 +8,40 @@
     font-size: 0.75rem;
     font-weight: 600;
     color: var(--app-text);
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+.app-admin-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+@media (max-width: 639px) {
+    .app-sheet--admin .form-field__control,
+    .app-sheet--admin select.form-field__control,
+    .app-sheet--admin textarea.form-field__control {
+        font-size: 16px;
+        min-height: 2.75rem;
+    }
+
+    .app-sheet--admin .form-field__control[type='number'] {
+        font-size: 16px;
+    }
+}
+
+[dir='rtl'] select.form-field__control,
+[dir='rtl'] select.app-input {
+    background-position: left 0.75rem center;
+    padding-inline-end: 0.75rem;
+    padding-inline-start: 2rem;
+}
+
+.app-admin-form__modifier-chip {
+    @apply flex min-h-11 items-center gap-2 rounded-full px-3 py-2 text-sm ring-1;
 }
 
 .form-field__hint {
@@ -192,6 +226,63 @@ select.app-input {
     font-weight: 600;
     color: var(--plumber-safety, #a67c52);
     line-height: 1.4;
+}
+
+.form-product-image-upload__thumb-img {
+    width: 5.5rem;
+    height: 5.5rem;
+    object-fit: cover;
+    border-radius: 1rem;
+}
+
+.form-product-image-crop {
+    position: fixed;
+    inset: 0;
+    z-index: 110;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0.75rem;
+    padding-top: calc(env(safe-area-inset-top) + 3.5rem);
+    background: rgb(0 0 0 / 0.55);
+    backdrop-filter: blur(4px);
+}
+
+.form-product-image-crop__panel {
+    display: flex;
+    width: min(100%, 28rem);
+    max-height: min(88dvh, calc(100dvh - env(safe-area-inset-top) - 4rem));
+    flex-direction: column;
+    gap: 0.75rem;
+    border-radius: 1.25rem;
+    border: 1px solid var(--app-border);
+    background: var(--app-surface);
+    padding: 1rem;
+    box-shadow: var(--app-shadow, 0 12px 40px rgb(0 0 0 / 0.25));
+}
+
+.form-product-image-crop__title {
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.form-product-image-crop__stage {
+    min-height: 0;
+    flex: 1;
+    overflow: hidden;
+    border-radius: 0.75rem;
+    background: rgb(0 0 0 / 0.04);
+    max-height: min(60dvh, 22rem);
+}
+
+.form-product-image-crop__img {
+    display: block;
+    max-width: 100%;
+}
+
+.form-product-image-crop__actions {
+    display: flex;
+    gap: 0.5rem;
 }
 
 .form-field__control:focus {

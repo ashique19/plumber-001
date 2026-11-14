@@ -1,6 +1,8 @@
 <?php
 
 use App\Livewire\Admin\AdminDashboard;
+use App\Livewire\Catalog\MenuManager;
+use App\Livewire\Invoices\InvoiceHub;
 use App\Models\Branch;
 use App\Models\BusinessSetting;
 use App\Models\StaffUser;
@@ -26,14 +28,14 @@ it('redirects staff login to the dashboard when reports access is granted', func
 });
 
 it('shows dashboard quick action buttons for permitted owner roles', function () {
-    $issueMode = $this->business->alternateInvoiceDocumentType()->value;
-
     Livewire::actingAs($this->owner, 'staff')
         ->test(AdminDashboard::class)
         ->assertSee(__('dashboard.make_invoice'), false)
         ->assertSee(__('dashboard.add_products'), false)
-        ->assertSeeHtml('href="'.route('admin.invoices.issue', $issueMode).'"')
-        ->assertSeeHtml('href="'.route('admin.catalog', ['create' => 'product']).'"');
+        ->assertSeeHtml('href="'.route('admin.invoices').'"')
+        ->assertSeeHtml('href="'.route('admin.catalog', ['tab' => 'products']).'"')
+        ->assertDontSeeHtml('create=product')
+        ->assertDontSeeHtml(route('admin.invoices.issue', $this->business->alternateInvoiceDocumentType()->value));
 });
 
 it('hides quick actions when the user lacks the required permissions', function () {
@@ -72,8 +74,10 @@ it('renders bangla labels for dashboard quick actions', function () {
     Livewire::actingAs($this->owner, 'staff')
         ->withQueryParams(['locale' => 'bn'])
         ->test(AdminDashboard::class)
-        ->assertSee('ইনভয়েস তৈরি করুন', false)
-        ->assertSee('পণ্য যোগ করুন', false);
+        ->assertSee('ইনভয়েস', false)
+        ->assertSee('পণ্য', false)
+        ->assertSeeHtml('href="'.route('admin.invoices').'"')
+        ->assertSeeHtml('href="'.route('admin.catalog', ['tab' => 'products']).'"');
 });
 
 it('renders arabic labels for dashboard quick actions', function () {
@@ -81,6 +85,30 @@ it('renders arabic labels for dashboard quick actions', function () {
 
     Livewire::actingAs($this->owner, 'staff')
         ->test(AdminDashboard::class)
-        ->assertSee('إنشاء فاتورة', false)
-        ->assertSee('إضافة منتجات', false);
+        ->assertSee('فاتورة', false)
+        ->assertSee('المنتجات', false);
+});
+
+it('opens catalog products tab without auto-opening the product modal', function () {
+    app()->setLocale('bn');
+
+    Livewire::actingAs($this->owner, 'staff')
+        ->withQueryParams(['tab' => 'products', 'locale' => 'bn'])
+        ->test(MenuManager::class)
+        ->assertSet('tab', 'products')
+        ->assertSet('showProductForm', false)
+        ->assertSee(__('catalog.add_product', [], 'bn'), false);
+});
+
+it('shows bangla print layout choices on the invoice hub create section', function () {
+    app()->setLocale('bn');
+
+    Livewire::actingAs($this->owner, 'staff')
+        ->withQueryParams(['locale' => 'bn'])
+        ->test(InvoiceHub::class)
+        ->assertSee(__('invoices.create_heading', [], 'bn'), false)
+        ->assertSee(__('invoices.print_a4', [], 'bn'), false)
+        ->assertSee(__('invoices.print_cash', [], 'bn'), false)
+        ->assertSeeHtml('href="'.route('admin.invoices.issue', ['mode' => 'standard']).'"')
+        ->assertSeeHtml('href="'.route('admin.invoices.issue', ['mode' => 'simplified']).'"');
 });

@@ -109,8 +109,8 @@
     @if ($showCustomerForm)
         <div class="app-modal-backdrop" wire:click.self="$set('showCustomerForm', false)">
             <div class="app-modal" role="dialog" aria-modal="true">
-                <h2 class="text-lg font-semibold">{{ __('customers.add') }}</h2>
-                <form class="mt-4 grid gap-3" wire:submit="saveCustomer">
+                <h2>{{ __('customers.add') }}</h2>
+                <form class="grid gap-3" wire:submit="saveCustomer">
                     <x-form.input :label="__('customers.name')" name="customerName" wire:model.blur="customerName" required />
                     <x-form.input :label="__('customers.phone')" name="customerPhone" wire:model.blur="customerPhone" required inputmode="tel" />
                     <x-form.input type="email" :label="__('customers.email_optional')" name="customerEmail" wire:model.blur="customerEmail" />

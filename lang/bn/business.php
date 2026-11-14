@@ -1,32 +1,180 @@
 <?php
 
-$en = require __DIR__.'/../en/business.php';
-
-$en['nav'] = 'ব্যবসা';
-$en['legal']['email'] = 'ইনভয়েস ইমেইল';
-$en['legal']['mobile'] = 'মোবাইল';
-$en['legal']['mobile_secondary'] = 'মোবাইল ২';
-$en['legal']['short_national'] = 'সংক্ষিপ্ত জাতীয় ঠিকানা';
-$en['legal']['na_street_ar'] = 'সড়ক (আরবি)';
-$en['legal']['na_district_ar'] = 'জেলা (আরবি)';
-$en['legal']['na_city_ar'] = 'শহর (আরবি)';
-$en['legal']['na_country'] = 'দেশ (ISO কোড)';
-$en['legal']['optional_hint'] = 'সব ক্ষেত্র ঐচ্ছিক। শুধু পূরণ করা মান ইনভয়েসে দেখাবে।';
-$en['legal']['logo_on_brand'] = 'লোগো ব্র্যান্ড ট্যাবে আপলোড করুন।';
-$en['invoicing']['payment_terms_days'] = 'পেমেন্ট শর্ত (দিন)';
-$en['nav'] = 'ব্যবসা';
-$en['fields'] = [
-    'vat_number' => 'ভ্যাট নম্বর',
-    'cr_number' => 'বাণিজ্যিক নিবন্ধন (CR)',
-    'building' => 'বিল্ডিং নং',
-    'street' => 'রাস্তা',
-    'district' => 'এলাকা',
-    'city' => 'শহর',
-    'postal' => 'পোস্টাল কোড',
-    'additional' => 'অতিরিক্ত নং',
+return [
+    'nav' => 'ব্যবসা',
+    'title' => 'ব্যবসার সেটিংস',
+    'subtitle' => 'স্টোরফ্রন্ট, রসিদ ও ইনভয়েসের জন্য ব্র্যান্ড, আইনি তথ্য, যোগাযোগ ও সময়।',
+    'sections' => [
+        'brand' => 'ব্র্যান্ড',
+        'legal' => 'আইনি ও কর',
+        'invoicing' => 'Z-Heart',
+        'contact' => 'যোগাযোগ',
+        'hours' => 'সময়',
+        'branches' => 'শাখা',
+        'extras' => 'অতিরিক্ত',
+    ],
+    'invoicing' => [
+        'lead' => 'সার্ভারে ZHEART_SUBMIT_TO_ZATCA চালু থাকলে ইনভয়েস ইস্যুর পর Z-Heart রিপোর্ট/ক্লিয়ার নিয়ন্ত্রণ করুন।',
+        'integration_enabled' => 'ইস্যুর পর Z-Heart রিপোর্ট/ক্লিয়ার সক্রিয় করুন',
+        'integration_hint' => 'বন্ধ থাকলে ইনভয়েস শুধু স্থানীয়ভাবে স্বাক্ষরিত হয়, সার্ভারে জমা নাও হতে পারে।',
+        'api_key_configured' => 'সার্ভারে API কী কনফিগার আছে (:prefix)।',
+        'api_key_missing' => 'সার্ভারে ZHEART_API_KEY নেই — সাইনিং সার্ভিস কল ব্যর্থ হবে, ডিপ্লয় এনভ সেট করুন।',
+        'saved' => 'ইনভয়েসিং সেটিংস সংরক্ষিত হয়েছে।',
+        'payment_terms_days' => 'পেমেন্টের সময়সীমা (দিন)',
+    ],
+    'brand' => [
+        'logo_choose' => 'লোগো ফাইল বেছে নিন',
+        'logo_remove' => 'লোগো সরান',
+        'display_name_en' => 'প্রদর্শনের নাম (ইংরেজি)',
+        'display_name_ar' => 'প্রদর্শনের নাম (আরবি)',
+        'display_name_bn' => 'প্রদর্শনের নাম (বাংলা, ঐচ্ছিক)',
+        'tagline_en' => 'ট্যাগলাইন (ইংরেজি)',
+        'tagline_ar' => 'ট্যাগলাইন (আরবি)',
+        'logo' => 'লোগো',
+        'logo_hint' => 'PNG, JPG, WebP বা নিরাপদ SVG · ব্রাউজারে ২৫৬×২৫৬ পিক্সেলের মধ্যে · সার্ভার সীমা ১ MB',
+        'brand_color' => 'ব্র্যান্ড রঙ',
+    ],
+    'legal' => [
+        'name_en' => 'আইনি নাম (ইংরেজি)',
+        'name_ar' => 'আইনি নাম (আরবি)',
+        'vat' => 'ভ্যাট নম্বর',
+        'cr' => 'বাণিজ্যিক নিবন্ধন (CR)',
+        'address_en' => 'ইনভয়েস ঠিকানা (ইংরেজি)',
+        'address_ar' => 'ইনভয়েস ঠিকানা (আরবি)',
+        'national_address' => 'জাতীয় ঠিকানা (সৌদি)',
+        'na_building' => 'বিল্ডিং নং',
+        'na_street' => 'রাস্তা',
+        'na_district' => 'জেলা',
+        'na_city' => 'শহর',
+        'na_postal' => 'পোস্টাল কোড (৫ অঙ্ক)',
+        'na_country' => 'দেশ (ISO কোড)',
+        'na_additional' => 'অতিরিক্ত নং',
+        'na_street_ar' => 'রাস্তা (আরবি)',
+        'na_district_ar' => 'জেলা (আরবি)',
+        'na_city_ar' => 'শহর (আরবি)',
+        'email' => 'ইনভয়েস ইমেইল',
+        'mobile' => 'মোবাইল',
+        'mobile_secondary' => 'মোবাইল ২',
+        'short_national' => 'সংক্ষিপ্ত জাতীয় ঠিকানা',
+        'optional_hint' => 'সব ক্ষেত্র ঐচ্ছিক। শুধু পূরণ করা মান ইনভয়েসে দেখাবে।',
+        'logo_on_brand' => 'ব্র্যান্ড ট্যাবে ইনভয়েস লোগো আপলোড করুন।',
+        'zheart_note' => 'Z-Heart দিয়ে স্বাক্ষরের সময় এই তথ্য আপনার Z-Heart ক্লায়েন্ট প্রোফাইলের সাথে মিলতে হবে। এখানে সম্পাদনা করলেই স্বয়ংক্রিয়ভাবে signing service অনুবর্তিতা নিশ্চিত হয় না।',
+    ],
+    'contact' => [
+        'section_phone' => 'ফোন ও ইমেইল',
+        'section_social' => 'সোশ্যাল',
+        'section_location' => 'অবস্থান',
+        'phone' => 'ফোন',
+        'whatsapp' => 'হোয়াটসঅ্যাপ',
+        'email' => 'ইমেইল',
+        'website' => 'ওয়েবসাইট',
+        'instagram' => 'ইনস্টাগ্রাম',
+        'x' => 'X (Twitter)',
+        'tiktok' => 'TikTok',
+        'snapchat' => 'Snapchat',
+        'maps_url' => 'Google Maps লিংক',
+        'lat' => 'অক্ষাংশ',
+        'lng' => 'দ্রাঘিমাংশ',
+    ],
+    'hours' => [
+        'weekday' => 'দিন',
+        'open' => 'খোলে',
+        'close' => 'বন্ধ',
+        'closed' => 'বন্ধ',
+        'closed_toggle' => 'সারাদিন বন্ধ',
+        'note' => 'সময়ের নোট',
+        'note_field' => 'প্রকাশ্য নোট (ছুটি, রমজান ইত্যাদি)',
+    ],
+    'branches' => [
+        'intro' => 'শাখার অবস্থান, ফোন ও সময় টিম হাবে পরিচালনা করুন।',
+        'open_team' => 'শাখা ব্যবস্থাপনা খুলুন',
+    ],
+    'extras' => [
+        'delivery_apps' => 'ডেলিভারি অ্যাপ লিংক (প্রতি লাইনে একটি URL)',
+        'storefront_emergency' => '২৪/৭ জরুরি লাইন',
+        'storefront_license' => 'লাইসেন্স নম্বর',
+        'storefront_areas' => 'সেবার এলাকা',
+        'storefront_response_en' => 'সাধারণ প্রতিক্রিয়া সময় (ইংরেজি)',
+        'storefront_response_ar' => 'সাধারণ প্রতিক্রিয়া সময় (আরবি)',
+    ],
+    'colors' => [
+        'espresso' => 'এসপ্রেসো',
+        'caramel' => 'ক্যারামেল',
+        'accent' => 'অ্যাকসেন্ট',
+        'mocha' => 'মোকা',
+        'navy' => 'নেভি',
+        'steel' => 'স্টিল',
+        'safety' => 'সেফটি অরেঞ্জ',
+    ],
+    'map' => [
+        'search_placeholder' => 'ঠিকানা খুঁজুন (৩+ অক্ষর)',
+        'use_my_location' => 'আমার অবস্থান ব্যবহার করুন',
+        'advanced' => 'উন্নত স্থানাঙ্ক',
+        'coords_hint' => 'পিন করা অবস্থান:',
+        'searching' => 'খুঁজছি…',
+        'region_label' => 'মানচিত্রে অবস্থান বাছাই',
+        'nominatim_credit' => 'অনুসন্ধান ডেটা © Nominatim',
+        'attribution_html' => 'মানচিত্র © OpenStreetMap contributors। Nominatim geocoding।',
+    ],
+    'weekdays' => [
+        'saturday' => 'শনিবার',
+        'sunday' => 'রবিবার',
+        'monday' => 'সোমবার',
+        'tuesday' => 'মঙ্গলবার',
+        'wednesday' => 'বুধবার',
+        'thursday' => 'বৃহস্পতিবার',
+        'friday' => 'শুক্রবার',
+    ],
+    'errors' => [
+        'save_failed' => 'ব্যবসার সেটিংস সংরক্ষণ হয়নি। সার্ভার লগ দেখুন বা আবার চেষ্টা করুন।',
+        'charset_save_failed' => 'সংরক্ষণ ব্যর্থ: ডাটাবেস চারসেট আরবি বা বাংলা টেক্সট সমর্থন করে না। সার্ভারে docs/sql/2026-11-14-utf8mb4-convert.sql চালান, তারপর আবার চেষ্টা করুন।',
+    ],
+    'messages' => [
+        'saved' => 'ব্যবসার সেটিংস সংরক্ষিত হয়েছে।',
+        'saved_logo' => 'লোগো সংরক্ষিত। অ্যাপ ও স্টোরফ্রন্টে দেখা যাবে।',
+        'logo_removed' => 'লোগো সরানো হয়েছে।',
+    ],
     'validation' => [
-        'vat_format' => 'ভ্যাট নম্বর ১৫ অঙ্কের হতে হবে এবং ৩ দিয়ে শুরু ও শেষ হতে হবে।',
+        'logo_size' => 'লোগো ১ MB বা ছোট হতে হবে।',
+        'section_failed' => ':section সংরক্ষণ হয়নি। হাইলাইট করা ক্ষেত্র ঠিক করুন।',
+        'tab_has_errors' => 'এই ট্যাবে ভ্যালিডেশন ত্রুটি আছে',
+    ],
+    'logo_upload' => [
+        'replace' => 'লোগো প্রতিস্থাপন',
+        'remove_pending' => 'আপলোড বাতিল',
+        'uploading' => 'আপলোড হচ্ছে…',
+        'ready_save' => 'প্রস্তুত — সংরক্ষণের জন্য নিচে সেভ সেকশন চাপুন।',
+        'uploaded_ok' => 'আপলোড সম্পন্ন — প্রকাশের জন্য এই সেকশন সংরক্ষণ করুন।',
+        'stored_at' => 'পাবলিক লোগো URL:',
+        'current_logo' => 'বর্তমান লোগো',
+        'no_logo' => 'এখনও কোনো লোগো নেই',
+        'errors' => [
+            'invalid_type' => 'PNG, JPG, WebP বা নিরাপদ SVG বেছে নিন।',
+            'too_small' => 'লোগো অন্তত :min×:min পিক্সেল হতে হবে।',
+            'too_big' => 'আপলোডের পর লোগো :limit বা ছোট হতে হবে।',
+            'mimes' => 'লোগো PNG, JPG, WebP বা নিরাপদ SVG হতে হবে।',
+            'svg_unsafe' => 'এই SVG নিরাপদ নয় — স্ক্রিপ্ট বা লিংক ছাড়া রপ্তানি করুন।',
+            'processing_failed' => 'ব্রাউজারে ছবি প্রস্তুত করা যায়নি। অন্য ফাইল চেষ্টা করুন।',
+            'still_too_large' => 'সংকোচনের পরও ছবি খুব বড়। ছোট লোগো চেষ্টা করুন।',
+            'store_failed' => 'সার্ভারে লোগো সংরক্ষণ হয়নি। public/img/business ফোল্ডার অনুমতি দেখুন।',
+            'failed_generic' => 'সংরক্ষণের আগে লোগো আপলোড ব্যর্থ।',
+            'failed_causes' => 'আপলোড ব্যর্থ। সাধারণ কারণ: ফাইল খুব বড়, ফোল্ডার লেখাযোগ্য নয়, সেশন শেষ, বা APP_URL মিলছে না।',
+            'network' => 'আপলোডের সময় নেটওয়ার্ক ত্রুটি।',
+        ],
+    ],
+    'save' => 'সেকশন সংরক্ষণ করুন',
+    'not_configured' => 'ব্যবসার সেটিংস এখনও কনফিগার করা হয়নি।',
+    'fields' => [
+        'vat_number' => 'ভ্যাট নম্বর',
+        'cr_number' => 'বাণিজ্যিক নিবন্ধন (CR)',
+        'building' => 'বিল্ডিং নং',
+        'street' => 'রাস্তা',
+        'district' => 'জেলা',
+        'city' => 'শহর',
+        'postal' => 'পোস্টাল কোড',
+        'additional' => 'অতিরিক্ত নং',
+        'validation' => [
+            'vat_format' => 'ভ্যাট নম্বর ১৫ অঙ্কের হতে হবে এবং ৩ দিয়ে শুরু ও শেষ হতে হবে।',
+        ],
     ],
 ];
-
-return $en;

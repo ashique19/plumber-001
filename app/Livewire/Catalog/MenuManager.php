@@ -14,15 +14,19 @@ use App\Models\ProductModifier;
 use App\Support\Inventory\IngredientInventorySchema;
 use App\Models\BusinessSetting;
 use App\Support\Catalog\CatalogI18n;
+use App\Support\Catalog\ProductCategorySchema;
 use App\Support\Catalog\ProductStorefrontVisibility;
 use App\Support\VatPricing;
 use App\Business\BusinessContext;
+use App\Services\Catalog\ProductImageService;
+use App\Support\Upload\ProductImageConstraints;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use App\Livewire\Concerns\ResolvesBusinessContext;
+use Livewire\WithFileUploads;
 
 #[Layout('layouts.pos')]
 class MenuManager extends Component
@@ -31,6 +35,7 @@ class MenuManager extends Component
     use AuthorizesRequests;
     use DispatchesToasts;
     use ValidatesFieldsLive;
+    use WithFileUploads;
 
 
     public string $tab = 'products';
@@ -78,7 +83,11 @@ class MenuManager extends Component
 
     public ?int $productCategoryId = null;
 
-    public string $productImageUrl = '';
+    public $productImageUpload = null;
+
+    public ?string $productExistingImage = null;
+
+    public bool $productImageRemove = false;
 
     public string $productPriceInput = '';
 
@@ -126,6 +135,11 @@ class MenuManager extends Component
         $this->resolveBusiness();
         BusinessContext::set($this->business);
 
+        $tab = request()->query('tab');
+        if (is_string($tab) && in_array($tab, ['categories', 'products', 'modifiers'], true)) {
+            $this->tab = $tab;
+        }
+
         if (request()->query('create') === 'product' && auth('staff')->user()?->can('staff.manage')) {
             $this->tab = 'products';
             $this->startProduct();
@@ -147,12 +161,16 @@ class MenuManager extends Component
         if ($id !== null) {
             $cat = $this->categoryQuery()->findOrFail($id);
             $this->editingCategoryId = $cat->id;
-            $this->categoryNameEn = $cat->name_en;
-            $this->categoryNameAr = (string) $cat->name_ar;
-            $this->categoryNameBn = CatalogI18n::columnsExist() ? (string) ($cat->name_bn ?? '') : '';
-            $this->categoryDescriptionEn = CatalogI18n::columnsExist() ? (string) ($cat->description_en ?? '') : '';
-            $this->categoryDescriptionAr = CatalogI18n::columnsExist() ? (string) ($cat->description_ar ?? '') : '';
-            $this->categoryDescriptionBn = CatalogI18n::columnsExist() ? (string) ($cat->description_bn ?? '') : '';
+            $this->categoryNameEn = ProductCategorySchema::hasNameEnColumn()
+                ? (string) $cat->name_en
+                : (string) ($cat->name ?? '');
+            $this->categoryNameAr = ProductCategorySchema::hasNameArColumn()
+                ? (string) ($cat->name_ar ?? '')
+                : '';
+            $this->categoryNameBn = ProductCategorySchema::hasNameBnColumn() ? (string) ($cat->name_bn ?? '') : '';
+            $this->categoryDescriptionEn = ProductCategorySchema::hasDescriptionEnColumn() ? (string) ($cat->description_en ?? '') : '';
+            $this->categoryDescriptionAr = ProductCategorySchema::hasDescriptionArColumn() ? (string) ($cat->description_ar ?? '') : '';
+            $this->categoryDescriptionBn = ProductCategorySchema::hasDescriptionBnColumn() ? (string) ($cat->description_bn ?? '') : '';
             $this->categoryIconKey = (string) ($cat->icon_key ?: 'cup');
             $this->categoryActive = (bool) $cat->is_active;
         }
@@ -172,19 +190,7 @@ class MenuManager extends Component
             'categoryActive' => ['boolean'],
         ]);
 
-        $payload = [
-            'name_en' => $validated['categoryNameEn'],
-            'name_ar' => $validated['categoryNameAr'] ?: null,
-            'icon_key' => $validated['categoryIconKey'] ?: null,
-            'is_active' => $validated['categoryActive'],
-        ];
-
-        if (CatalogI18n::columnsExist()) {
-            $payload['name_bn'] = $validated['categoryNameBn'] ?: null;
-            $payload['description_en'] = $validated['categoryDescriptionEn'] ?: null;
-            $payload['description_ar'] = $validated['categoryDescriptionAr'] ?: null;
-            $payload['description_bn'] = $validated['categoryDescriptionBn'] ?: null;
-        }
+        $payload = ProductCategorySchema::mutationPayload($validated);
 
         if ($this->editingCategoryId) {
             $cat = $this->categoryQuery()->findOrFail($this->editingCategoryId);
@@ -222,7 +228,9 @@ class MenuManager extends Component
             $this->productDescriptionAr = CatalogI18n::columnsExist() ? (string) ($product->description_ar ?? '') : '';
             $this->productDescriptionBn = CatalogI18n::columnsExist() ? (string) ($product->description_bn ?? '') : '';
             $this->productCategoryId = $product->product_category_id;
-            $this->productImageUrl = (string) $product->image_url;
+            $this->productExistingImage = filled($product->image_url) ? (string) $product->image_url : null;
+            $this->productImageRemove = false;
+            $this->productImageUpload = null;
             $this->productVatRate = (float) $product->vat_rate;
             $this->productActive = (bool) $product->is_active;
             $this->productShowOnHomepage = ProductStorefrontVisibility::columnsExist()
@@ -237,10 +245,50 @@ class MenuManager extends Component
         }
     }
 
-    public function saveProduct(): void
+    public function updatedProductImageUpload(): void
+    {
+        $this->resetValidation('productImageUpload');
+        $this->productImageRemove = false;
+
+        if ($this->productImageUpload === null) {
+            return;
+        }
+
+        $path = $this->productImageUpload->getRealPath();
+        if (! is_string($path) || ! is_readable($path)) {
+            $this->rejectProductImageUpload(__('catalog.product_image.errors.processing_failed'));
+
+            return;
+        }
+
+        $size = @getimagesize($path);
+        if ($size === false) {
+            $this->rejectProductImageUpload(__('catalog.product_image.errors.wrong_type'));
+
+            return;
+        }
+
+        [$width, $height] = $size;
+        if ($width < ProductImageConstraints::MIN_WIDTH || $height < ProductImageConstraints::MIN_HEIGHT) {
+            $this->rejectProductImageUpload(__('catalog.product_image.errors.too_small', [
+                'min' => ProductImageConstraints::MIN_WIDTH,
+            ]));
+        }
+    }
+
+    public function removeProductImage(): void
     {
         $this->authorizeCatalogWrite();
-        $validated = $this->validate([
+        $this->productImageUpload = null;
+        $this->productImageRemove = true;
+        $this->resetValidation('productImageUpload');
+        $this->dispatch('catalog-product-image-cleared');
+    }
+
+    public function saveProduct(ProductImageService $images): void
+    {
+        $this->authorizeCatalogWrite();
+        $rules = [
             'productSku' => ['nullable', 'string', 'max:64', Rule::unique('products', 'sku')->ignore($this->editingProductId)],
             'productNameEn' => ['required', 'string', 'max:160'],
             'productNameAr' => ['required', 'string', 'max:160'],
@@ -249,7 +297,6 @@ class MenuManager extends Component
             'productDescriptionAr' => ['nullable', 'string', 'max:2000'],
             'productDescriptionBn' => ['nullable', 'string', 'max:2000'],
             'productCategoryId' => ['nullable', 'integer'],
-            'productImageUrl' => ['nullable', 'string', 'max:255'],
             'productPriceInput' => ['required', 'numeric', 'min:0'],
             'productVatRate' => ['required', 'numeric', 'min:0', 'max:100'],
             'productActive' => ['boolean'],
@@ -257,25 +304,47 @@ class MenuManager extends Component
             'productShowOnMenu' => ['boolean'],
             'productModifierIds' => ['array'],
             'productItemType' => ['required', Rule::in(array_map(fn (ProductItemType $t) => $t->value, ProductItemType::cases()))],
-        ]);
+        ];
+        if ($this->productImageUpload !== null) {
+            $rules['productImageUpload'] = ProductImageConstraints::componentRules();
+        }
+        $validated = $this->validate($rules, ProductImageConstraints::validationMessages());
 
         $priceEx = $this->priceMode === 'inc'
             ? VatPricing::exFromInc((float) $validated['productPriceInput'], (float) $validated['productVatRate'])
             : (float) $validated['productPriceInput'];
+
+        $previousImage = $this->editingProductId
+            ? (string) ($this->productQuery()->find($this->editingProductId)?->image_url ?? '')
+            : '';
+
+        $imageUrl = $this->productImageRemove ? null : ($this->productExistingImage ?: null);
+        if ($this->productImageUpload !== null) {
+            try {
+                $imageUrl = $images->store($this->business, $this->productImageUpload, $previousImage ?: $this->productExistingImage);
+            } catch (\InvalidArgumentException $e) {
+                $this->addError('productImageUpload', $e->getMessage());
+                $this->toastError($e->getMessage(), persistent: true);
+
+                return;
+            }
+        } elseif ($this->productImageRemove && filled($previousImage)) {
+            $images->deleteIfManaged($previousImage);
+        }
 
         $payload = [
             'sku' => $validated['productSku'] ?: null,
             'name_en' => $validated['productNameEn'],
             'name_ar' => $validated['productNameAr'],
             'product_category_id' => $validated['productCategoryId'] ?: null,
-            'image_url' => $validated['productImageUrl'] ?: null,
+            'image_url' => $imageUrl,
             'price_ex_vat' => $priceEx,
             'vat_rate' => (float) $validated['productVatRate'],
             'is_active' => $validated['productActive'],
             'item_type' => $validated['productItemType'],
         ];
 
-        if (ProductStorefrontVisibility::columnsExist()) {
+        if (ProductStorefrontVisibility::columnsExist() && ProductStorefrontVisibility::catalogUiEnabled()) {
             $payload['show_on_homepage'] = $validated['productShowOnHomepage'];
             $payload['show_on_menu'] = $validated['productShowOnMenu'];
         }
@@ -298,6 +367,7 @@ class MenuManager extends Component
             $this->toastSuccess(__('catalog.created_product'));
         }
 
+        $this->productImageUpload = null;
         $this->showProductForm = false;
         $this->resetProductForm();
     }
@@ -312,7 +382,7 @@ class MenuManager extends Component
     public function toggleProductShowOnHomepage(int $id): void
     {
         $this->authorizeCatalogWrite();
-        if (! ProductStorefrontVisibility::columnsExist()) {
+        if (! ProductStorefrontVisibility::columnsExist() || ! ProductStorefrontVisibility::catalogUiEnabled()) {
             return;
         }
         $product = $this->productQuery()->findOrFail($id);
@@ -323,7 +393,7 @@ class MenuManager extends Component
     public function toggleProductShowOnMenu(int $id): void
     {
         $this->authorizeCatalogWrite();
-        if (! ProductStorefrontVisibility::columnsExist()) {
+        if (! ProductStorefrontVisibility::columnsExist() || ! ProductStorefrontVisibility::catalogUiEnabled()) {
             return;
         }
         $product = $this->productQuery()->findOrFail($id);
@@ -481,7 +551,8 @@ class MenuManager extends Component
 
     public function render(): View
     {
-        $categories = $this->categoryQuery()->orderBy('sort_order')->orderBy('name_en')->get();
+        $nameCol = ProductCategorySchema::nameOrderColumn();
+        $categories = $this->categoryQuery()->orderBy('sort_order')->orderBy($nameCol)->get();
         $products = $this->productQuery()->with('category')->orderBy('sort_order')->orderBy('name_en')->get();
         $modifiers = $this->modifierQuery()->orderBy('name_en')->get();
 
@@ -490,8 +561,11 @@ class MenuManager extends Component
             'products' => $products,
             'modifiers' => $modifiers,
             'canWrite' => auth('staff')->user()?->can('staff.manage') ?? false,
-            'storefrontVisibilityReady' => ProductStorefrontVisibility::columnsExist(),
+            'storefrontVisibilityReady' => ProductStorefrontVisibility::columnsExist()
+                && ProductStorefrontVisibility::catalogUiEnabled(),
             'catalogI18nReady' => CatalogI18n::columnsExist(),
+            'categoryBanglaFieldsReady' => CatalogI18n::categoryBanglaFieldsReady(),
+            'categoryDescriptionFieldsReady' => CatalogI18n::categoryDescriptionFieldsReady(),
             'inventoryReady' => IngredientInventorySchema::productIngredientsReady(),
             'ingredientOptions' => IngredientInventorySchema::ingredientsReady()
                 ? Ingredient::query()->whereNull('branch_id')->orderedForDisplay()->get()
@@ -552,7 +626,9 @@ class MenuManager extends Component
         $this->productDescriptionAr = '';
         $this->productDescriptionBn = '';
         $this->productCategoryId = null;
-        $this->productImageUrl = '';
+        $this->productImageUpload = null;
+        $this->productExistingImage = null;
+        $this->productImageRemove = false;
         $this->productPriceInput = '';
         $this->productVatRate = 15.0;
         $this->productActive = true;
@@ -560,6 +636,12 @@ class MenuManager extends Component
         $this->productShowOnMenu = true;
         $this->productItemType = ProductItemType::Item->value;
         $this->productModifierIds = [];
+    }
+
+    private function rejectProductImageUpload(string $message): void
+    {
+        $this->addError('productImageUpload', $message);
+        $this->productImageUpload = null;
     }
 
     private function resetModifierForm(): void
@@ -582,7 +664,6 @@ class MenuManager extends Component
             'categoryNameAr' => ['nullable', 'string', 'max:120'],
             'productNameEn' => ['required', 'string', 'max:160'],
             'productNameAr' => ['required', 'string', 'max:160'],
-            'productImageUrl' => ['nullable', 'string', 'max:255'],
             'productPriceInput' => ['required', 'numeric', 'min:0'],
             'productVatRate' => ['required', 'numeric', 'min:0', 'max:100'],
             'modifierNameEn' => ['required', 'string', 'max:160'],

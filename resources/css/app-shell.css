@@ -135,13 +135,52 @@
     }
 
     .app-main {
-        @apply min-h-dvh lg:ps-64;
+        @apply min-h-dvh;
         position: relative;
         z-index: 0;
     }
 
+    .app-main--with-sidebar {
+        @apply lg:ps-64;
+    }
+
     .app-main--sidebar-collapsed {
         @apply lg:ps-[4.25rem];
+    }
+
+    .app-topbar__logout {
+        @apply inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-3 text-sm font-semibold;
+        color: var(--app-muted);
+    }
+
+    .app-topbar__logout:hover {
+        background: rgb(212 165 116 / 0.15);
+        color: var(--app-text);
+    }
+
+    .app-topbar__brand {
+        @apply flex min-w-0 items-center gap-2 rounded-xl transition;
+        color: inherit;
+    }
+
+    .app-topbar__brand:hover {
+        background: rgb(212 165 116 / 0.12);
+    }
+
+    .app-topbar__inner {
+        @apply mx-auto flex max-w-6xl items-center gap-1.5 px-2 py-1.5 sm:gap-2 sm:px-5 sm:py-3;
+    }
+
+    .app-topbar__logout--compact {
+        @apply min-h-9 gap-1 px-2 sm:min-h-11 sm:gap-2 sm:px-3;
+    }
+
+    .app-locale-switch--compact {
+        @apply gap-0.5 p-0.5 text-[0.58rem];
+    }
+
+    .app-locale-switch--compact a {
+        @apply min-h-8 min-w-[1.85rem] px-1;
     }
 
     .app-content {
@@ -149,10 +188,20 @@
         padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
     }
 
+    .app-content--no-tabbar {
+        padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+    }
+
     @media (min-width: 1024px) {
-        .app-content {
+        .app-content,
+        .app-content--no-tabbar {
             padding-bottom: 1.5rem;
         }
+    }
+
+    .app-shell[data-mobile-tabbar='0'] .admin-dashboard,
+    .app-shell[data-mobile-tabbar='0'] .pos-terminal-rich {
+        @apply max-lg:pb-4;
     }
 
     .app-tabbar {
@@ -238,8 +287,12 @@
         background: var(--app-surface);
     }
 
+    :root {
+        --app-topbar-height: 3.5rem;
+    }
+
     .app-toast {
-        @apply fixed start-4 end-4 top-[calc(3.5rem+env(safe-area-inset-top))] z-[60] mx-auto max-w-md rounded-2xl border px-4 py-3 text-sm font-medium shadow-lg sm:start-auto sm:end-6;
+        @apply fixed start-4 end-4 top-[calc(var(--app-topbar-height)+env(safe-area-inset-top))] z-[60] mx-auto max-w-md rounded-2xl border px-4 py-3 text-sm font-medium shadow-lg sm:start-auto sm:end-6;
         border-color: var(--app-border);
         background: var(--app-surface-2);
         backdrop-filter: blur(16px);
@@ -263,14 +316,127 @@
         }
     }
 
+    .app-sheet-backdrop {
+        @apply fixed inset-0 z-[90] bg-black/40 backdrop-blur-[2px];
+    }
+
     .app-sheet {
-        @apply fixed inset-x-0 bottom-0 z-50 max-h-[85dvh] overflow-y-auto rounded-t-3xl border-t shadow-2xl;
+        @apply fixed inset-x-0 bottom-0 z-[100] flex max-h-[min(90dvh,calc(100dvh-env(safe-area-inset-top)-var(--app-topbar-height)))] flex-col overflow-hidden rounded-t-3xl border-t shadow-2xl;
+        top: calc(env(safe-area-inset-top) + var(--app-topbar-height));
         border-color: var(--app-border);
-        padding-bottom: env(safe-area-inset-bottom);
         background: var(--app-surface-2);
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
         animation: app-sheet-up 0.28s ease;
+    }
+
+    .app-sheet > h2:first-child,
+    .app-sheet > .app-sheet__head {
+        @apply sticky top-0 z-10 shrink-0 border-b px-4 py-3;
+        border-color: var(--app-border);
+        background: var(--app-surface-2);
+    }
+
+    .app-sheet > h2:first-child {
+        @apply text-lg font-semibold;
+    }
+
+    .app-sheet__head {
+        @apply flex items-center justify-between gap-3;
+    }
+
+    .app-sheet__head h2 {
+        @apply min-w-0 flex-1 text-base font-semibold leading-snug sm:text-lg;
+        overflow-wrap: anywhere;
+    }
+
+    .app-sheet__close {
+        @apply inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-xl;
+    }
+
+    .app-sheet__footer {
+        @apply flex shrink-0 gap-2 border-t px-4 py-3;
+        border-color: var(--app-border);
+        padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
+        background: var(--app-surface-2);
+    }
+
+    .app-sheet > form,
+    .app-sheet > .app-sheet__body {
+        @apply min-h-0 flex-1 overflow-y-auto overscroll-contain px-4;
+        padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+    }
+
+    .app-sheet--admin > .app-sheet__body {
+        padding-bottom: 0.75rem;
+    }
+
+    @media (max-width: 639px) {
+        .app-sheet--admin {
+            inset: 0;
+            top: 0;
+            max-height: 100dvh;
+            width: 100%;
+            transform: none;
+            border-radius: 0;
+            border-width: 0;
+            animation: app-sheet-fade-in 0.22s ease;
+        }
+
+        .app-sheet--admin .app-sheet__head {
+            padding-top: max(0.75rem, env(safe-area-inset-top));
+        }
+
+        .app-sheet--admin .app-sheet__footer {
+            position: sticky;
+            bottom: 0;
+            z-index: 11;
+            box-shadow: 0 -4px 16px rgb(44 24 16 / 0.08);
+        }
+    }
+
+    @keyframes app-sheet-fade-in {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    .app-sheet--dialog {
+        @apply sm:inset-auto sm:start-1/2 sm:top-1/2 sm:w-full sm:max-w-md sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl sm:border;
+    }
+
+    .app-sheet--dialog.app-sheet--wide {
+        @apply sm:max-w-lg;
+    }
+
+    .app-sheet--dialog.app-sheet--narrow {
+        @apply sm:max-w-sm;
+    }
+
+    @media (min-width: 640px) {
+        .app-sheet {
+            top: auto;
+            max-height: min(90dvh, calc(100vh - 2rem));
+        }
+
+        .app-sheet > h2:first-child {
+            @apply static border-b-0;
+        }
+
+        .app-sheet--admin .app-sheet__head {
+            @apply static;
+        }
+
+        .app-sheet--dialog {
+            @apply overflow-y-auto;
+        }
+
+        .app-sheet--admin.app-sheet--dialog {
+            @apply flex max-h-[min(90dvh,calc(100vh-2rem))] flex-col overflow-hidden;
+        }
     }
 
     @keyframes app-sheet-up {
@@ -282,8 +448,27 @@
         }
     }
 
-    .app-sheet-backdrop {
-        @apply fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px];
+    .app-modal-backdrop {
+        @apply fixed inset-0 z-[90] flex items-end justify-center bg-black/40 backdrop-blur-[2px] sm:items-center sm:p-4;
+        padding-top: calc(env(safe-area-inset-top) + var(--app-topbar-height));
+    }
+
+    .app-modal {
+        @apply z-[100] flex w-full max-w-md flex-col overflow-hidden rounded-t-3xl border shadow-2xl sm:max-h-[min(90dvh,calc(100vh-2rem))] sm:rounded-2xl;
+        border-color: var(--app-border);
+        background: var(--app-surface-2);
+        max-height: min(90dvh, calc(100dvh - env(safe-area-inset-top) - var(--app-topbar-height)));
+    }
+
+    .app-modal > h2:first-child {
+        @apply sticky top-0 z-10 shrink-0 border-b px-4 py-3 text-lg font-semibold;
+        border-color: var(--app-border);
+        background: var(--app-surface-2);
+    }
+
+    .app-modal > form {
+        @apply min-h-0 flex-1 overflow-y-auto overscroll-contain p-4;
+        padding-bottom: calc(1rem + env(safe-area-inset-bottom));
     }
 
     .app-page-title {

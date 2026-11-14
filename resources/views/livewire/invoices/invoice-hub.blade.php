@@ -6,6 +6,31 @@
         </div>
     </header>
 
+    @if ($canIssueInvoice ?? false)
+        <section class="app-card mb-4 space-y-3 p-4" aria-label="{{ __('invoices.create_heading') }}">
+            <h2 class="text-base font-semibold">{{ __('invoices.create_heading') }}</h2>
+            <p class="text-sm text-[var(--app-muted)]">{{ __('invoices.create_print_hint') }}</p>
+            <div class="grid gap-3 sm:grid-cols-2">
+                <a
+                    href="{{ route('admin.invoices.issue', ['mode' => 'standard']) }}"
+                    class="app-card tap-action-muted flex min-h-14 flex-col items-start justify-center gap-1 border-2 px-4 py-3 text-start"
+                >
+                    <span class="text-sm font-semibold">{{ __('invoices.issue_standard_title') }}</span>
+                    <span class="text-xs font-medium text-[var(--app-accent)]">{{ __('invoices.print_a4') }}</span>
+                    <span class="text-xs text-[var(--app-muted)]">{{ __('invoices.layout_a4') }}</span>
+                </a>
+                <a
+                    href="{{ route('admin.invoices.issue', ['mode' => 'simplified']) }}"
+                    class="app-card tap-action-muted flex min-h-14 flex-col items-start justify-center gap-1 border-2 px-4 py-3 text-start"
+                >
+                    <span class="text-sm font-semibold">{{ __('invoices.issue_simplified_title') }}</span>
+                    <span class="text-xs font-medium text-[var(--app-accent)]">{{ __('invoices.print_cash') }}</span>
+                    <span class="text-xs text-[var(--app-muted)]">{{ __('invoices.layout_cash') }}</span>
+                </a>
+            </div>
+        </section>
+    @endif
+
     <section class="app-card mb-4 grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-3">
         <x-form.input :label="__('invoices.search')" name="search" wire:model.live.debounce.300ms="search" :hint="__('invoices.search_hint')" autocomplete="off" wrapperClass="sm:col-span-2" />
         <x-form.select :label="__('invoices.type_filter')" name="typeFilter" wire:model.live="typeFilter">

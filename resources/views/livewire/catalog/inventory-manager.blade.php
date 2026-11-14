@@ -72,35 +72,43 @@
     @endif
 
     @if($showForm && $canManage)
-        <div class="app-sheet-backdrop fixed inset-0 z-40 bg-black/40" wire:click="$set('showForm', false)"></div>
-        <div class="app-sheet fixed inset-x-0 bottom-0 z-50 max-h-[90vh] overflow-y-auto p-4 sm:inset-auto sm:start-1/2 sm:top-1/2 sm:w-full sm:max-w-md sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl">
-            <h2 class="text-lg font-semibold">{{ $editingId ? __('inventory.edit') : __('inventory.add') }}</h2>
-            <form class="mt-4 space-y-3" wire:submit="save">
+        <div class="app-sheet-backdrop" wire:click="$set('showForm', false)"></div>
+        <x-ui.admin-sheet
+            :title="$editingId ? __('inventory.edit') : __('inventory.add')"
+            close-wire='$set("showForm", false)'
+            form-id="inventory-item-form"
+            submit-target="save"
+        >
+            <form id="inventory-item-form" class="app-admin-form" wire:submit="save">
                 <x-form.input :label="__('catalog.name_en')" name="nameEn" wire:model="nameEn" required />
                 <x-form.input :label="__('catalog.name_ar')" name="nameAr" wire:model="nameAr" dir="rtl" />
                 <x-form.input :label="__('catalog.name_bn')" name="nameBn" wire:model="nameBn" />
                 <x-form.input :label="__('inventory.unit')" name="unit" wire:model="unit" required />
-                <x-form.input type="number" :label="__('inventory.quantity_on_hand')" name="quantityOnHand" wire:model="quantityOnHand" required />
-                <x-form.input type="number" :label="__('inventory.low_stock_threshold')" name="lowStockThreshold" wire:model="lowStockThreshold" required />
+                <x-form.input type="number" :label="__('inventory.quantity_on_hand')" name="quantityOnHand" wire:model="quantityOnHand" required inputmode="decimal" />
+                <x-form.input type="number" :label="__('inventory.low_stock_threshold')" name="lowStockThreshold" wire:model="lowStockThreshold" required inputmode="decimal" />
                 <x-form.toggle wire:model="isActive" name="isActive" :label="__('catalog.active')" />
-                <x-ui.livewire-action type="submit" target="save" loading="saving" class="tap-action-primary w-full" variant="primary">{{ __('catalog.save') }}</x-ui.livewire-action>
             </form>
-        </div>
+        </x-ui.admin-sheet>
     @endif
 
     @if($showAdjust && $canManage)
-        <div class="app-sheet-backdrop fixed inset-0 z-40 bg-black/40" wire:click="$set('showAdjust', false)"></div>
-        <div class="app-sheet fixed inset-x-0 bottom-0 z-50 max-h-[70vh] overflow-y-auto p-4 sm:inset-auto sm:start-1/2 sm:top-1/2 sm:w-full sm:max-w-sm sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl">
-            <h2 class="text-lg font-semibold">{{ __('inventory.adjust_title') }}</h2>
-            <form class="mt-4 space-y-3" wire:submit="saveAdjust">
+        <div class="app-sheet-backdrop" wire:click="$set('showAdjust', false)"></div>
+        <x-ui.admin-sheet
+            :title="__('inventory.adjust_title')"
+            close-wire='$set("showAdjust", false)'
+            form-id="inventory-adjust-form"
+            submit-target="saveAdjust"
+            :submit-label="__('inventory.adjust_submit')"
+            narrow
+        >
+            <form id="inventory-adjust-form" class="app-admin-form" wire:submit="saveAdjust">
                 <x-form.select :label="__('inventory.adjust_mode')" name="adjustMode" wire:model="adjustMode" :liveValidate="true">
                     <option value="add">{{ __('inventory.adjust_add') }}</option>
                     <option value="remove">{{ __('inventory.adjust_remove') }}</option>
                     <option value="set">{{ __('inventory.adjust_set') }}</option>
                 </x-form.select>
-                <x-form.input type="number" :label="__('inventory.adjust_amount')" name="adjustAmount" wire:model="adjustAmount" required />
-                <x-ui.livewire-action type="submit" target="saveAdjust" loading="saving" class="tap-action-primary w-full" variant="primary">{{ __('inventory.adjust_submit') }}</x-ui.livewire-action>
+                <x-form.input type="number" :label="__('inventory.adjust_amount')" name="adjustAmount" wire:model="adjustAmount" required inputmode="decimal" />
             </form>
-        </div>
+        </x-ui.admin-sheet>
     @endif
 </div>

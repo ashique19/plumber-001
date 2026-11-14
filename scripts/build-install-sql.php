@@ -57,23 +57,36 @@ function sqliteSchemaToMysql(string $sql): string
         1
     ) ?? $sql;
 
-    $sql = preg_replace_callback(
-        '/CREATE TABLE IF NOT EXISTS[^;]+;/i',
+    $sql = applyMysqlColumnOverrides($sql);
+
+    return ensureMysqlTableCharsets($sql);
+}
+
+/**
+ * @return non-empty-string
+ */
+function ensureMysqlTableCharsets(string $sql): string
+{
+    return preg_replace_callback(
+        '/CREATE TABLE IF NOT EXISTS `[^`]+`[\s\S]*?\);/i',
         static function (array $m): string {
             $stmt = rtrim($m[0], ";\n\r ");
+            if (str_contains($stmt, 'ENGINE=InnoDB') && str_contains($stmt, 'utf8mb4_unicode_ci')) {
+                return $stmt.';';
+            }
+            if (str_contains($stmt, 'ENGINE=InnoDB')) {
+                return preg_replace(
+                    '/\s+ENGINE=InnoDB\b[^;]*/i',
+                    ' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci',
+                    $stmt,
+                    1
+                ).';';
+            }
 
             return $stmt.' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;';
         },
         $sql
     ) ?? $sql;
-
-    $sql = preg_replace_callback(
-        '/\bCREATE (?:UNIQUE )?INDEX\b[\s\S]*?\)\s*ENGINE=InnoDB[^;]*;/i',
-        static fn (array $m): string => preg_replace('/\s+ENGINE=InnoDB[^;]+/i', '', $m[0]) ?? $m[0],
-        $sql
-    ) ?? $sql;
-
-    return applyMysqlColumnOverrides($sql);
 }
 
 function applyMysqlColumnOverrides(string $sql): string
@@ -108,7 +121,7 @@ function applyMysqlColumnOverrides(string $sql): string
 
     foreach ($decimal12_3Tables as $table => $columns) {
         $sql = preg_replace_callback(
-            "/CREATE TABLE IF NOT EXISTS `{$table}`[\s\S]*?ENGINE=InnoDB[^;]*;/i",
+            "/CREATE TABLE IF NOT EXISTS `{$table}`[\s\S]*?\);/i",
             static function (array $m) use ($columns): string {
                 $block = $m[0];
                 foreach ($columns as $column) {
@@ -128,7 +141,7 @@ function applyMysqlColumnOverrides(string $sql): string
     }
 
     $sql = preg_replace_callback(
-        '/CREATE TABLE IF NOT EXISTS `ingredients`[\s\S]*?ENGINE=InnoDB[^;]*;/i',
+        '/CREATE TABLE IF NOT EXISTS `ingredients`[\s\S]*?\);/i',
         static function (array $m): string {
             $block = $m[0];
             $block = preg_replace('/`name_en`\s+VARCHAR\(255\)/', '`name_en` VARCHAR(160) NOT NULL', $block, 1) ?? $block;
@@ -143,7 +156,7 @@ function applyMysqlColumnOverrides(string $sql): string
     ) ?? $sql;
 
     $sql = preg_replace_callback(
-        '/CREATE TABLE IF NOT EXISTS `inventory_movements`[\s\S]*?ENGINE=InnoDB[^;]*;/i',
+        '/CREATE TABLE IF NOT EXISTS `inventory_movements`[\s\S]*?\);/i',
         static function (array $m): string {
             $block = $m[0];
             $block = preg_replace('/`type`\s+VARCHAR\(255\)/', '`type` VARCHAR(32) NOT NULL', $block, 1) ?? $block;
@@ -156,7 +169,7 @@ function applyMysqlColumnOverrides(string $sql): string
     ) ?? $sql;
 
     $sql = preg_replace_callback(
-        '/CREATE TABLE IF NOT EXISTS `product_categories`[\s\S]*?ENGINE=InnoDB[^;]*;/i',
+        '/CREATE TABLE IF NOT EXISTS `product_categories`[\s\S]*?\);/i',
         static function (array $m): string {
             $block = $m[0];
             $block = preg_replace('/`name_bn`\s+VARCHAR\(255\)/', '`name_bn` VARCHAR(120)', $block, 1) ?? $block;
@@ -169,7 +182,7 @@ function applyMysqlColumnOverrides(string $sql): string
     ) ?? $sql;
 
     $sql = preg_replace_callback(
-        '/CREATE TABLE IF NOT EXISTS `products`[\s\S]*?ENGINE=InnoDB[^;]*;/i',
+        '/CREATE TABLE IF NOT EXISTS `products`[\s\S]*?\);/i',
         static function (array $m): string {
             $block = $m[0];
             $block = preg_replace('/`item_type`\s+VARCHAR\(255\)/', '`item_type` VARCHAR(16)', $block, 1) ?? $block;
@@ -182,7 +195,7 @@ function applyMysqlColumnOverrides(string $sql): string
     ) ?? $sql;
 
     $sql = preg_replace_callback(
-        '/CREATE TABLE IF NOT EXISTS `branches`[\s\S]*?ENGINE=InnoDB[^;]*;/i',
+        '/CREATE TABLE IF NOT EXISTS `branches`[\s\S]*?\);/i',
         static function (array $m): string {
             $block = $m[0];
             $block = preg_replace('/`code`\s+VARCHAR\(255\)/', '`code` VARCHAR(32) NOT NULL', $block, 1) ?? $block;
@@ -194,7 +207,7 @@ function applyMysqlColumnOverrides(string $sql): string
     ) ?? $sql;
 
     $sql = preg_replace_callback(
-        '/CREATE TABLE IF NOT EXISTS `sessions`[\s\S]*?ENGINE=InnoDB[^;]*;/i',
+        '/CREATE TABLE IF NOT EXISTS `sessions`[\s\S]*?\);/i',
         static function (array $m): string {
             $block = $m[0];
             $block = preg_replace('/`ip_address`\s+VARCHAR\(255\)/', '`ip_address` VARCHAR(45)', $block, 1) ?? $block;
@@ -206,7 +219,7 @@ function applyMysqlColumnOverrides(string $sql): string
     ) ?? $sql;
 
     $sql = preg_replace_callback(
-        '/CREATE TABLE IF NOT EXISTS `staff_users`[\s\S]*?ENGINE=InnoDB[^;]*;/i',
+        '/CREATE TABLE IF NOT EXISTS `staff_users`[\s\S]*?\);/i',
         static function (array $m): string {
             $block = $m[0];
             $block = preg_replace('/`remember_token`\s+VARCHAR\(255\)/', '`remember_token` VARCHAR(100)', $block, 1) ?? $block;
@@ -218,7 +231,7 @@ function applyMysqlColumnOverrides(string $sql): string
     ) ?? $sql;
 
     $sql = preg_replace_callback(
-        '/CREATE TABLE IF NOT EXISTS `invoices`[\s\S]*?ENGINE=InnoDB[^;]*;/i',
+        '/CREATE TABLE IF NOT EXISTS `invoices`[\s\S]*?\);/i',
         static function (array $m): string {
             $block = $m[0];
             $block = preg_replace('/`document_type`\s+VARCHAR\(255\)/', '`document_type` VARCHAR(32) NOT NULL', $block, 1) ?? $block;
@@ -236,7 +249,7 @@ function applyMysqlColumnOverrides(string $sql): string
     ) ?? $sql;
 
     $sql = preg_replace_callback(
-        '/CREATE TABLE IF NOT EXISTS `pos_orders`[\s\S]*?ENGINE=InnoDB[^;]*;/i',
+        '/CREATE TABLE IF NOT EXISTS `pos_orders`[\s\S]*?\);/i',
         static function (array $m): string {
             $block = $m[0];
             $block = preg_replace('/`status`\s+VARCHAR\(255\)/', '`status` VARCHAR(32)', $block, 1) ?? $block;
@@ -249,7 +262,7 @@ function applyMysqlColumnOverrides(string $sql): string
     ) ?? $sql;
 
     $sql = preg_replace_callback(
-        '/CREATE TABLE IF NOT EXISTS `loyalty_transactions`[\s\S]*?ENGINE=InnoDB[^;]*;/i',
+        '/CREATE TABLE IF NOT EXISTS `loyalty_transactions`[\s\S]*?\);/i',
         static function (array $m): string {
             $block = $m[0];
             $block = preg_replace('/`type`\s+VARCHAR\(255\)/', '`type` VARCHAR(32) NOT NULL', $block, 1) ?? $block;
@@ -262,7 +275,7 @@ function applyMysqlColumnOverrides(string $sql): string
     ) ?? $sql;
 
     $sql = preg_replace_callback(
-        '/CREATE TABLE IF NOT EXISTS `sessions`[\s\S]*?ENGINE=InnoDB[^;]*;/i',
+        '/CREATE TABLE IF NOT EXISTS `sessions`[\s\S]*?\);/i',
         static function (array $m): string {
             $block = $m[0];
             $block = preg_replace('/`payload`\s+TEXT/', '`payload` LONGTEXT NOT NULL', $block, 1) ?? $block;
@@ -275,7 +288,7 @@ function applyMysqlColumnOverrides(string $sql): string
     ) ?? $sql;
 
     $sql = preg_replace_callback(
-        '/CREATE TABLE IF NOT EXISTS `customers`[\s\S]*?ENGINE=InnoDB[^;]*;/i',
+        '/CREATE TABLE IF NOT EXISTS `customers`[\s\S]*?\);/i',
         static function (array $m): string {
             $block = $m[0];
             $block = preg_replace('/`vat_number`\s+VARCHAR\(255\)/', '`vat_number` VARCHAR(32)', $block, 1) ?? $block;
@@ -290,7 +303,7 @@ function applyMysqlColumnOverrides(string $sql): string
 
     foreach (['product_categories', 'products'] as $table) {
         $sql = preg_replace_callback(
-            "/CREATE TABLE IF NOT EXISTS `{$table}`[\s\S]*?ENGINE=InnoDB[^;]*;/i",
+            "/CREATE TABLE IF NOT EXISTS `{$table}`[\s\S]*?\);/i",
             static function (array $m): string {
                 $block = $m[0];
                 $block = preg_replace('/`sort_order`\s+BIGINT/', '`sort_order` SMALLINT UNSIGNED', $block, 1) ?? $block;
@@ -304,7 +317,7 @@ function applyMysqlColumnOverrides(string $sql): string
 
     foreach (['products', 'product_modifiers'] as $table) {
         $sql = preg_replace_callback(
-            "/CREATE TABLE IF NOT EXISTS `{$table}`[\s\S]*?ENGINE=InnoDB[^;]*;/i",
+            "/CREATE TABLE IF NOT EXISTS `{$table}`[\s\S]*?\);/i",
             static function (array $m): string {
                 return preg_replace('/`vat_rate`\s+DECIMAL\(12,2\)/', '`vat_rate` DECIMAL(5,2)', $m[0], 1) ?? $m[0];
             },
@@ -314,7 +327,7 @@ function applyMysqlColumnOverrides(string $sql): string
     }
 
     $sql = preg_replace_callback(
-        '/CREATE TABLE IF NOT EXISTS `pos_orders`[\s\S]*?ENGINE=InnoDB[^;]*;/i',
+        '/CREATE TABLE IF NOT EXISTS `pos_orders`[\s\S]*?\);/i',
         static function (array $m): string {
             $block = $m[0];
             $block = preg_replace('/`loyalty_points_redeemed`\s+BIGINT/', '`loyalty_points_redeemed` BIGINT UNSIGNED', $block, 1) ?? $block;
@@ -323,12 +336,6 @@ function applyMysqlColumnOverrides(string $sql): string
         },
         $sql,
         1
-    ) ?? $sql;
-
-    $sql = preg_replace_callback(
-        '/\bCREATE (?:UNIQUE )?INDEX\b[\s\S]*?\)\s*ENGINE=InnoDB[^;]*;/i',
-        static fn (array $m): string => preg_replace('/\s+ENGINE=InnoDB[^;]+/i', '', $m[0]) ?? $m[0],
-        $sql
     ) ?? $sql;
 
     return $sql;
@@ -347,6 +354,8 @@ $header = <<<SQL
 -- Prefer `php artisan migrate` on greenfield hosts that can run Artisan.
 
 SET NAMES utf8mb4;
+SET CHARACTER SET utf8mb4;
+SET collation_connection = 'utf8mb4_unicode_ci';
 SET FOREIGN_KEY_CHECKS=0;
 
 SQL;

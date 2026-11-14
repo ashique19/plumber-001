@@ -13,6 +13,8 @@ return [
     'order' => 'Order',
     'view_order' => 'Order history',
     'print' => 'Print / PDF',
+    'create_heading' => 'Create invoice',
+    'create_print_hint' => 'Choose a document type. After issue, open print to switch between A4 tax and simplified cash layouts.',
     'credit_badge' => 'Credit note',
     'type' => [
         'simplified' => 'Simplified',

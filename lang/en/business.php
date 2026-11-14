@@ -126,6 +126,7 @@ return [
     ],
     'errors' => [
         'save_failed' => 'Could not save business settings. Check the server log or try again.',
+        'charset_save_failed' => 'Could not save: the database charset does not support Arabic or Bangla text. Run docs/sql/2026-11-14-utf8mb4-convert.sql on the server, then try again.',
     ],
     'messages' => [
         'saved' => 'Business settings saved.',

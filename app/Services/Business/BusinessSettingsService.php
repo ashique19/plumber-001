@@ -21,7 +21,7 @@ class BusinessSettingsService
      */
     public function ensureHydrated(BusinessSetting $business): BusinessSetting
     {
-        $settings = BusinessProfile::mergeDefaultTheme($business->settings ?? BusinessSetting::defaultSettings());
+        $settings = BusinessProfile::mergeDefaultTheme($this->detachSettings($business->settings ?? BusinessSetting::defaultSettings()));
         $canonical = $this->canonicalBusinessBlock($business, $settings);
         $previous = data_get($settings, 'business');
 
@@ -126,7 +126,7 @@ class BusinessSettingsService
      */
     public function saveBrand(BusinessSetting $business, array $input, ?StaffUser $actor = null, $logo = null): BusinessSetting
     {
-        $settings = $business->settings ?? BusinessSetting::defaultSettings();
+        $settings = $this->detachSettings($business->settings ?? BusinessSetting::defaultSettings());
         $block = $this->canonicalBusinessBlock($business, $settings);
         $brand = (array) ($block['brand'] ?? []);
 
@@ -190,7 +190,7 @@ class BusinessSettingsService
      */
     public function saveLegal(BusinessSetting $business, array $input, ?StaffUser $actor = null): BusinessSetting
     {
-        $settings = $business->settings ?? BusinessSetting::defaultSettings();
+        $settings = $this->detachSettings($business->settings ?? BusinessSetting::defaultSettings());
         $block = $this->canonicalBusinessBlock($business, $settings);
         $legalBlock = (array) ($block['legal'] ?? []);
         foreach ([
@@ -236,7 +236,7 @@ class BusinessSettingsService
      */
     public function saveContact(BusinessSetting $business, array $input, ?StaffUser $actor = null): BusinessSetting
     {
-        $settings = $business->settings ?? BusinessSetting::defaultSettings();
+        $settings = $this->detachSettings($business->settings ?? BusinessSetting::defaultSettings());
         $block = $this->canonicalBusinessBlock($business, $settings);
         $contact = BusinessProfile::normalizeContactBlock(array_merge(
             (array) ($block['contact'] ?? []),
@@ -276,7 +276,7 @@ class BusinessSettingsService
      */
     public function saveHours(BusinessSetting $business, array $input, ?StaffUser $actor = null): BusinessSetting
     {
-        $settings = $business->settings ?? BusinessSetting::defaultSettings();
+        $settings = $this->detachSettings($business->settings ?? BusinessSetting::defaultSettings());
         $block = $this->canonicalBusinessBlock($business, $settings);
         $hours = (array) ($block['hours'] ?? []);
         if (isset($input['weekdays']) && is_array($input['weekdays'])) {
@@ -307,7 +307,7 @@ class BusinessSettingsService
      */
     public function saveInvoicing(BusinessSetting $business, array $input, ?StaffUser $actor = null): BusinessSetting
     {
-        $settings = $business->settings ?? BusinessSetting::defaultSettings();
+        $settings = $this->detachSettings($business->settings ?? BusinessSetting::defaultSettings());
         $invoicing = (array) ($settings['invoicing'] ?? BusinessSetting::defaultSettings()['invoicing']);
         if (array_key_exists('integration_enabled', $input)) {
             $invoicing['integration_enabled'] = (bool) $input['integration_enabled'];
@@ -331,7 +331,7 @@ class BusinessSettingsService
      */
     public function saveThemeExtras(BusinessSetting $business, array $input, ?StaffUser $actor = null): BusinessSetting
     {
-        $settings = $business->settings ?? BusinessSetting::defaultSettings();
+        $settings = $this->detachSettings($business->settings ?? BusinessSetting::defaultSettings());
         $block = $this->canonicalBusinessBlock($business, $settings);
         $extras = array_merge((array) ($block['theme_extras'] ?? []), $input);
         $block['theme_extras'] = $extras;
@@ -364,15 +364,30 @@ class BusinessSettingsService
      */
     private function persist(BusinessSetting $business, array $settings, ?string $name = null): void
     {
+        $settings = $this->detachSettings($settings);
+
         try {
             $business->writeSettings($settings, $name);
         } catch (\Throwable $e) {
             Log::error('business.settings.persist_failed', [
                 'business_id' => $business->id,
                 'message' => $e->getMessage(),
+                'exception' => $e::class,
             ]);
 
             throw $e;
         }
+    }
+
+    /**
+     * Deep-copy settings JSON so in-place mutations are detected by Eloquent.
+     *
+     * @param  array<string, mixed>  $settings
+     * @return array<string, mixed>
+     */
+    private function detachSettings(array $settings): array
+    {
+        /** @var array<string, mixed> */
+        return json_decode(json_encode($settings, JSON_THROW_ON_ERROR), true, 512, JSON_THROW_ON_ERROR);
     }
 }
