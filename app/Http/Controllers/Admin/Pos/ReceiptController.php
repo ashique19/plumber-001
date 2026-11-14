@@ -8,11 +8,12 @@ use App\Models\PosOrder;
 use App\Support\EnabledLocales;
 use App\Support\Pos\ReceiptThermalPresenter;
 use App\Support\ReceiptSigningStatusLabel;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class ReceiptController extends Controller
 {
-    public function __invoke(PosOrder $order): View
+    public function __invoke(PosOrder $order): View|RedirectResponse
     {
         if ($order->invoice_id === null) {
             abort(404, 'Invoice not issued for this order.');
@@ -24,6 +25,19 @@ class ReceiptController extends Controller
         $invoice = $order->invoice()->firstOrFail();
         $locale = EnabledLocales::resolve(request()->query('locale', app()->getLocale()));
         app()->setLocale($locale);
+
+        $layout = (string) request()->query('layout', '');
+        if ($layout !== 'receipt') {
+            if ($layout === '') {
+                $layout = $invoice->document_type?->value === 'standard' ? 'a4' : 'cash';
+            }
+
+            return redirect()->route('admin.invoices.print', array_filter([
+                'invoice' => $invoice,
+                'layout' => $layout,
+                'locale' => $locale !== config('locales.default') ? $locale : null,
+            ]));
+        }
 
         return view('admin.pos.receipt', [
             'business' => $business,

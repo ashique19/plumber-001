@@ -180,7 +180,10 @@ class BusinessSettingsService
         $settings = $business->settings ?? BusinessSetting::defaultSettings();
         $block = $this->canonicalBusinessBlock($business, $settings);
         $legalBlock = (array) ($block['legal'] ?? []);
-        foreach (['name_en', 'name_ar', 'vat_number', 'cr_number', 'address_en', 'address_ar'] as $key) {
+        foreach ([
+            'name_en', 'name_ar', 'vat_number', 'cr_number', 'unified_number', 'email',
+            'mobile', 'mobile_secondary', 'short_national_address', 'address_en', 'address_ar',
+        ] as $key) {
             if (array_key_exists($key, $input)) {
                 $legalBlock[$key] = $input[$key];
             }
@@ -199,6 +202,11 @@ class BusinessSettingsService
         $legal['name_ar'] = (string) ($legalBlock['name_ar'] ?? '');
         $legal['vat_number'] = preg_replace('/\D/', '', (string) ($legalBlock['vat_number'] ?? '')) ?? '';
         $legal['cr_number'] = (string) ($legalBlock['cr_number'] ?? '');
+        $legal['unified_number'] = (string) ($legalBlock['unified_number'] ?? '');
+        $legal['email'] = (string) ($legalBlock['email'] ?? '');
+        $legal['mobile'] = (string) ($legalBlock['mobile'] ?? '');
+        $legal['mobile_secondary'] = (string) ($legalBlock['mobile_secondary'] ?? '');
+        $legal['short_national_address'] = (string) ($legalBlock['short_national_address'] ?? '');
         $legal['address'] = (string) ($legalBlock['address_en'] ?? '');
         $legal['address_ar'] = (string) ($legalBlock['address_ar'] ?? '');
         $legal['national_address'] = (array) ($legalBlock['national_address'] ?? []);

@@ -75,7 +75,7 @@ it('reflects legal and contact seller fields on thermal receipt and HTTP receipt
         ->and($legal['address'])->toBe('King Fahd Rd, Riyadh')
         ->and(collect($thermal['branch_lines'])->join(' '))->toContain('King Fahd Rd');
 
-    $response = $this->get(route('admin.pos.receipt', [$paid, 'locale' => 'en']));
+    $response = $this->get(route('admin.pos.receipt', [$paid, 'locale' => 'en', 'layout' => 'receipt']));
     $response->assertOk();
     $response->assertSee('Riyadh Pipe Pros LLC', false);
     $response->assertSee('+966501112233', false);

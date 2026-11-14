@@ -353,7 +353,7 @@
     "isEntry": true
   },
   "resources/css/app.css": {
-    "file": "assets/app-BA9LQ9Fu.css",
+    "file": "assets/app-B_AHe-jL.css",
     "name": "app",
     "names": [
       "app.css"
@@ -452,8 +452,17 @@
     "src": "resources/css/error-pages.css",
     "isEntry": true
   },
+  "resources/css/invoice-print.css": {
+    "file": "assets/invoice-print-BeM7aQWG.css",
+    "name": "invoice-print",
+    "names": [
+      "invoice-print.css"
+    ],
+    "src": "resources/css/invoice-print.css",
+    "isEntry": true
+  },
   "resources/css/receipt.css": {
-    "file": "assets/receipt-Dj-NqnQU.css",
+    "file": "assets/receipt-CfIwCGXk.css",
     "name": "receipt",
     "names": [
       "receipt.css"

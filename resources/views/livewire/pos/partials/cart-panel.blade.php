@@ -138,6 +138,8 @@
                 <option value="cash">{{ __('pos.cash') }}</option>
                 <option value="card">{{ __('pos.card') }}</option>
                 <option value="mada">{{ __('pos.mada') }}</option>
+                <option value="transfer">{{ __('invoices.payment.transfer') }}</option>
+                <option value="credit">{{ __('invoices.payment.credit') }}</option>
                 <option value="other">{{ __('pos.other') }}</option>
             </select>
     </label>

@@ -41,14 +41,12 @@ it('denies cashier', function () {
     expect($this->cashier->can('invoices.issue'))->toBeFalse();
 });
 
-it('redirects print to receipt for pos orders', function () {
+it('renders cash print layout by default for simplified pos invoices', function () {
     $invoice = Invoice::query()->firstOrFail();
-    $order = PosOrder::query()->findOrFail($invoice->source_id);
 
     $this->actingAs($this->owner, 'staff')
-        ->get(route('admin.invoices.print', [$invoice]))
-        ->assertRedirect(route('admin.pos.receipt', [
-            'order' => $order,
-            'locale' => 'bn',
-        ]));
+        ->get(route('admin.invoices.print', [$invoice, 'layout' => 'cash']))
+        ->assertOk()
+        ->assertSee(__('invoices.cash_amount'), false)
+        ->assertSee($invoice->document_number, false);
 });

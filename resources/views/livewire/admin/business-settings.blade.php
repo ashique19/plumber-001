@@ -64,21 +64,33 @@
     @elseif ($section === 'legal')
         <form wire:submit="saveLegal" class="app-card flex flex-col gap-4 p-4">
             <p class="rounded-lg bg-amber-50 p-3 text-sm text-amber-900 ring-1 ring-amber-200">{{ __('business.legal.zheart_note') }}</p>
-            <x-form.input :label="__('business.legal.name_en')" name="legalNameEn" wire:model.blur="legalNameEn" :liveValidate="false" required />
-            <x-form.input :label="__('business.legal.name_ar')" name="legalNameAr" wire:model.blur="legalNameAr" :liveValidate="false" required />
-            <x-form.input :label="__('business.legal.vat')" name="vatNumber" wire:model.blur="vatNumber" :liveValidate="false" required />
-            <x-form.input :label="__('business.legal.cr')" name="crNumber" wire:model.blur="crNumber" :liveValidate="false" required />
-            <x-form.input :label="__('business.legal.address_en')" name="addressEn" wire:model.blur="addressEn" :liveValidate="false" required />
-            <x-form.input :label="__('business.legal.address_ar')" name="addressAr" wire:model.blur="addressAr" :liveValidate="false" required />
+            <p class="text-xs text-[var(--app-muted)]">{{ __('business.legal.optional_hint') }}</p>
+            <x-form.input :label="__('business.legal.name_en')" name="legalNameEn" wire:model.blur="legalNameEn" :liveValidate="false" />
+            <x-form.input :label="__('business.legal.name_ar')" name="legalNameAr" wire:model.blur="legalNameAr" :liveValidate="false" />
+            <div class="grid gap-3 sm:grid-cols-2">
+                <x-form.input :label="__('business.legal.vat')" name="vatNumber" wire:model.blur="vatNumber" :liveValidate="false" />
+                <x-form.input :label="__('business.legal.cr')" name="crNumber" wire:model.blur="crNumber" :liveValidate="false" />
+                <x-form.input :label="__('invoices.unified_number')" name="unifiedNumber" wire:model.blur="unifiedNumber" :liveValidate="false" />
+                <x-form.input :label="__('business.legal.email')" name="legalEmail" wire:model.blur="legalEmail" :liveValidate="false" />
+                <x-form.input :label="__('business.legal.mobile')" name="legalMobile" wire:model.blur="legalMobile" :liveValidate="false" />
+                <x-form.input :label="__('business.legal.mobile_secondary')" name="legalMobileSecondary" wire:model.blur="legalMobileSecondary" :liveValidate="false" />
+            </div>
+            <x-form.input :label="__('business.legal.short_national')" name="shortNationalAddress" wire:model.blur="shortNationalAddress" :liveValidate="false" />
+            <x-form.input :label="__('business.legal.address_en')" name="addressEn" wire:model.blur="addressEn" :liveValidate="false" />
+            <x-form.input :label="__('business.legal.address_ar')" name="addressAr" wire:model.blur="addressAr" :liveValidate="false" dir="rtl" />
             <h3 class="form-section__title">{{ __('business.legal.national_address') }}</h3>
             <div class="grid gap-3 sm:grid-cols-2">
-                <x-form.input :label="__('business.legal.na_building')" name="naBuilding" wire:model.blur="naBuilding" :liveValidate="false" required />
-                <x-form.input :label="__('business.legal.na_street')" name="naStreet" wire:model.blur="naStreet" :liveValidate="false" required />
-                <x-form.input :label="__('business.legal.na_district')" name="naDistrict" wire:model.blur="naDistrict" :liveValidate="false" required />
-                <x-form.input :label="__('business.legal.na_city')" name="naCity" wire:model.blur="naCity" :liveValidate="false" required />
-                <x-form.input :label="__('business.legal.na_postal')" name="naPostal" wire:model.blur="naPostal" :liveValidate="false" required />
+                <x-form.input :label="__('business.legal.na_building')" name="naBuilding" wire:model.blur="naBuilding" :liveValidate="false" />
+                <x-form.input :label="__('business.legal.na_street')" name="naStreet" wire:model.blur="naStreet" :liveValidate="false" />
+                <x-form.input :label="__('business.legal.na_street_ar')" name="naStreetAr" wire:model.blur="naStreetAr" :liveValidate="false" dir="rtl" />
                 <x-form.input :label="__('business.legal.na_additional')" name="naAdditional" wire:model.blur="naAdditional" :liveValidate="false" />
+                <x-form.input :label="__('business.legal.na_district')" name="naDistrict" wire:model.blur="naDistrict" :liveValidate="false" />
+                <x-form.input :label="__('business.legal.na_district_ar')" name="naDistrictAr" wire:model.blur="naDistrictAr" :liveValidate="false" dir="rtl" />
+                <x-form.input :label="__('business.legal.na_city')" name="naCity" wire:model.blur="naCity" :liveValidate="false" />
+                <x-form.input :label="__('business.legal.na_city_ar')" name="naCityAr" wire:model.blur="naCityAr" :liveValidate="false" dir="rtl" />
+                <x-form.input :label="__('business.legal.na_postal')" name="naPostal" wire:model.blur="naPostal" :liveValidate="false" />
             </div>
+            <p class="text-xs text-[var(--app-muted)]">{{ __('business.legal.logo_on_brand') }}</p>
             <div class="flex justify-end">
                 <button type="submit" class="tap-action-primary min-h-11 w-full sm:w-auto" wire:loading.attr="disabled">{{ __('business.save') }}</button>
             </div>

@@ -58,6 +58,16 @@ class BusinessSettings extends Component
 
     public string $crNumber = '';
 
+    public string $unifiedNumber = '';
+
+    public string $legalEmail = '';
+
+    public string $legalMobile = '';
+
+    public string $legalMobileSecondary = '';
+
+    public string $shortNationalAddress = '';
+
     public string $addressEn = '';
 
     public string $addressAr = '';
@@ -66,9 +76,15 @@ class BusinessSettings extends Component
 
     public string $naStreet = '';
 
+    public string $naStreetAr = '';
+
     public string $naDistrict = '';
 
+    public string $naDistrictAr = '';
+
     public string $naCity = '';
+
+    public string $naCityAr = '';
 
     public string $naPostal = '';
 
@@ -287,17 +303,25 @@ class BusinessSettings extends Component
         $this->tabsWithErrors = [];
         try {
             $this->runSectionValidation([
-            'legalNameEn' => 'required|string|max:200',
-            'legalNameAr' => 'required|string|max:200',
-            'vatNumber' => ['required', 'string', new SaudiVatNumber],
-            'crNumber' => 'required|string|max:32',
-            'addressEn' => 'required|string|max:500',
-            'addressAr' => 'required|string|max:500',
-            'naBuilding' => 'required|string|max:20',
-            'naStreet' => 'required|string|max:120',
-            'naDistrict' => 'required|string|max:120',
-            'naCity' => 'required|string|max:80',
-            'naPostal' => 'required|digits:5',
+            'legalNameEn' => 'nullable|string|max:200',
+            'legalNameAr' => 'nullable|string|max:200',
+            'vatNumber' => ['nullable', 'string', new SaudiVatNumber],
+            'crNumber' => 'nullable|string|max:32',
+            'unifiedNumber' => 'nullable|string|max:32',
+            'legalEmail' => 'nullable|email|max:120',
+            'legalMobile' => 'nullable|string|max:40',
+            'legalMobileSecondary' => 'nullable|string|max:40',
+            'shortNationalAddress' => 'nullable|string|max:500',
+            'addressEn' => 'nullable|string|max:500',
+            'addressAr' => 'nullable|string|max:500',
+            'naBuilding' => 'nullable|string|max:20',
+            'naStreet' => 'nullable|string|max:120',
+            'naStreetAr' => 'nullable|string|max:120',
+            'naDistrict' => 'nullable|string|max:120',
+            'naDistrictAr' => 'nullable|string|max:120',
+            'naCity' => 'nullable|string|max:80',
+            'naCityAr' => 'nullable|string|max:80',
+            'naPostal' => 'nullable|digits:5',
             'naAdditional' => 'nullable|string|max:20',
             ], 'legal');
         } catch (ValidationException) {
@@ -309,16 +333,24 @@ class BusinessSettings extends Component
             'name_ar' => $this->legalNameAr,
             'vat_number' => $this->vatNumber,
             'cr_number' => $this->crNumber,
+            'unified_number' => $this->unifiedNumber,
+            'email' => $this->legalEmail,
+            'mobile' => $this->legalMobile,
+            'mobile_secondary' => $this->legalMobileSecondary,
+            'short_national_address' => $this->shortNationalAddress,
             'address_en' => $this->addressEn,
             'address_ar' => $this->addressAr,
-            'national_address' => [
+            'national_address' => array_filter([
                 'building' => $this->naBuilding,
                 'street' => $this->naStreet,
+                'street_ar' => $this->naStreetAr,
                 'district' => $this->naDistrict,
+                'district_ar' => $this->naDistrictAr,
                 'city' => $this->naCity,
+                'city_ar' => $this->naCityAr,
                 'postal_code' => $this->naPostal,
                 'additional' => $this->naAdditional,
-            ],
+            ], static fn (string $v): bool => $v !== ''),
         ], auth('staff')->user());
 
         $this->toastSuccess(__('business.messages.saved'));
@@ -501,13 +533,21 @@ class BusinessSettings extends Component
         $this->legalNameAr = (string) ($legal['name_ar'] ?? '');
         $this->vatNumber = (string) ($legal['vat_number'] ?? '');
         $this->crNumber = (string) ($legal['cr_number'] ?? '');
+        $this->unifiedNumber = (string) ($legal['unified_number'] ?? '');
+        $this->legalEmail = (string) ($legal['email'] ?? '');
+        $this->legalMobile = (string) ($legal['mobile'] ?? '');
+        $this->legalMobileSecondary = (string) ($legal['mobile_secondary'] ?? '');
+        $this->shortNationalAddress = (string) ($legal['short_national_address'] ?? '');
         $this->addressEn = (string) ($legal['address_en'] ?? $legal['address'] ?? '');
         $this->addressAr = (string) ($legal['address_ar'] ?? '');
         $na = (array) ($legal['national_address'] ?? []);
         $this->naBuilding = (string) ($na['building'] ?? '');
         $this->naStreet = (string) ($na['street'] ?? '');
+        $this->naStreetAr = (string) ($na['street_ar'] ?? '');
         $this->naDistrict = (string) ($na['district'] ?? '');
+        $this->naDistrictAr = (string) ($na['district_ar'] ?? '');
         $this->naCity = (string) ($na['city'] ?? '');
+        $this->naCityAr = (string) ($na['city_ar'] ?? '');
         $this->naPostal = (string) ($na['postal_code'] ?? '');
         $this->naAdditional = (string) ($na['additional'] ?? '');
 
