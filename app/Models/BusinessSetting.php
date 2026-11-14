@@ -58,7 +58,7 @@ class BusinessSetting extends Model
         'font' => 'Instrument Sans',
         'font_ar' => 'Tajawal',
       ],
-      'default_locale' => 'ar',
+      'default_locale' => 'bn',
       'legal_entity' => [
         'name_ar' => '',
         'name_en' => '',

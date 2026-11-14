@@ -12,9 +12,9 @@ it('resolves enabled locale codes', function () {
         ->and(EnabledLocales::resolve('en'))->toBe('en');
 });
 
-it('falls back to english when ur or hi is requested explicitly', function () {
-    expect(EnabledLocales::resolve('ur'))->toBe('en')
-        ->and(EnabledLocales::resolve('hi'))->toBe('en');
+it('falls back to the configured default when ur or hi is requested explicitly', function () {
+    expect(EnabledLocales::resolve('ur'))->toBe('bn')
+        ->and(EnabledLocales::resolve('hi'))->toBe('bn');
 });
 
 it('marks arabic as rtl in locale config while urdu remains in files only', function () {

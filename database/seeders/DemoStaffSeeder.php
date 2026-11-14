@@ -26,7 +26,7 @@ class DemoStaffSeeder extends Seeder
             ['id' => 1],
             [
                 'name' => 'Demo Plumbing Co',
-                'settings' => PlumberThemePreset::settings('Demo Plumbing Co', 'شركة السباكة التجريبية', 'ar'),
+                'settings' => PlumberThemePreset::settings('Demo Plumbing Co', 'شركة السباكة التجريبية', 'bn'),
             ],
         );
 

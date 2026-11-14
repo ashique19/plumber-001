@@ -16,7 +16,7 @@ class SetLocale
         $requested = $request->query('locale')
             ?? $request->session()->get('locale')
             ?? BusinessContext::get()?->settings['default_locale']
-            ?? config('locales.default', 'en');
+            ?? config('locales.default', 'bn');
 
         $locale = EnabledLocales::resolve(is_string($requested) ? $requested : null);
 

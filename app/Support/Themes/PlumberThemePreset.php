@@ -6,7 +6,7 @@ use App\Models\BusinessSetting;
 
 class PlumberThemePreset
 {
-    public static function settings(string $nameEn, string $nameAr, string $locale = 'en'): array
+    public static function settings(string $nameEn, string $nameAr, string $locale = 'bn'): array
     {
         $base = BusinessSetting::defaultSettings();
 

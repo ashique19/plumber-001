@@ -37,6 +37,8 @@
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
+        <env name="APP_LOCALE" value="bn"/>
+        <env name="APP_FALLBACK_LOCALE" value="en"/>
         <env name="APP_ENABLED_LOCALES" value="en,bn,ar"/>
         <env name="AUTH_GUARD" value="staff"/>
         <env name="ZHEART_BASE_URL" value="https://z-heart.test"/>

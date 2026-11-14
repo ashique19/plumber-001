@@ -25,6 +25,7 @@ beforeEach(function () {
         ->where('email', 'cashier@example.test')->firstOrFail();
 
     BusinessContext::set($this->tenant);
+    session()->forget('locale');
     $this->order = seedDemoPaidPosOrder();
 });
 
@@ -48,6 +49,6 @@ it('redirects print to receipt for pos orders', function () {
         ->get(route('admin.invoices.print', [$invoice]))
         ->assertRedirect(route('admin.pos.receipt', [
             'order' => $order,
-            'locale' => 'ar',
+            'locale' => 'bn',
         ]));
 });

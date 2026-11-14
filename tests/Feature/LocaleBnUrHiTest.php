@@ -21,8 +21,19 @@ it('rejects disabled locales on the login page query string', function () {
 
     $response = $this->get('/?locale=ur');
     $response->assertOk();
-    expect(session('locale'))->toBe('en');
+    expect(session('locale'))->toBe('bn');
 
     $this->get('/?locale=hi')->assertOk();
-    expect(session('locale'))->toBe('en');
+    expect(session('locale'))->toBe('bn');
+});
+
+it('uses bangla as the default locale for guests on the login page', function () {
+    $this->withoutVite();
+    (new OwnerAdminSeeder)->run();
+
+    $response = $this->get('/');
+    $response->assertOk();
+    expect(app()->getLocale())->toBe('bn')
+        ->and(__('pos.login_title', [], 'bn'))->toBe('স্টাফ লগইন')
+        ->and($response->getContent())->toContain('স্টাফ লগইন');
 });

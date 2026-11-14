@@ -16,5 +16,5 @@ return [
         'bn' => ['name' => 'বাংলা', 'dir' => 'ltr', 'enabled' => true],
         'hi' => ['name' => 'हिन्दी', 'dir' => 'ltr', 'enabled' => false],
     ],
-    'default' => env('APP_LOCALE', 'en'),
+    'default' => env('APP_LOCALE', 'bn'),
 ];
