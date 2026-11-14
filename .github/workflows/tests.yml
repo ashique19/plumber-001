@@ -44,6 +44,8 @@ jobs:
       INSTALL_SQL_MYSQL_USER: fancy
       INSTALL_SQL_MYSQL_PASSWORD: fancytest
       INSTALL_SQL_MYSQL_DATABASE: plumber_install_sql_smoke
+      INSTALL_SQL_MYSQL_ROOT_USER: root
+      INSTALL_SQL_MYSQL_ROOT_PASSWORD: root
       DB_HOST: 127.0.0.1
       DB_PORT: 3306
       DB_USERNAME: fancy

@@ -5,9 +5,9 @@ use App\Models\BusinessSetting;
 use App\Models\StaffUser;
 use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
-use Tests\Support\InstallSqlMysqlTestEnvironment;
 use Illuminate\Support\Facades\Config;
-use Tests\Support\SqlScriptStatements;
+use Tests\Support\InstallSqlMysqlTestEnvironment;
+use Tests\Support\InstallSqlSqlRunner;
 
 afterEach(function () {
     Config::set('database.default', 'sqlite');
@@ -26,17 +26,7 @@ beforeEach(function () {
         $this->markTestSkipped('install.sql MySQL bootstrap failed.');
     }
 
-    foreach (glob(base_path('docs/sql/2026-11-14-*.sql')) as $path) {
-        $sql = file_get_contents($path);
-        if ($sql === false) {
-            continue;
-        }
-        foreach (SqlScriptStatements::split($sql) as $statement) {
-            if (trim($statement) !== '') {
-                DB::connection('mysql')->unprepared($statement);
-            }
-        }
-    }
+    InstallSqlSqlRunner::applyGlobPatches(base_path('docs/sql/2026-11-14-*.sql'));
 
     $this->owner = StaffUser::query()->where('email', 'owner@example.test')->firstOrFail();
     $this->business = BusinessSetting::primary();
