@@ -96,12 +96,15 @@ final class ZHeartInvoicePayloadBuilder
             return [];
         }
 
+        $country = strtoupper(trim((string) ($request->invoicePayload['buyer_country'] ?? 'SA'))) ?: 'SA';
+
         $buyer = array_filter([
             'name' => $name !== '' ? $name : null,
             'vat_number' => $vat !== '' ? $vat : null,
             'cr_number' => $cr !== '' ? $cr : null,
             'email' => $email !== '' ? $email : null,
             'phone' => $phone !== '' ? $phone : null,
+            'country_code' => $country,
         ]);
 
         $normalizedAddress = $this->normalizeAddress($address);

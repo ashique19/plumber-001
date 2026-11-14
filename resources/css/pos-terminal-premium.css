@@ -218,6 +218,10 @@
         @apply bg-amber-100 text-amber-950;
     }
 
+    .pos-status-pill--warning {
+        @apply border-amber-400/60 bg-amber-50 text-amber-950;
+    }
+
     .pos-status-pill--cancelled {
         @apply bg-red-100 text-red-900;
     }

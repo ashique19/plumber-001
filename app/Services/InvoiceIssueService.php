@@ -6,12 +6,16 @@ use App\Business\BusinessContext;
 use App\Data\InvoiceLineData;
 use App\Enums\InvoiceDocumentType;
 use App\Enums\InvoiceStatus;
+use App\Exceptions\InvoiceSigningException;
 use App\Models\Branch;
 use App\Models\BusinessSetting;
 use App\Models\Invoice;
+use App\Services\Invoicing\InvoiceIssueResult;
 use App\Services\Invoicing\Signing\InvoiceSigningGatewayFactory;
 use App\Services\Invoicing\Signing\InvoiceSigningRequest;
+use App\Support\Invoicing\SigningFailureSanitizer;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class InvoiceIssueService
@@ -49,10 +53,10 @@ class InvoiceIssueService
         return $invoice;
     }
 
-    public function issue(Invoice $invoice): Invoice
+    public function issue(Invoice $invoice): InvoiceIssueResult
     {
         if ($invoice->isIssued()) {
-            return $invoice;
+            return new InvoiceIssueResult($invoice, true);
         }
 
         $business = BusinessContext::require();
@@ -83,14 +87,22 @@ class InvoiceIssueService
             documentDiscountExVat: $documentDiscount,
         );
 
-        $termsDays = max(0, (int) data_get($business->settings, 'invoicing.payment_terms_days', 30));
-        $dueDate = $now->copy()->timezone('Asia/Riyadh')->addDays($termsDays)->toDateString();
+        $dueDate = $this->resolveDueDate($invoice, $now, $business);
 
-        $signed = $this->signingFactory->gateway()->signIssuedInvoice($signingRequest, $invoice);
+        try {
+            $signed = $this->signingFactory->gateway()->signIssuedInvoice($signingRequest, $invoice);
+        } catch (InvoiceSigningException $e) {
+            return $this->finalizeWithoutRemoteSigning($invoice, $now, $dueDate, $invoiceUuid, $e);
+        } catch (\Throwable $e) {
+            $wrapped = InvoiceSigningException::signingFailed($e);
+
+            return $this->finalizeWithoutRemoteSigning($invoice, $now, $dueDate, $invoiceUuid, $wrapped);
+        }
 
         $payloadMerge = array_merge($invoice->payload ?? [], [
             'lines' => $invoice->payload['lines'] ?? [],
             'invoice_uuid' => $signed['invoice_uuid'],
+            'signing_submission_status' => ($signed['remote_submitted'] ?? false) ? 'submitted' : 'signed_locally',
         ]);
 
         if (! empty($signed['request_id'])) {
@@ -124,7 +136,67 @@ class InvoiceIssueService
             'invoice_hash' => $signed['hash'],
         ]);
 
-        return $invoice->fresh();
+        return new InvoiceIssueResult($invoice->fresh(), true);
+    }
+
+    private function finalizeWithoutRemoteSigning(
+        Invoice $invoice,
+        Carbon $issuedAt,
+        string $dueDate,
+        string $invoiceUuid,
+        InvoiceSigningException $exception,
+    ): InvoiceIssueResult {
+        Log::warning('invoice.signing_deferred', array_merge(
+            SigningFailureSanitizer::logContext($exception),
+            [
+                'invoice_id' => $invoice->id,
+                'document_number' => $invoice->document_number,
+            ],
+        ));
+
+        $payloadMerge = array_merge($invoice->payload ?? [], [
+            'lines' => $invoice->payload['lines'] ?? [],
+            'invoice_uuid' => $invoiceUuid,
+            'signing_submission_status' => 'not_submitted',
+            'zheart_remote_submitted' => false,
+            'zheart_reporting_status' => 'pending',
+        ]);
+
+        $invoice->forceFill([
+            'status' => InvoiceStatus::Issued,
+            'icv' => null,
+            'invoice_hash' => null,
+            'previous_invoice_hash' => null,
+            'signed_xml' => null,
+            'qr_tlv_base64' => null,
+            'issued_at' => $issuedAt,
+            'due_date' => $dueDate,
+            'payload' => $payloadMerge,
+        ])->save();
+
+        $this->auditService->record($invoice, 'invoice.issued', [
+            'signing_deferred' => true,
+        ]);
+
+        $userMessage = SigningFailureSanitizer::sanitizeMessage($exception->getMessage());
+
+        return new InvoiceIssueResult($invoice->fresh(), false, $userMessage);
+    }
+
+    private function resolveDueDate(Invoice $invoice, Carbon $now, BusinessSetting $business): string
+    {
+        $payloadDue = trim((string) ($invoice->payload['buyer_due_date'] ?? ''));
+        if ($payloadDue !== '') {
+            try {
+                return Carbon::parse($payloadDue, 'Asia/Riyadh')->toDateString();
+            } catch (\Throwable) {
+                // Fall through to payment terms.
+            }
+        }
+
+        $termsDays = max(0, (int) data_get($business->settings, 'invoicing.payment_terms_days', 30));
+
+        return $now->copy()->timezone('Asia/Riyadh')->addDays($termsDays)->toDateString();
     }
 
     private function resolveInvoiceCategory(Invoice $invoice, ?Invoice $referenced): string

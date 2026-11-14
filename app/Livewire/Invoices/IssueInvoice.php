@@ -10,10 +10,14 @@ use App\Models\Product;
 use App\Models\BusinessSetting;
 use App\Models\Branch;
 use App\Support\Invoicing\InvoiceDocumentTotals;
+use App\Support\Invoicing\ZatcaSubmissionStatus;
+use App\Exceptions\InvoiceSigningException;
 use App\Services\InvoiceIssueService;
 use App\Support\StaffBranchContext;
+use App\Support\Invoicing\SigningFailureSanitizer;
 use App\Support\Validation\FieldValidationRules;
 use App\Business\BusinessContext;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -75,6 +79,10 @@ class IssueInvoice extends Component
 
     public ?string $buyerNameOptional = '';
 
+    public string $buyerCountry = 'SA';
+
+    public string $dueDate = '';
+
     public function mount(string $mode): void
     {
         $this->resolveBusiness();
@@ -85,6 +93,9 @@ class IssueInvoice extends Component
         BusinessContext::set($business);
 
         abort_unless(auth('staff')->user()?->can('invoices.issue'), 403);
+
+        $termsDays = max(0, (int) data_get($business->settings, 'invoicing.payment_terms_days', 30));
+        $this->dueDate = now('Asia/Riyadh')->addDays($termsDays)->format('Y-m-d');
     }
 
     public function addLine(): void
@@ -172,6 +183,10 @@ class IssueInvoice extends Component
                 'buyer_name' => trim($this->buyerName),
                 'buyer_vat' => $vat,
                 'buyer_cr' => trim($this->buyerCr),
+                'buyer_phone' => trim($this->buyerPhone),
+                'buyer_email' => trim($this->buyerEmail),
+                'buyer_country' => strtoupper(trim($this->buyerCountry)) ?: 'SA',
+                'buyer_due_date' => trim($this->dueDate),
                 'buyer_national_address' => [
                     'building' => $this->addrBuilding,
                     'street' => $this->addrStreet,
@@ -179,6 +194,7 @@ class IssueInvoice extends Component
                     'city' => $this->addrCity,
                     'postal_code' => $this->addrPostal,
                     'additional' => $this->addrAdditional,
+                    'country' => strtoupper(trim($this->buyerCountry)) ?: 'SA',
                 ],
             ]);
         } else {
@@ -208,9 +224,42 @@ class IssueInvoice extends Component
 
         $draft->forceFill(['payload' => $payload])->save();
 
-        $issued = $issuer->issue($draft->fresh());
+        try {
+            $outcome = $issuer->issue($draft->fresh());
+        } catch (InvoiceSigningException $e) {
+            Log::warning('invoice.livewire_issue_signing_failed', SigningFailureSanitizer::logContext($e));
+            $this->toastError($this->signingToastMessage($e));
+
+            return;
+        } catch (\Throwable $e) {
+            Log::error('invoice.livewire_issue_failed', SigningFailureSanitizer::logContext($e));
+            $this->toastError(__('invoices.errors.issue_failed'));
+
+            return;
+        }
+
+        $issued = $outcome->invoice;
+
+        if (! $outcome->signingSucceeded) {
+            $this->toastWarning(
+                __('invoices.issue_saved_not_sent_zatca', ['number' => $issued->document_number]),
+                persistent: true,
+                dedupe: false,
+            );
+        }
+
         $this->toastSuccess(__('invoices.issue_success', ['number' => $issued->document_number]));
         $this->redirect(route('admin.invoices'), navigate: true);
+    }
+
+    private function signingToastMessage(InvoiceSigningException $exception): string
+    {
+        $message = mb_strtolower($exception->getMessage());
+        if (str_contains($message, 'credential') || str_contains($message, 'encrypted')) {
+            return __('invoices.errors.signing_credentials_invalid');
+        }
+
+        return SigningFailureSanitizer::userMessage(__('invoices.errors.signing_failed'), $exception);
     }
 
     public function render(): View
@@ -224,6 +273,7 @@ class IssueInvoice extends Component
             'isStandard' => $isStandard,
             'catalogProducts' => $this->catalogProductsForPicker(),
             'previewTotals' => $this->previewTotals(),
+            'zatcaNotReady' => ! ZatcaSubmissionStatus::canSubmitToZatca($this->business),
         ]);
     }
 
@@ -408,6 +458,8 @@ class IssueInvoice extends Component
             'buyerName' => ['required', 'string', 'max:200'],
             'buyerVat' => array_merge(FieldValidationRules::vatOptional(), ['required_without:buyerCr']),
             'buyerCr' => array_merge(FieldValidationRules::crNumberOptional(), ['required_without:buyerVat']),
+            'dueDate' => ['required', 'date'],
+            'buyerCountry' => ['required', 'string', 'size:2'],
             'addrBuilding' => ['required', 'string', 'max:32'],
             'addrStreet' => ['required', 'string', 'max:120'],
             'addrDistrict' => ['nullable', 'string', 'max:120'],
@@ -452,6 +504,8 @@ class IssueInvoice extends Component
             'addrCity' => __('business.fields.city'),
             'addrPostal' => __('business.fields.postal'),
             'addrAdditional' => __('business.fields.additional'),
+            'dueDate' => __('invoices.due_date'),
+            'buyerCountry' => __('invoices.buyer_country'),
             'lines.*.name' => __('invoices.line_name'),
             'lines.*.quantity' => __('invoices.line_qty'),
             'lines.*.unit_price' => __('invoices.line_price_ex_vat'),
