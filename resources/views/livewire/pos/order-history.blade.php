@@ -67,8 +67,8 @@
     <div class="mt-4">{{ $orders->links() }}</div>
 
     @if ($showRefundModal)
-        <div class="app-sheet-backdrop fixed inset-0 z-40 bg-black/40" wire:click="cancelRefundModal"></div>
-        <div class="app-sheet fixed inset-x-0 bottom-0 z-50 max-h-[85dvh] overflow-y-auto rounded-t-2xl p-4 shadow-xl lg:left-auto lg:right-4 lg:bottom-4 lg:max-w-md lg:rounded-2xl" role="dialog" aria-modal="true" aria-labelledby="refund-modal-title">
+        <div class="app-sheet-backdrop" wire:click="cancelRefundModal"></div>
+        <div class="app-sheet app-sheet--dialog lg:!inset-auto lg:!start-auto lg:!end-4 lg:!bottom-4 lg:!top-auto lg:!translate-x-0 lg:!translate-y-0" role="dialog" aria-modal="true" aria-labelledby="refund-modal-title">
             <h2 id="refund-modal-title" class="text-lg font-semibold">{{ __('pos.refund_confirm_title') }}</h2>
             <p class="mt-1 text-sm text-[var(--app-muted)]">{{ __('pos.refund_confirm_lead', ['number' => $refundOrderNumber, 'amount' => $refundAmount]) }}</p>
             <form class="mt-4 space-y-3" wire:submit="confirmRefund">

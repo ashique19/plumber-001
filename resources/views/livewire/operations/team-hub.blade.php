@@ -158,10 +158,10 @@
     @endif
 
     @if ($showStaffForm)
-        <div class="app-sheet-backdrop fixed inset-0 z-40 bg-black/40" wire:click="$set('showStaffForm', false)"></div>
-        <div class="app-sheet fixed inset-x-0 bottom-0 z-50 max-h-[90vh] overflow-y-auto p-4 sm:inset-auto sm:start-1/2 sm:top-1/2 sm:w-full sm:max-w-lg sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl">
-            <h2 class="text-lg font-semibold">{{ $editingStaffId ? __('operations.edit_staff') : __('operations.add_staff') }}</h2>
-            <form class="mt-4 space-y-3" wire:submit="saveStaff">
+        <div class="app-sheet-backdrop" wire:click="$set('showStaffForm', false)"></div>
+        <div class="app-sheet app-sheet--dialog app-sheet--wide" role="dialog" aria-modal="true">
+            <h2>{{ $editingStaffId ? __('operations.edit_staff') : __('operations.add_staff') }}</h2>
+            <form class="space-y-3" wire:submit="saveStaff">
                 <x-form.input :label="__('operations.name')" name="staffName" wire:model="staffName" required />
                 <x-form.input type="email" :label="__('operations.email')" name="staffEmail" wire:model="staffEmail" required />
                 <x-form.input type="password" :label="__('operations.password')" name="staffPassword" wire:model="staffPassword" @if(!$editingStaffId) required @endif />
@@ -188,10 +188,10 @@
     @endif
 
     @if ($showBranchForm)
-        <div class="app-sheet-backdrop fixed inset-0 z-40 bg-black/40" wire:click="$set('showBranchForm', false)"></div>
-        <div class="app-sheet fixed inset-x-0 bottom-0 z-50 max-h-[85vh] overflow-y-auto p-4 sm:max-w-md sm:mx-auto sm:rounded-2xl">
-            <h2 class="text-lg font-semibold">{{ $editingBranchId ? __('operations.edit_branch') : __('operations.add_branch') }}</h2>
-            <form class="mt-4 space-y-3" wire:submit="saveBranch">
+        <div class="app-sheet-backdrop" wire:click="$set('showBranchForm', false)"></div>
+        <div class="app-sheet app-sheet--dialog" role="dialog" aria-modal="true">
+            <h2>{{ $editingBranchId ? __('operations.edit_branch') : __('operations.add_branch') }}</h2>
+            <form class="space-y-3" wire:submit="saveBranch">
                 <x-form.input :label="__('operations.branch_code')" name="branchCode" wire:model="branchCode" required />
                 <x-form.input :label="__('operations.branch_name')" name="branchName" wire:model="branchName" required />
                 <x-form.input :label="__('operations.branch_name_ar')" name="branchNameAr" wire:model="branchNameAr" dir="rtl" />

@@ -72,8 +72,8 @@
     @endif
 
     @if($showForm && $canManage)
-        <div class="app-sheet-backdrop fixed inset-0 z-40 bg-black/40" wire:click="$set('showForm', false)"></div>
-        <div class="app-sheet fixed inset-x-0 bottom-0 z-50 max-h-[90vh] overflow-y-auto p-4 sm:inset-auto sm:start-1/2 sm:top-1/2 sm:w-full sm:max-w-md sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl">
+        <div class="app-sheet-backdrop" wire:click="$set('showForm', false)"></div>
+        <div class="app-sheet app-sheet--dialog" role="dialog" aria-modal="true">
             <h2 class="text-lg font-semibold">{{ $editingId ? __('inventory.edit') : __('inventory.add') }}</h2>
             <form class="mt-4 space-y-3" wire:submit="save">
                 <x-form.input :label="__('catalog.name_en')" name="nameEn" wire:model="nameEn" required />
@@ -89,8 +89,8 @@
     @endif
 
     @if($showAdjust && $canManage)
-        <div class="app-sheet-backdrop fixed inset-0 z-40 bg-black/40" wire:click="$set('showAdjust', false)"></div>
-        <div class="app-sheet fixed inset-x-0 bottom-0 z-50 max-h-[70vh] overflow-y-auto p-4 sm:inset-auto sm:start-1/2 sm:top-1/2 sm:w-full sm:max-w-sm sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl">
+        <div class="app-sheet-backdrop" wire:click="$set('showAdjust', false)"></div>
+        <div class="app-sheet app-sheet--dialog app-sheet--narrow" role="dialog" aria-modal="true">
             <h2 class="text-lg font-semibold">{{ __('inventory.adjust_title') }}</h2>
             <form class="mt-4 space-y-3" wire:submit="saveAdjust">
                 <x-form.select :label="__('inventory.adjust_mode')" name="adjustMode" wire:model="adjustMode" :liveValidate="true">

@@ -238,8 +238,12 @@
         background: var(--app-surface);
     }
 
+    :root {
+        --app-topbar-height: 3.5rem;
+    }
+
     .app-toast {
-        @apply fixed start-4 end-4 top-[calc(3.5rem+env(safe-area-inset-top))] z-[60] mx-auto max-w-md rounded-2xl border px-4 py-3 text-sm font-medium shadow-lg sm:start-auto sm:end-6;
+        @apply fixed start-4 end-4 top-[calc(var(--app-topbar-height)+env(safe-area-inset-top))] z-[60] mx-auto max-w-md rounded-2xl border px-4 py-3 text-sm font-medium shadow-lg sm:start-auto sm:end-6;
         border-color: var(--app-border);
         background: var(--app-surface-2);
         backdrop-filter: blur(16px);
@@ -263,14 +267,59 @@
         }
     }
 
+    .app-sheet-backdrop {
+        @apply fixed inset-0 z-[90] bg-black/40 backdrop-blur-[2px];
+    }
+
     .app-sheet {
-        @apply fixed inset-x-0 bottom-0 z-50 max-h-[85dvh] overflow-y-auto rounded-t-3xl border-t shadow-2xl;
+        @apply fixed inset-x-0 bottom-0 z-[100] flex max-h-[min(90dvh,calc(100dvh-env(safe-area-inset-top)-var(--app-topbar-height)))] flex-col overflow-hidden rounded-t-3xl border-t shadow-2xl;
+        top: calc(env(safe-area-inset-top) + var(--app-topbar-height));
         border-color: var(--app-border);
-        padding-bottom: env(safe-area-inset-bottom);
         background: var(--app-surface-2);
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
         animation: app-sheet-up 0.28s ease;
+    }
+
+    .app-sheet > h2:first-child,
+    .app-sheet > .app-sheet__head:first-child {
+        @apply sticky top-0 z-10 shrink-0 border-b px-4 py-3 text-lg font-semibold;
+        border-color: var(--app-border);
+        background: var(--app-surface-2);
+    }
+
+    .app-sheet > form,
+    .app-sheet > .app-sheet__body {
+        @apply min-h-0 flex-1 overflow-y-auto overscroll-contain px-4;
+        padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+    }
+
+    .app-sheet--dialog {
+        @apply sm:inset-auto sm:start-1/2 sm:top-1/2 sm:w-full sm:max-w-md sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl sm:border;
+    }
+
+    .app-sheet--dialog.app-sheet--wide {
+        @apply sm:max-w-lg;
+    }
+
+    .app-sheet--dialog.app-sheet--narrow {
+        @apply sm:max-w-sm;
+    }
+
+    @media (min-width: 640px) {
+        .app-sheet {
+            top: auto;
+            max-height: min(90dvh, calc(100vh - 2rem));
+        }
+
+        .app-sheet > h2:first-child,
+        .app-sheet > .app-sheet__head:first-child {
+            @apply static border-b-0;
+        }
+
+        .app-sheet--dialog {
+            @apply overflow-y-auto;
+        }
     }
 
     @keyframes app-sheet-up {
@@ -282,8 +331,27 @@
         }
     }
 
-    .app-sheet-backdrop {
-        @apply fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px];
+    .app-modal-backdrop {
+        @apply fixed inset-0 z-[90] flex items-end justify-center bg-black/40 backdrop-blur-[2px] sm:items-center sm:p-4;
+        padding-top: calc(env(safe-area-inset-top) + var(--app-topbar-height));
+    }
+
+    .app-modal {
+        @apply z-[100] flex w-full max-w-md flex-col overflow-hidden rounded-t-3xl border shadow-2xl sm:max-h-[min(90dvh,calc(100vh-2rem))] sm:rounded-2xl;
+        border-color: var(--app-border);
+        background: var(--app-surface-2);
+        max-height: min(90dvh, calc(100dvh - env(safe-area-inset-top) - var(--app-topbar-height)));
+    }
+
+    .app-modal > h2:first-child {
+        @apply sticky top-0 z-10 shrink-0 border-b px-4 py-3 text-lg font-semibold;
+        border-color: var(--app-border);
+        background: var(--app-surface-2);
+    }
+
+    .app-modal > form {
+        @apply min-h-0 flex-1 overflow-y-auto overscroll-contain p-4;
+        padding-bottom: calc(1rem + env(safe-area-inset-bottom));
     }
 
     .app-page-title {

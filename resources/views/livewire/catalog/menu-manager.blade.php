@@ -144,10 +144,10 @@
     @endif
 
     @if($showCategoryForm && $canWrite)
-        <div class="app-sheet-backdrop fixed inset-0 z-40 bg-black/40" wire:click="$set('showCategoryForm', false)"></div>
-        <div class="app-sheet fixed inset-x-0 bottom-0 z-50 max-h-[85vh] overflow-y-auto p-4 sm:inset-auto sm:start-1/2 sm:top-1/2 sm:w-full sm:max-w-md sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl" role="dialog">
-            <h2 class="text-lg font-semibold">{{ $editingCategoryId ? __('catalog.edit_category') : __('catalog.add_category') }}</h2>
-            <form class="mt-4 space-y-3" wire:submit="saveCategory">
+        <div class="app-sheet-backdrop" wire:click="$set('showCategoryForm', false)"></div>
+        <div class="app-sheet app-sheet--dialog" role="dialog" aria-modal="true">
+            <h2>{{ $editingCategoryId ? __('catalog.edit_category') : __('catalog.add_category') }}</h2>
+            <form class="space-y-3" wire:submit="saveCategory">
                 <x-form.input :label="__('catalog.name_en')" name="categoryNameEn" wire:model="categoryNameEn" required />
                 <x-form.input :label="__('catalog.name_ar')" name="categoryNameAr" wire:model="categoryNameAr" dir="rtl" />
                 @if($categoryBanglaFieldsReady ?? false)
@@ -166,10 +166,10 @@
     @endif
 
     @if($showProductForm && $canWrite)
-        <div class="app-sheet-backdrop fixed inset-0 z-40 bg-black/40" wire:click="$set('showProductForm', false)"></div>
-        <div class="app-sheet fixed inset-x-0 bottom-0 z-50 max-h-[90vh] overflow-y-auto p-4 sm:inset-auto sm:start-1/2 sm:top-1/2 sm:w-full sm:max-w-lg sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl">
-            <h2 class="text-lg font-semibold">{{ $editingProductId ? __('catalog.edit_product') : __('catalog.add_product') }}</h2>
-            <form class="mt-4 grid gap-3 sm:grid-cols-2" wire:submit="saveProduct">
+        <div class="app-sheet-backdrop" wire:click="$set('showProductForm', false)"></div>
+        <div class="app-sheet app-sheet--dialog app-sheet--wide" role="dialog" aria-modal="true">
+            <h2>{{ $editingProductId ? __('catalog.edit_product') : __('catalog.add_product') }}</h2>
+            <form class="grid gap-3 sm:grid-cols-2" wire:submit="saveProduct">
                 <x-form.input :label="__('catalog.name_en')" name="productNameEn" wire:model="productNameEn" required wrapperClass="sm:col-span-2" />
                 <x-form.input :label="__('catalog.name_ar')" name="productNameAr" wire:model="productNameAr" dir="rtl" required wrapperClass="sm:col-span-2" />
                 @if($catalogI18nReady ?? false)
@@ -205,10 +205,10 @@
     @endif
 
     @if($showIngredientsModal && $canWrite)
-        <div class="app-sheet-backdrop fixed inset-0 z-40 bg-black/40" wire:click="$set('showIngredientsModal', false)"></div>
-        <div class="app-sheet fixed inset-x-0 bottom-0 z-50 max-h-[90vh] overflow-y-auto p-4 sm:inset-auto sm:start-1/2 sm:top-1/2 sm:w-full sm:max-w-lg sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl">
-            <h2 class="text-lg font-semibold">{{ __('inventory.ingredients_modal_title') }}</h2>
-            <div class="mt-3 space-y-3">
+        <div class="app-sheet-backdrop" wire:click="$set('showIngredientsModal', false)"></div>
+        <div class="app-sheet app-sheet--dialog app-sheet--wide" role="dialog" aria-modal="true">
+            <h2>{{ __('inventory.ingredients_modal_title') }}</h2>
+            <div class="app-sheet__body space-y-3">
                 @foreach($ingredientLines as $index => $line)
                     <div class="flex flex-wrap items-end gap-2" wire:key="ing-line-{{ $index }}">
                         <div class="min-w-0 flex-1">
@@ -233,15 +233,15 @@
                 </div>
                 <x-ui.livewire-action type="submit" target="quickCreateIngredient" loading="saving" class="tap-action-muted mt-2 text-sm" variant="muted">{{ __('inventory.quick_create') }}</x-ui.livewire-action>
             </form>
-            <x-ui.livewire-action wire:click="saveProductIngredients" target="saveProductIngredients" loading="saving" class="tap-action-primary mt-4 w-full" variant="primary">{{ __('catalog.save') }}</x-ui.livewire-action>
+            <x-ui.livewire-action wire:click="saveProductIngredients" target="saveProductIngredients" loading="saving" class="tap-action-primary mt-4 w-full shrink-0 px-4 pb-4" variant="primary">{{ __('catalog.save') }}</x-ui.livewire-action>
         </div>
     @endif
 
     @if($showModifierForm && $canWrite)
-        <div class="app-sheet-backdrop fixed inset-0 z-40 bg-black/40" wire:click="$set('showModifierForm', false)"></div>
-        <div class="app-sheet fixed inset-x-0 bottom-0 z-50 max-h-[85vh] overflow-y-auto p-4 sm:inset-auto sm:start-1/2 sm:top-1/2 sm:w-full sm:max-w-md sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl">
-            <h2 class="text-lg font-semibold">{{ $editingModifierId ? __('catalog.edit_modifier') : __('catalog.add_modifier') }}</h2>
-            <form class="mt-4 space-y-3" wire:submit="saveModifier">
+        <div class="app-sheet-backdrop" wire:click="$set('showModifierForm', false)"></div>
+        <div class="app-sheet app-sheet--dialog" role="dialog" aria-modal="true">
+            <h2>{{ $editingModifierId ? __('catalog.edit_modifier') : __('catalog.add_modifier') }}</h2>
+            <form class="space-y-3" wire:submit="saveModifier">
                 <x-form.input :label="__('catalog.name_en')" name="modifierNameEn" wire:model="modifierNameEn" required />
                 <x-form.input :label="__('catalog.name_ar')" name="modifierNameAr" wire:model="modifierNameAr" dir="rtl" />
                 <x-form.input type="number" :label="__('catalog.price')" name="modifierPriceInput" wire:model="modifierPriceInput" required />
