@@ -6,6 +6,7 @@
     use App\Support\AppShellNav;
     use App\Support\BusinessSettingDisplayName;
     use App\Support\StaffBranchContext;
+    use App\Support\StaffLandingRoute;
 
     $business = \App\Business\BusinessContext::get() ?? BusinessSetting::query()->find(1);
     $branch = $branch ?? request()->route('branch');
@@ -23,6 +24,9 @@
     $branches = $staffUser ? StaffBranchContext::accessibleBranches($staffUser) : [];
     $showBranchSwitcher = $staffUser && StaffBranchContext::selectorVisible($staffUser);
     $posHomeUrl = $staffUser ? StaffBranchContext::posHomeUrl($staffUser) : route('admin.pos.home');
+    $brandHomeUrl = ($staffUser && $business)
+        ? StaffLandingRoute::forUser($business, $staffUser)
+        : route('admin.pos.home');
     app(\Spatie\Permission\PermissionRegistrar::class)->setPermissionsTeamId($business?->id ?? 1);
 @endphp
 <!DOCTYPE html>
@@ -56,14 +60,18 @@
 
     @if($business)
         <aside class="app-sidebar" :class="sidebarCollapsed ? 'app-sidebar--collapsed' : ''" aria-label="{{ __('pos.title') }}">
-            <div class="flex items-center gap-2 border-b px-3 py-4" style="border-color: var(--app-border)">
+            <a
+                href="{{ $brandHomeUrl }}"
+                class="app-brand-home flex items-center gap-2 border-b px-3 py-4 no-underline transition-opacity hover:opacity-90"
+                style="border-color: var(--app-border); color: inherit"
+            >
                 @if ($logoUrl)
                     <img src="{{ asset($logoUrl) }}" alt="{{ __($logoAltKey, ['name' => $displayName]) }}" class="h-9 w-9 shrink-0 rounded-lg object-contain" width="36" height="36">
                 @else
                     <x-plumber.logo-mark class="h-9 w-9 shrink-0 text-[var(--app-accent)]" :name="$displayName" />
                 @endif
                 <span class="app-sidebar__label truncate text-sm font-semibold">{{ $displayName }}</span>
-            </div>
+            </a>
             <nav class="flex flex-1 flex-col gap-1 p-2">
                 @php
                     $branchParam = $branch ?? StaffBranchContext::resolve($staffUser);
@@ -156,29 +164,33 @@
         <div class="app-main" :class="sidebarCollapsed ? 'app-main--sidebar-collapsed' : ''">
             <header class="app-topbar">
                 <div class="mx-auto flex max-w-6xl items-center gap-2 px-3 py-2 sm:px-5 sm:py-3">
-                    <div class="flex min-w-0 flex-1 items-center gap-2">
-                        @if ($logoUrl)
-                            <img src="{{ asset($logoUrl) }}" alt="{{ __($logoAltKey, ['name' => $displayName]) }}" class="h-8 w-8 rounded-lg object-contain lg:hidden" width="32" height="32">
-                        @endif
-                        <div class="min-w-0">
-                            <p class="truncate text-sm font-semibold">{{ $displayName }}</p>
-                            @if($branch)
-                                <p class="truncate text-xs text-[var(--app-muted)]">{{ $branch->name }}</p>
-                            @elseif($branchParam && ! $showBranchSwitcher)
-                                <p class="truncate text-xs text-[var(--app-muted)]">{{ $branchParam->name }}</p>
-                            @elseif($showBranchSwitcher)
-                                <details class="relative text-xs">
-                                    <summary class="cursor-pointer list-none text-[var(--app-accent)]">{{ __('pos.switch_branch') }}</summary>
-                                    <ul class="app-card app-card--flat absolute z-20 mt-1 min-w-[12rem] p-1 shadow-lg">
-                                        @foreach($branches as $b)
-                                            <li>
-                                                <a class="app-nav-link" href="{{ route('admin.pos.terminal', [ $b]) }}">{{ $b->name }}</a>
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                </details>
+                    <div class="flex min-w-0 flex-1 flex-col gap-0.5 lg:hidden">
+                        <a
+                            href="{{ $brandHomeUrl }}"
+                            class="app-brand-home flex min-w-0 items-center gap-2 no-underline"
+                            style="color: inherit"
+                        >
+                            @if ($logoUrl)
+                                <img src="{{ asset($logoUrl) }}" alt="{{ __($logoAltKey, ['name' => $displayName]) }}" class="h-8 w-8 shrink-0 rounded-lg object-contain" width="32" height="32">
                             @endif
-                        </div>
+                            <p class="truncate text-sm font-semibold">{{ $displayName }}</p>
+                        </a>
+                        @if($branch)
+                            <p class="truncate text-xs text-[var(--app-muted)]">{{ $branch->name }}</p>
+                        @elseif($branchParam && ! $showBranchSwitcher)
+                            <p class="truncate text-xs text-[var(--app-muted)]">{{ $branchParam->name }}</p>
+                        @elseif($showBranchSwitcher)
+                            <details class="relative text-xs">
+                                <summary class="cursor-pointer list-none text-[var(--app-accent)]">{{ __('pos.switch_branch') }}</summary>
+                                <ul class="app-card app-card--flat absolute z-20 mt-1 min-w-[12rem] p-1 shadow-lg">
+                                    @foreach($branches as $b)
+                                        <li>
+                                            <a class="app-nav-link" href="{{ route('admin.pos.terminal', [ $b]) }}">{{ $b->name }}</a>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </details>
+                        @endif
                     </div>
                     <x-app.locale-switch :current="$locale" class="hidden sm:flex" />
                     <div class="relative">
