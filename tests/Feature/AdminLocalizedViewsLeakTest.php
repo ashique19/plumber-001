@@ -66,17 +66,28 @@ it('renders catalog list and product/category modals without raw keys or English
     }
 });
 
-it('shows translated dashboard quick actions and settings nav in bn and ar', function () {
+it('shows translated sidebar nav labels in bn and ar when admin sidebar is enabled', function () {
+    config(['ui.admin_sidebar' => true]);
+
+    $html = $this->get(route('admin.dashboard', ['locale' => 'bn']))->assertOk()->getContent();
+
+    expect($html)->toContain(__('pos.nav_pos', [], 'bn'))
+        ->and($html)->toContain(__('business.nav', [], 'bn'))
+        ->and($html)->toContain(__('catalog.nav', [], 'bn'))
+        ->and($html)->toContain(__('inventory.nav', [], 'bn'));
+
+    $html = $this->get(route('admin.dashboard', ['locale' => 'ar']))->assertOk()->getContent();
+    expect($html)->toContain(__('business.nav', [], 'ar'))
+        ->and($html)->toContain(__('catalog.nav', [], 'ar'));
+});
+
+it('shows translated dashboard quick actions and business title in bn and ar', function () {
     config(['ui.admin_sidebar' => false]);
 
     $html = $this->get(route('admin.dashboard', ['locale' => 'bn']))->assertOk()->getContent();
 
     expect($html)->toContain(__('dashboard.add_products', [], 'bn'))
-        ->and($html)->toContain(__('dashboard.quick_actions', [], 'bn'))
-        ->and($html)->toContain(__('pos.nav_pos', [], 'bn'))
-        ->and($html)->toContain(__('business.nav', [], 'bn'))
-        ->and($html)->toContain(__('catalog.nav', [], 'bn'))
-        ->and($html)->toContain(__('inventory.nav', [], 'bn'));
+        ->and($html)->toContain(__('dashboard.quick_actions', [], 'bn'));
 
     $business = $this->get(route('admin.business', ['locale' => 'bn']))->assertOk()->getContent();
     expect($business)->toContain(__('business.title', [], 'bn'));

@@ -6,6 +6,7 @@
     use App\Support\AppShellNav;
     use App\Support\BusinessSettingDisplayName;
     use App\Support\StaffBranchContext;
+    use App\Support\StaffLandingRoute;
 
     $business = \App\Business\BusinessContext::get() ?? BusinessSetting::query()->find(1);
     $branch = $branch ?? request()->route('branch');
@@ -167,7 +168,7 @@
         >
             <header class="app-topbar">
                 <div class="app-topbar__inner">
-                    <a href="{{ $brandHomeUrl }}" class="app-topbar__brand min-w-0 flex-1">
+                    <a href="{{ $brandHomeUrl }}" class="app-topbar__brand app-brand-home min-w-0 flex-1">
                         @if ($logoUrl)
                             <img src="{{ asset($logoUrl) }}" alt="{{ __($logoAltKey, ['name' => $displayName]) }}" class="h-7 w-7 shrink-0 rounded-lg object-contain sm:h-8 sm:w-8" width="32" height="32">
                         @else
