@@ -39,6 +39,23 @@ it('recalculates preview totals when catalog line is added', function () {
         ->and($totals['total_inc_vat'])->toBe(207.0);
 });
 
+it('does not render issue page integration lead on standard or simplified pages', function () {
+    $leadBn = 'এককালীন নথি তৈরি ও ক্রিপ্টোগ্রাফিক ইস্যু';
+    $leadEn = 'cryptographically issue a one-off document';
+    $leadAr = 'إنشاء وإصدار مستند موقّع';
+
+    foreach (['standard', 'simplified'] as $mode) {
+        $html = Livewire::actingAs($this->owner, 'staff')
+            ->test(IssueInvoice::class, ['mode' => $mode])
+            ->html();
+
+        expect($html)->not->toContain('app-page-lead')
+            ->and($html)->not->toContain($leadEn)
+            ->and($html)->not->toContain($leadBn)
+            ->and($html)->not->toContain($leadAr);
+    }
+});
+
 it('renders catalog picker on standard issue page', function () {
     app()->setLocale('bn');
 

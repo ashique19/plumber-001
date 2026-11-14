@@ -42,7 +42,6 @@ return [
     'nav_issue_simplified' => 'فاتورة مبسطة',
     'issue_standard_title' => 'إصدار فاتورة قياسية',
     'issue_simplified_title' => 'إصدار فاتورة مبسطة',
-    'issue_page_lead' => 'إنشاء وإصدار مستند موقّع. يُرسل إلى signing service للمقاصة أو الإبلاغ عند تفعيل التكامل.',
     'buyer_section' => 'المشتري (B2B)',
     'buyer_name' => 'اسم المشتري',
     'buyer_optional' => 'اسم المشتري (اختياري)',

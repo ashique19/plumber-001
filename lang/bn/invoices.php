@@ -31,7 +31,6 @@ return [
     'nav_issue_simplified' => 'সরলীকৃত ইনভয়েস',
     'issue_standard_title' => 'স্ট্যান্ডার্ড ইনভয়েস ইস্যু',
     'issue_simplified_title' => 'সরলীকৃত ইনভয়েস ইস্যু',
-    'issue_page_lead' => 'এককালীন নথি তৈরি ও ক্রিপ্টোগ্রাফিক ইস্যু। ইন্টিগ্রেশন চালু থাকলে Z-Heart জমা চলে।',
     'buyer_section' => 'ক্রেতা (B2B)',
     'buyer_name' => 'ক্রেতার নাম',
     'buyer_optional' => 'ক্রেতার নাম (ঐচ্ছিক)',

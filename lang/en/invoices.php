@@ -31,7 +31,6 @@ return [
     'nav_issue_simplified' => 'Simplified invoice',
     'issue_standard_title' => 'Issue standard invoice',
     'issue_simplified_title' => 'Issue simplified invoice',
-    'issue_page_lead' => 'Create and cryptographically issue a one-off document. Z-Heart submission runs after issue when integration is enabled.',
     'buyer_section' => 'Buyer (B2B)',
     'buyer_name' => 'Buyer name',
     'buyer_optional' => 'Buyer name (optional)',

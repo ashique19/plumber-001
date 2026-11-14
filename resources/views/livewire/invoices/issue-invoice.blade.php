@@ -1,7 +1,6 @@
 <div class="pb-24 lg:pb-8">
     <header class="mb-4">
         <h1 class="app-page-title">{{ $pageTitle }}</h1>
-        <p class="app-page-lead">{{ __('invoices.issue_page_lead') }}</p>
     </header>
 
     <section class="app-card mb-4 space-y-2 p-4">
