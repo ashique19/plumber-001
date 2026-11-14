@@ -136,6 +136,7 @@ return [
     'validation' => [
         'logo_size' => 'Logo must be 1 MB or smaller.',
         'section_failed' => 'Could not save :section. Fix the highlighted fields.',
+        'summary_title' => 'Fix the following before saving',
         'tab_has_errors' => 'This tab has validation errors',
     ],
     'logo_upload' => [

@@ -38,13 +38,24 @@
         @endforeach
     </nav>
 
+    @if ($errors->isNotEmpty())
+        <div class="app-card mb-4 border-amber-200 bg-amber-50 p-4 text-sm text-amber-950" role="alert">
+            <p class="font-semibold">{{ __('business.validation.summary_title') }}</p>
+            <ul class="mt-2 list-disc ps-5">
+                @foreach ($errors->all() as $message)
+                    <li>{{ $message }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     @if ($section === 'brand')
         <form wire:submit="saveBrand" class="app-card flex flex-col gap-4 p-4">
-            <x-form.input :label="__('business.brand.display_name_en')" name="displayNameEn" wire:model.blur="displayNameEn" :liveValidate="false" required />
-            <x-form.input :label="__('business.brand.display_name_ar')" name="displayNameAr" wire:model.blur="displayNameAr" :liveValidate="false" />
-            <x-form.input :label="__('business.brand.display_name_bn')" name="displayNameBn" wire:model.blur="displayNameBn" :liveValidate="false" />
-            <x-form.input :label="__('business.brand.tagline_en')" name="taglineEn" wire:model.blur="taglineEn" :liveValidate="false" />
-            <x-form.input :label="__('business.brand.tagline_ar')" name="taglineAr" wire:model.blur="taglineAr" :liveValidate="false" />
+            <x-form.input :label="__('business.brand.display_name_en')" name="displayNameEn" wire:model.live.debounce.500ms="displayNameEn" :liveValidate="false" required />
+            <x-form.input :label="__('business.brand.display_name_ar')" name="displayNameAr" wire:model.live.debounce.500ms="displayNameAr" :liveValidate="false" />
+            <x-form.input :label="__('business.brand.display_name_bn')" name="displayNameBn" wire:model.live.debounce.500ms="displayNameBn" :liveValidate="false" />
+            <x-form.input :label="__('business.brand.tagline_en')" name="taglineEn" wire:model.live.debounce.500ms="taglineEn" :liveValidate="false" />
+            <x-form.input :label="__('business.brand.tagline_ar')" name="taglineAr" wire:model.live.debounce.500ms="taglineAr" :liveValidate="false" />
             <x-form.select :label="__('business.brand.brand_color')" name="brandColorKey" wire:model="brandColorKey" :liveValidate="false">
                 @foreach ($colorOptions as $key => $label)
                     <option value="{{ $key }}">{{ $label }}</option>
@@ -65,31 +76,31 @@
         <form wire:submit="saveLegal" class="app-card flex flex-col gap-4 p-4">
             <p class="rounded-lg bg-amber-50 p-3 text-sm text-amber-900 ring-1 ring-amber-200">{{ __('business.legal.zheart_note') }}</p>
             <p class="text-xs text-[var(--app-muted)]">{{ __('business.legal.optional_hint') }}</p>
-            <x-form.input :label="__('business.legal.name_en')" name="legalNameEn" wire:model.blur="legalNameEn" :liveValidate="false" />
-            <x-form.input :label="__('business.legal.name_ar')" name="legalNameAr" wire:model.blur="legalNameAr" :liveValidate="false" />
+            <x-form.input :label="__('business.legal.name_en')" name="legalNameEn" wire:model.live.debounce.500ms="legalNameEn" :liveValidate="false" />
+            <x-form.input :label="__('business.legal.name_ar')" name="legalNameAr" wire:model.live.debounce.500ms="legalNameAr" :liveValidate="false" />
             <div class="grid gap-3 sm:grid-cols-2">
-                <x-form.input :label="__('business.legal.vat')" name="vatNumber" wire:model.blur="vatNumber" :liveValidate="false" />
-                <x-form.input :label="__('business.legal.cr')" name="crNumber" wire:model.blur="crNumber" :liveValidate="false" />
-                <x-form.input :label="__('invoices.unified_number')" name="unifiedNumber" wire:model.blur="unifiedNumber" :liveValidate="false" />
-                <x-form.input :label="__('business.legal.email')" name="legalEmail" wire:model.blur="legalEmail" :liveValidate="false" />
-                <x-form.input :label="__('business.legal.mobile')" name="legalMobile" wire:model.blur="legalMobile" :liveValidate="false" />
-                <x-form.input :label="__('business.legal.mobile_secondary')" name="legalMobileSecondary" wire:model.blur="legalMobileSecondary" :liveValidate="false" />
+                <x-form.input :label="__('business.legal.vat')" name="vatNumber" wire:model.live.debounce.500ms="vatNumber" :liveValidate="false" />
+                <x-form.input :label="__('business.legal.cr')" name="crNumber" wire:model.live.debounce.500ms="crNumber" :liveValidate="false" />
+                <x-form.input :label="__('invoices.unified_number')" name="unifiedNumber" wire:model.live.debounce.500ms="unifiedNumber" :liveValidate="false" />
+                <x-form.input :label="__('business.legal.email')" name="legalEmail" wire:model.live.debounce.500ms="legalEmail" :liveValidate="false" />
+                <x-form.input :label="__('business.legal.mobile')" name="legalMobile" wire:model.live.debounce.500ms="legalMobile" :liveValidate="false" />
+                <x-form.input :label="__('business.legal.mobile_secondary')" name="legalMobileSecondary" wire:model.live.debounce.500ms="legalMobileSecondary" :liveValidate="false" />
             </div>
-            <x-form.input :label="__('business.legal.short_national')" name="shortNationalAddress" wire:model.blur="shortNationalAddress" :liveValidate="false" />
-            <x-form.input :label="__('business.legal.address_en')" name="addressEn" wire:model.blur="addressEn" :liveValidate="false" />
-            <x-form.input :label="__('business.legal.address_ar')" name="addressAr" wire:model.blur="addressAr" :liveValidate="false" dir="rtl" />
+            <x-form.input :label="__('business.legal.short_national')" name="shortNationalAddress" wire:model.live.debounce.500ms="shortNationalAddress" :liveValidate="false" />
+            <x-form.input :label="__('business.legal.address_en')" name="addressEn" wire:model.live.debounce.500ms="addressEn" :liveValidate="false" />
+            <x-form.input :label="__('business.legal.address_ar')" name="addressAr" wire:model.live.debounce.500ms="addressAr" :liveValidate="false" dir="rtl" />
             <h3 class="form-section__title">{{ __('business.legal.national_address') }}</h3>
             <div class="grid gap-3 sm:grid-cols-2">
-                <x-form.input :label="__('business.legal.na_building')" name="naBuilding" wire:model.blur="naBuilding" :liveValidate="false" />
-                <x-form.input :label="__('business.legal.na_street')" name="naStreet" wire:model.blur="naStreet" :liveValidate="false" />
-                <x-form.input :label="__('business.legal.na_street_ar')" name="naStreetAr" wire:model.blur="naStreetAr" :liveValidate="false" dir="rtl" />
-                <x-form.input :label="__('business.legal.na_additional')" name="naAdditional" wire:model.blur="naAdditional" :liveValidate="false" />
-                <x-form.input :label="__('business.legal.na_district')" name="naDistrict" wire:model.blur="naDistrict" :liveValidate="false" />
-                <x-form.input :label="__('business.legal.na_district_ar')" name="naDistrictAr" wire:model.blur="naDistrictAr" :liveValidate="false" dir="rtl" />
-                <x-form.input :label="__('business.legal.na_city')" name="naCity" wire:model.blur="naCity" :liveValidate="false" />
-                <x-form.input :label="__('business.legal.na_city_ar')" name="naCityAr" wire:model.blur="naCityAr" :liveValidate="false" dir="rtl" />
-                <x-form.input :label="__('business.legal.na_postal')" name="naPostal" wire:model.blur="naPostal" :liveValidate="false" />
-                <x-form.input :label="__('business.legal.na_country')" name="naCountry" wire:model.blur="naCountry" :liveValidate="false" maxlength="2" />
+                <x-form.input :label="__('business.legal.na_building')" name="naBuilding" wire:model.live.debounce.500ms="naBuilding" :liveValidate="false" />
+                <x-form.input :label="__('business.legal.na_street')" name="naStreet" wire:model.live.debounce.500ms="naStreet" :liveValidate="false" />
+                <x-form.input :label="__('business.legal.na_street_ar')" name="naStreetAr" wire:model.live.debounce.500ms="naStreetAr" :liveValidate="false" dir="rtl" />
+                <x-form.input :label="__('business.legal.na_additional')" name="naAdditional" wire:model.live.debounce.500ms="naAdditional" :liveValidate="false" />
+                <x-form.input :label="__('business.legal.na_district')" name="naDistrict" wire:model.live.debounce.500ms="naDistrict" :liveValidate="false" />
+                <x-form.input :label="__('business.legal.na_district_ar')" name="naDistrictAr" wire:model.live.debounce.500ms="naDistrictAr" :liveValidate="false" dir="rtl" />
+                <x-form.input :label="__('business.legal.na_city')" name="naCity" wire:model.live.debounce.500ms="naCity" :liveValidate="false" />
+                <x-form.input :label="__('business.legal.na_city_ar')" name="naCityAr" wire:model.live.debounce.500ms="naCityAr" :liveValidate="false" dir="rtl" />
+                <x-form.input :label="__('business.legal.na_postal')" name="naPostal" wire:model.live.debounce.500ms="naPostal" :liveValidate="false" />
+                <x-form.input :label="__('business.legal.na_country')" name="naCountry" wire:model.live.debounce.500ms="naCountry" :liveValidate="false" maxlength="2" />
             </div>
             <p class="text-xs text-[var(--app-muted)]">{{ __('business.legal.logo_on_brand') }}</p>
             <div class="flex justify-end">
@@ -104,7 +115,7 @@
             @else
                 <p class="rounded-lg bg-amber-50 p-3 text-sm text-amber-900 ring-1 ring-amber-200">{{ __('business.invoicing.api_key_missing') }}</p>
             @endif
-            <x-form.input type="number" min="0" step="1" :label="__('invoices.payment_terms_days')" name="paymentTermsDays" wire:model.blur="paymentTermsDays" />
+            <x-form.input type="number" min="0" step="1" :label="__('invoices.payment_terms_days')" name="paymentTermsDays" wire:model.live.debounce.500ms="paymentTermsDays" />
             <label class="flex items-start gap-3">
                 <input type="checkbox" class="mt-1 rounded border-gray-300" wire:model="invoicingIntegrationEnabled" />
                 <span>
@@ -121,19 +132,19 @@
             <fieldset class="flex flex-col gap-4 border-0 p-0">
                 <legend class="form-section__title mb-1 w-full">{{ __('business.contact.section_phone') }}</legend>
                 <div class="grid gap-4 sm:grid-cols-2">
-                    <x-form.input :label="__('business.contact.phone')" name="phone" wire:model.blur="phone" :liveValidate="false" />
-                    <x-form.input :label="__('business.contact.whatsapp')" name="whatsapp" wire:model.blur="whatsapp" :liveValidate="false" />
-                    <x-form.input :label="__('business.contact.email')" name="email" type="email" wire:model.blur="email" :liveValidate="true" wrapperClass="sm:col-span-2" />
-                    <x-form.input :label="__('business.contact.website')" name="website" wire:model.blur="website" :liveValidate="false" wrapperClass="sm:col-span-2" />
+                    <x-form.input :label="__('business.contact.phone')" name="phone" wire:model.live.debounce.500ms="phone" :liveValidate="false" />
+                    <x-form.input :label="__('business.contact.whatsapp')" name="whatsapp" wire:model.live.debounce.500ms="whatsapp" :liveValidate="false" />
+                    <x-form.input :label="__('business.contact.email')" name="email" type="email" wire:model.live.debounce.500ms="email" :liveValidate="true" wrapperClass="sm:col-span-2" />
+                    <x-form.input :label="__('business.contact.website')" name="website" wire:model.live.debounce.500ms="website" :liveValidate="false" wrapperClass="sm:col-span-2" />
                 </div>
             </fieldset>
             <fieldset class="flex flex-col gap-4 border-0 p-0">
                 <legend class="form-section__title mb-1 w-full">{{ __('business.contact.section_social') }}</legend>
                 <div class="grid gap-4 sm:grid-cols-2">
-                    <x-form.input :label="__('business.contact.instagram')" name="instagram" wire:model.blur="instagram" :liveValidate="false" />
-                    <x-form.input :label="__('business.contact.x')" name="socialX" wire:model.blur="socialX" :liveValidate="false" />
-                    <x-form.input :label="__('business.contact.tiktok')" name="tiktok" wire:model.blur="tiktok" :liveValidate="false" />
-                    <x-form.input :label="__('business.contact.snapchat')" name="snapchat" wire:model.blur="snapchat" :liveValidate="false" />
+                    <x-form.input :label="__('business.contact.instagram')" name="instagram" wire:model.live.debounce.500ms="instagram" :liveValidate="false" />
+                    <x-form.input :label="__('business.contact.x')" name="socialX" wire:model.live.debounce.500ms="socialX" :liveValidate="false" />
+                    <x-form.input :label="__('business.contact.tiktok')" name="tiktok" wire:model.live.debounce.500ms="tiktok" :liveValidate="false" />
+                    <x-form.input :label="__('business.contact.snapchat')" name="snapchat" wire:model.live.debounce.500ms="snapchat" :liveValidate="false" />
                 </div>
             </fieldset>
             <fieldset class="flex flex-col gap-4 border-0 p-0">
@@ -151,9 +162,9 @@
                                 {{ __('business.map.advanced') }}
                             </button>
                             <div class="mt-3 grid gap-3 sm:grid-cols-2" x-show="contactAdvancedOpen" x-cloak>
-                                <x-form.input :label="__('business.contact.lat')" name="lat" wire:model.blur="lat" :liveValidate="false" />
-                                <x-form.input :label="__('business.contact.lng')" name="lng" wire:model.blur="lng" :liveValidate="false" />
-                                <x-form.input :label="__('business.contact.maps_url')" name="mapsUrl" wire:model.blur="mapsUrl" :liveValidate="false" wrapperClass="sm:col-span-2" />
+                                <x-form.input :label="__('business.contact.lat')" name="lat" wire:model.live.debounce.500ms="lat" :liveValidate="false" />
+                                <x-form.input :label="__('business.contact.lng')" name="lng" wire:model.live.debounce.500ms="lng" :liveValidate="false" />
+                                <x-form.input :label="__('business.contact.maps_url')" name="mapsUrl" wire:model.live.debounce.500ms="mapsUrl" :liveValidate="false" wrapperClass="sm:col-span-2" />
                             </div>
                         </div>
                     </x-slot>
@@ -214,7 +225,7 @@
                     </tbody>
                 </table>
             </div>
-            <x-form.input :label="__('business.hours.note_field')" name="hoursNote" wire:model.blur="hoursNote" :liveValidate="false" />
+            <x-form.input :label="__('business.hours.note_field')" name="hoursNote" wire:model.live.debounce.500ms="hoursNote" :liveValidate="false" />
             <div class="flex justify-end">
                 <button type="submit" class="tap-action-primary min-h-11 w-full sm:w-auto" wire:loading.attr="disabled">{{ __('business.save') }}</button>
             </div>
@@ -227,10 +238,10 @@
     @else
         <form wire:submit="saveExtras" class="app-card flex flex-col gap-4 p-4">
             <x-form.toggle :label="__('business.extras.storefront_emergency')" name="plumberEmergency" wire:model="plumberEmergency" />
-            <x-form.input :label="__('business.extras.storefront_license')" name="plumberLicense" wire:model.blur="plumberLicense" :liveValidate="false" />
-            <x-form.textarea :label="__('business.extras.storefront_areas')" name="plumberServiceAreas" wire:model.blur="plumberServiceAreas" rows="3" :liveValidate="false" />
-            <x-form.input :label="__('business.extras.storefront_response_en')" name="plumberResponseEn" wire:model.blur="plumberResponseEn" :liveValidate="false" />
-            <x-form.input :label="__('business.extras.storefront_response_ar')" name="plumberResponseAr" wire:model.blur="plumberResponseAr" :liveValidate="false" />
+            <x-form.input :label="__('business.extras.storefront_license')" name="plumberLicense" wire:model.live.debounce.500ms="plumberLicense" :liveValidate="false" />
+            <x-form.textarea :label="__('business.extras.storefront_areas')" name="plumberServiceAreas" wire:model.live.debounce.500ms="plumberServiceAreas" rows="3" :liveValidate="false" />
+            <x-form.input :label="__('business.extras.storefront_response_en')" name="plumberResponseEn" wire:model.live.debounce.500ms="plumberResponseEn" :liveValidate="false" />
+            <x-form.input :label="__('business.extras.storefront_response_ar')" name="plumberResponseAr" wire:model.live.debounce.500ms="plumberResponseAr" :liveValidate="false" />
             <div class="flex justify-end">
                 <button type="submit" class="tap-action-primary min-h-11 w-full sm:w-auto" wire:loading.attr="disabled">{{ __('business.save') }}</button>
             </div>

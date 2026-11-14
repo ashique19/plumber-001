@@ -137,6 +137,7 @@ return [
     'validation' => [
         'logo_size' => 'লোগো ১ MB বা ছোট হতে হবে।',
         'section_failed' => ':section সংরক্ষণ হয়নি। হাইলাইট করা ক্ষেত্র ঠিক করুন।',
+        'summary_title' => 'সংরক্ষণের আগে নিচের ত্রুটিগুলো ঠিক করুন',
         'tab_has_errors' => 'এই ট্যাবে ভ্যালিডেশন ত্রুটি আছে',
     ],
     'logo_upload' => [
