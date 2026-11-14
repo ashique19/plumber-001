@@ -27,7 +27,7 @@
         <section class="dashboard-quick-actions mb-4 flex flex-col gap-3" aria-label="{{ __('dashboard.quick_actions') }}">
             @if ($canIssueInvoice)
                 <a
-                    href="{{ route('admin.invoices.issue', $invoiceIssueMode) }}"
+                    href="{{ route('admin.invoices') }}"
                     class="tap-action-primary flex min-h-14 w-full items-center justify-center gap-2 px-5 text-base font-semibold sm:text-lg"
                 >
                     <x-app.icon name="clipboard" class="h-5 w-5 shrink-0" />
@@ -36,7 +36,7 @@
             @endif
             @if ($canAddProducts)
                 <a
-                    href="{{ route('admin.catalog', ['create' => 'product']) }}"
+                    href="{{ route('admin.catalog', ['tab' => 'products']) }}"
                     class="tap-action-primary flex min-h-14 w-full items-center justify-center gap-2 px-5 text-base font-semibold sm:text-lg"
                 >
                     <x-app.icon name="plus" class="h-5 w-5 shrink-0" />

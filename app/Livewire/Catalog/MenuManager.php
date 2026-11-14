@@ -135,6 +135,11 @@ class MenuManager extends Component
         $this->resolveBusiness();
         BusinessContext::set($this->business);
 
+        $tab = request()->query('tab');
+        if (is_string($tab) && in_array($tab, ['categories', 'products', 'modifiers'], true)) {
+            $this->tab = $tab;
+        }
+
         if (request()->query('create') === 'product' && auth('staff')->user()?->can('staff.manage')) {
             $this->tab = 'products';
             $this->startProduct();

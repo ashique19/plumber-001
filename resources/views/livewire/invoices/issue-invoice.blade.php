@@ -4,6 +4,21 @@
         <p class="app-page-lead">{{ __('invoices.issue_page_lead') }}</p>
     </header>
 
+    <section class="app-card mb-4 space-y-2 p-4">
+        <p class="text-sm font-semibold">
+            {{ $isStandard ? __('invoices.print_a4') : __('invoices.print_cash') }}
+        </p>
+        <p class="text-xs text-[var(--app-muted)]">
+            {{ $isStandard ? __('invoices.layout_a4') : __('invoices.layout_cash') }}
+        </p>
+        <a
+            class="tap-action-muted inline-flex min-h-10 items-center px-3 text-xs font-semibold"
+            href="{{ route('admin.invoices.issue', ['mode' => $isStandard ? 'simplified' : 'standard']) }}"
+        >
+            {{ $isStandard ? __('invoices.issue_simplified_title') : __('invoices.issue_standard_title') }}
+        </a>
+    </section>
+
     <form wire:submit="issue" class="app-card space-y-4 p-4">
         @if ($isStandard)
             <fieldset class="space-y-3">
