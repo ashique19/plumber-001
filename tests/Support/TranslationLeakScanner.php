@@ -45,4 +45,16 @@ final class TranslationLeakScanner
             "{$context}: untranslated keys in HTML: ".implode(', ', $leaks)
         );
     }
+
+    public static function assertLocaleHasNoEnglishSigningService(string $html, string $locale, string $context): void
+    {
+        if (! in_array($locale, ['bn', 'ar'], true)) {
+            return;
+        }
+
+        Assert::assertFalse(
+            str_contains(strtolower($html), 'signing service'),
+            "{$context}: English phrase \"signing service\" must not appear for locale [{$locale}]"
+        );
+    }
 }

@@ -2,7 +2,7 @@
 
 return [
     'title' => 'পয়েন্ট অফ সেল',
-    'nav_pos' => 'POS',
+    'nav_pos' => 'পিওএস',
     'nav_orders' => 'অর্ডার',
     'nav_eod' => 'দিন শেষ',
     'nav_ops' => 'অপারেশন',

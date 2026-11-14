@@ -2,6 +2,7 @@
 
 $en = require __DIR__.'/../en/business.php';
 
+$en['nav'] = 'ব্যবসা';
 $en['legal']['email'] = 'ইনভয়েস ইমেইল';
 $en['legal']['mobile'] = 'মোবাইল';
 $en['legal']['mobile_secondary'] = 'মোবাইল ২';

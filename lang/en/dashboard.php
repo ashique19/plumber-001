@@ -2,7 +2,7 @@
 
 return [
     'title' => 'Dashboard',
-    'subtitle' => 'Today’s sales, invoices, and signing service submission status for your business.',
+    'subtitle' => 'Today’s sales, invoices, and submission status for your business.',
     'nav' => 'Dashboard',
     'quick_actions' => 'Quick actions',
     'make_invoice' => 'Make Invoice',
@@ -12,8 +12,22 @@ return [
     'today_orders' => 'Orders today',
     'today_sales' => 'Sales today',
     'today_vat' => 'VAT today',
-    'today_aov' => 'Avg. order today',
     'sar' => 'SAR',
+    'monthly_report' => [
+        'title' => 'Monthly report',
+        'hint' => 'Last three calendar months (Riyadh). Issued invoices only; credit notes reduce net VAT.',
+        'net_vat' => 'Net VAT (SAR)',
+        'document' => 'Document',
+        'count' => 'Count',
+        'total_inc_vat' => 'Total (incl. VAT)',
+        'vat' => 'VAT',
+        'doc_types' => [
+            'simplified' => 'Simplified invoice',
+            'standard' => 'Standard invoice',
+            'credit_note' => 'Credit note',
+            'debit_note' => 'Debit note',
+        ],
+    ],
     'recent_sales' => 'Recent sales',
     'last_7_days' => 'Last 7 days',
     'no_sales_yet' => 'No paid orders in this period yet.',
@@ -30,5 +44,5 @@ return [
     'signing_pending' => 'Pending',
     'signing_reported' => 'Reported / cleared',
     'signing_failed' => 'Failed',
-    'no_submissions' => 'No signing service submissions yet.',
+    'no_submissions' => 'No submissions yet.',
 ];

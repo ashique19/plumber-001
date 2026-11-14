@@ -1,5 +1,7 @@
 @php
     $today = $snapshot['today'];
+    $docTypes = ['simplified', 'standard', 'credit_note', 'debit_note'];
+    $isRtl = config('locales.supported.'.app()->getLocale().'.dir', 'ltr') === 'rtl';
 @endphp
 <div class="admin-dashboard pb-24 lg:pb-8">
     <header class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -62,12 +64,74 @@
         <x-app.stat-card :label="__('dashboard.today_orders')" :value="(string) $today['order_count']" icon="clipboard" />
         <x-app.stat-card :label="__('dashboard.today_sales')" :value="number_format($today['gross_inc_vat'], 2).' '.__('dashboard.sar')" icon="chart" />
         <x-app.stat-card :label="__('dashboard.today_vat')" :value="number_format($today['vat_total'], 2).' '.__('dashboard.sar')" icon="shield" />
-        <x-app.stat-card
-            :label="__('dashboard.today_aov')"
-            :value="number_format($today['avg_order_value'], 2).' '.__('dashboard.sar')"
-            icon="clock"
-        />
     </div>
+
+    <section
+        class="dashboard-monthly-report mt-4 space-y-4"
+        aria-label="{{ __('dashboard.monthly_report.title') }}"
+        {!! $isRtl ? 'dir="rtl"' : '' !!}
+    >
+        <header>
+            <h2 class="text-base font-semibold">{{ __('dashboard.monthly_report.title') }}</h2>
+            <p class="mt-1 text-xs text-[var(--app-muted)]">{{ __('dashboard.monthly_report.hint') }}</p>
+        </header>
+
+        @foreach ($monthlyReport as $month)
+            <article class="app-card overflow-hidden p-0">
+                <div class="border-b border-[var(--app-border)] bg-[var(--app-surface-muted)]/60 px-4 py-3">
+                    <h3 class="text-sm font-semibold">{{ $month['month_label'] }}</h3>
+                </div>
+                <div class="space-y-4 p-4">
+                    <div class="rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] p-3">
+                        <p class="text-xs font-medium text-[var(--app-muted)]">{{ __('dashboard.monthly_report.net_vat') }}</p>
+                        <p class="mt-1 text-lg font-semibold tabular-nums">
+                            {{ number_format($month['net_vat'], 2) }} {{ __('dashboard.sar') }}
+                        </p>
+                        <ul class="mt-3 grid gap-2 text-xs sm:grid-cols-2">
+                            @foreach ($docTypes as $typeKey)
+                                <li class="flex items-center justify-between gap-2 border-t border-[var(--app-border)] pt-2 first:border-t-0 first:pt-0 sm:first:border-t sm:first:pt-2">
+                                    <span>{{ __('dashboard.monthly_report.doc_types.'.$typeKey) }}</span>
+                                    <span class="tabular-nums font-medium">
+                                        {{ number_format($month['signed_vat_by_type'][$typeKey] ?? 0, 2) }}
+                                    </span>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+
+                    <div class="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+                        <table class="dashboard-monthly-report__table w-full min-w-[32rem] text-left text-xs sm:text-sm">
+                            <thead>
+                                <tr class="border-b border-[var(--app-border)] text-[var(--app-muted)]">
+                                    <th class="pb-2 pe-2 font-medium">{{ __('dashboard.monthly_report.document') }}</th>
+                                    <th class="pb-2 px-2 text-end font-medium">{{ __('dashboard.monthly_report.count') }}</th>
+                                    <th class="pb-2 px-2 text-end font-medium">{{ __('dashboard.monthly_report.total_inc_vat') }}</th>
+                                    <th class="pb-2 ps-2 text-end font-medium">{{ __('dashboard.monthly_report.vat') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($docTypes as $typeKey)
+                                    @php
+                                        $row = $month['by_type'][$typeKey] ?? ['count' => 0, 'total_inc_vat' => 0, 'vat' => 0];
+                                    @endphp
+                                    <tr class="border-b border-[var(--app-border)] last:border-0">
+                                        <td class="py-2.5 pe-2 font-medium">{{ __('dashboard.monthly_report.doc_types.'.$typeKey) }}</td>
+                                        <td class="py-2.5 px-2 text-end tabular-nums">{{ $row['count'] }}</td>
+                                        <td class="py-2.5 px-2 text-end tabular-nums">
+                                            {{ number_format($row['total_inc_vat'], 2) }} {{ __('dashboard.sar') }}
+                                        </td>
+                                        <td class="py-2.5 ps-2 text-end tabular-nums">
+                                            {{ number_format($row['vat'], 2) }} {{ __('dashboard.sar') }}
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </article>
+        @endforeach
+    </section>
 
     <section class="app-card mt-4 p-4">
         <div class="flex items-center justify-between gap-2">
