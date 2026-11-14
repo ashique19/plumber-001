@@ -41,15 +41,19 @@ it('renders dashboard and business settings without raw translation keys', funct
     }
 });
 
-it('shows translated admin nav labels in mobile more sheet for bn and ar', function () {
+it('shows translated dashboard quick actions and settings nav in bn and ar', function () {
     config(['ui.admin_sidebar' => false]);
 
     $html = $this->get(route('admin.dashboard', ['locale' => 'bn']))->assertOk()->getContent();
-    expect($html)->toContain(__('business.nav', [], 'bn'))
-        ->and($html)->toContain(__('catalog.nav', [], 'bn'))
-        ->and($html)->toContain(__('inventory.nav', [], 'bn'));
+    expect($html)->toContain(__('dashboard.add_products', [], 'bn'))
+        ->and($html)->toContain(__('dashboard.quick_actions', [], 'bn'));
+
+    $business = $this->get(route('admin.business', ['locale' => 'bn']))->assertOk()->getContent();
+    expect($business)->toContain(__('business.title', [], 'bn'));
 
     $html = $this->get(route('admin.dashboard', ['locale' => 'ar']))->assertOk()->getContent();
-    expect($html)->toContain(__('business.nav', [], 'ar'))
-        ->and($html)->toContain(__('catalog.nav', [], 'ar'));
+    expect($html)->toContain(__('dashboard.add_products', [], 'ar'));
+
+    $business = $this->get(route('admin.business', ['locale' => 'ar']))->assertOk()->getContent();
+    expect($business)->toContain(__('business.title', [], 'ar'));
 });

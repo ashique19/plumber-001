@@ -167,15 +167,41 @@
         background: rgb(212 165 116 / 0.12);
     }
 
+    .app-topbar__inner {
+        @apply mx-auto flex max-w-6xl items-center gap-1.5 px-2 py-1.5 sm:gap-2 sm:px-5 sm:py-3;
+    }
+
+    .app-topbar__logout--compact {
+        @apply min-h-9 gap-1 px-2 sm:min-h-11 sm:gap-2 sm:px-3;
+    }
+
+    .app-locale-switch--compact {
+        @apply gap-0.5 p-0.5 text-[0.58rem];
+    }
+
+    .app-locale-switch--compact a {
+        @apply min-h-8 min-w-[1.85rem] px-1;
+    }
+
     .app-content {
         @apply mx-auto w-full max-w-6xl px-3 py-4 sm:px-5 sm:py-6;
         padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
     }
 
+    .app-content--no-tabbar {
+        padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+    }
+
     @media (min-width: 1024px) {
-        .app-content {
+        .app-content,
+        .app-content--no-tabbar {
             padding-bottom: 1.5rem;
         }
+    }
+
+    .app-shell[data-mobile-tabbar='0'] .admin-dashboard,
+    .app-shell[data-mobile-tabbar='0'] .pos-terminal-rich {
+        @apply max-lg:pb-4;
     }
 
     .app-tabbar {

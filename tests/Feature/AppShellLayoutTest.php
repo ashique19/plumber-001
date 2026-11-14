@@ -44,9 +44,19 @@ it('links business name to dashboard and shows localized logout in top nav', fun
     }
 });
 
-it('keeps mobile more sheet navigation markup on admin pages with a branch', function () {
+it('omits mobile tab bar and more drawer when ui.admin_sidebar is false', function () {
     $html = $this->get(route('admin.dashboard'))->assertOk()->getContent();
 
-    expect($html)->toContain(__('pos.nav_more'))
-        ->and($html)->toContain('lg:hidden');
+    expect($html)->not->toContain('app-tabbar')
+        ->and($html)->not->toContain(__('pos.nav_more'))
+        ->and($html)->toContain('data-mobile-tabbar="0"')
+        ->and($html)->toContain('dashboard-quick-actions');
+});
+
+it('renders compact top bar controls on a 360px-class layout', function () {
+    $html = $this->get(route('admin.dashboard'))->assertOk()->getContent();
+
+    expect($html)->toContain('app-topbar__inner')
+        ->and($html)->toContain('app-locale-switch--compact')
+        ->and($html)->toContain('app-topbar__logout--compact');
 });
