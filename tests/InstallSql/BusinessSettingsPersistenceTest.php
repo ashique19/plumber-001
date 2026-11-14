@@ -1,0 +1,127 @@
+<?php
+
+use App\Livewire\Admin\BusinessSettings;
+use App\Models\BusinessSetting;
+use App\Models\StaffUser;
+use Illuminate\Support\Facades\DB;
+use Livewire\Livewire;
+use Tests\Support\InstallSqlMysqlTestEnvironment;
+use Illuminate\Support\Facades\Config;
+use Tests\Support\SqlScriptStatements;
+
+afterEach(function () {
+    Config::set('database.default', 'sqlite');
+    DB::purge('mysql');
+    DB::purge('sqlite');
+});
+
+beforeEach(function () {
+    if (! InstallSqlMysqlTestEnvironment::mysqlReachable()) {
+        $this->markTestSkipped('MySQL is not reachable; business settings persistence requires MySQL 8.');
+    }
+
+    InstallSqlMysqlTestEnvironment::bootstrapApplicationConnection();
+
+    if (! InstallSqlMysqlTestEnvironment::isReady()) {
+        $this->markTestSkipped('install.sql MySQL bootstrap failed.');
+    }
+
+    foreach (glob(base_path('docs/sql/2026-11-14-*.sql')) as $path) {
+        $sql = file_get_contents($path);
+        if ($sql === false) {
+            continue;
+        }
+        foreach (SqlScriptStatements::split($sql) as $statement) {
+            if (trim($statement) !== '') {
+                DB::connection('mysql')->unprepared($statement);
+            }
+        }
+    }
+
+    $this->owner = StaffUser::query()->where('email', 'owner@example.test')->firstOrFail();
+    $this->business = BusinessSetting::primary();
+});
+
+it('persists brand and legal tabs after install.sql import and sql patches on mysql', function () {
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(BusinessSettings::class)
+        ->set('displayNameEn', 'Pipe Works KSA')
+        ->set('displayNameAr', 'أنابيب السعودية')
+        ->set('brandColorKey', 'steel')
+        ->call('saveBrand')
+        ->assertHasNoErrors()
+        ->assertDispatched('toast');
+
+    $brand = BusinessSetting::primary()->fresh();
+    expect(data_get($brand->settings, 'business.brand.display_name_en'))->toBe('Pipe Works KSA')
+        ->and(data_get($brand->settings, 'business.brand.brand_color_key'))->toBe('steel')
+        ->and($brand->name)->toBe('Pipe Works KSA');
+
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(BusinessSettings::class)
+        ->set('section', 'legal')
+        ->set('crNumber', '1011223344')
+        ->set('vatNumber', '311122393500003')
+        ->set('legalMobile', '+966501122334')
+        ->call('saveLegal')
+        ->assertHasNoErrors()
+        ->assertDispatched('toast');
+
+    $legal = BusinessSetting::primary()->fresh();
+    expect(data_get($legal->settings, 'business.legal.cr_number'))->toBe('1011223344')
+        ->and(data_get($legal->settings, 'legal_entity.vat_number'))->toBe('311122393500003')
+        ->and(data_get($legal->settings, 'business.legal.mobile'))->toBe('+966501122334');
+});
+
+it('persists contact tab on mysql install.sql baseline', function () {
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(BusinessSettings::class)
+        ->set('section', 'contact')
+        ->set('phone', '+966 11 445 8877')
+        ->call('saveContact')
+        ->assertHasNoErrors()
+        ->assertDispatched('toast');
+
+    expect(data_get(BusinessSetting::primary()->fresh()->settings, 'business.contact.phone'))
+        ->toBe('+966 11 445 8877');
+});
+
+it('persists hours invoicing and extras tabs on mysql install.sql baseline', function () {
+    $baseWeekdays = BusinessSetting::primary()->settings['business']['hours']['weekdays'] ?? [];
+
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(BusinessSettings::class)
+        ->set('section', 'hours')
+        ->set('hoursNote', 'Closed on government holidays')
+        ->set('weekdays', $baseWeekdays)
+        ->call('saveHours')
+        ->assertHasNoErrors()
+        ->assertDispatched('toast');
+
+    expect(data_get(BusinessSetting::primary()->fresh()->settings, 'business.hours.note'))
+        ->toBe('Closed on government holidays');
+
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(BusinessSettings::class)
+        ->set('section', 'invoicing')
+        ->set('invoicingIntegrationEnabled', false)
+        ->set('paymentTermsDays', 14)
+        ->call('saveInvoicing')
+        ->assertHasNoErrors()
+        ->assertDispatched('toast');
+
+    $fresh = BusinessSetting::primary()->fresh();
+    expect(data_get($fresh->settings, 'invoicing.integration_enabled'))->toBeFalse()
+        ->and(data_get($fresh->settings, 'invoicing.payment_terms_days'))->toBe(14);
+
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(BusinessSettings::class)
+        ->set('section', 'extras')
+        ->set('plumberLicense', 'PLM-44501')
+        ->call('saveExtras')
+        ->assertHasNoErrors()
+        ->assertDispatched('toast');
+
+    expect(data_get(BusinessSetting::primary()->fresh()->settings, 'business.theme_extras.license_number'))
+        ->toBe('PLM-44501');
+});

@@ -13,7 +13,8 @@ class LoadBusinessSettings
     public function handle(Request $request, Closure $next): Response
     {
         if (BusinessContext::get() === null) {
-            $business = BusinessSetting::query()->find(1);
+            $business = BusinessSetting::query()->find(1)
+                ?? BusinessSetting::query()->orderBy('id')->first();
             if ($business !== null) {
                 BusinessContext::set($business);
             }

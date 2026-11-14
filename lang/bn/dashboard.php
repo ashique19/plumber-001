@@ -8,7 +8,7 @@ return [
     'make_invoice' => 'ইনভয়েস তৈরি করুন',
     'add_products' => 'পণ্য যোগ করুন',
     'open_analytics' => 'সম্পূর্ণ বিশ্লেষণ',
-    'signing_queue' => 'সাইনিং সার্ভিস সারি',
+    'signing_queue_link' => 'সাইনিং সারি',
     'today_orders' => 'আজকের অর্ডার',
     'today_sales' => 'আজকের বিক্রয়',
     'today_vat' => 'আজকের ভ্যাট',

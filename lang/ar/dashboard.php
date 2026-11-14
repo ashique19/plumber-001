@@ -8,7 +8,7 @@ return [
     'make_invoice' => 'إنشاء فاتورة',
     'add_products' => 'إضافة منتجات',
     'open_analytics' => 'تحليلات كاملة',
-    'signing_queue' => 'طابور signing service',
+    'signing_queue_link' => 'طابور التوقيع',
     'today_orders' => 'طلبات اليوم',
     'today_sales' => 'مبيعات اليوم',
     'today_vat' => 'ضريبة اليوم',

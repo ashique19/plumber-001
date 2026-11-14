@@ -7,6 +7,7 @@ use App\Models\StaffUser;
 use App\Support\Storefront\BusinessContentMirror;
 use App\Support\BusinessHours;
 use App\Support\BusinessProfile;
+use Illuminate\Support\Facades\Log;
 
 class BusinessSettingsService
 {
@@ -29,7 +30,7 @@ class BusinessSettingsService
         $before = json_encode($business->settings);
         $after = json_encode($settings);
         if ($before !== $after) {
-            $business->forceFill(['settings' => $settings])->save();
+            $this->persist($business, $settings);
         }
 
         return $business->fresh();
@@ -62,6 +63,11 @@ class BusinessSettingsService
             'name_ar' => BusinessProfile::scalarString($legal['name_ar'] ?? ''),
             'vat_number' => BusinessProfile::scalarString($legal['vat_number'] ?? ''),
             'cr_number' => BusinessProfile::scalarString($legal['cr_number'] ?? ''),
+            'unified_number' => BusinessProfile::scalarString($legal['unified_number'] ?? ''),
+            'email' => BusinessProfile::scalarString($legal['email'] ?? ''),
+            'mobile' => BusinessProfile::scalarString($legal['mobile'] ?? ''),
+            'mobile_secondary' => BusinessProfile::scalarString($legal['mobile_secondary'] ?? ''),
+            'short_national_address' => BusinessProfile::scalarString($legal['short_national_address'] ?? ''),
             'national_address' => (array) ($legal['national_address'] ?? $defaultNa),
             'address_en' => BusinessProfile::scalarString($legal['address'] ?? ''),
             'address_ar' => BusinessProfile::scalarString($legal['address_ar'] ?? ''),
@@ -171,8 +177,8 @@ class BusinessSettingsService
             }
         }
 
-        $business->name = (string) ($legal['name_en'] ?: $business->name);
-        $business->forceFill(['settings' => $settings, 'name' => $business->name])->save();
+        $name = (string) ($legal['name_en'] ?: $business->name);
+        $this->persist($business, $settings, $name);
 
         $this->audit->record($business, 'business.settings.brand', ['brand' => $brand], $actor);
 
@@ -219,7 +225,7 @@ class BusinessSettingsService
         $legal['national_address'] = (array) ($legalBlock['national_address'] ?? []);
         $settings['legal_entity'] = $legal;
 
-        $business->forceFill(['settings' => $settings])->save();
+        $this->persist($business, $settings);
         $this->audit->record($business, 'business.settings.legal', ['vat' => $legal['vat_number']], $actor);
 
         return $business->fresh();
@@ -259,7 +265,7 @@ class BusinessSettingsService
         }
         data_set($settings, $contentKey, $content);
 
-        $business->forceFill(['settings' => $settings])->save();
+        $this->persist($business, $settings);
         $this->audit->record($business, 'business.settings.contact', [], $actor);
 
         return $business->fresh();
@@ -290,7 +296,7 @@ class BusinessSettingsService
         );
         data_set($settings, $contentKey, $content);
 
-        $business->forceFill(['settings' => $settings])->save();
+        $this->persist($business, $settings);
         $this->audit->record($business, 'business.settings.hours', [], $actor);
 
         return $business->fresh();
@@ -311,7 +317,7 @@ class BusinessSettingsService
         }
         $settings['invoicing'] = $invoicing;
 
-        $business->forceFill(['settings' => $settings])->save();
+        $this->persist($business, $settings);
         $this->audit->record($business, 'business.settings.invoicing', [
             'integration_enabled' => $invoicing['integration_enabled'] ?? false,
             'payment_terms_days' => $invoicing['payment_terms_days'] ?? null,
@@ -333,8 +339,7 @@ class BusinessSettingsService
 
         BusinessContentMirror::persistToContent($business, $settings);
 
-        $business->forceFill(['settings' => $settings])->save();
-        $business->refresh();
+        $this->persist($business, $settings);
         $this->audit->record($business, 'business.settings.theme_extras', ['keys' => array_keys($input)], $actor);
 
         return $business->fresh();
@@ -352,5 +357,22 @@ class BusinessSettingsService
             'response_time_en' => '',
             'response_time_ar' => '',
         ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $settings
+     */
+    private function persist(BusinessSetting $business, array $settings, ?string $name = null): void
+    {
+        try {
+            $business->writeSettings($settings, $name);
+        } catch (\Throwable $e) {
+            Log::error('business.settings.persist_failed', [
+                'business_id' => $business->id,
+                'message' => $e->getMessage(),
+            ]);
+
+            throw $e;
+        }
     }
 }
