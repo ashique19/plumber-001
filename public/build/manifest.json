@@ -353,7 +353,7 @@
     "isEntry": true
   },
   "resources/css/app.css": {
-    "file": "assets/app-3rRFfiKR.css",
+    "file": "assets/app-B-aOis1g.css",
     "name": "app",
     "names": [
       "app.css"
@@ -477,7 +477,7 @@
     "isEntry": true
   },
   "resources/js/app.js": {
-    "file": "assets/app-Ci3qU_GR.js",
+    "file": "assets/app-Ch02CUx4.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
@@ -485,7 +485,7 @@
       "_rolldown-runtime-WkwZ5CU-.js"
     ],
     "css": [
-      "assets/app-1DTFk8zz.css"
+      "assets/app-2csO9PvV.css"
     ],
     "assets": [
       "assets/marker-icon-2x-_ZA0WGCc.png",

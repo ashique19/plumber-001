@@ -185,7 +185,11 @@
                         <option value="{{ $cat->id }}">{{ $cat->name_en }}</option>
                     @endforeach
                 </x-form.select>
-                <x-form.input :label="__('catalog.image_url')" name="productImageUrl" wire:model="productImageUrl" placeholder="images/catalog/service-call.webp" wrapperClass="sm:col-span-2" />
+                <x-form.product-image-upload
+                    :label="__('catalog.product_image.label')"
+                    wire-model="productImageUpload"
+                    :preview-url="$productImageRemove ? null : $productExistingImage"
+                />
                 <x-form.input type="number" :label="__('catalog.price').' ('.($priceMode === 'inc' ? __('catalog.inc_short') : __('catalog.ex_short')).')'" name="productPriceInput" wire:model="productPriceInput" required />
                 <x-form.input type="number" :label="__('catalog.vat_rate')" name="productVatRate" wire:model="productVatRate" />
                 <fieldset class="sm:col-span-2">
