@@ -41,21 +41,31 @@
         @endif
 
         <div class="grid gap-2 sm:grid-cols-3">
-            <x-form.input type="number" step="0.01" min="0" :label="__('invoices.invoice_discount_ex_vat')" name="invoiceDiscountExVat" wire:model.blur="invoiceDiscountExVat" />
-            <x-form.input type="number" step="0.01" min="0" max="100" :label="__('invoices.retention_percent')" name="retentionPercent" wire:model.blur="retentionPercent" />
-            <x-form.input type="number" step="0.01" min="0" :label="__('invoices.retention_fixed')" name="retentionFixed" wire:model.blur="retentionFixed" />
+            <x-form.input type="number" step="0.01" min="0" :label="__('invoices.invoice_discount_ex_vat')" name="invoiceDiscountExVat" wire:model.live="invoiceDiscountExVat" />
+            <x-form.input type="number" step="0.01" min="0" max="100" :label="__('invoices.retention_percent')" name="retentionPercent" wire:model.live="retentionPercent" />
+            <x-form.input type="number" step="0.01" min="0" :label="__('invoices.retention_fixed')" name="retentionFixed" wire:model.live="retentionFixed" />
         </div>
 
         <fieldset class="space-y-3">
             <legend class="app-section-heading">{{ __('invoices.lines_section') }}</legend>
+            <p class="text-xs text-[var(--app-muted)]">{{ __('invoices.manual_line_hint') }}</p>
+
             @foreach ($lines as $index => $line)
                 <div class="app-inset-panel" wire:key="line-{{ $index }}">
-                    <x-form.input :label="__('invoices.line_name')" name="lines.{{ $index }}.name" wire:model.blur="lines.{{ $index }}.name" />
-                    <x-form.input class="mt-2" :label="__('invoices.line_name_ar')" name="lines.{{ $index }}.name_ar" wire:model.blur="lines.{{ $index }}.name_ar" dir="rtl" />
+                    <x-invoices.catalog-product-picker :line-index="$index" :products="$catalogProducts" />
+
+                    @if (filled($line['unit_label'] ?? null))
+                        <p class="mb-2 text-xs font-medium text-[var(--app-muted)]">
+                            {{ __('invoices.line_unit') }}: {{ $line['unit_label'] }}
+                        </p>
+                    @endif
+
+                    <x-form.input :label="__('invoices.line_name')" name="lines.{{ $index }}.name" wire:model.live="lines.{{ $index }}.name" />
+                    <x-form.input class="mt-2" :label="__('invoices.line_name_ar')" name="lines.{{ $index }}.name_ar" wire:model.live="lines.{{ $index }}.name_ar" dir="rtl" />
                     <div class="mt-2 grid gap-2 sm:grid-cols-3">
-                        <x-form.input type="number" step="0.001" min="0.001" :label="__('invoices.line_qty')" name="lines.{{ $index }}.quantity" wire:model.blur="lines.{{ $index }}.quantity" />
-                        <x-form.input type="number" step="0.01" :label="__('invoices.line_price_ex_vat')" name="lines.{{ $index }}.unit_price" wire:model.blur="lines.{{ $index }}.unit_price" />
-                        <x-form.input type="number" step="0.01" :label="__('invoices.line_vat')" name="lines.{{ $index }}.vat_rate" wire:model.blur="lines.{{ $index }}.vat_rate" />
+                        <x-form.input type="number" step="0.001" min="0.001" :label="__('invoices.line_qty')" name="lines.{{ $index }}.quantity" wire:model.live="lines.{{ $index }}.quantity" />
+                        <x-form.input type="number" step="0.01" :label="__('invoices.line_price_ex_vat')" name="lines.{{ $index }}.unit_price" wire:model.live="lines.{{ $index }}.unit_price" />
+                        <x-form.input type="number" step="0.01" :label="__('invoices.line_vat')" name="lines.{{ $index }}.vat_rate" wire:model.live="lines.{{ $index }}.vat_rate" />
                     </div>
                     @if (count($lines) > 1)
                         <button type="button" class="tap-action-muted mt-2 min-h-10 text-xs" wire:click="removeLine({{ $index }})">{{ __('invoices.remove_line') }}</button>
@@ -64,6 +74,30 @@
             @endforeach
             <button type="button" class="tap-action-muted min-h-11 w-full sm:w-auto" wire:click="addLine">{{ __('invoices.add_line') }}</button>
         </fieldset>
+
+        <section class="invoice-issue-preview-totals rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] p-4" aria-live="polite">
+            <h2 class="mb-3 text-sm font-semibold">{{ __('invoices.preview_totals') }}</h2>
+            <dl class="grid gap-2 text-sm sm:grid-cols-2">
+                <div class="flex justify-between gap-2 sm:block">
+                    <dt class="text-[var(--app-muted)]">{{ __('invoices.subtotal_ex_vat') }}</dt>
+                    <dd class="font-semibold tabular-nums">{{ number_format($previewTotals['subtotal_ex_vat'], 2) }}</dd>
+                </div>
+                <div class="flex justify-between gap-2 sm:block">
+                    <dt class="text-[var(--app-muted)]">{{ __('invoices.total_vat') }}</dt>
+                    <dd class="font-semibold tabular-nums">{{ number_format($previewTotals['total_vat'], 2) }}</dd>
+                </div>
+                <div class="flex justify-between gap-2 sm:col-span-2">
+                    <dt class="text-[var(--app-muted)]">{{ __('invoices.total_inc_vat') }}</dt>
+                    <dd class="text-base font-bold tabular-nums">{{ number_format($previewTotals['total_inc_vat'], 2) }}</dd>
+                </div>
+                @if (($previewTotals['retention_amount'] ?? 0) > 0)
+                    <div class="flex justify-between gap-2 sm:col-span-2">
+                        <dt class="text-[var(--app-muted)]">{{ __('invoices.retention_amount') }}</dt>
+                        <dd class="font-semibold tabular-nums">{{ number_format($previewTotals['retention_amount'], 2) }}</dd>
+                    </div>
+                @endif
+            </dl>
+        </section>
 
         <x-ui.livewire-action type="submit" target="issue" loading="issue" class="tap-action-primary min-h-11 w-full sm:w-auto">
             {{ __('invoices.issue_submit') }}
