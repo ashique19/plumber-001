@@ -126,3 +126,58 @@ it('includes line discounts when present', function () {
 
     expect($payload['lines'][0]['discount'])->toBe(5.0);
 });
+
+it('sends decimal quantities and document discount without retention in payload', function () {
+    $business = BusinessSetting::query()->create([
+        'name' => 'Payload Co',
+        'settings' => PlumberThemePreset::settings('Payload Co', 'شركة', 'ar'),
+    ]);
+
+    $request = new InvoiceSigningRequest(
+        business: $business,
+        documentNumber: 'SIM-2',
+        documentType: InvoiceDocumentType::Simplified,
+        invoiceCategory: 'simplified',
+        lines: [new InvoiceLineData('Progress', 0.05, 29_150, 15)],
+        invoicePayload: [],
+        issueDateTimeUtc: Carbon::now('UTC'),
+        invoiceUuid: '550e8400-e29b-41d4-a716-446655440014',
+        referencedInvoiceNumber: null,
+        referencedInvoiceUuid: null,
+        noteReason: null,
+        documentDiscountExVat: 25,
+    );
+
+    $payload = app(ZHeartInvoicePayloadBuilder::class)->build($request);
+
+    expect($payload['lines'][0]['quantity'])->toBe(0.05)
+        ->and($payload['document_discount_ex_vat'])->toBe(25.0)
+        ->and($payload['totals']['tax_exclusive'])->toBe(1432.50);
+});
+
+it('maps document level discount for z-heart totals', function () {
+    $business = BusinessSetting::query()->create([
+        'name' => 'Payload Co',
+        'settings' => PlumberThemePreset::settings('Payload Co', 'شركة', 'ar'),
+    ]);
+
+    $request = new InvoiceSigningRequest(
+        business: $business,
+        documentNumber: 'SIM-3',
+        documentType: InvoiceDocumentType::Simplified,
+        invoiceCategory: 'simplified',
+        lines: [new InvoiceLineData('Item', 1, 100, 15)],
+        invoicePayload: [],
+        issueDateTimeUtc: Carbon::now('UTC'),
+        invoiceUuid: '550e8400-e29b-41d4-a716-446655440015',
+        referencedInvoiceNumber: null,
+        referencedInvoiceUuid: null,
+        noteReason: null,
+        documentDiscountExVat: 10,
+    );
+
+    $payload = app(ZHeartInvoicePayloadBuilder::class)->build($request);
+
+    expect($payload['totals']['tax_exclusive'])->toBe(90.0)
+        ->and($payload['totals']['tax'])->toBe(13.5);
+});

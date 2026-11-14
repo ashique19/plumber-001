@@ -2,12 +2,16 @@
 
 namespace App\Support\Pos;
 
+use App\Data\InvoiceLineData;
 use App\Enums\InvoiceDocumentType;
 use App\Models\Branch;
 use App\Models\Invoice;
 use App\Models\PosOrder;
 use App\Models\Product;
 use App\Models\BusinessSetting;
+use App\Support\Invoicing\InvoiceDocumentTotals;
+use App\Support\Invoicing\InvoiceLineMath;
+use App\Support\Invoicing\SarAmountInWords;
 use Illuminate\Support\Collection;
 
 final class ReceiptThermalPresenter
@@ -25,26 +29,21 @@ final class ReceiptThermalPresenter
         $theme = $business->settings['theme'] ?? [];
         $contentKey = $business->isPlumberTheme() ? 'plumber' : null;
         $content = $contentKey ? data_get($business->settings, "content.{$contentKey}", []) : [];
+        $payload = $invoice->payload ?? [];
 
         $productSkus = self::productSkusForLines($order);
         $lines = self::mapLines($order->line_items ?? [], $productSkus);
-        $itemCount = (int) array_sum(array_column($lines, 'quantity'));
+        $itemCount = (float) array_sum(array_map(static fn (array $l): float => (float) $l['quantity'], $lines));
         $vatRows = self::vatSummaryRows($lines);
         $paidAt = $order->paid_at?->timezone(config('app.timezone'));
 
-        $customer = $order->relationLoaded('customer') ? $order->customer : null;
-        $customerBlock = null;
-        if ($customer !== null) {
-            $maskedPhone = self::maskPhone($customer->phone);
-            $customerBlock = array_filter([
-                'masked_phone' => $maskedPhone,
-                'name' => filled($customer->name) ? $customer->name : null,
-            ]);
-            if ($customerBlock === []) {
-                $customerBlock = null;
-            }
-        }
+        $signingLines = self::signingLinesFromPayload($order->line_items ?? []);
+        $invoiceDiscount = (float) ($payload['invoice_discount_ex_vat'] ?? 0);
+        $retentionPercent = isset($payload['retention_percent']) ? (float) $payload['retention_percent'] : null;
+        $retentionFixed = isset($payload['retention_fixed']) ? (float) $payload['retention_fixed'] : null;
+        $totals = InvoiceDocumentTotals::compute($signingLines, $invoiceDiscount, $retentionPercent, $retentionFixed);
 
+        $customerBlock = self::customerBlock($order, $payload, $invoice);
         $paymentMeta = is_array($order->metadata) ? $order->metadata : [];
         $cardBlock = array_filter([
             'eft_trans_no' => $paymentMeta['eft_trans_no'] ?? $paymentMeta['eft_trans'] ?? null,
@@ -52,9 +51,8 @@ final class ReceiptThermalPresenter
             'auth' => $paymentMeta['auth'] ?? $paymentMeta['auth_code'] ?? null,
         ]);
 
-        $storefrontUrl = null;
-
         $branchLines = self::branchAddressLines($branch, $legal, $content);
+        $branchLinesAr = self::branchAddressLinesAr($branch, $legal);
         $contact = self::contactLines($legal, $content);
 
         $egs = $invoice->relationLoaded('egsDevice') ? $invoice->egsDevice : null;
@@ -64,29 +62,42 @@ final class ReceiptThermalPresenter
         $isSimplified = $invoice->document_type === InvoiceDocumentType::Simplified
             || $invoice->document_type === null;
 
+        $paymentMethod = $order->payment_method instanceof \BackedEnum
+            ? $order->payment_method->value
+            : (string) ($order->payment_method ?? 'cash');
+
+        $amountWords = SarAmountInWords::format($totals['total_inc_vat']);
+
         return [
             'seller_en' => $legal['name_en'] ?? $business->name,
             'seller_ar' => $legal['name_ar'] ?? $business->name,
             'logo_url' => filled($theme['logo_url'] ?? null) ? $theme['logo_url'] : null,
             'branch_lines' => $branchLines,
+            'branch_lines_ar' => $branchLinesAr,
             'phone' => $contact['phone'],
+            'mobile' => $contact['mobile'],
+            'mobile_secondary' => $contact['mobile_secondary'],
             'fax' => $contact['fax'],
             'email' => $contact['email'],
             'cr_number' => $legal['cr_number'] ?? null,
+            'unified_number' => $legal['unified_number'] ?? null,
             'trn' => $legal['vat_number'] ?? null,
             'is_simplified' => $isSimplified,
             'customer' => $customerBlock,
             'lines' => $lines,
             'item_count' => $itemCount,
-            'total_inc_vat' => (float) $order->total_inc_vat,
-            'payment_display' => self::paymentLabel(
-                $order->payment_method instanceof \BackedEnum
-                    ? $order->payment_method->value
-                    : (string) ($order->payment_method ?? 'cash')
-            ),
+            'totals' => $totals,
+            'total_inc_vat' => $totals['total_inc_vat'],
+            'net_due_inc_vat' => $totals['net_due_inc_vat'],
+            'payment_display' => self::paymentLabel($paymentMethod),
+            'payment_method' => $paymentMethod,
             'card' => $cardBlock !== [] ? $cardBlock : null,
             'vat_rows' => $vatRows,
             'cashier_name' => $order->cashier?->name,
+            'document_number' => $invoice->document_number,
+            'due_date' => $invoice->due_date?->format('Y-m-d'),
+            'amount_words_ar' => $amountWords['ar'],
+            'amount_words_en' => $amountWords['en'],
             'meta_table' => [
                 'date' => $paidAt?->format('Y-m-d') ?? '—',
                 'time' => $paidAt?->format('H:i:s') ?? '—',
@@ -95,8 +106,73 @@ final class ReceiptThermalPresenter
                 'receipt' => $order->order_number,
             ],
             'barcode_value' => $order->order_number,
-            'storefront_url' => $storefrontUrl,
+            'storefront_url' => null,
         ];
+    }
+
+    /**
+     * @param  list<array<string, mixed>>  $rawLines
+     * @return list<InvoiceLineData>
+     */
+    private static function signingLinesFromPayload(array $rawLines): array
+    {
+        $out = [];
+
+        foreach ($rawLines as $line) {
+            $nameAr = trim((string) ($line['name_ar'] ?? ''));
+
+            $out[] = new InvoiceLineData(
+                name: (string) ($line['name'] ?? 'Item'),
+                quantity: (float) ($line['quantity'] ?? 1),
+                unitPriceExVat: (float) ($line['unit_price_ex_vat'] ?? 0),
+                vatRate: (float) ($line['vat_rate'] ?? 15),
+                discountExVat: (float) ($line['discount_ex_vat'] ?? 0),
+                nameAr: $nameAr !== '' ? $nameAr : null,
+            );
+        }
+
+        return $out;
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     * @return array<string, mixed>|null
+     */
+    private static function customerBlock(PosOrder $order, array $payload, Invoice $invoice): ?array
+    {
+        $customer = $order->relationLoaded('customer') ? $order->customer : null;
+        $name = trim((string) ($payload['buyer_name'] ?? $customer?->name ?? ''));
+        $phone = trim((string) ($payload['buyer_phone'] ?? $customer?->phone ?? ''));
+        $email = trim((string) ($payload['buyer_email'] ?? $customer?->email ?? ''));
+        $vat = trim((string) ($payload['buyer_vat'] ?? data_get($customer?->profile, 'vat_number', '') ?? ''));
+        $address = self::formatBuyerAddress($payload);
+
+        $block = array_filter([
+            'name' => $name !== '' ? $name : null,
+            'phone' => $phone !== '' ? $phone : null,
+            'email' => $email !== '' ? $email : null,
+            'vat_number' => $vat !== '' ? $vat : null,
+            'address' => $address,
+        ]);
+
+        return $block === [] ? null : $block;
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    private static function formatBuyerAddress(array $payload): ?string
+    {
+        $addr = (array) ($payload['buyer_national_address'] ?? []);
+        $parts = array_filter([
+            trim((string) ($addr['building'] ?? '')),
+            trim((string) ($addr['street'] ?? '')),
+            trim((string) ($addr['district'] ?? '')),
+            trim((string) ($addr['city'] ?? '')),
+            trim((string) ($addr['postal_code'] ?? '')),
+        ]);
+
+        return $parts === [] ? null : implode(', ', $parts);
     }
 
     /**
@@ -108,13 +184,13 @@ final class ReceiptThermalPresenter
         $mapped = [];
 
         foreach ($rawLines as $line) {
-            $qty = (float) ($line['quantity'] ?? 1);
+            $qty = InvoiceLineMath::normalizeQuantity((float) ($line['quantity'] ?? 1));
             $unitEx = (float) ($line['unit_price_ex_vat'] ?? 0);
             $discountEx = (float) ($line['discount_ex_vat'] ?? 0);
             $vatRate = (float) ($line['vat_rate'] ?? 15);
-            $lineEx = max(0, $unitEx * $qty - $discountEx);
-            $lineVat = round($lineEx * $vatRate / 100, 2);
-            $lineInc = round($lineEx + $lineVat, 2);
+            $netEx = InvoiceLineMath::lineNetExVat($unitEx, $qty, $discountEx);
+            $lineVat = InvoiceLineMath::lineVatAmount($netEx, $vatRate);
+            $lineInc = InvoiceLineMath::lineIncVat($netEx, $vatRate);
             $unitInc = $qty > 0 ? round($lineInc / $qty, 2) : 0.0;
 
             $productId = $line['product_id'] ?? null;
@@ -125,13 +201,14 @@ final class ReceiptThermalPresenter
                 'barcode' => $barcode,
                 'sku' => $sku,
                 'quantity' => $qty,
+                'quantity_display' => InvoiceLineMath::formatQuantity($qty),
                 'unit_price_inc' => $unitInc,
                 'tax_code' => self::taxCode($vatRate),
                 'name_en' => (string) ($line['name'] ?? ''),
                 'name_ar' => (string) ($line['name_ar'] ?? $line['name'] ?? ''),
                 'line_total_inc' => $lineInc,
                 'vat_rate' => $vatRate,
-                'line_ex_vat' => round($lineEx, 2),
+                'line_ex_vat' => $netEx,
                 'line_vat' => $lineVat,
             ];
         }
@@ -187,25 +264,13 @@ final class ReceiptThermalPresenter
     private static function paymentLabel(?string $method): string
     {
         return match ($method) {
-            'mada' => 'MADA',
-            'card' => 'CARD',
-            'cash' => 'CASH',
-            default => strtoupper((string) ($method ?: 'CASH')),
+            'mada' => __('invoices.payment.mada'),
+            'card' => __('invoices.payment.card'),
+            'cash' => __('invoices.payment.cash'),
+            'transfer' => __('invoices.payment.transfer'),
+            'credit' => __('invoices.payment.credit'),
+            default => __('invoices.payment.cash'),
         };
-    }
-
-    private static function maskPhone(?string $phone): ?string
-    {
-        if (! filled($phone)) {
-            return null;
-        }
-        $digits = preg_replace('/\D+/', '', $phone) ?? '';
-        if (strlen($digits) < 4) {
-            return null;
-        }
-        $tail = substr($digits, -4);
-
-        return str_repeat('*', max(7, strlen($digits) - 4)).$tail;
     }
 
     private static function maskCard(string $card): string
@@ -236,17 +301,9 @@ final class ReceiptThermalPresenter
             }
         }
 
-        $legalAddress = $legal['address'] ?? null;
+        $legalAddress = $legal['address'] ?? $legal['address_en'] ?? null;
         if (filled($legalAddress) && ! in_array((string) $legalAddress, $lines, true)) {
             $lines[] = (string) $legalAddress;
-        }
-
-        if ($lines === [] && filled($legal['address'] ?? null)) {
-            $lines[] = (string) $legal['address'];
-        }
-
-        if ($lines === [] && filled($legal['address_ar'] ?? null)) {
-            $lines[] = (string) $legal['address_ar'];
         }
 
         if ($lines === [] && filled($content['location_badge_en'] ?? null)) {
@@ -258,17 +315,40 @@ final class ReceiptThermalPresenter
 
     /**
      * @param  array<string, mixed>  $legal
+     * @return list<string>
+     */
+    private static function branchAddressLinesAr(?Branch $branch, array $legal): array
+    {
+        $lines = [];
+
+        if ($branch !== null && filled($branch->name_ar ?? null)) {
+            $lines[] = $branch->name_ar;
+        }
+
+        if (filled($legal['address_ar'] ?? null)) {
+            $lines[] = (string) $legal['address_ar'];
+        }
+
+        return $lines;
+    }
+
+    /**
+     * @param  array<string, mixed>  $legal
      * @param  array<string, mixed>  $content
-     * @return array{phone: ?string, fax: ?string, email: ?string}
+     * @return array{phone: ?string, mobile: ?string, mobile_secondary: ?string, fax: ?string, email: ?string}
      */
     private static function contactLines(array $legal, array $content): array
     {
         $legacy = (array) ($content['contact'] ?? []);
         $phone = $legacy['phone'] ?? $content['phone'] ?? $legal['phone'] ?? null;
+        $mobile = $legal['mobile'] ?? $legacy['mobile'] ?? null;
+        $mobile2 = $legal['mobile_secondary'] ?? null;
         $email = $legacy['email'] ?? $content['email'] ?? $legal['email'] ?? null;
 
         return [
             'phone' => filled($phone) ? (string) $phone : null,
+            'mobile' => filled($mobile) ? (string) $mobile : null,
+            'mobile_secondary' => filled($mobile2) ? (string) $mobile2 : null,
             'fax' => filled($legal['fax'] ?? null) ? (string) $legal['fax'] : null,
             'email' => filled($email) ? (string) $email : null,
         ];

@@ -1,6 +1,7 @@
 @php
     use App\Support\EnabledLocales;
     use App\Support\Invoicing\InvoiceLineGrouper;
+    use App\Support\Invoicing\InvoiceLineMath;
 
     $legal = $business->settings['legal_entity'] ?? [];
     $groupedLines = InvoiceLineGrouper::sectionsForDisplay($order->line_items ?? [], $locale);
@@ -91,7 +92,10 @@
                 @foreach ($t['branch_lines'] as $line)
                     <p class="receipt-thermal__center receipt-thermal__xs">{{ $line }}</p>
                 @endforeach
-                @if ($t['phone'] || $t['fax'])
+                @foreach ($t['branch_lines_ar'] ?? [] as $line)
+                    <p class="receipt-thermal__center receipt-thermal__xs" dir="rtl">{{ $line }}</p>
+                @endforeach
+                @if ($t['phone'] || $t['fax'] || $t['mobile'] || ($t['mobile_secondary'] ?? null))
                     <p class="receipt-thermal__center receipt-thermal__xs">
                         @if ($t['phone'])
                             {{ __('pos.receipt_phone_fax') }}: {{ $t['phone'] }}@if ($t['fax']) / {{ $t['fax'] }}@endif
@@ -100,15 +104,25 @@
                         @endif
                     </p>
                 @endif
+                @if ($t['mobile'])
+                    <p class="receipt-thermal__center receipt-thermal__xs">{{ __('invoices.mobile') }}: {{ $t['mobile'] }}@if ($t['mobile_secondary']) / {{ $t['mobile_secondary'] }}@endif</p>
+                @endif
                 @if ($t['email'])
                     <p class="receipt-thermal__center receipt-thermal__xs">{{ __('pos.receipt_email') }}: {{ $t['email'] }}</p>
                 @endif
                 @if ($t['cr_number'])
                     <p class="receipt-thermal__center receipt-thermal__xs">{{ __('pos.receipt_cr_no') }}: {{ $t['cr_number'] }}</p>
                 @endif
+                @if (! empty($t['unified_number']))
+                    <p class="receipt-thermal__center receipt-thermal__xs">{{ __('invoices.unified_number') }}: {{ $t['unified_number'] }}</p>
+                @endif
                 @if ($t['trn'])
                     <p class="receipt-thermal__center receipt-thermal__xs receipt-thermal__trn">{{ __('pos.receipt_trn') }}: {{ $t['trn'] }}</p>
                 @endif
+                @if ($t['due_date'])
+                    <p class="receipt-thermal__center receipt-thermal__xs">{{ __('invoices.due_date') }}: {{ $t['due_date'] }}</p>
+                @endif
+                <p class="receipt-thermal__center receipt-thermal__xs">{{ __('invoices.ref') }} {{ $t['document_number'] }}</p>
             </header>
 
             @if ($invoice->qr_tlv_base64)
@@ -125,11 +139,20 @@
 
             @if ($t['customer'])
                 <div class="receipt-thermal__customer receipt-thermal__xs">
-                    @if (! empty($t['customer']['masked_phone']))
-                        <p>{{ __('pos.receipt_customer') }}: {{ $t['customer']['masked_phone'] }}</p>
-                    @endif
                     @if (! empty($t['customer']['name']))
                         <p>{{ __('pos.receipt_customer_name') }}: {{ $t['customer']['name'] }}</p>
+                    @endif
+                    @if (! empty($t['customer']['address']))
+                        <p>{{ $t['customer']['address'] }}</p>
+                    @endif
+                    @if (! empty($t['customer']['email']))
+                        <p>{{ __('pos.receipt_email') }}: {{ $t['customer']['email'] }}</p>
+                    @endif
+                    @if (! empty($t['customer']['phone']))
+                        <p>{{ __('invoices.mobile') }}: {{ $t['customer']['phone'] }}</p>
+                    @endif
+                    @if (! empty($t['customer']['vat_number']))
+                        <p>{{ __('pos.receipt_trn') }}: {{ $t['customer']['vat_number'] }}</p>
                     @endif
                 </div>
             @endif
@@ -151,7 +174,7 @@
                             <p class="receipt-thermal__line-meta receipt-thermal__xs">
                                 <span>{{ $line['barcode'] }}</span>
                                 <span class="receipt-thermal__line-meta-end">
-                                    {{ number_format($line['quantity'], 0) }} x {{ number_format($line['unit_price_inc'], 2) }} {{ $line['tax_code'] }}
+                                    {{ $line['quantity_display'] }} x {{ number_format($line['unit_price_inc'], 2) }} {{ $line['tax_code'] }}
                                 </span>
                             </p>
                             <p class="receipt-thermal__line-ar receipt-thermal__xs" dir="rtl">{{ $line['name_ar'] }}</p>
@@ -166,13 +189,40 @@
 
             <p class="receipt-thermal__rule" aria-hidden="true">--------------------------------</p>
 
+            @php($tot = $t['totals'] ?? [])
             <p class="receipt-thermal__total-row receipt-thermal__xs">
-                <span>{{ __('pos.receipt_total') }}</span>
-                <span class="receipt-thermal__amt">{{ number_format($t['total_inc_vat'], 2) }}</span>
+                <span>{{ __('invoices.subtotal_ex_vat') }}</span>
+                <span class="receipt-thermal__amt"><span class="sar-symbol" aria-hidden="true"></span> {{ number_format($tot['subtotal_ex_vat'] ?? $t['total_inc_vat'], 2) }}</span>
             </p>
-            <p class="receipt-thermal__xs">{{ __('pos.receipt_items_count') }}: {{ $t['item_count'] }}</p>
+            @if (($tot['invoice_discount_ex_vat'] ?? 0) > 0)
+                <p class="receipt-thermal__total-row receipt-thermal__xs">
+                    <span>{{ __('invoices.invoice_discount_ex_vat') }}</span>
+                    <span class="receipt-thermal__amt">- <span class="sar-symbol" aria-hidden="true"></span> {{ number_format($tot['invoice_discount_ex_vat'], 2) }}</span>
+                </p>
+            @endif
+            <p class="receipt-thermal__total-row receipt-thermal__xs">
+                <span>{{ __('invoices.total_vat') }}</span>
+                <span class="receipt-thermal__amt"><span class="sar-symbol" aria-hidden="true"></span> {{ number_format($tot['total_vat'] ?? 0, 2) }}</span>
+            </p>
+            <p class="receipt-thermal__total-row receipt-thermal__xs">
+                <span>{{ __('invoices.total_inc_vat') }}</span>
+                <span class="receipt-thermal__amt"><span class="sar-symbol" aria-hidden="true"></span> {{ number_format($t['total_inc_vat'], 2) }}</span>
+            </p>
+            @if (($tot['retention_amount'] ?? 0) > 0)
+                <p class="receipt-thermal__total-row receipt-thermal__xs">
+                    <span>{{ __('invoices.retention') }}</span>
+                    <span class="receipt-thermal__amt">- <span class="sar-symbol" aria-hidden="true"></span> {{ number_format($tot['retention_amount'], 2) }}</span>
+                </p>
+                <p class="receipt-thermal__total-row receipt-thermal__bold receipt-thermal__xs">
+                    <span>{{ __('invoices.net_due') }}</span>
+                    <span class="receipt-thermal__amt"><span class="sar-symbol" aria-hidden="true"></span> {{ number_format($t['net_due_inc_vat'], 2) }}</span>
+                </p>
+            @endif
+            <p class="receipt-thermal__xs receipt-thermal__words" dir="rtl">{{ $t['amount_words_ar'] }}</p>
+            <p class="receipt-thermal__xs receipt-thermal__words">{{ $t['amount_words_en'] }}</p>
+            <p class="receipt-thermal__xs">{{ __('pos.receipt_items_count') }}: {{ InvoiceLineMath::formatQuantity((float) $t['item_count']) }}</p>
             <p class="receipt-thermal__xs">
-                {{ $t['payment_display'] }} {{ __('pos.receipt_sar') }} {{ number_format($t['total_inc_vat'], 2) }}
+                {{ $t['payment_display'] }} · <span class="sar-symbol" aria-hidden="true"></span> {{ number_format($t['total_inc_vat'], 2) }}
             </p>
             @if ($t['card'])
                 @if (! empty($t['card']['eft_trans_no']))
@@ -194,11 +244,11 @@
             <table class="receipt-thermal__vat-table receipt-thermal__xs">
                 <thead>
                     <tr>
-                        <th>{{ __('pos.receipt_vat_col_tax') }}</th>
-                        <th>{{ __('pos.receipt_vat_col_pct') }}</th>
-                        <th>{{ __('pos.receipt_vat_col_before') }}</th>
-                        <th>{{ __('pos.receipt_vat_col_incl') }}</th>
-                        <th>{{ __('pos.receipt_vat_col_vat') }}</th>
+                        <th>{{ __('pos.receipt_vat_col_tax') }}<span class="th-ar">{{ __('pos.receipt_vat_col_tax') }}</span></th>
+                        <th>{{ __('pos.receipt_vat_col_pct') }}<span class="th-ar">{{ __('pos.receipt_vat_col_pct') }}</span></th>
+                        <th>{{ __('pos.receipt_vat_col_before') }}<span class="th-ar">{{ __('pos.receipt_vat_col_before') }}</span></th>
+                        <th>{{ __('pos.receipt_vat_col_incl') }}<span class="th-ar">{{ __('pos.receipt_vat_col_incl') }}</span></th>
+                        <th>{{ __('pos.receipt_vat_col_vat') }}<span class="th-ar">{{ __('pos.receipt_vat_col_vat') }}</span></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -248,6 +298,12 @@
             <div class="receipt-thermal__barcode-wrap">
                 <svg id="receipt-barcode" data-value="{{ $t['barcode_value'] }}" class="receipt-thermal__barcode" role="img" aria-label="{{ $t['barcode_value'] }}"></svg>
             </div>
+
+            <footer class="receipt-thermal__print-footer print-only" aria-hidden="true">
+                <span class="receipt-thermal__footer-en">{{ $t['seller_en'] }}</span>
+                <span class="receipt-thermal__footer-ar" dir="rtl">{{ $t['seller_ar'] }}</span>
+                <span class="receipt-thermal__footer-meta">{{ $t['document_number'] }}</span>
+            </footer>
         </article>
     </div>
 </x-layouts.pos>

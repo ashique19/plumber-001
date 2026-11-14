@@ -5,6 +5,7 @@ namespace App\Services\Invoicing\ZHeart;
 use App\Data\InvoiceLineData;
 use App\Rules\SaudiVatNumber;
 use App\Services\Invoicing\Signing\InvoiceSigningRequest;
+use App\Support\Invoicing\InvoiceDocumentTotals;
 use Illuminate\Support\Facades\Validator;
 
 final class ZHeartInvoicePayloadBuilder
@@ -34,8 +35,12 @@ final class ZHeartInvoicePayloadBuilder
             'type' => $type,
             'document_type' => $documentType,
             'lines' => $this->mapLines($request->lines),
-            'totals' => $this->totals($request->lines),
+            'totals' => $this->totals($request->lines, $request->documentDiscountExVat),
         ];
+
+        if ($request->documentDiscountExVat > 0) {
+            $payload['document_discount_ex_vat'] = round($request->documentDiscountExVat, 2);
+        }
 
         if (in_array($documentType, ['credit', 'debit'], true)) {
             if ($request->referencedInvoiceNumber) {
@@ -82,7 +87,10 @@ final class ZHeartInvoicePayloadBuilder
             Validator::make(['vat' => $vat], ['vat' => [new SaudiVatNumber]])->validate();
         }
 
-        if ($name === '' && $vat === '' && $cr === '' && $address === []) {
+        $email = trim((string) ($request->invoicePayload['buyer_email'] ?? ''));
+        $phone = trim((string) ($request->invoicePayload['buyer_phone'] ?? ''));
+
+        if ($name === '' && $vat === '' && $cr === '' && $address === [] && $email === '' && $phone === '') {
             return [];
         }
 
@@ -90,6 +98,8 @@ final class ZHeartInvoicePayloadBuilder
             'name' => $name !== '' ? $name : null,
             'vat_number' => $vat !== '' ? $vat : null,
             'cr_number' => $cr !== '' ? $cr : null,
+            'email' => $email !== '' ? $email : null,
+            'phone' => $phone !== '' ? $phone : null,
         ]);
 
         $normalizedAddress = $this->normalizeAddress($address);
@@ -127,10 +137,14 @@ final class ZHeartInvoicePayloadBuilder
         return array_map(function (InvoiceLineData $line) {
             $row = [
                 'name' => $line->name,
-                'quantity' => $line->quantity,
+                'quantity' => round($line->quantity, 3),
                 'unit_price' => round($line->unitPriceExVat, 2),
                 'vat_rate' => $line->vatRate,
             ];
+
+            if (filled($line->nameAr)) {
+                $row['name_ar'] = $line->nameAr;
+            }
 
             if ($line->discountExVat > 0) {
                 $row['discount'] = round($line->discountExVat, 2);
@@ -144,24 +158,14 @@ final class ZHeartInvoicePayloadBuilder
      * @param  list<InvoiceLineData>  $lines
      * @return array{tax_exclusive: float, tax: float, tax_inclusive: float}
      */
-    private function totals(array $lines): array
+    private function totals(array $lines, float $documentDiscountExVat = 0.0): array
     {
-        $ex = 0.0;
-        $vat = 0.0;
-
-        foreach ($lines as $line) {
-            $net = $line->netExVat();
-            $ex += $net;
-            $vat += $net * ($line->vatRate / 100);
-        }
-
-        $ex = round($ex, 2);
-        $vat = round($vat, 2);
+        $computed = InvoiceDocumentTotals::compute($lines, $documentDiscountExVat);
 
         return [
-            'tax_exclusive' => $ex,
-            'tax' => $vat,
-            'tax_inclusive' => round($ex + $vat, 2),
+            'tax_exclusive' => $computed['subtotal_ex_vat'] - $computed['invoice_discount_ex_vat'],
+            'tax' => $computed['total_vat'],
+            'tax_inclusive' => $computed['total_inc_vat'],
         ];
     }
 }

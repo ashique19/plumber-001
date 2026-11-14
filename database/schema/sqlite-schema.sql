@@ -212,6 +212,7 @@ CREATE TABLE IF NOT EXISTS "invoices"(
   "qr_tlv_base64" text,
   "payload" text,
   "issued_at" datetime,
+  "due_date" date,
   "created_at" datetime,
   "updated_at" datetime,
   foreign key("branch_id") references "branches"("id") on delete set null,

@@ -77,6 +77,7 @@ class BusinessSetting extends Model
       'invoicing' => [
         'default_document_type' => 'simplified',
         'integration_enabled' => false,
+        'payment_terms_days' => 30,
       ],
       'content' => [
         'plumber' => [],

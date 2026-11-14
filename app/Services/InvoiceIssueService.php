@@ -63,13 +63,16 @@ class InvoiceIssueService
         $invoiceCategory = $this->resolveInvoiceCategory($invoice, $referenced);
         $invoiceUuid = (string) (($invoice->payload['invoice_uuid'] ?? null) ?: Str::uuid());
 
+        $payload = $invoice->payload ?? [];
+        $documentDiscount = (float) ($payload['invoice_discount_ex_vat'] ?? 0);
+
         $signingRequest = new InvoiceSigningRequest(
             business: $business,
             documentNumber: $invoice->document_number,
             documentType: $invoice->document_type,
             invoiceCategory: $invoiceCategory,
             lines: $lines,
-            invoicePayload: $invoice->payload ?? [],
+            invoicePayload: $payload,
             issueDateTimeUtc: $now,
             invoiceUuid: $invoiceUuid,
             referencedInvoiceNumber: $referenced?->document_number,
@@ -77,7 +80,11 @@ class InvoiceIssueService
                 ? (string) ($referenced->payload['invoice_uuid'] ?? '')
                 : null,
             noteReason: $this->resolveNoteReason($invoice),
+            documentDiscountExVat: $documentDiscount,
         );
+
+        $termsDays = max(0, (int) data_get($business->settings, 'invoicing.payment_terms_days', 30));
+        $dueDate = $now->copy()->timezone('Asia/Riyadh')->addDays($termsDays)->toDateString();
 
         $signed = $this->signingFactory->gateway()->signIssuedInvoice($signingRequest, $invoice);
 
@@ -108,6 +115,7 @@ class InvoiceIssueService
             'signed_xml' => $signed['cleared_xml'] ?? $signed['xml'],
             'qr_tlv_base64' => $signed['qr'],
             'issued_at' => $now,
+            'due_date' => $dueDate,
             'payload' => $payloadMerge,
         ])->save();
 
@@ -151,12 +159,15 @@ class InvoiceIssueService
         $raw = $invoice->payload['lines'] ?? [];
 
         return array_map(function (array $line): InvoiceLineData {
+            $nameAr = trim((string) ($line['name_ar'] ?? ''));
+
             return new InvoiceLineData(
                 name: (string) $line['name'],
                 quantity: (float) $line['quantity'],
                 unitPriceExVat: (float) $line['unit_price_ex_vat'],
                 vatRate: (float) ($line['vat_rate'] ?? 15),
                 discountExVat: (float) ($line['discount_ex_vat'] ?? 0),
+                nameAr: $nameAr !== '' ? $nameAr : null,
             );
         }, is_array($raw) ? $raw : []);
     }

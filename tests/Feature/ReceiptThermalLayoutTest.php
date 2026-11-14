@@ -33,9 +33,9 @@ it('builds thermal presenter with sku lines and vat summary', function () {
     expect($thermal['lines'])->toHaveCount(1)
         ->and($thermal['lines'][0]['sku'])->toBe('SRV-DEMO')
         ->and($thermal['lines'][0]['tax_code'])->toBe('S6')
-        ->and($thermal['item_count'])->toBe(2)
+        ->and($thermal['item_count'])->toEqual(2.0)
         ->and($thermal['vat_rows'])->not->toBeEmpty()
-        ->and($thermal['payment_display'])->toBe('MADA')
+        ->and($thermal['payment_display'])->toBe(__('invoices.payment.mada'))
         ->and($thermal['cashier_name'])->toBe('Cashier');
 });
 
@@ -60,7 +60,7 @@ it('shows masked customer block when order has customer', function () {
 
     $thermal = ReceiptThermalPresenter::compose($business, $paid, $invoice, $branch);
 
-    expect($thermal['customer']['masked_phone'])->toEndWith('0244')
+    expect($thermal['customer']['phone'])->toBe('05012340244')
         ->and($thermal['customer']['name'])->toBe('Jamal Guest');
 });
 

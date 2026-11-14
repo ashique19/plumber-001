@@ -21,15 +21,24 @@
             </fieldset>
         @else
             <x-form.input :label="__('invoices.buyer_optional')" name="buyerNameOptional" wire:model.blur="buyerNameOptional" />
+            <x-form.input :label="__('invoices.buyer_phone')" name="buyerPhone" wire:model.blur="buyerPhone" />
+            <x-form.input :label="__('invoices.buyer_email')" name="buyerEmail" wire:model.blur="buyerEmail" />
         @endif
+
+        <div class="grid gap-2 sm:grid-cols-3">
+            <x-form.input type="number" step="0.01" min="0" :label="__('invoices.invoice_discount_ex_vat')" name="invoiceDiscountExVat" wire:model.blur="invoiceDiscountExVat" />
+            <x-form.input type="number" step="0.01" min="0" max="100" :label="__('invoices.retention_percent')" name="retentionPercent" wire:model.blur="retentionPercent" />
+            <x-form.input type="number" step="0.01" min="0" :label="__('invoices.retention_fixed')" name="retentionFixed" wire:model.blur="retentionFixed" />
+        </div>
 
         <fieldset class="space-y-3">
             <legend class="app-section-heading">{{ __('invoices.lines_section') }}</legend>
             @foreach ($lines as $index => $line)
                 <div class="app-inset-panel" wire:key="line-{{ $index }}">
                     <x-form.input :label="__('invoices.line_name')" name="lines.{{ $index }}.name" wire:model.blur="lines.{{ $index }}.name" />
+                    <x-form.input class="mt-2" :label="__('invoices.line_name_ar')" name="lines.{{ $index }}.name_ar" wire:model.blur="lines.{{ $index }}.name_ar" dir="rtl" />
                     <div class="mt-2 grid gap-2 sm:grid-cols-3">
-                        <x-form.input type="number" step="0.01" :label="__('invoices.line_qty')" name="lines.{{ $index }}.quantity" wire:model.blur="lines.{{ $index }}.quantity" />
+                        <x-form.input type="number" step="0.001" min="0.001" :label="__('invoices.line_qty')" name="lines.{{ $index }}.quantity" wire:model.blur="lines.{{ $index }}.quantity" />
                         <x-form.input type="number" step="0.01" :label="__('invoices.line_price_ex_vat')" name="lines.{{ $index }}.unit_price" wire:model.blur="lines.{{ $index }}.unit_price" />
                         <x-form.input type="number" step="0.01" :label="__('invoices.line_vat')" name="lines.{{ $index }}.vat_rate" wire:model.blur="lines.{{ $index }}.vat_rate" />
                     </div>
