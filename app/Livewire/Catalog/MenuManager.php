@@ -14,6 +14,7 @@ use App\Models\ProductModifier;
 use App\Support\Inventory\IngredientInventorySchema;
 use App\Models\BusinessSetting;
 use App\Support\Catalog\CatalogI18n;
+use App\Support\Catalog\ProductCategorySchema;
 use App\Support\Catalog\ProductStorefrontVisibility;
 use App\Support\VatPricing;
 use App\Business\BusinessContext;
@@ -147,12 +148,16 @@ class MenuManager extends Component
         if ($id !== null) {
             $cat = $this->categoryQuery()->findOrFail($id);
             $this->editingCategoryId = $cat->id;
-            $this->categoryNameEn = $cat->name_en;
-            $this->categoryNameAr = (string) $cat->name_ar;
-            $this->categoryNameBn = CatalogI18n::columnsExist() ? (string) ($cat->name_bn ?? '') : '';
-            $this->categoryDescriptionEn = CatalogI18n::columnsExist() ? (string) ($cat->description_en ?? '') : '';
-            $this->categoryDescriptionAr = CatalogI18n::columnsExist() ? (string) ($cat->description_ar ?? '') : '';
-            $this->categoryDescriptionBn = CatalogI18n::columnsExist() ? (string) ($cat->description_bn ?? '') : '';
+            $this->categoryNameEn = ProductCategorySchema::hasNameEnColumn()
+                ? (string) $cat->name_en
+                : (string) ($cat->name ?? '');
+            $this->categoryNameAr = ProductCategorySchema::hasNameArColumn()
+                ? (string) ($cat->name_ar ?? '')
+                : '';
+            $this->categoryNameBn = ProductCategorySchema::hasNameBnColumn() ? (string) ($cat->name_bn ?? '') : '';
+            $this->categoryDescriptionEn = ProductCategorySchema::hasDescriptionEnColumn() ? (string) ($cat->description_en ?? '') : '';
+            $this->categoryDescriptionAr = ProductCategorySchema::hasDescriptionArColumn() ? (string) ($cat->description_ar ?? '') : '';
+            $this->categoryDescriptionBn = ProductCategorySchema::hasDescriptionBnColumn() ? (string) ($cat->description_bn ?? '') : '';
             $this->categoryIconKey = (string) ($cat->icon_key ?: 'cup');
             $this->categoryActive = (bool) $cat->is_active;
         }
@@ -172,19 +177,7 @@ class MenuManager extends Component
             'categoryActive' => ['boolean'],
         ]);
 
-        $payload = [
-            'name_en' => $validated['categoryNameEn'],
-            'name_ar' => $validated['categoryNameAr'] ?: null,
-            'icon_key' => $validated['categoryIconKey'] ?: null,
-            'is_active' => $validated['categoryActive'],
-        ];
-
-        if (CatalogI18n::columnsExist()) {
-            $payload['name_bn'] = $validated['categoryNameBn'] ?: null;
-            $payload['description_en'] = $validated['categoryDescriptionEn'] ?: null;
-            $payload['description_ar'] = $validated['categoryDescriptionAr'] ?: null;
-            $payload['description_bn'] = $validated['categoryDescriptionBn'] ?: null;
-        }
+        $payload = ProductCategorySchema::mutationPayload($validated);
 
         if ($this->editingCategoryId) {
             $cat = $this->categoryQuery()->findOrFail($this->editingCategoryId);
@@ -481,7 +474,8 @@ class MenuManager extends Component
 
     public function render(): View
     {
-        $categories = $this->categoryQuery()->orderBy('sort_order')->orderBy('name_en')->get();
+        $nameCol = ProductCategorySchema::nameOrderColumn();
+        $categories = $this->categoryQuery()->orderBy('sort_order')->orderBy($nameCol)->get();
         $products = $this->productQuery()->with('category')->orderBy('sort_order')->orderBy('name_en')->get();
         $modifiers = $this->modifierQuery()->orderBy('name_en')->get();
 
@@ -492,6 +486,8 @@ class MenuManager extends Component
             'canWrite' => auth('staff')->user()?->can('staff.manage') ?? false,
             'storefrontVisibilityReady' => ProductStorefrontVisibility::columnsExist(),
             'catalogI18nReady' => CatalogI18n::columnsExist(),
+            'categoryBanglaFieldsReady' => CatalogI18n::categoryBanglaFieldsReady(),
+            'categoryDescriptionFieldsReady' => CatalogI18n::categoryDescriptionFieldsReady(),
             'inventoryReady' => IngredientInventorySchema::productIngredientsReady(),
             'ingredientOptions' => IngredientInventorySchema::ingredientsReady()
                 ? Ingredient::query()->whereNull('branch_id')->orderedForDisplay()->get()

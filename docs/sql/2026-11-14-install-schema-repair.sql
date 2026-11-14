@@ -151,9 +151,89 @@ ALTER TABLE `sessions`
 ALTER TABLE `staff_users`
   MODIFY `remember_token` VARCHAR(100) NULL;
 
+-- ---------------------------------------------------------------------------
+-- product_categories: legacy `name` / missing i18n columns (pre-2026 installs)
+-- ---------------------------------------------------------------------------
+SET @pc_legacy_name := (
+  SELECT COUNT(*) FROM information_schema.COLUMNS
+  WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'product_categories' AND COLUMN_NAME = 'name'
+);
+SET @pc_has_name_en := (
+  SELECT COUNT(*) FROM information_schema.COLUMNS
+  WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'product_categories' AND COLUMN_NAME = 'name_en'
+);
+
+SET @ddl := IF(
+  @pc_legacy_name > 0 AND @pc_has_name_en = 0,
+  'ALTER TABLE `product_categories` CHANGE COLUMN `name` `name_en` VARCHAR(255) NOT NULL',
+  'DO 0'
+);
+PREPARE stmt FROM @ddl; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @ddl := IF(
+  @pc_has_name_en = 0 AND @pc_legacy_name = 0,
+  'ALTER TABLE `product_categories` ADD COLUMN `name_en` VARCHAR(255) NOT NULL DEFAULT '''' AFTER `branch_id`',
+  'DO 0'
+);
+PREPARE stmt FROM @ddl; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @ddl := IF(
+  @pc_legacy_name > 0 AND @pc_has_name_en > 0,
+  'UPDATE `product_categories` SET `name_en` = `name` WHERE (`name_en` IS NULL OR `name_en` = '''') AND `name` IS NOT NULL AND `name` <> ''''',
+  'DO 0'
+);
+PREPARE stmt FROM @ddl; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @ddl := IF(
+  @pc_legacy_name > 0,
+  'ALTER TABLE `product_categories` DROP COLUMN `name`',
+  'DO 0'
+);
+PREPARE stmt FROM @ddl; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @ddl := IF(
+  (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'product_categories' AND COLUMN_NAME = 'name_ar') = 0,
+  'ALTER TABLE `product_categories` ADD COLUMN `name_ar` VARCHAR(255) NULL AFTER `name_en`',
+  'DO 0'
+);
+PREPARE stmt FROM @ddl; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @ddl := IF(
+  (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'product_categories' AND COLUMN_NAME = 'name_bn') = 0,
+  'ALTER TABLE `product_categories` ADD COLUMN `name_bn` VARCHAR(120) NULL AFTER `name_ar`',
+  'DO 0'
+);
+PREPARE stmt FROM @ddl; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @ddl := IF(
+  (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'product_categories' AND COLUMN_NAME = 'description_en') = 0,
+  'ALTER TABLE `product_categories` ADD COLUMN `description_en` TEXT NULL AFTER `icon_key`',
+  'DO 0'
+);
+PREPARE stmt FROM @ddl; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @ddl := IF(
+  (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'product_categories' AND COLUMN_NAME = 'description_ar') = 0,
+  'ALTER TABLE `product_categories` ADD COLUMN `description_ar` TEXT NULL AFTER `description_en`',
+  'DO 0'
+);
+PREPARE stmt FROM @ddl; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @ddl := IF(
+  (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'product_categories' AND COLUMN_NAME = 'description_bn') = 0,
+  'ALTER TABLE `product_categories` ADD COLUMN `description_bn` TEXT NULL AFTER `description_ar`',
+  'DO 0'
+);
+PREPARE stmt FROM @ddl; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
 ALTER TABLE `product_categories`
+  MODIFY `name_en` VARCHAR(255) NOT NULL,
+  MODIFY `name_ar` VARCHAR(255) NULL,
   MODIFY `name_bn` VARCHAR(120) NULL,
   MODIFY `icon_key` VARCHAR(32) NULL,
+  MODIFY `description_en` TEXT NULL,
+  MODIFY `description_ar` TEXT NULL,
+  MODIFY `description_bn` TEXT NULL,
   MODIFY `sort_order` SMALLINT UNSIGNED NOT NULL DEFAULT 0;
 
 ALTER TABLE `products`

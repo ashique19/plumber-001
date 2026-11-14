@@ -74,8 +74,13 @@ ALTER TABLE `staff_users`
   MODIFY `remember_token` VARCHAR(100) NULL;
 
 ALTER TABLE `product_categories`
+  MODIFY `name_en` VARCHAR(255) NOT NULL,
+  MODIFY `name_ar` VARCHAR(255) NULL,
   MODIFY `name_bn` VARCHAR(120) NULL,
   MODIFY `icon_key` VARCHAR(32) NULL,
+  MODIFY `description_en` TEXT NULL,
+  MODIFY `description_ar` TEXT NULL,
+  MODIFY `description_bn` TEXT NULL,
   MODIFY `sort_order` SMALLINT UNSIGNED NOT NULL DEFAULT 0;
 
 ALTER TABLE `products`

@@ -10,7 +10,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class ProductCategory extends Model
 {
 
-    protected $fillable = [        'branch_id',
+    protected $fillable = [
+        'branch_id',
+        'name',
         'name_en',
         'name_ar',
         'name_bn',

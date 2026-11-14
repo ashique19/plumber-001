@@ -150,8 +150,10 @@
             <form class="mt-4 space-y-3" wire:submit="saveCategory">
                 <x-form.input :label="__('catalog.name_en')" name="categoryNameEn" wire:model="categoryNameEn" required />
                 <x-form.input :label="__('catalog.name_ar')" name="categoryNameAr" wire:model="categoryNameAr" dir="rtl" />
-                @if($catalogI18nReady ?? false)
+                @if($categoryBanglaFieldsReady ?? false)
                     <x-form.input :label="__('catalog.name_bn')" name="categoryNameBn" wire:model="categoryNameBn" />
+                @endif
+                @if($categoryDescriptionFieldsReady ?? false)
                     <x-form.textarea :label="__('catalog.description_en')" name="categoryDescriptionEn" wire:model="categoryDescriptionEn" wrapperClass="sm:col-span-2" />
                     <x-form.textarea :label="__('catalog.description_ar')" name="categoryDescriptionAr" wire:model="categoryDescriptionAr" dir="rtl" wrapperClass="sm:col-span-2" />
                     <x-form.textarea :label="__('catalog.description_bn')" name="categoryDescriptionBn" wire:model="categoryDescriptionBn" wrapperClass="sm:col-span-2" />

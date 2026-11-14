@@ -14,6 +14,16 @@ final class CatalogI18n
             && Schema::hasColumn('product_categories', 'description_en');
     }
 
+    public static function categoryBanglaFieldsReady(): bool
+    {
+        return ProductCategorySchema::hasNameBnColumn();
+    }
+
+    public static function categoryDescriptionFieldsReady(): bool
+    {
+        return ProductCategorySchema::hasDescriptionEnColumn();
+    }
+
     public static function localizedName(object $model, ?string $locale = null): string
     {
         $locale ??= app()->getLocale();
