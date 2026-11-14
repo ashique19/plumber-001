@@ -90,7 +90,55 @@ it('surfaces brand validation errors with toast warning', function () {
 
     Livewire::test(BusinessSettings::class)
         ->set('displayNameEn', '')
+        ->set('displayNameBn', '')
         ->call('saveBrand')
-        ->assertHasErrors(['displayNameEn'])
+        ->assertHasErrors(['displayNameEn', 'displayNameBn'])
         ->assertDispatched('toast', type: 'warning');
+});
+
+it('allows brand save with bangla name only on plumber install shape', function () {
+    app()->setLocale('bn');
+
+    Livewire::test(BusinessSettings::class)
+        ->set('displayNameEn', '')
+        ->set('displayNameBn', 'শুধু বাংলা নাম')
+        ->call('saveBrand')
+        ->assertHasNoErrors()
+        ->assertDispatched('toast');
+
+    expect(data_get(BusinessSetting::primary()->fresh()->settings, 'business.brand.display_name_bn'))
+        ->toBe('শুধু বাংলা নাম');
+});
+
+it('does not block legal save when legacy postal in json is invalid', function () {
+    $business = BusinessSetting::primary();
+    $settings = $business->settings;
+    data_set($settings, 'business.legal.national_address.postal_code', '1234');
+    $business->forceFill(['settings' => $settings])->save();
+
+    Livewire::test(BusinessSettings::class)
+        ->set('section', 'legal')
+        ->set('legalNameAr', 'اسم محدث')
+        ->call('saveLegal')
+        ->assertHasNoErrors();
+
+    expect(data_get(BusinessSetting::primary()->fresh()->settings, 'business.legal.name_ar'))
+        ->toBe('اسم محدث');
+});
+
+it('logs validation failures without throwing server errors', function () {
+    Illuminate\Support\Facades\Log::spy();
+    app()->setLocale('bn');
+
+    Livewire::test(BusinessSettings::class)
+        ->set('displayNameEn', '')
+        ->set('displayNameBn', '')
+        ->call('saveBrand');
+
+    Illuminate\Support\Facades\Log::shouldHaveReceived('warning')
+        ->with('business.settings.validation_failed', \Mockery::on(function (array $context): bool {
+            return ($context['section'] ?? '') === 'brand'
+                && is_array($context['fields'] ?? null)
+                && $context['fields'] !== [];
+        }));
 });

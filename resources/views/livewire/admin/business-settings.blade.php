@@ -9,7 +9,7 @@
 
     <label class="mb-4 block min-w-0 sm:hidden">
         <span class="sr-only">{{ __('business.title') }}</span>
-        <select class="app-toolbar-select w-full max-w-full" x-model="sectionTab" aria-label="{{ __('business.title') }}">
+        <select class="app-toolbar-select w-full max-w-full" wire:model.live="section" x-model="sectionTab" aria-label="{{ __('business.title') }}">
             @foreach (['brand', 'legal', 'invoicing', 'contact', 'hours', 'branches', 'extras'] as $key)
                 <option value="{{ $key }}">{{ __('business.sections.'.$key) }}</option>
             @endforeach
