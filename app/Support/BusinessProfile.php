@@ -23,11 +23,44 @@ final class BusinessProfile
   }
 
   /**
+   * @return list<string>
+   */
+  public static function selectableBrandColorKeys(): array
+  {
+      return ['navy', 'steel', 'safety', 'accent'];
+  }
+
+  /**
+   * @return array<string, string>
+   */
+  public static function defaultThemeColors(): array
+  {
+      return (array) data_get(BusinessSetting::defaultSettings(), 'theme.colors', []);
+  }
+
+  /**
+   * @return array<string, string>
+   */
+  public static function brandColorPalette(BusinessSetting $business): array
+  {
+      $defaults = self::defaultThemeColors();
+      $stored = $business->themeColors();
+      $out = [];
+      foreach (self::selectableBrandColorKeys() as $key) {
+          $value = $stored[$key] ?? $defaults[$key] ?? null;
+          if (is_string($value) && $value !== '') {
+              $out[$key] = $value;
+          }
+      }
+
+      return $out !== [] ? $out : array_intersect_key($defaults, array_flip(self::selectableBrandColorKeys()));
+  }
+
+  /**
    * @return array<string, string>
    */
   public static function brandColorOptions(BusinessSetting $business): array
   {
-      $colors = $business->themeColors();
       $labels = [
           'navy' => __('business.colors.navy'),
           'steel' => __('business.colors.steel'),
@@ -36,19 +69,97 @@ final class BusinessProfile
       ];
 
       $out = [];
-      foreach ($labels as $key => $label) {
-          if (isset($colors[$key])) {
-              $out[$key] = $label;
+      foreach (self::selectableBrandColorKeys() as $key) {
+          if (isset($labels[$key])) {
+              $out[$key] = $labels[$key];
           }
       }
 
       return $out;
   }
 
+  public static function normalizeBrandColorKey(BusinessSetting $business, mixed $key): string
+  {
+      $key = self::scalarString($key);
+      $allowed = array_keys(self::brandColorOptions($business));
+
+      if ($key !== '' && in_array($key, $allowed, true)) {
+          return $key;
+      }
+
+      return self::primaryColorKey($business);
+  }
+
   public static function primaryColorKey(BusinessSetting $business): string
   {
       return 'navy';
   }
+
+    /**
+     * @param  array<string, mixed>  $settings
+     * @return array<string, mixed>
+     */
+    public static function mergeDefaultTheme(array $settings): array
+    {
+        $defaults = BusinessSetting::defaultSettings();
+        $theme = (array) ($settings['theme'] ?? []);
+        $defaultTheme = (array) ($defaults['theme'] ?? []);
+
+        if (! isset($theme['layout_key']) || $theme['layout_key'] === '') {
+            $theme['layout_key'] = (string) ($defaultTheme['layout_key'] ?? 'plumber');
+        }
+
+        $paletteDefaults = self::defaultThemeColors();
+        $colors = (array) ($theme['colors'] ?? []);
+        foreach ($paletteDefaults as $colorKey => $hex) {
+            if (! isset($colors[$colorKey]) || $colors[$colorKey] === '') {
+                $colors[$colorKey] = $hex;
+            }
+        }
+        $theme['colors'] = $colors;
+        $settings['theme'] = array_merge($defaultTheme, $theme);
+
+        return $settings;
+    }
+
+    /**
+     * @param  array<string, mixed>  $na
+     */
+    public static function formatNationalAddressAr(array $na): ?string
+    {
+        $parts = array_filter([
+            trim(self::scalarString($na['building'] ?? '')),
+            trim(self::scalarString($na['street_ar'] ?? $na['street'] ?? '')),
+            trim(self::scalarString($na['district_ar'] ?? $na['district'] ?? '')),
+            trim(self::scalarString($na['city_ar'] ?? $na['city'] ?? '')),
+            trim(self::scalarString($na['postal_code'] ?? '')),
+            trim(self::scalarString($na['short_national'] ?? $na['short_national_address'] ?? '')),
+        ], static fn (string $v): bool => $v !== '');
+
+        return $parts === [] ? null : implode('، ', $parts);
+    }
+
+    /**
+     * @param  array<string, mixed>  $na
+     */
+    public static function formatNationalAddressEn(array $na): ?string
+    {
+        $parts = array_filter([
+            trim(self::scalarString($na['building'] ?? '')),
+            trim(self::scalarString($na['street'] ?? '')),
+            trim(self::scalarString($na['district'] ?? '')),
+            trim(self::scalarString($na['city'] ?? '')),
+            trim(self::scalarString($na['postal_code'] ?? '')),
+            trim(self::scalarString($na['additional'] ?? '')),
+        ], static fn (string $v): bool => $v !== '');
+
+        $country = strtoupper(self::scalarString($na['country'] ?? 'SA'));
+        if ($country !== '' && $country !== 'SA') {
+            $parts[] = $country;
+        }
+
+        return $parts === [] ? null : implode(', ', $parts);
+    }
 
     /**
      * @return list<array{key: string, label: string, closed: bool, open: string, close: string}>

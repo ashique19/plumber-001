@@ -46,6 +46,7 @@ return [
         'na_district' => 'District',
         'na_city' => 'City',
         'na_postal' => 'Postal code (5 digits)',
+        'na_country' => 'Country (ISO code)',
         'na_additional' => 'Additional no.',
         'na_street_ar' => 'Street (Arabic)',
         'na_district_ar' => 'District (Arabic)',

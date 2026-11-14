@@ -20,7 +20,7 @@ class BusinessSettingsService
      */
     public function ensureHydrated(BusinessSetting $business): BusinessSetting
     {
-        $settings = $business->settings ?? BusinessSetting::defaultSettings();
+        $settings = BusinessProfile::mergeDefaultTheme($business->settings ?? BusinessSetting::defaultSettings());
         $canonical = $this->canonicalBusinessBlock($business, $settings);
         $previous = data_get($settings, 'business');
 
@@ -143,9 +143,16 @@ class BusinessSettingsService
         $content['tagline_ar'] = (string) ($brand['tagline_ar'] ?? '');
         data_set($settings, $contentKey, $content);
 
-        $colorKey = (string) ($brand['brand_color_key'] ?? BusinessProfile::primaryColorKey($business));
+        $colorKey = BusinessProfile::normalizeBrandColorKey(
+            $business,
+            (string) ($brand['brand_color_key'] ?? BusinessProfile::primaryColorKey($business)),
+        );
+        $brand['brand_color_key'] = $colorKey;
+        $block['brand'] = $brand;
+        $settings['business'] = $block;
+        $settings = BusinessProfile::mergeDefaultTheme($settings);
         $theme = (array) ($settings['theme'] ?? []);
-        $palette = $business->themeColors();
+        $palette = BusinessProfile::brandColorPalette($business);
         if (isset($palette[$colorKey])) {
             $primaryKey = BusinessProfile::primaryColorKey($business);
             $colors = (array) ($theme['colors'] ?? []);

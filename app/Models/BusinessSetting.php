@@ -71,6 +71,7 @@ class BusinessSetting extends Model
           'district' => '',
           'city' => '',
           'postal_code' => '',
+          'country' => 'SA',
           'additional' => '',
         ],
       ],

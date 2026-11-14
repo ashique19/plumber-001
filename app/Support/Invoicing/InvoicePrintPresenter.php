@@ -9,6 +9,7 @@ use App\Models\BusinessSetting;
 use App\Models\Invoice;
 use App\Models\PosOrder;
 use App\Models\Product;
+use App\Support\BusinessProfile;
 use Illuminate\Support\Collection;
 
 /**
@@ -104,8 +105,12 @@ final class InvoicePrintPresenter
             'seller_en' => $legal['name_en'] ?? $business->name,
             'seller_ar' => $legal['name_ar'] ?? $business->name,
             'logo_url' => filled($theme['logo_url'] ?? null) ? $theme['logo_url'] : null,
-            'address_en' => $legal['address'] ?? $legal['address_en'] ?? null,
-            'address_ar' => $legal['address_ar'] ?? null,
+            'address_en' => filled($legal['address'] ?? $legal['address_en'] ?? null)
+                ? (string) ($legal['address'] ?? $legal['address_en'])
+                : BusinessProfile::formatNationalAddressEn($na),
+            'address_ar' => filled($legal['address_ar'] ?? null)
+                ? (string) $legal['address_ar']
+                : BusinessProfile::formatNationalAddressAr($na),
             'short_national_address' => $legal['short_national_address'] ?? self::formatShortNational($na),
             'national_address' => $na,
             'phone' => $contact['phone'],
@@ -264,16 +269,10 @@ final class InvoicePrintPresenter
      */
     private static function formatShortNational(array $addr): ?string
     {
-        $parts = array_filter([
-            trim((string) ($addr['building'] ?? '')),
-            trim((string) ($addr['street'] ?? '')),
-            trim((string) ($addr['district'] ?? '')),
-            trim((string) ($addr['city'] ?? '')),
-            trim((string) ($addr['postal_code'] ?? '')),
-            trim((string) ($addr['additional'] ?? '')),
-        ]);
-
-        return $parts === [] ? null : implode(', ', $parts);
+        return BusinessProfile::formatNationalAddressEn($addr)
+            ?? (filled($addr['short_national'] ?? $addr['short_national_address'] ?? null)
+                ? (string) ($addr['short_national'] ?? $addr['short_national_address'])
+                : null);
     }
 
     /**
