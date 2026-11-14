@@ -7,10 +7,19 @@ return [
     'sections' => [
         'brand' => 'العلامة',
         'legal' => 'القانونية والضريبة',
+        'invoicing' => 'Z-Heart',
         'contact' => 'التواصل',
         'hours' => 'ساعات العمل',
         'branches' => 'الفروع',
         'extras' => 'إضافات',
+    ],
+    'invoicing' => [
+        'lead' => 'تحكم في إرسال الفواتير إلى Z-Heart (تقرير/اعتماد) عند تفعيل ZHEART_SUBMIT_TO_ZATCA على الخادم.',
+        'integration_enabled' => 'تفعيل تقرير/اعتماد Z-Heart بعد الإصدار',
+        'integration_hint' => 'عند الإيقاف، تُوقَّع الفواتير محلياً فقط حتى لو كان الخادم مهيأ للإرسال.',
+        'api_key_configured' => 'مفتاح API مضبوط على الخادم (:prefix).',
+        'api_key_missing' => 'لم يُضبط ZHEART_API_KEY على الخادم — ستفشل مكالمات signing service حتى ضبط البيئة.',
+        'saved' => 'تم حفظ إعدادات الفوترة.',
     ],
     'brand' => [
         'logo_choose' => 'اختيار ملف الشعار',

@@ -6,6 +6,8 @@ return [
     'client_suspended' => 'The Z-Heart client is suspended. Contact the admin operator.',
     'client_not_active' => 'The Z-Heart client is not active.',
     'validation_failed' => 'Z-Heart rejected the invoice payload. Review line items and buyer fields, then try again.',
+    'csid_required' => 'Z-Heart needs a compliance CSID (onboarding) before report/clear. Complete signing service onboarding with request id :id.',
+    'standard_buyer_vat_required' => 'Standard invoices require the buyer VAT number before submitting to Z-Heart.',
     'submission_failed' => 'Z-Heart could not report or clear this invoice with signing service.',
     'server_error' => 'Z-Heart returned a server error. Retry later or contact support with request id :id.',
     'generic_failure' => 'Z-Heart signing failed. Check configuration and try again.',

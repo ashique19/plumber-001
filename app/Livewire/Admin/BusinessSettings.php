@@ -111,6 +111,8 @@ class BusinessSettings extends Component
 
     public string $plumberResponseAr = '';
 
+    public bool $invoicingIntegrationEnabled = true;
+
     /** @var list<string> */
     public array $tabsWithErrors = [];
 
@@ -126,7 +128,7 @@ class BusinessSettings extends Component
 
     public function setSection(string $section): void
     {
-        $allowed = ['brand', 'legal', 'contact', 'hours', 'branches', 'extras'];
+        $allowed = ['brand', 'legal', 'invoicing', 'contact', 'hours', 'branches', 'extras'];
         if (in_array($section, $allowed, true)) {
             $this->section = $section;
             $this->dispatch('business-tab-shown', section: $section);
@@ -258,6 +260,20 @@ class BusinessSettings extends Component
         $this->logoAwaitingSave = false;
         $this->dispatch('business-logo-removed');
         $this->toastSuccess(__('business.messages.logo_removed'));
+    }
+
+    public function saveInvoicing(BusinessSettingsService $service): void
+    {
+        $this->authorize('business.manage');
+        $this->section = 'invoicing';
+        $this->resetErrorBag();
+        $this->tabsWithErrors = [];
+
+        $service->saveInvoicing($this->business(), [
+            'integration_enabled' => $this->invoicingIntegrationEnabled,
+        ], auth('staff')->user());
+
+        $this->toastSuccess(__('business.invoicing.saved'));
     }
 
     public function saveLegal(BusinessSettingsService $service): void
@@ -523,6 +539,7 @@ class BusinessSettings extends Component
         $this->plumberResponseEn = (string) ($extras['response_time_en'] ?? '');
         $this->plumberResponseAr = (string) ($extras['response_time_ar'] ?? '');
 
+        $this->invoicingIntegrationEnabled = $business->invoicingIntegrationEnabled();
     }
 
     /**

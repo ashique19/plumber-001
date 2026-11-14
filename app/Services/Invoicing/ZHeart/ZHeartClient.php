@@ -69,7 +69,10 @@ final class ZHeartClient
 
         $url = $base.'/api/v1/'.$path;
         $body = ['invoice' => $invoicePayload];
-        $attempts = 1 + max(0, (int) config('zheart.retry_times', 2));
+        $submitPath = str_contains($path, 'report') || str_contains($path, 'clear');
+        $attempts = $submitPath
+            ? 1
+            : 1 + max(0, (int) config('zheart.retry_times', 2));
         $sleepMs = max(0, (int) config('zheart.retry_sleep_ms', 500));
 
         $lastException = null;
@@ -97,7 +100,7 @@ final class ZHeartClient
                 $message = ZHeartApiUserMessage::fromResponse($status, is_array($json) ? $json : null, is_string($requestId) ? $requestId : null);
                 $errorCode = is_string(data_get($json, 'data.error')) ? (string) data_get($json, 'data.error') : null;
 
-                if ($status >= 500 && $attempt < $attempts) {
+                if (! $submitPath && $status >= 500 && $attempt < $attempts) {
                     usleep($sleepMs * 1000);
 
                     continue;
@@ -106,13 +109,18 @@ final class ZHeartClient
                 throw new ZHeartApiException($message, $status, is_string($requestId) ? $requestId : null, $errorCode);
             } catch (ConnectionException $e) {
                 $lastException = $e;
-                if ($attempt < $attempts) {
+                if (! $submitPath && $attempt < $attempts) {
                     usleep($sleepMs * 1000);
 
                     continue;
                 }
             } catch (RequestException $e) {
-                if ($e->response !== null && $e->response->status() >= 500 && $attempt < $attempts) {
+                if (
+                    ! $submitPath
+                    && $e->response !== null
+                    && $e->response->status() >= 500
+                    && $attempt < $attempts
+                ) {
                     usleep($sleepMs * 1000);
 
                     continue;

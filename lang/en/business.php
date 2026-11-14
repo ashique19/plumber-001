@@ -7,10 +7,19 @@ return [
     'sections' => [
         'brand' => 'Brand',
         'legal' => 'Legal & tax',
+        'invoicing' => 'Z-Heart',
         'contact' => 'Contact',
         'hours' => 'Hours',
         'branches' => 'Branches',
         'extras' => 'Extras',
+    ],
+    'invoicing' => [
+        'lead' => 'Control whether issued invoices are reported/cleared through Z-Heart when ZHEART_SUBMIT_TO_ZATCA is enabled on the server.',
+        'integration_enabled' => 'Enable Z-Heart report/clear after issue',
+        'integration_hint' => 'When off, invoices are signed locally only even if the server is configured to submit.',
+        'api_key_configured' => 'Server API key is configured (:prefix).',
+        'api_key_missing' => 'No ZHEART_API_KEY is set on the server — signing service calls will fail until deploy env is configured.',
+        'saved' => 'Invoicing settings saved.',
     ],
     'brand' => [
         'logo_choose' => 'Choose logo file',

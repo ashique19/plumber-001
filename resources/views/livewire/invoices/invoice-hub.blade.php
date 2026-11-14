@@ -21,7 +21,10 @@
         @forelse ($invoices as $invoice)
             @php
                 $signingKey = filled($invoice->signed_xml)
-                    ? (filled(data_get($invoice->payload, 'zheart_request_id')) ? 'submitted' : 'signed')
+                    ? (filled(data_get($invoice->payload, 'zheart_zatca'))
+                        || data_get($invoice->payload, 'zheart_remote_submitted')
+                        ? 'submitted'
+                        : 'signed')
                     : 'none';
                 $order = $this->orderFor($invoice);
             @endphp

@@ -10,14 +10,14 @@
     <label class="mb-4 block min-w-0 sm:hidden">
         <span class="sr-only">{{ __('business.title') }}</span>
         <select class="app-toolbar-select w-full max-w-full" x-model="sectionTab" aria-label="{{ __('business.title') }}">
-            @foreach (['brand', 'legal', 'contact', 'hours', 'branches', 'extras'] as $key)
+            @foreach (['brand', 'legal', 'invoicing', 'contact', 'hours', 'branches', 'extras'] as $key)
                 <option value="{{ $key }}">{{ __('business.sections.'.$key) }}</option>
             @endforeach
         </select>
     </label>
 
     <nav class="app-section-tabs app-section-tabs--scroll mb-4 hidden min-w-0 sm:flex" aria-label="{{ __('business.title') }}">
-        @foreach (['brand', 'legal', 'contact', 'hours', 'branches', 'extras'] as $key)
+        @foreach (['brand', 'legal', 'invoicing', 'contact', 'hours', 'branches', 'extras'] as $key)
             <button
                 type="button"
                 wire:click="setSection('{{ $key }}')"
@@ -79,6 +79,25 @@
                 <x-form.input :label="__('business.legal.na_postal')" name="naPostal" wire:model.blur="naPostal" :liveValidate="false" required />
                 <x-form.input :label="__('business.legal.na_additional')" name="naAdditional" wire:model.blur="naAdditional" :liveValidate="false" />
             </div>
+            <div class="flex justify-end">
+                <button type="submit" class="tap-action-primary min-h-11 w-full sm:w-auto" wire:loading.attr="disabled">{{ __('business.save') }}</button>
+            </div>
+        </form>
+    @elseif ($section === 'invoicing')
+        <form wire:submit="saveInvoicing" class="app-card flex flex-col gap-4 p-4">
+            <p class="text-sm text-[var(--app-muted)]">{{ __('business.invoicing.lead') }}</p>
+            @if ($keyHint = \App\Models\BusinessSetting::zheartApiKeyPrefixFromEnv())
+                <p class="text-xs text-[var(--app-muted)]">{{ __('business.invoicing.api_key_configured', ['prefix' => $keyHint]) }}</p>
+            @else
+                <p class="rounded-lg bg-amber-50 p-3 text-sm text-amber-900 ring-1 ring-amber-200">{{ __('business.invoicing.api_key_missing') }}</p>
+            @endif
+            <label class="flex items-start gap-3">
+                <input type="checkbox" class="mt-1 rounded border-gray-300" wire:model="invoicingIntegrationEnabled" />
+                <span>
+                    <span class="font-medium text-[var(--app-fg)]">{{ __('business.invoicing.integration_enabled') }}</span>
+                    <span class="mt-1 block text-xs text-[var(--app-muted)]">{{ __('business.invoicing.integration_hint') }}</span>
+                </span>
+            </label>
             <div class="flex justify-end">
                 <button type="submit" class="tap-action-primary min-h-11 w-full sm:w-auto" wire:loading.attr="disabled">{{ __('business.save') }}</button>
             </div>
