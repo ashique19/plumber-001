@@ -18,6 +18,7 @@
 /public/hot
 /public/storage
 /public/img/tenants
+/public/uploads
 /storage/*.key
 /storage/pail
 /database/*.sqlite

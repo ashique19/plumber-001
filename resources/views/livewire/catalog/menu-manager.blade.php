@@ -195,7 +195,11 @@
                         @endforeach
                     </x-form.select>
                 </div>
-                <x-form.input :label="__('catalog.image_url')" name="productImageUrl" wire:model="productImageUrl" :placeholder="__('catalog.image_url_placeholder')" />
+                <x-form.product-image-upload
+                    :label="__('catalog.product_image.label')"
+                    wire-model="productImageUpload"
+                    :preview-url="$productImageRemove ? null : $productExistingImage"
+                />
                 <div class="app-admin-form__row--price grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <x-form.input type="number" :label="__('catalog.price').' ('.($priceMode === 'inc' ? __('catalog.inc_short') : __('catalog.ex_short')).')'" name="productPriceInput" wire:model="productPriceInput" required inputmode="decimal" />
                     <x-form.input type="number" :label="__('catalog.vat_rate')" name="productVatRate" wire:model="productVatRate" inputmode="decimal" />
