@@ -43,7 +43,10 @@ it('serves the guest login homepage from an install.sql database', function () {
 it('serves every main admin page from an install.sql database without a server error', function () {
     $this->actingAs($this->owner, 'staff');
 
-    foreach (AuthenticatedRouteCatalog::adminRoutes($this->branch) as [$routeName, $parameters, $expectedStatus]) {
+    $activeBranchCount = Branch::query()->where('is_active', true)->count();
+    $posHomeStatus = $activeBranchCount === 1 ? 302 : 200;
+
+    foreach (AuthenticatedRouteCatalog::adminRoutes($this->branch, $posHomeStatus) as [$routeName, $parameters, $expectedStatus]) {
         $url = route($routeName, $parameters);
 
         $response = $this->get($url);
