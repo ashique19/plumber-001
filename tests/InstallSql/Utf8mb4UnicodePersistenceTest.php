@@ -96,6 +96,8 @@ it('persists bangla and arabic text after install.sql import and utf8mb4 convers
 });
 
 it('repairs latin1 product_categories so bangla inserts succeed after utf8mb4 convert script', function () {
+    DB::table('product_categories')->delete();
+
     DB::statement('ALTER TABLE `product_categories` CONVERT TO CHARACTER SET latin1 COLLATE latin1_swedish_ci');
 
     expect(fn () => ProductCategory::query()->create([
