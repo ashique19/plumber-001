@@ -28,13 +28,15 @@ it('renders standard invoice issue buyer labels without raw translation keys', f
 
 it('renders dashboard and business settings without raw translation keys', function () {
     foreach (['en', 'bn', 'ar'] as $locale) {
-        app()->setLocale($locale);
-
-        $dashboard = $this->get(route('admin.dashboard'))->assertOk()->getContent();
+        $dashboard = $this->get(route('admin.dashboard', ['locale' => $locale]))->assertOk()->getContent();
         TranslationLeakScanner::assertHtmlHasNoLeakedKeys($dashboard, "dashboard [{$locale}]");
 
-        $business = $this->get(route('admin.business'))->assertOk()->getContent();
+        $business = $this->get(route('admin.business', ['locale' => $locale]))->assertOk()->getContent();
         TranslationLeakScanner::assertHtmlHasNoLeakedKeys($business, "business settings [{$locale}]");
+
+        if (in_array($locale, ['bn', 'ar'], true)) {
+            expect(strtolower($dashboard))->not->toContain('signing service');
+        }
     }
 });
 
