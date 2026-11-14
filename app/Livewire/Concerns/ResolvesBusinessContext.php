@@ -11,7 +11,7 @@ trait ResolvesBusinessContext
 
     protected function resolveBusiness(): BusinessSetting
     {
-        $business = BusinessContext::get() ?? BusinessSetting::query()->find(1);
+        $business = BusinessContext::get() ?? BusinessSetting::primary();
         if ($business === null) {
             abort(503, __('business.not_configured'));
         }

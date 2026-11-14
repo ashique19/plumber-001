@@ -92,16 +92,6 @@ class IssueInvoice extends Component
     {
         $this->validate($this->rulesForMode());
 
-        if ($this->mode === 'standard') {
-            $vatDigits = preg_replace('/\D/', '', $this->buyerVat) ?? '';
-            $cr = trim($this->buyerCr);
-            if ($vatDigits === '' && $cr === '') {
-                $this->addError('buyerVat', __('invoices.errors.buyer_id_required'));
-
-                return;
-            }
-        }
-
         $branch = StaffBranchContext::resolve();
         if ($branch === null) {
             $this->toastError(__('pos.empty_branches'));
@@ -217,8 +207,8 @@ class IssueInvoice extends Component
 
         return array_merge($lineRules, [
             'buyerName' => ['required', 'string', 'max:200'],
-            'buyerVat' => FieldValidationRules::vatOptional(),
-            'buyerCr' => FieldValidationRules::crNumberOptional(),
+            'buyerVat' => array_merge(FieldValidationRules::vatOptional(), ['required_without:buyerCr']),
+            'buyerCr' => array_merge(FieldValidationRules::crNumberOptional(), ['required_without:buyerVat']),
             'addrBuilding' => ['required', 'string', 'max:32'],
             'addrStreet' => ['required', 'string', 'max:120'],
             'addrDistrict' => ['nullable', 'string', 'max:120'],
@@ -234,6 +224,17 @@ class IssueInvoice extends Component
     protected function liveValidationRules(): array
     {
         return $this->rulesForMode();
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function messages(): array
+    {
+        return [
+            'buyerVat.required_without' => __('invoices.errors.buyer_id_required'),
+            'buyerCr.required_without' => __('invoices.errors.buyer_id_required'),
+        ];
     }
 
     /**

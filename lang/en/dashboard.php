@@ -39,7 +39,7 @@ return [
         'credit_note' => 'Credit notes',
         'debit_note' => 'Debit notes',
     ],
-    'signing_queue' => 'Signing Service Submissions',
+    'signing_queue' => 'Signing service submissions',
     'signing_queue_hint' => 'Reporting and clearance queue outcomes.',
     'signing_pending' => 'Pending',
     'signing_reported' => 'Reported / cleared',

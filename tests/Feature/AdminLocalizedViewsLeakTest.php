@@ -1,5 +1,6 @@
 <?php
 
+use App\Business\BusinessContext;
 use App\Models\BusinessSetting;
 use App\Models\StaffUser;
 use Database\Seeders\DemoStaffSeeder;
@@ -10,24 +11,42 @@ beforeEach(function () {
     (new DemoStaffSeeder)->run();
     $this->owner = StaffUser::query()->where('email', 'owner@example.test')->firstOrFail();
     $this->business = BusinessSetting::singleton();
-    \App\Business\BusinessContext::set($this->business);
+    BusinessContext::set($this->business);
     $this->actingAs($this->owner, 'staff');
 });
 
-it('renders admin dashboard without raw translation keys in en bn and ar', function () {
+it('renders standard invoice issue buyer labels without raw translation keys', function () {
     foreach (['en', 'bn', 'ar'] as $locale) {
-        $html = $this->get(route('admin.dashboard', ['locale' => $locale]))->assertOk()->getContent();
+        app()->setLocale($locale);
 
-        TranslationLeakScanner::assertHtmlHasNoLeakedKeys($html, "dashboard [{$locale}]");
-        TranslationLeakScanner::assertLocaleHasNoEnglishSigningService($html, $locale, "dashboard [{$locale}]");
+        $html = $this->get(route('admin.invoices.issue', ['mode' => 'standard']))->assertOk()->getContent();
+        TranslationLeakScanner::assertHtmlHasNoLeakedKeys($html, "issue/standard [{$locale}]");
+        expect($html)->not->toContain('business.fields.fields.');
     }
 });
 
-it('shows translated sidebar nav labels in bn on dashboard', function () {
+it('renders dashboard and business settings without raw translation keys', function () {
+    foreach (['en', 'bn', 'ar'] as $locale) {
+        app()->setLocale($locale);
+
+        $dashboard = $this->get(route('admin.dashboard', ['locale' => $locale]))->assertOk()->getContent();
+        TranslationLeakScanner::assertHtmlHasNoLeakedKeys($dashboard, "dashboard [{$locale}]");
+        TranslationLeakScanner::assertLocaleHasNoEnglishSigningService($dashboard, $locale, "dashboard [{$locale}]");
+
+        $business = $this->get(route('admin.business', ['locale' => $locale]))->assertOk()->getContent();
+        TranslationLeakScanner::assertHtmlHasNoLeakedKeys($business, "business settings [{$locale}]");
+    }
+});
+
+it('shows translated sidebar nav labels in bn and ar', function () {
     $html = $this->get(route('admin.dashboard', ['locale' => 'bn']))->assertOk()->getContent();
 
     expect($html)->toContain(__('pos.nav_pos', [], 'bn'))
         ->and($html)->toContain(__('business.nav', [], 'bn'))
         ->and($html)->toContain(__('catalog.nav', [], 'bn'))
         ->and($html)->toContain(__('inventory.nav', [], 'bn'));
+
+    $html = $this->get(route('admin.dashboard', ['locale' => 'ar']))->assertOk()->getContent();
+    expect($html)->toContain(__('business.nav', [], 'ar'))
+        ->and($html)->toContain(__('catalog.nav', [], 'ar'));
 });

@@ -124,6 +124,9 @@ return [
         'thursday' => 'Thursday',
         'friday' => 'Friday',
     ],
+    'errors' => [
+        'save_failed' => 'Could not save business settings. Check the server log or try again.',
+    ],
     'messages' => [
         'saved' => 'Business settings saved.',
         'saved_logo' => 'Logo saved. It will appear in the app shell and storefront header.',

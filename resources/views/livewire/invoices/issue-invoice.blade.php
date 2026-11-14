@@ -12,12 +12,12 @@
                 <p class="text-xs text-[var(--app-muted)]">{{ __('invoices.buyer_id_hint') }}</p>
                 <x-form.input :label="__('business.fields.vat_number')" name="buyerVat" wire:model.blur="buyerVat" />
                 <x-form.input :label="__('business.fields.cr_number')" name="buyerCr" wire:model.blur="buyerCr" />
-                <x-form.input :label="__('business.fields.fields.building')" name="addrBuilding" wire:model.blur="addrBuilding" required />
-                <x-form.input :label="__('business.fields.fields.street')" name="addrStreet" wire:model.blur="addrStreet" required />
-                <x-form.input :label="__('business.fields.fields.district')" name="addrDistrict" wire:model.blur="addrDistrict" />
-                <x-form.input :label="__('business.fields.fields.city')" name="addrCity" wire:model.blur="addrCity" required />
-                <x-form.input :label="__('business.fields.fields.postal')" name="addrPostal" wire:model.blur="addrPostal" required />
-                <x-form.input :label="__('business.fields.fields.additional')" name="addrAdditional" wire:model.blur="addrAdditional" />
+                <x-form.input :label="__('business.fields.building')" name="addrBuilding" wire:model.blur="addrBuilding" required />
+                <x-form.input :label="__('business.fields.street')" name="addrStreet" wire:model.blur="addrStreet" required />
+                <x-form.input :label="__('business.fields.district')" name="addrDistrict" wire:model.blur="addrDistrict" />
+                <x-form.input :label="__('business.fields.city')" name="addrCity" wire:model.blur="addrCity" required />
+                <x-form.input :label="__('business.fields.postal')" name="addrPostal" wire:model.blur="addrPostal" required />
+                <x-form.input :label="__('business.fields.additional')" name="addrAdditional" wire:model.blur="addrAdditional" />
             </fieldset>
         @else
             <x-form.input :label="__('invoices.buyer_optional')" name="buyerNameOptional" wire:model.blur="buyerNameOptional" />
