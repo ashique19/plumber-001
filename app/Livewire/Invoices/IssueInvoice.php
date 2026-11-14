@@ -8,6 +8,7 @@ use App\Livewire\Concerns\ValidatesFieldsLive;
 use App\Models\BusinessSetting;
 use App\Models\Branch;
 use App\Services\InvoiceIssueService;
+use App\Support\StaffBranchContext;
 use App\Support\Validation\FieldValidationRules;
 use App\Business\BusinessContext;
 use Illuminate\View\View;
@@ -101,7 +102,13 @@ class IssueInvoice extends Component
             }
         }
 
-        $branch = Branch::query()->where('is_active', true)->orderBy('id')->first();
+        $branch = StaffBranchContext::resolve();
+        if ($branch === null) {
+            $this->toastError(__('pos.empty_branches'));
+
+            return;
+        }
+        StaffBranchContext::remember($branch);
         $type = $this->mode === 'standard' ? InvoiceDocumentType::Standard : InvoiceDocumentType::Simplified;
         $documentNumber = strtoupper($this->mode === 'standard' ? 'STD' : 'SIMP')
             .'-'.now('Asia/Riyadh')->format('Ymd-His');

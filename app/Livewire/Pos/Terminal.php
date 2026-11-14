@@ -55,6 +55,7 @@ class Terminal extends Component
         }
 
         $this->branchId = $branch->id;
+        \App\Support\StaffBranchContext::remember($branch);
 
         $open = PosOrder::query()
             ->where('branch_id', $branch->id)

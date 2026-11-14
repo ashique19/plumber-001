@@ -5,7 +5,7 @@ namespace App\Livewire\Reports;
 use App\Models\Branch;
 use App\Models\BusinessSetting;
 use App\Services\Pos\PosAnalyticsService;
-use App\Support\AppShellNav;
+use App\Support\StaffBranchContext;
 use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
@@ -39,6 +39,20 @@ class OwnerAnalytics extends Component
 
         if ($this->dateFrom === '' || $this->dateTo === '') {
             $this->applyPreset($this->preset);
+        }
+
+        if ($this->branchId === null) {
+            $default = StaffBranchContext::resolve();
+            if ($default !== null && ! StaffBranchContext::selectorVisible()) {
+                $this->branchId = $default->id;
+            }
+        }
+    }
+
+    public function updatedBranchId(mixed $value): void
+    {
+        if ($value !== null && $value !== '') {
+            StaffBranchContext::remember((int) $value);
         }
     }
 
@@ -95,13 +109,16 @@ class OwnerAnalytics extends Component
     public function render(PosAnalyticsService $analytics): View
     {
         $report = $this->buildReport($analytics);
-        $branches = AppShellNav::branchesForSwitcher($this->business);
+        $branches = StaffBranchContext::accessibleBranches();
+        $showBranchSelector = StaffBranchContext::selectorVisible();
 
         $colors = $this->business->themeColors();
 
         return view('livewire.reports.owner-analytics', [
             'report' => $report,
             'branches' => $branches,
+            'showBranchSelector' => $showBranchSelector,
+            'resolvedBranch' => StaffBranchContext::resolve(),
             'chartTheme' => [
                 'primary' => $colors['caramel'] ?? '#C68B59',
                 'accent' => $colors['accent'] ?? '#D4A574',

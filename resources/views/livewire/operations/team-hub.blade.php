@@ -97,14 +97,21 @@
 
     @if ($tab === 'shifts')
         <section class="mt-4 space-y-4">
-            <label class="block text-xs font-medium text-[var(--app-muted)]">
-                {{ __('operations.shift_branch') }}
-                <select wire:model.live="shiftBranchId" class="app-toolbar-select mt-1 w-full">
-                    @foreach ($branches as $branch)
-                        <option value="{{ $branch->id }}">{{ $branch->name }}</option>
-                    @endforeach
-                </select>
-            </label>
+            @if ($showShiftBranchSelector)
+                <label class="block text-xs font-medium text-[var(--app-muted)]">
+                    {{ __('operations.shift_branch') }}
+                    <select wire:model.live="shiftBranchId" class="app-toolbar-select mt-1 w-full">
+                        @foreach ($branches as $branch)
+                            <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                        @endforeach
+                    </select>
+                </label>
+            @elseif ($shiftBranchResolved)
+                <p class="text-xs text-[var(--app-muted)]">
+                    {{ __('operations.shift_branch') }}:
+                    <span class="font-medium text-[var(--app-fg)]">{{ $shiftBranchResolved->name }}</span>
+                </p>
+            @endif
 
             @if ($openShift)
                 <div class="app-card border border-emerald-500/30 p-4">

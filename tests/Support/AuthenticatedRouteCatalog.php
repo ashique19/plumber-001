@@ -12,12 +12,12 @@ final class AuthenticatedRouteCatalog
     /**
      * @return list<array{0: string, 1: array<string, mixed>, 2: int, 3?: string|null}>
      */
-    public static function adminRoutes(Branch $branch): array
+    public static function adminRoutes(Branch $branch, int $posHomeStatus = 200): array
     {
         return [
             ['admin.dashboard', [], 200],
             ['admin.business', [], 200],
-            ['admin.pos.home', [], 200],
+            ['admin.pos.home', [], $posHomeStatus],
             ['admin.pos.terminal', ['branch' => $branch], 200],
             ['admin.pos.history', ['branch' => $branch], 200],
             ['admin.pos.eod', ['branch' => $branch], 200],

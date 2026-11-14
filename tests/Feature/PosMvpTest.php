@@ -64,12 +64,12 @@ it('summarizes end of day totals by payment method', function () {
 });
 
 it('allows cashier login and loads POS home', function () {
-    ['business' => $business, 'cashier' => $cashier] = posBusinessSetup();
+    ['business' => $business, 'branch' => $branch, 'cashier' => $cashier] = posBusinessSetup();
     BusinessContext::set($business);
 
     Livewire::actingAs($cashier, 'staff')
         ->test(Home::class)
-        ->assertOk();
+        ->assertRedirect(route('admin.pos.terminal', $branch, absolute: false));
 });
 
 it('runs livewire add and pay flow', function () {

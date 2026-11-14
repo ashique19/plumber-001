@@ -16,6 +16,9 @@ beforeEach(function () {
     $this->owner = StaffUser::query()->where('email', 'owner@example.test')->firstOrFail();
     $this->cashier = StaffUser::query()->where('email', 'cashier@example.test')->firstOrFail();
     \App\Business\BusinessContext::set($this->business);
+    Branch::query()->update(['is_active' => true]);
+    $this->owner->forceFill(['branch_id' => null])->save();
+    $this->cashier->forceFill(['branch_id' => null])->save();
 });
 
 it('owner reaches core admin livewire surfaces', function () {
