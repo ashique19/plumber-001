@@ -80,11 +80,13 @@ final class ZHeartInvoicePayloadBuilder
         $address = (array) ($request->invoicePayload['buyer_national_address'] ?? []);
 
         if ($type === 'standard') {
-            if ($vat === '') {
-                throw new \InvalidArgumentException(__('zheart_api.standard_buyer_vat_required'));
+            if ($vat === '' && $cr === '') {
+                throw new \InvalidArgumentException(__('invoices.errors.buyer_id_required'));
             }
 
-            Validator::make(['vat' => $vat], ['vat' => [new SaudiVatNumber]])->validate();
+            if ($vat !== '') {
+                Validator::make(['vat' => $vat], ['vat' => [new SaudiVatNumber]])->validate();
+            }
         }
 
         $email = trim((string) ($request->invoicePayload['buyer_email'] ?? ''));

@@ -44,7 +44,7 @@ return [
     'remove_line' => 'লাইন সরান',
     'issue_submit' => 'ইনভয়েস ইস্যু',
     'issue_success' => 'ইনভয়েস :number ইস্যু হয়েছে।',
-    'buyer_id_hint' => 'VAT-নিবন্ধিত হলে VAT নং, অন্যথায় CR নং দিন।',
+    'buyer_id_hint' => 'ভ্যাট-নিবন্ধিত হলে ভ্যাট নং, অন্যথায় CR নং দিন।',
     'invoice_discount_ex_vat' => 'ইনভয়েস ছাড় (ভ্যাট বাদে)',
     'retention_percent' => 'রিটেনশন %',
     'retention_fixed' => 'রিটেনশন (SAR, VAT-পরবর্তী)',
@@ -77,7 +77,7 @@ return [
         'credit' => 'ক্রেডিট',
     ],
     'errors' => [
-        'buyer_id_required' => 'ক্রেতার VAT বা CR নং দিন।',
+        'buyer_id_required' => 'ক্রেতার ভ্যাট বা CR নম্বর দিন (কমপক্ষে একটি)।',
         'buyer_cr_invalid' => 'CR নং সর্বোচ্চ ১০ অঙ্ক।',
         'signing_failed' => 'ক্রিপ্টোগ্রাফিক সাইন ব্যর্থ। Z-Heart কনফিগ দেখুন।',
         'signing_credentials_invalid' => 'সাইনিং ক্রেডেনশিয়াল লোড হয়নি।',

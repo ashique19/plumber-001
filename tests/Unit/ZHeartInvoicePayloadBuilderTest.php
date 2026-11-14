@@ -49,7 +49,7 @@ it('includes buyer address, vat, and cr for standard invoices', function () {
         ->and($payload['buyer']['address']['postal_code'])->toBe('12345');
 });
 
-it('rejects standard invoices without buyer vat', function () {
+it('builds standard invoices with buyer cr only', function () {
     $business = BusinessSetting::query()->create([
         'name' => 'Payload Co',
         'settings' => PlumberThemePreset::settings('Payload Co', 'شركة', 'ar'),
@@ -67,6 +67,34 @@ it('rejects standard invoices without buyer vat', function () {
         ],
         issueDateTimeUtc: Carbon::now('UTC'),
         invoiceUuid: '550e8400-e29b-41d4-a716-446655440011',
+        referencedInvoiceNumber: null,
+        referencedInvoiceUuid: null,
+        noteReason: null,
+    );
+
+    $payload = app(ZHeartInvoicePayloadBuilder::class)->build($request);
+
+    expect($payload['buyer']['cr_number'])->toBe('1234567890')
+        ->and($payload['buyer'])->not->toHaveKey('vat_number');
+});
+
+it('rejects standard invoices without buyer vat or cr', function () {
+    $business = BusinessSetting::query()->create([
+        'name' => 'Payload Co',
+        'settings' => PlumberThemePreset::settings('Payload Co', 'شركة', 'ar'),
+    ]);
+
+    $request = new InvoiceSigningRequest(
+        business: $business,
+        documentNumber: 'STD-102',
+        documentType: InvoiceDocumentType::Standard,
+        invoiceCategory: 'standard',
+        lines: [new InvoiceLineData('Service', 1, 100, 15)],
+        invoicePayload: [
+            'buyer_name' => 'Acme LLC',
+        ],
+        issueDateTimeUtc: Carbon::now('UTC'),
+        invoiceUuid: '550e8400-e29b-41d4-a716-446655440013',
         referencedInvoiceNumber: null,
         referencedInvoiceUuid: null,
         noteReason: null,
