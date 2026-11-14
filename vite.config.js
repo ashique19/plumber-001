@@ -10,6 +10,7 @@ export default defineConfig({
                 'resources/css/error-pages.css',
                 'resources/js/app.js',
                 'resources/css/receipt.css',
+                'resources/css/invoice-print.css',
                 'resources/js/receipt.js',
                 'resources/css/analytics-dashboard.css',
                 'resources/js/analytics-dashboard.js',

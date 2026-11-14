@@ -61,6 +61,8 @@
                     <a href="{{ $localeLink($code) }}" @class(['tap-action-muted min-h-10 px-3 text-xs', 'ring-2 ring-[var(--plumber-safety)]' => $locale === $code])>{{ strtoupper($code) }}</a>
                 @endforeach
                 <a href="{{ $historyUrl }}" class="tap-action-muted min-h-10 px-3 text-xs">{{ __('pos.history') }}</a>
+                <a href="{{ route('admin.invoices.print', ['invoice' => $invoice, 'layout' => 'a4', 'locale' => $locale]) }}" class="tap-action-muted min-h-10 px-3 text-xs">{{ __('invoices.layout_a4') }}</a>
+                <a href="{{ route('admin.invoices.print', ['invoice' => $invoice, 'layout' => 'cash', 'locale' => $locale]) }}" class="tap-action-muted min-h-10 px-3 text-xs">{{ __('invoices.layout_cash') }}</a>
             </div>
         </header>
 

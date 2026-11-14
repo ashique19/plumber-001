@@ -1,0 +1,256 @@
+/* A4 tax invoice + cash-shop print layouts */
+.invoice-print-root {
+    --inv-border: #1a1a1a;
+    --inv-muted: #444;
+    font-family: 'Instrument Sans', system-ui, sans-serif;
+    font-size: 11pt;
+    color: #111;
+    max-width: 210mm;
+    margin: 0 auto;
+    padding: 8mm;
+}
+
+.invoice-print-toolbar {
+    margin-bottom: 1rem;
+}
+
+.sar-symbol::before {
+    content: '\00EA';
+    font-weight: 600;
+}
+
+.invoice-a4__header {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 8px;
+    align-items: start;
+    border-bottom: 2px solid var(--inv-border);
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+}
+
+.invoice-a4__seller-side {
+    font-size: 9pt;
+    line-height: 1.35;
+}
+
+.invoice-a4__seller-side--ar {
+    text-align: left;
+    direction: rtl;
+    font-family: Tajawal, sans-serif;
+}
+
+.invoice-a4__logo {
+    max-height: 56px;
+    max-width: 140px;
+    margin: 0 auto;
+    display: block;
+}
+
+.invoice-a4__title {
+    text-align: center;
+    font-size: 14pt;
+    font-weight: 700;
+    margin: 8px 0;
+}
+
+.invoice-a4__title-ar {
+    direction: rtl;
+    font-family: Tajawal, sans-serif;
+}
+
+.invoice-a4__customer {
+    border: 1px solid var(--inv-border);
+    padding: 8px 10px;
+    margin-bottom: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 12px;
+    font-size: 9pt;
+}
+
+.invoice-a4__customer-label {
+    font-weight: 600;
+    color: var(--inv-muted);
+}
+
+.invoice-a4__customer-label .ar {
+    display: block;
+    direction: rtl;
+    font-family: Tajawal, sans-serif;
+    font-size: 8pt;
+}
+
+.invoice-a4__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 8.5pt;
+    margin-bottom: 12px;
+}
+
+.invoice-a4__table thead {
+    display: table-header-group;
+}
+
+.invoice-a4__table th,
+.invoice-a4__table td {
+    border: 1px solid var(--inv-border);
+    padding: 4px 5px;
+    vertical-align: top;
+}
+
+.invoice-a4__table th .ar {
+    display: block;
+    direction: rtl;
+    font-family: Tajawal, sans-serif;
+    font-size: 7.5pt;
+    font-weight: 600;
+}
+
+.invoice-a4__desc-ar {
+    direction: rtl;
+    font-family: Tajawal, sans-serif;
+    font-size: 8pt;
+    overflow-wrap: anywhere;
+}
+
+.invoice-a4__desc-en {
+    overflow-wrap: anywhere;
+}
+
+.invoice-a4__totals {
+    width: 55%;
+    margin-left: auto;
+    font-size: 9.5pt;
+}
+
+.invoice-a4__totals tr td:first-child {
+    font-weight: 600;
+}
+
+.invoice-a4__totals tr td:last-child {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.invoice-a4__words {
+    margin-top: 8px;
+    font-size: 9pt;
+    line-height: 1.4;
+}
+
+.invoice-a4__qr {
+    margin: 12px auto;
+    text-align: center;
+    max-width: 200px;
+}
+
+.invoice-a4__qr-note {
+    font-size: 8pt;
+    color: var(--inv-muted);
+    margin-top: 4px;
+}
+
+.invoice-a4__footer {
+    margin-top: 16px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--inv-muted);
+    text-align: center;
+    font-size: 8pt;
+}
+
+.invoice-a4__footer-ar {
+    direction: rtl;
+    font-family: Tajawal, sans-serif;
+}
+
+/* Cash-shop simplified */
+.invoice-cash__seller {
+    text-align: center;
+    border-bottom: 1px solid var(--inv-border);
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+    font-size: 9pt;
+}
+
+.invoice-cash__seller-ar {
+    direction: rtl;
+    font-family: Tajawal, sans-serif;
+}
+
+.invoice-cash__meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    font-size: 9pt;
+    margin-bottom: 8px;
+}
+
+.invoice-cash__customer {
+    border: 1px solid #999;
+    padding: 6px;
+    margin-bottom: 8px;
+    font-size: 9pt;
+}
+
+.invoice-cash__amount-block {
+    margin-top: 10px;
+    font-size: 9.5pt;
+}
+
+.invoice-cash__amount-block .label-ar {
+    direction: rtl;
+    font-family: Tajawal, sans-serif;
+    font-size: 8pt;
+    color: var(--inv-muted);
+}
+
+.print-only {
+    display: none;
+}
+
+@page {
+    size: A4;
+    margin: 12mm 10mm 18mm;
+}
+
+@media print {
+    .no-print {
+        display: none !important;
+    }
+
+    .print-only {
+        display: block;
+    }
+
+    body {
+        background: #fff;
+    }
+
+    .invoice-print-root {
+        padding: 0;
+        max-width: none;
+    }
+
+    .invoice-a4__footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #fff;
+    }
+
+    body {
+        counter-reset: invPage;
+    }
+
+    .invoice-print-sheet {
+        counter-increment: invPage;
+    }
+
+    .invoice-a4__footer::after {
+        content: 'Page ' counter(invPage);
+        display: block;
+        margin-top: 2px;
+    }
+}

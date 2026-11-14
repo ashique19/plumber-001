@@ -138,14 +138,11 @@ it('lists invoices and serves print surfaces on install.sql schema', function ()
     expect($order)->not->toBeNull();
 
     $this->actingAs($this->owner, 'staff')
-        ->get(route('admin.invoices.print', [$invoice]))
-        ->assertRedirect(route('admin.pos.receipt', [
-            'order' => $order,
-            'locale' => app()->getLocale(),
-        ]));
+        ->get(route('admin.invoices.print', [$invoice, 'layout' => 'cash']))
+        ->assertOk();
 
     $this->actingAs($this->owner, 'staff')
-        ->get(route('admin.pos.receipt', ['order' => $order, 'locale' => 'ar']))
+        ->get(route('admin.pos.receipt', ['order' => $order, 'locale' => 'ar', 'layout' => 'receipt']))
         ->assertOk();
 });
 
