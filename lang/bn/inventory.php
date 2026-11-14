@@ -1,6 +1,42 @@
 <?php
 
 $en = require __DIR__.'/../en/inventory.php';
-$en['nav'] = 'ইনভেন্টরি';
 
-return $en;
+return array_replace($en, [
+    'nav' => 'ইনভেন্টরি',
+    'add' => 'উপাদান যোগ',
+    'edit' => 'উপাদান সম্পাদনা',
+    'empty' => 'এখনও কোনো উপাদান নেই।',
+    'unit' => 'একক',
+    'quantity_on_hand' => 'হাতে থাকা পরিমাণ',
+    'low_stock_threshold' => 'কম স্টক সীমা',
+    'low_stock_heading' => 'কম স্টক',
+    'low_stock_badge' => 'কম স্টক',
+    'inactive' => 'নিষ্ক্রিয়',
+    'adjust' => 'স্টক সমন্বয়',
+    'adjust_title' => 'স্টক সমন্বয়',
+    'adjust_mode' => 'সমন্বয়ের ধরন',
+    'adjust_add' => 'যোগ',
+    'adjust_remove' => 'বিয়োগ',
+    'adjust_set' => 'নির্দিষ্ট মান সেট',
+    'adjust_amount' => 'পরিমাণ',
+    'adjust_submit' => 'প্রয়োগ',
+    'recent_movements' => 'সাম্প্রতিক চলাচল',
+    'created' => 'উপাদান সংরক্ষিত।',
+    'saved' => 'উপাদান আপডেট হয়েছে।',
+    'deleted' => 'উপাদান সরানো হয়েছে।',
+    'adjusted' => 'স্টক আপডেট হয়েছে।',
+    'ingredients_button' => 'উপাদান',
+    'ingredients_modal_title' => 'পণ্যের উপাদান',
+    'quantity_per_unit' => '১ ইউনিট বিক্রির জন্য পরিমাণ',
+    'quick_create' => 'দ্রুত উপাদান তৈরি',
+    'sold_out' => 'শেষ',
+    'out_of_stock' => 'স্টক নেই',
+    'pos_low_stock' => 'কম স্টক',
+    'dashboard_low_stock' => 'উপাদান শেষের পথে',
+    'error_out_of_stock_product' => 'উপাদানের স্তর অনুযায়ী এই আইটেমের স্টক নেই।',
+    'error_insufficient_stock' => ':name-এর জন্য পর্যাপ্ত স্টক নেই।',
+    'error_missing_ingredient' => 'প্রয়োজনীয় উপাদানের রেকর্ড খুঁজে পাওয়া যায়নি।',
+    'title' => 'উপাদান ইনভেন্টরি',
+    'subtitle' => 'প্রতি আইটেমে স্টক, সীমা ও চলাচল।',
+]);

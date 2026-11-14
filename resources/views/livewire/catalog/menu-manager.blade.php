@@ -1,4 +1,4 @@
-<div class="catalog-admin pb-24 lg:pb-8">
+<div class="catalog-admin min-w-0 max-w-full overflow-x-hidden pb-20 lg:pb-8">
     <header class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
             <h1 class="app-page-title">{{ __('catalog.title') }}</h1>
@@ -7,7 +7,7 @@
         <p class="text-xs text-[var(--app-muted)]">{{ __('catalog.price_hint') }}</p>
     </header>
 
-    <div class="app-section-tabs">
+    <div class="app-section-tabs min-w-0 max-w-full flex-wrap gap-2 overflow-x-hidden">
         @foreach (['products' => __('catalog.tab_products'), 'categories' => __('catalog.tab_categories'), 'modifiers' => __('catalog.tab_modifiers')] as $key => $label)
             <button
                 type="button"
@@ -35,9 +35,9 @@
                         <div class="flex items-center gap-2">
                             <x-app.icon :name="$cat->icon_key ?: 'cup'" class="h-5 w-5 text-[var(--app-accent)]" />
                             <div>
-                                <p class="font-medium">{{ $cat->name_en }}</p>
-                                @if($cat->name_ar)
-                                    <p class="text-xs text-[var(--app-muted)]">{{ $cat->name_ar }}</p>
+                                <p class="font-medium">{{ $cat->displayName() }}</p>
+                                @if($cat->name_ar && $cat->displayName() !== $cat->name_ar)
+                                    <p class="text-xs text-[var(--app-muted)]" dir="rtl">{{ $cat->name_ar }}</p>
                                 @endif
                             </div>
                         </div>
@@ -61,9 +61,9 @@
     @if ($tab === 'products')
         <section class="mt-4">
             @if($canWrite)
-                <x-app.add-button type="button" wire:click="startProduct()">{{ __('catalog.add_product') }}</x-app.add-button>
+                <x-app.add-button type="button" variant="primary" wire:click="startProduct()">{{ __('catalog.add_product') }}</x-app.add-button>
             @endif
-            <ul class="grid gap-3 sm:grid-cols-2">
+            <ul class="grid grid-cols-1 gap-3 lg:grid-cols-2">
                 @forelse($products as $product)
                     <li class="app-card overflow-hidden p-0">
                         <div class="flex gap-3 p-3">
@@ -73,10 +73,10 @@
                                 <div class="flex h-16 w-16 items-center justify-center rounded-lg bg-[var(--plumber-sky)] text-xs text-[var(--app-muted)]">—</div>
                             @endif
                             <div class="min-w-0 flex-1">
-                                <p class="truncate font-semibold">{{ $product->name_en }}</p>
-                                <p class="text-xs text-[var(--app-muted)]">{{ $product->category?->name_en }}</p>
+                                <p class="truncate font-semibold">{{ $product->displayName() }}</p>
+                                <p class="text-xs text-[var(--app-muted)]">{{ $product->category?->displayName() }}</p>
                                 <p class="mt-1 text-sm font-medium tabular-nums">
-                                    {{ number_format(\App\Support\VatPricing::incFromEx((float) $product->price_ex_vat, (float) $product->vat_rate), 2) }} SAR
+                                    {{ number_format(\App\Support\VatPricing::incFromEx((float) $product->price_ex_vat, (float) $product->vat_rate), 2) }} {{ __('dashboard.sar') }}
                                 </p>
                                 @if($storefrontVisibilityReady ?? false)
                                     <p class="mt-2 flex flex-wrap gap-1.5 text-[0.65rem] font-semibold uppercase tracking-wide text-[var(--app-muted)]">
@@ -109,7 +109,7 @@
                         @endif
                     </li>
                 @empty
-                    <li class="app-empty sm:col-span-2"><p class="text-sm text-[var(--app-muted)]">{{ __('catalog.empty_products') }}</p></li>
+                    <li class="app-empty lg:col-span-2"><p class="text-sm text-[var(--app-muted)]">{{ __('catalog.empty_products') }}</p></li>
                 @endforelse
             </ul>
         </section>
@@ -124,9 +124,9 @@
                 @forelse($modifiers as $mod)
                     <li class="app-card flex items-center justify-between gap-2 p-3">
                         <div>
-                            <p class="font-medium">{{ $mod->name_en }}</p>
+                            <p class="font-medium">{{ $mod->displayName() }}</p>
                             <p class="text-sm tabular-nums text-[var(--app-muted)]">
-                                + {{ number_format(\App\Support\VatPricing::incFromEx((float) $mod->price_ex_vat, (float) $mod->vat_rate), 2) }} SAR
+                                + {{ number_format(\App\Support\VatPricing::incFromEx((float) $mod->price_ex_vat, (float) $mod->vat_rate), 2) }} {{ __('dashboard.sar') }}
                             </p>
                         </div>
                         @if($canWrite)
@@ -189,13 +189,13 @@
                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <x-form.input :label="__('catalog.sku')" name="productSku" wire:model="productSku" />
                     <x-form.select :label="__('catalog.category')" name="productCategoryId" wire:model="productCategoryId">
-                        <option value="">—</option>
+                        <option value="">{{ __('catalog.none') }}</option>
                         @foreach($categories as $cat)
-                            <option value="{{ $cat->id }}">{{ $cat->name_en }}</option>
+                            <option value="{{ $cat->id }}">{{ $cat->displayName() }}</option>
                         @endforeach
                     </x-form.select>
                 </div>
-                <x-form.input :label="__('catalog.image_url')" name="productImageUrl" wire:model="productImageUrl" placeholder="images/catalog/service-call.webp" />
+                <x-form.input :label="__('catalog.image_url')" name="productImageUrl" wire:model="productImageUrl" :placeholder="__('catalog.image_url_placeholder')" />
                 <div class="app-admin-form__row--price grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <x-form.input type="number" :label="__('catalog.price').' ('.($priceMode === 'inc' ? __('catalog.inc_short') : __('catalog.ex_short')).')'" name="productPriceInput" wire:model="productPriceInput" required inputmode="decimal" />
                     <x-form.input type="number" :label="__('catalog.vat_rate')" name="productVatRate" wire:model="productVatRate" inputmode="decimal" />
@@ -206,7 +206,7 @@
                         @foreach($modifiers as $mod)
                             <label class="app-admin-form__modifier-chip" style="border-color: var(--app-border)">
                                 <input type="checkbox" class="h-4 w-4 shrink-0" value="{{ $mod->id }}" wire:model="productModifierIds">
-                                <span class="min-w-0 break-words">{{ $mod->name_en }}</span>
+                                <span class="min-w-0 break-words">{{ $mod->displayName() }}</span>
                             </label>
                         @endforeach
                     </div>
@@ -231,7 +231,7 @@
                 @foreach($ingredientLines as $index => $line)
                     <div class="grid grid-cols-1 gap-2 border-b pb-3 sm:grid-cols-1" style="border-color: var(--app-border)" wire:key="ing-line-{{ $index }}">
                         <x-form.select :label="__('inventory.nav')" name="ingredientLines.{{ $index }}.ingredient_id" wire:model="ingredientLines.{{ $index }}.ingredient_id">
-                            <option value="">—</option>
+                            <option value="">{{ __('catalog.none') }}</option>
                             @foreach($ingredientOptions as $opt)
                                 <option value="{{ $opt->id }}">{{ $opt->displayName() }} ({{ $opt->unit }})</option>
                             @endforeach

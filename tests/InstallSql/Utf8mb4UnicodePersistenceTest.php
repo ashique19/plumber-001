@@ -100,10 +100,16 @@ it('repairs latin1 product_categories so bangla inserts succeed after utf8mb4 co
 
     DB::statement('ALTER TABLE `product_categories` CONVERT TO CHARACTER SET latin1 COLLATE latin1_swedish_ci');
 
-    expect(fn () => ProductCategory::query()->create([
-        'name_en' => 'Latin1 fail',
-        'name_bn' => 'বাংলা',
-    ]))->toThrow(Throwable::class);
+    $latinInsertFailed = false;
+    try {
+        ProductCategory::query()->create([
+            'name_en' => 'Latin1 fail',
+            'name_bn' => 'বাংলা',
+        ]);
+    } catch (Throwable) {
+        $latinInsertFailed = true;
+    }
+    expect($latinInsertFailed)->toBeTrue('bangla insert should fail while product_categories uses latin1');
 
     InstallSqlSqlRunner::execStatements(
         InstallSqlSqlRunner::databasePdo(),

@@ -36,6 +36,8 @@ return [
     'item_type_part' => 'Part / material',
     'category' => 'Category',
     'image_url' => 'Image path',
+    'image_url_placeholder' => 'images/catalog/service-call.webp',
+    'none' => 'None',
     'price' => 'Price',
     'vat_rate' => 'VAT %',
     'modifiers' => 'Modifiers',
