@@ -103,8 +103,9 @@ it('validates brand tab inline', function () {
 
     Livewire::test(BusinessSettings::class)
         ->set('displayNameEn', '')
+        ->set('displayNameBn', '')
         ->call('saveBrand')
-        ->assertHasErrors(['displayNameEn']);
+        ->assertHasErrors(['displayNameEn', 'displayNameBn']);
 });
 
 it('validates legal tab inline', function () {

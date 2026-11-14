@@ -151,8 +151,18 @@ class BusinessSettings extends Component
     {
         $allowed = ['brand', 'legal', 'invoicing', 'contact', 'hours', 'branches', 'extras'];
         if (in_array($section, $allowed, true)) {
+            if ($section !== 'brand' && ! $this->logoAwaitingSave) {
+                $this->logoUpload = null;
+            }
             $this->section = $section;
             $this->dispatch('business-tab-shown', section: $section);
+        }
+    }
+
+    public function updatedSection(mixed $value): void
+    {
+        if (is_string($value)) {
+            $this->setSection($value);
         }
     }
 
@@ -223,18 +233,24 @@ class BusinessSettings extends Component
         $this->section = 'brand';
         $this->resetErrorBag();
         $this->tabsWithErrors = [];
+
+        Log::info('business.settings.save_invoked', [
+            'section' => 'brand',
+            'business_id' => $this->businessId,
+        ]);
+
         $business = $this->business();
         $this->brandColorKey = BusinessProfile::normalizeBrandColorKey($business, $this->brandColorKey);
 
         $rules = [
-            'displayNameEn' => 'required|string|max:160',
+            'displayNameEn' => 'nullable|string|max:160|required_without:displayNameBn',
             'displayNameAr' => 'nullable|string|max:160',
-            'displayNameBn' => 'nullable|string|max:160',
+            'displayNameBn' => 'nullable|string|max:160|required_without:displayNameEn',
             'taglineEn' => 'nullable|string|max:240',
             'taglineAr' => 'nullable|string|max:240',
             'brandColorKey' => ['required', Rule::in(array_keys(BusinessProfile::brandColorOptions($business)))],
         ];
-        if ($this->logoUpload !== null) {
+        if ($this->section === 'brand' && $this->logoAwaitingSave && $this->logoUpload !== null) {
             $rules['logoUpload'] = LogoUploadConstraints::componentRules();
         }
         try {
@@ -274,6 +290,11 @@ class BusinessSettings extends Component
         } else {
             $this->toastSuccess(__('business.messages.saved'));
         }
+
+        Log::info('business.settings.saved', [
+            'section' => 'brand',
+            'business_id' => $this->businessId,
+        ]);
 
         $this->syncBusinessState($business);
     }
@@ -321,6 +342,12 @@ class BusinessSettings extends Component
         $this->section = 'legal';
         $this->resetErrorBag();
         $this->tabsWithErrors = [];
+
+        Log::info('business.settings.save_invoked', [
+            'section' => 'legal',
+            'business_id' => $this->businessId,
+        ]);
+
         try {
             $this->runSectionValidation([
             'legalNameEn' => 'nullable|string|max:200',
@@ -382,6 +409,10 @@ class BusinessSettings extends Component
         }
 
         $this->toastSuccess(__('business.messages.saved'));
+        Log::info('business.settings.saved', [
+            'section' => 'legal',
+            'business_id' => $this->businessId,
+        ]);
         $this->syncBusinessState($business);
     }
 
@@ -529,9 +560,20 @@ class BusinessSettings extends Component
 
     private function business(): BusinessSetting
     {
+        $primary = BusinessSetting::primary();
+
+        if ($this->businessId !== $primary->id) {
+            Log::warning('business.settings.business_id_drift', [
+                'component_business_id' => $this->businessId,
+                'primary_id' => $primary->id,
+            ]);
+            $this->businessId = $primary->id;
+        }
+
         $row = BusinessSetting::query()->find($this->businessId);
+
         if ($row === null) {
-            $row = BusinessSetting::primary();
+            $row = $primary;
             $this->businessId = $row->id;
         }
 
@@ -644,6 +686,44 @@ class BusinessSettings extends Component
 
         $this->invoicingIntegrationEnabled = $business->invoicingIntegrationEnabled();
         $this->paymentTermsDays = max(0, (int) data_get($business->settings, 'invoicing.payment_terms_days', 30));
+
+        $this->sanitizeLegacyFieldFormats();
+    }
+
+    private function sanitizeLegacyFieldFormats(): void
+    {
+        $postalDigits = preg_replace('/\D/', '', $this->naPostal) ?? '';
+        if ($this->naPostal !== '' && strlen($postalDigits) !== 5) {
+            Log::info('business.settings.legacy_field_cleared', [
+                'field' => 'naPostal',
+                'business_id' => $this->businessId,
+            ]);
+            $this->naPostal = '';
+        } elseif ($postalDigits !== $this->naPostal && strlen($postalDigits) === 5) {
+            $this->naPostal = $postalDigits;
+        }
+
+        if ($this->naCountry !== '' && strlen($this->naCountry) !== 2) {
+            Log::info('business.settings.legacy_field_cleared', [
+                'field' => 'naCountry',
+                'business_id' => $this->businessId,
+            ]);
+            $this->naCountry = 'SA';
+        }
+
+        foreach (['legalEmail' => 'legalEmail', 'email' => 'email'] as $field => $property) {
+            $value = $this->{$property};
+            if ($value === '' || ! is_string($value)) {
+                continue;
+            }
+            if (filter_var($value, FILTER_VALIDATE_EMAIL) === false) {
+                Log::info('business.settings.legacy_field_cleared', [
+                    'field' => $field,
+                    'business_id' => $this->businessId,
+                ]);
+                $this->{$property} = '';
+            }
+        }
     }
 
     /**
@@ -658,9 +738,25 @@ class BusinessSettings extends Component
             $this->section = $section;
             $this->tabsWithErrors = [$section];
             $this->setErrorBag($e->validator->errors());
+
+            Log::warning('business.settings.validation_failed', [
+                'section' => $section,
+                'business_id' => $this->businessId,
+                'fields' => $e->validator->errors()->keys(),
+            ]);
+
             $this->toastWarning(__('business.validation.section_failed', [
                 'section' => __('business.sections.'.$section),
             ]), dedupe: false);
+
+            $this->js(<<<'JS'
+                queueMicrotask(() => {
+                    const err = document.querySelector('.business-settings-page .form-field__error, .business-settings-page .form-field--invalid');
+                    const field = err?.closest('.form-field') ?? err;
+                    field?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                });
+            JS);
+
             throw $e;
         }
     }

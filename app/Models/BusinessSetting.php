@@ -50,6 +50,10 @@ class BusinessSetting extends Model
   {
     json_encode($settings, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
 
+    if ($this->exists) {
+      $this->refresh();
+    }
+
     $payload = ['settings' => $settings];
     if ($name !== null) {
       $payload['name'] = $name;
@@ -58,12 +62,44 @@ class BusinessSetting extends Model
     $this->forceFill($payload);
 
     if (! $this->isDirty()) {
-      throw new \RuntimeException('Business settings did not change in memory; database write was skipped.');
+      $unchangedSettings = ! self::settingsJsonDiffers($settings, $this->getOriginal('settings'));
+      $unchangedName = $name === null || $name === $this->getOriginal('name');
+
+      if ($unchangedSettings && $unchangedName) {
+        throw new \RuntimeException('Business settings did not change in memory; database write was skipped.');
+      }
+
+      $this->touch();
     }
 
     if (! $this->save()) {
       throw new \RuntimeException('Failed to persist business settings.');
     }
+  }
+
+  /**
+   * @param  array<string, mixed>  $next
+   */
+  private static function settingsJsonDiffers(array $next, mixed $stored): bool
+  {
+    if ($stored === null) {
+      return true;
+    }
+
+    $decoded = $stored;
+    if (is_string($decoded)) {
+      $decoded = json_decode($decoded, true);
+      if (! is_array($decoded)) {
+        return true;
+      }
+    }
+
+    if (! is_array($decoded)) {
+      return true;
+    }
+
+    return json_encode($decoded, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR)
+      !== json_encode($next, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
   }
 
   public static function zheartApiKeyPrefixFromEnv(): ?string

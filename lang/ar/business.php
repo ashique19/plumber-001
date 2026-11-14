@@ -136,6 +136,7 @@ return [
     'validation' => [
         'logo_size' => 'يجب ألا يتجاوز الشعار 1 ميغابايت.',
         'section_failed' => 'تعذّر حفظ :section. صحّح الحقول المميّزة.',
+        'summary_title' => 'صحّح ما يلي قبل الحفظ',
         'tab_has_errors' => 'يوجد أخطاء في هذا التبويب',
     ],
     'logo_upload' => [
