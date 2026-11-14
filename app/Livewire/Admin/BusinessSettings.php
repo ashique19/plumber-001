@@ -151,6 +151,9 @@ class BusinessSettings extends Component
     {
         $allowed = ['brand', 'legal', 'invoicing', 'contact', 'hours', 'branches', 'extras'];
         if (in_array($section, $allowed, true)) {
+            if ($section !== 'brand' && ! $this->logoAwaitingSave) {
+                $this->logoUpload = null;
+            }
             $this->section = $section;
             $this->dispatch('business-tab-shown', section: $section);
         }
@@ -230,6 +233,12 @@ class BusinessSettings extends Component
         $this->section = 'brand';
         $this->resetErrorBag();
         $this->tabsWithErrors = [];
+
+        Log::info('business.settings.save_invoked', [
+            'section' => 'brand',
+            'business_id' => $this->businessId,
+        ]);
+
         $business = $this->business();
         $this->brandColorKey = BusinessProfile::normalizeBrandColorKey($business, $this->brandColorKey);
 
@@ -241,7 +250,7 @@ class BusinessSettings extends Component
             'taglineAr' => 'nullable|string|max:240',
             'brandColorKey' => ['required', Rule::in(array_keys(BusinessProfile::brandColorOptions($business)))],
         ];
-        if ($this->section === 'brand' && $this->logoUpload !== null) {
+        if ($this->section === 'brand' && $this->logoAwaitingSave && $this->logoUpload !== null) {
             $rules['logoUpload'] = LogoUploadConstraints::componentRules();
         }
         try {
@@ -333,6 +342,12 @@ class BusinessSettings extends Component
         $this->section = 'legal';
         $this->resetErrorBag();
         $this->tabsWithErrors = [];
+
+        Log::info('business.settings.save_invoked', [
+            'section' => 'legal',
+            'business_id' => $this->businessId,
+        ]);
+
         try {
             $this->runSectionValidation([
             'legalNameEn' => 'nullable|string|max:200',
