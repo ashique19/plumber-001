@@ -54,6 +54,7 @@ return [
     'edit' => 'تعديل',
     'delete' => 'حذف',
     'save' => 'حفظ',
+    'cancel' => 'إلغاء',
     'created_category' => 'تم حفظ التصنيف.',
     'saved_category' => 'تم تحديث التصنيف.',
     'deleted_category' => 'تم حذف التصنيف.',

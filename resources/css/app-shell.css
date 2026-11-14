@@ -331,9 +331,33 @@
     }
 
     .app-sheet > h2:first-child,
-    .app-sheet > .app-sheet__head:first-child {
-        @apply sticky top-0 z-10 shrink-0 border-b px-4 py-3 text-lg font-semibold;
+    .app-sheet > .app-sheet__head {
+        @apply sticky top-0 z-10 shrink-0 border-b px-4 py-3;
         border-color: var(--app-border);
+        background: var(--app-surface-2);
+    }
+
+    .app-sheet > h2:first-child {
+        @apply text-lg font-semibold;
+    }
+
+    .app-sheet__head {
+        @apply flex items-center justify-between gap-3;
+    }
+
+    .app-sheet__head h2 {
+        @apply min-w-0 flex-1 text-base font-semibold leading-snug sm:text-lg;
+        overflow-wrap: anywhere;
+    }
+
+    .app-sheet__close {
+        @apply inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-xl;
+    }
+
+    .app-sheet__footer {
+        @apply flex shrink-0 gap-2 border-t px-4 py-3;
+        border-color: var(--app-border);
+        padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
         background: var(--app-surface-2);
     }
 
@@ -341,6 +365,43 @@
     .app-sheet > .app-sheet__body {
         @apply min-h-0 flex-1 overflow-y-auto overscroll-contain px-4;
         padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+    }
+
+    .app-sheet--admin > .app-sheet__body {
+        padding-bottom: 0.75rem;
+    }
+
+    @media (max-width: 639px) {
+        .app-sheet--admin {
+            inset: 0;
+            top: 0;
+            max-height: 100dvh;
+            width: 100%;
+            transform: none;
+            border-radius: 0;
+            border-width: 0;
+            animation: app-sheet-fade-in 0.22s ease;
+        }
+
+        .app-sheet--admin .app-sheet__head {
+            padding-top: max(0.75rem, env(safe-area-inset-top));
+        }
+
+        .app-sheet--admin .app-sheet__footer {
+            position: sticky;
+            bottom: 0;
+            z-index: 11;
+            box-shadow: 0 -4px 16px rgb(44 24 16 / 0.08);
+        }
+    }
+
+    @keyframes app-sheet-fade-in {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
     }
 
     .app-sheet--dialog {
@@ -361,13 +422,20 @@
             max-height: min(90dvh, calc(100vh - 2rem));
         }
 
-        .app-sheet > h2:first-child,
-        .app-sheet > .app-sheet__head:first-child {
+        .app-sheet > h2:first-child {
             @apply static border-b-0;
+        }
+
+        .app-sheet--admin .app-sheet__head {
+            @apply static;
         }
 
         .app-sheet--dialog {
             @apply overflow-y-auto;
+        }
+
+        .app-sheet--admin.app-sheet--dialog {
+            @apply flex max-h-[min(90dvh,calc(100vh-2rem))] flex-col overflow-hidden;
         }
     }
 

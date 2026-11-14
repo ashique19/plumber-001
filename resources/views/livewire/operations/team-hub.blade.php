@@ -159,9 +159,15 @@
 
     @if ($showStaffForm)
         <div class="app-sheet-backdrop" wire:click="$set('showStaffForm', false)"></div>
-        <div class="app-sheet app-sheet--dialog app-sheet--wide" role="dialog" aria-modal="true">
-            <h2>{{ $editingStaffId ? __('operations.edit_staff') : __('operations.add_staff') }}</h2>
-            <form class="space-y-3" wire:submit="saveStaff">
+        <x-ui.admin-sheet
+            :title="$editingStaffId ? __('operations.edit_staff') : __('operations.add_staff')"
+            close-wire='$set("showStaffForm", false)'
+            form-id="team-staff-form"
+            submit-target="saveStaff"
+            :submit-label="__('operations.save')"
+            wide
+        >
+            <form id="team-staff-form" class="app-admin-form" wire:submit="saveStaff">
                 <x-form.input :label="__('operations.name')" name="staffName" wire:model="staffName" required />
                 <x-form.input type="email" :label="__('operations.email')" name="staffEmail" wire:model="staffEmail" required />
                 <x-form.input type="password" :label="__('operations.password')" name="staffPassword" wire:model="staffPassword" @if(!$editingStaffId) required @endif />
@@ -172,26 +178,31 @@
                     @endforeach
                 </x-form.select>
                 <fieldset>
-                    <legend class="text-xs font-medium">{{ __('operations.roles') }}</legend>
+                    <legend class="text-xs font-medium leading-snug">{{ __('operations.roles') }}</legend>
                     <div class="mt-2 flex flex-wrap gap-2">
                         @foreach ($roleOptions as $role)
-                            <label class="flex items-center gap-1 text-xs">
-                                <input type="checkbox" value="{{ $role }}" wire:model="staffRoles"> {{ $role }}
+                            <label class="app-admin-form__modifier-chip text-sm">
+                                <input type="checkbox" class="h-4 w-4" value="{{ $role }}" wire:model="staffRoles">
+                                <span>{{ $role }}</span>
                             </label>
                         @endforeach
                     </div>
                 </fieldset>
                 <x-form.toggle wire:model="staffActive" name="staffActive" :label="__('operations.active')" />
-                <x-ui.livewire-action type="submit" target="saveStaff" loading="saving" class="w-full" variant="primary">{{ __('operations.save') }}</x-ui.livewire-action>
             </form>
-        </div>
+        </x-ui.admin-sheet>
     @endif
 
     @if ($showBranchForm)
         <div class="app-sheet-backdrop" wire:click="$set('showBranchForm', false)"></div>
-        <div class="app-sheet app-sheet--dialog" role="dialog" aria-modal="true">
-            <h2>{{ $editingBranchId ? __('operations.edit_branch') : __('operations.add_branch') }}</h2>
-            <form class="space-y-3" wire:submit="saveBranch">
+        <x-ui.admin-sheet
+            :title="$editingBranchId ? __('operations.edit_branch') : __('operations.add_branch')"
+            close-wire='$set("showBranchForm", false)'
+            form-id="team-branch-form"
+            submit-target="saveBranch"
+            :submit-label="__('operations.save')"
+        >
+            <form id="team-branch-form" class="app-admin-form" wire:submit="saveBranch">
                 <x-form.input :label="__('operations.branch_code')" name="branchCode" wire:model="branchCode" required />
                 <x-form.input :label="__('operations.branch_name')" name="branchName" wire:model="branchName" required />
                 <x-form.input :label="__('operations.branch_name_ar')" name="branchNameAr" wire:model="branchNameAr" dir="rtl" />
@@ -222,8 +233,7 @@
                     </x-slot>
                 </x-form.location-picker>
                 <x-form.toggle wire:model="branchActive" name="branchActive" :label="__('operations.active')" />
-                <x-ui.livewire-action type="submit" target="saveBranch" loading="saving" class="w-full" variant="primary">{{ __('operations.save') }}</x-ui.livewire-action>
             </form>
-        </div>
+        </x-ui.admin-sheet>
     @endif
 </div>

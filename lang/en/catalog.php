@@ -54,6 +54,7 @@ return [
     'edit' => 'Edit',
     'delete' => 'Delete',
     'save' => 'Save',
+    'cancel' => 'Cancel',
     'created_category' => 'Category saved.',
     'saved_category' => 'Category updated.',
     'deleted_category' => 'Category removed.',
