@@ -3,15 +3,30 @@
         <h1 class="app-page-title">{{ __('pos.history') }}</h1>
         <p class="app-page-lead">{{ $branch->name }}</p>
     </header>
-    <div class="app-filter-bar">
-        <input type="search" wire:model.live.debounce.300ms="search" class="field-touch flex-1" placeholder="{{ __('pos.search_orders') }}" />
-        <select wire:model.live="statusFilter" class="field-touch sm:max-w-[10rem]">
+    <section class="app-card app-filter-fields mb-4 grid grid-cols-1 items-end gap-3 p-4 sm:grid-cols-[1fr_minmax(10rem,12rem)]">
+        <x-form.input
+            :label="__('pos.history_search_label')"
+            name="orderSearch"
+            type="search"
+            wire:model.live.debounce.300ms="search"
+            :placeholder="__('pos.search_orders')"
+            :liveValidate="false"
+            autocomplete="off"
+            wrapperClass="min-w-0"
+        />
+        <x-form.select
+            :label="__('pos.history_status_label')"
+            name="orderStatusFilter"
+            wire:model.live="statusFilter"
+            :liveValidate="false"
+            wrapperClass="min-w-0"
+        >
             <option value="all">{{ __('pos.filter_all') }}</option>
             <option value="paid">{{ __('pos.filter_paid') }}</option>
             <option value="refunded">{{ __('pos.filter_refunded') }}</option>
             <option value="cancelled">{{ __('pos.filter_cancelled') }}</option>
-        </select>
-    </div>
+        </x-form.select>
+    </section>
     <div class="grid gap-3 md:hidden">
         @forelse($orders as $order)
             <article class="app-card p-4 text-sm" wire:key="order-card-{{ $order->id }}">

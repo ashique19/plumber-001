@@ -57,6 +57,8 @@ return [
     'recent_orders' => 'أخر الطلبات',
     'no_sales_yet' => 'لا طلبات مدفوعة اليوم بعد.',
     'search_orders' => 'بحث في الطلبات…',
+    'history_search_label' => 'بحث',
+    'history_status_label' => 'الحالة',
     'filter_all' => 'الكل',
     'filter_paid' => 'مدفوع',
     'filter_refunded' => 'مسترد',

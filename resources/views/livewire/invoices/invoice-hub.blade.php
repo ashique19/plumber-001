@@ -31,9 +31,24 @@
         </section>
     @endif
 
-    <section class="app-card mb-4 grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-3">
-        <x-form.input :label="__('invoices.search')" name="search" wire:model.live.debounce.300ms="search" :hint="__('invoices.search_hint')" autocomplete="off" wrapperClass="sm:col-span-2" />
-        <x-form.select :label="__('invoices.type_filter')" name="typeFilter" wire:model.live="typeFilter">
+    <section class="app-card app-filter-fields mb-4 grid grid-cols-1 items-end gap-3 p-4 sm:grid-cols-2 lg:grid-cols-3">
+        <x-form.input
+            :label="__('invoices.search')"
+            name="search"
+            wire:model.live.debounce.300ms="search"
+            :placeholder="__('invoices.search_hint')"
+            :hint="null"
+            :liveValidate="false"
+            autocomplete="off"
+            wrapperClass="min-w-0 sm:col-span-2"
+        />
+        <x-form.select
+            :label="__('invoices.type_filter')"
+            name="typeFilter"
+            wire:model.live="typeFilter"
+            :liveValidate="false"
+            wrapperClass="min-w-0"
+        >
             <option value="all">{{ __('invoices.filter_all') }}</option>
             <option value="simplified">{{ __('invoices.type.simplified') }}</option>
             <option value="credit_note">{{ __('invoices.type.credit_note') }}</option>

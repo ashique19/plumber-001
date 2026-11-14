@@ -15,9 +15,9 @@
                 @class(['app-chip', 'app-chip--active' => $tab === $key])
             >{{ $label }}</button>
         @endforeach
-        <label class="ms-auto flex w-full flex-wrap items-center gap-2 text-xs font-medium text-[var(--app-muted)] sm:w-auto">
-            <span>{{ __('catalog.price_mode') }}</span>
-            <select wire:model.live="priceMode" class="app-toolbar-select min-h-11 flex-1 sm:flex-none">
+        <label class="form-field ms-auto w-full min-w-0 sm:w-auto sm:max-w-xs">
+            <span class="form-field__label">{{ __('catalog.price_mode') }}</span>
+            <select wire:model.live="priceMode" class="form-field__control w-full sm:min-w-[12rem]">
                 <option value="ex">{{ __('catalog.price_ex_vat') }}</option>
                 <option value="inc">{{ __('catalog.price_inc_vat') }}</option>
             </select>

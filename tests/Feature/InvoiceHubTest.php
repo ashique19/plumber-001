@@ -37,6 +37,19 @@ it('lists issued invoices for owner', function () {
         ->assertSee($invoice->document_number, false);
 });
 
+it('puts invoice search guidance in the placeholder and aligns filter fields', function () {
+    app()->setLocale('bn');
+
+    $hint = __('invoices.search_hint');
+
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(InvoiceHub::class)
+        ->assertSeeHtml('app-filter-fields')
+        ->assertSeeHtml('items-end')
+        ->assertSeeHtml('placeholder="'.$hint.'"', false)
+        ->assertDontSeeHtml('form-field__hint');
+});
+
 it('denies cashier', function () {
     expect($this->cashier->can('invoices.issue'))->toBeFalse();
 });
