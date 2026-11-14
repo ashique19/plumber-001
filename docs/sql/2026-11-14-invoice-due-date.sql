@@ -12,7 +12,7 @@ SET @col_exists := (
 SET @ddl := IF(
     @col_exists = 0,
     'ALTER TABLE `invoices` ADD COLUMN `due_date` DATE NULL AFTER `issued_at`',
-    'SELECT 1'
+    'DO 0'
 );
 
 PREPARE stmt FROM @ddl;

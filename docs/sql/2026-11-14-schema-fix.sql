@@ -1,6 +1,6 @@
+-- Deprecated: use docs/sql/2026-11-14-install-schema-repair.sql (covers legacy ingredients.name + guarded ADDs).
+-- Kept for backwards-compatible phpMyAdmin bookmarks.
 -- Idempotent schema alignment for live MySQL databases imported from older docs/sql/install.sql
--- Matches Laravel migration 0001_01_01_000010_single_client_application_schema (Nov 2026).
--- Safe to run multiple times; MODIFY is a no-op when types already match.
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS=0;

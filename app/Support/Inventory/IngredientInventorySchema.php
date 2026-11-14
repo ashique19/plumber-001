@@ -2,6 +2,7 @@
 
 namespace App\Support\Inventory;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Schema;
 
 final class IngredientInventorySchema
@@ -33,6 +34,11 @@ final class IngredientInventorySchema
         return self::ingredientsReady() && Schema::hasColumn('ingredients', 'name_en');
     }
 
+    public static function hasLegacyNameColumn(): bool
+    {
+        return self::ingredientsReady() && Schema::hasColumn('ingredients', 'name');
+    }
+
     public static function hasLowStockThreshold(): bool
     {
         return self::ingredientsReady() && Schema::hasColumn('ingredients', 'low_stock_threshold');
@@ -41,5 +47,29 @@ final class IngredientInventorySchema
     public static function hasReasonColumn(): bool
     {
         return self::movementsReady() && Schema::hasColumn('inventory_movements', 'reason');
+    }
+
+    public static function displayNameOrderColumn(): string
+    {
+        if (! self::ingredientsReady()) {
+            return 'id';
+        }
+        if (Schema::hasColumn('ingredients', 'name_en')) {
+            return 'name_en';
+        }
+        if (Schema::hasColumn('ingredients', 'name')) {
+            return 'name';
+        }
+
+        return 'id';
+    }
+
+    /**
+     * @param  Builder<\App\Models\Ingredient>  $query
+     * @return Builder<\App\Models\Ingredient>
+     */
+    public static function applyDisplayNameOrder(Builder $query): Builder
+    {
+        return $query->orderBy(self::displayNameOrderColumn());
     }
 }

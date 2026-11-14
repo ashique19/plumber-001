@@ -179,7 +179,7 @@ class InventoryManager extends Component
     public function render(IngredientStockService $stock): View
     {
         $ingredients = $this->schemaReady
-            ? $this->query()->orderBy('name_en')->get()
+            ? $this->query()->orderedForDisplay()->get()
             : collect();
         $movements = IngredientInventorySchema::movementsReady()
             ? InventoryMovement::query()

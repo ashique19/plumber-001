@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Casts\BusinessSettingsPayload;
 use App\Enums\InvoiceDocumentType;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class BusinessSetting extends Model
 {
@@ -17,13 +19,45 @@ class BusinessSetting extends Model
   protected function casts(): array
   {
     return [
-      'settings' => 'array',
+      'settings' => BusinessSettingsPayload::class,
     ];
+  }
+
+  public static function primary(): self
+  {
+    $byId = self::query()->find(1);
+    if ($byId !== null) {
+      return $byId;
+    }
+
+    $first = self::query()->orderBy('id')->first();
+    if ($first !== null) {
+      return $first;
+    }
+
+    throw new ModelNotFoundException('No business_settings row found.');
   }
 
   public static function singleton(): self
   {
-    return self::query()->findOrFail(1);
+    return self::primary();
+  }
+
+  /**
+   * @param  array<string, mixed>  $settings
+   */
+  public function writeSettings(array $settings, ?string $name = null): void
+  {
+    json_encode($settings, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
+
+    $payload = ['settings' => $settings];
+    if ($name !== null) {
+      $payload['name'] = $name;
+    }
+
+    if (! $this->forceFill($payload)->save()) {
+      throw new \RuntimeException('Failed to persist business settings.');
+    }
   }
 
   public static function zheartApiKeyPrefixFromEnv(): ?string

@@ -11,10 +11,10 @@ use App\Support\BusinessHours;
 use App\Support\BusinessProfile;
 use App\Support\Upload\LogoUploadConstraints;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 use App\Business\BusinessContext;
 use App\Livewire\Concerns\ResolvesBusinessContext;
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Layout;
@@ -143,7 +143,7 @@ class BusinessSettings extends Component
         $this->businessId = $this->business->id;
         BusinessContext::set($this->business);
         $business = $service->ensureHydrated($this->business);
-        $this->hydrateFromBusiness($business);
+        $this->syncBusinessState($business);
     }
 
     public function setSection(string $section): void
@@ -232,8 +232,10 @@ class BusinessSettings extends Component
             'taglineEn' => 'nullable|string|max:240',
             'taglineAr' => 'nullable|string|max:240',
             'brandColorKey' => ['required', Rule::in(array_keys(BusinessProfile::brandColorOptions($business)))],
-            'logoUpload' => LogoUploadConstraints::componentRules(),
         ];
+        if ($this->logoUpload !== null) {
+            $rules['logoUpload'] = LogoUploadConstraints::componentRules();
+        }
         try {
             $this->runSectionValidation($rules, 'brand', LogoUploadConstraints::validationMessages());
         } catch (ValidationException) {
@@ -253,6 +255,10 @@ class BusinessSettings extends Component
             $this->addError('logoUpload', $e->getMessage());
 
             return;
+        } catch (Throwable $e) {
+            $this->failSave('brand', $e);
+
+            return;
         }
 
         $hadNewLogo = $this->logoUpload !== null;
@@ -266,6 +272,8 @@ class BusinessSettings extends Component
         } else {
             $this->toastSuccess(__('business.messages.saved'));
         }
+
+        $this->syncBusinessState($business);
     }
 
     public function removeLogo(): void
@@ -275,7 +283,7 @@ class BusinessSettings extends Component
         $settings = $business->settings ?? [];
         data_set($settings, 'theme.logo_url', null);
         data_set($settings, 'business.brand.favicon_path', null);
-        $business->forceFill(['settings' => $settings])->save();
+        $business->writeSettings($settings);
         $this->currentLogo = null;
         $this->logoUpload = null;
         $this->logoAwaitingSave = false;
@@ -290,12 +298,19 @@ class BusinessSettings extends Component
         $this->resetErrorBag();
         $this->tabsWithErrors = [];
 
-        $service->saveInvoicing($this->business(), [
-            'integration_enabled' => $this->invoicingIntegrationEnabled,
-            'payment_terms_days' => $this->paymentTermsDays,
-        ], auth('staff')->user());
+        try {
+            $business = $service->saveInvoicing($this->business(), [
+                'integration_enabled' => $this->invoicingIntegrationEnabled,
+                'payment_terms_days' => $this->paymentTermsDays,
+            ], auth('staff')->user());
+        } catch (Throwable $e) {
+            $this->failSave('invoicing', $e);
+
+            return;
+        }
 
         $this->toastSuccess(__('business.invoicing.saved'));
+        $this->syncBusinessState($business);
     }
 
     public function saveLegal(BusinessSettingsService $service): void
@@ -332,7 +347,8 @@ class BusinessSettings extends Component
             return;
         }
 
-        $service->saveLegal($this->business(), [
+        try {
+            $business = $service->saveLegal($this->business(), [
             'name_en' => $this->legalNameEn,
             'name_ar' => $this->legalNameAr,
             'vat_number' => $this->vatNumber,
@@ -357,8 +373,14 @@ class BusinessSettings extends Component
                 'additional' => $this->naAdditional,
             ], static fn (string $v): bool => $v !== ''),
         ], auth('staff')->user());
+        } catch (Throwable $e) {
+            $this->failSave('legal', $e);
+
+            return;
+        }
 
         $this->toastSuccess(__('business.messages.saved'));
+        $this->syncBusinessState($business);
     }
 
     public function saveContact(BusinessSettingsService $service): void
@@ -394,7 +416,8 @@ class BusinessSettings extends Component
             $mapsUrl = GeoMapsUrl::googleQuery($lat, $lng);
         }
 
-        $service->saveContact($this->business(), [
+        try {
+            $business = $service->saveContact($this->business(), [
             'phone' => $this->phone,
             'whatsapp' => $this->whatsapp,
             'email' => $this->email,
@@ -407,12 +430,18 @@ class BusinessSettings extends Component
             'lat' => $lat,
             'lng' => $lng,
         ], auth('staff')->user());
+        } catch (Throwable $e) {
+            $this->failSave('contact', $e);
+
+            return;
+        }
 
         $this->lat = $lat;
         $this->lng = $lng;
         $this->mapsUrl = $mapsUrl;
 
         $this->toastSuccess(__('business.messages.saved'));
+        $this->syncBusinessState($business);
     }
 
     public function saveHours(BusinessSettingsService $service): void
@@ -435,12 +464,19 @@ class BusinessSettings extends Component
             return;
         }
 
-        $service->saveHours($this->business(), [
-            'weekdays' => $this->weekdays,
-            'note' => $this->hoursNote,
-        ], auth('staff')->user());
+        try {
+            $business = $service->saveHours($this->business(), [
+                'weekdays' => $this->weekdays,
+                'note' => $this->hoursNote,
+            ], auth('staff')->user());
+        } catch (Throwable $e) {
+            $this->failSave('hours', $e);
+
+            return;
+        }
 
         $this->toastSuccess(__('business.messages.saved'));
+        $this->syncBusinessState($business);
     }
 
     public function saveExtras(BusinessSettingsService $service): void
@@ -460,15 +496,22 @@ class BusinessSettings extends Component
         } catch (ValidationException) {
             return;
         }
-        $service->saveThemeExtras($business, [
-            'emergency_24_7' => $this->plumberEmergency,
-            'license_number' => $this->plumberLicense,
-            'service_areas' => $this->plumberServiceAreas,
-            'response_time_en' => $this->plumberResponseEn,
-            'response_time_ar' => $this->plumberResponseAr,
-        ], auth('staff')->user());
+        try {
+            $business = $service->saveThemeExtras($business, [
+                'emergency_24_7' => $this->plumberEmergency,
+                'license_number' => $this->plumberLicense,
+                'service_areas' => $this->plumberServiceAreas,
+                'response_time_en' => $this->plumberResponseEn,
+                'response_time_ar' => $this->plumberResponseAr,
+            ], auth('staff')->user());
+        } catch (Throwable $e) {
+            $this->failSave('extras', $e);
+
+            return;
+        }
 
         $this->toastSuccess(__('business.messages.saved'));
+        $this->syncBusinessState($business);
     }
 
     public function render(): View
@@ -602,7 +645,7 @@ class BusinessSettings extends Component
     private function runSectionValidation(array $rules, string $section, array $messages = []): void
     {
         try {
-            Validator::make($this->only(array_keys($rules)), $rules, $messages)->validate();
+            $this->validate($rules, $messages);
         } catch (ValidationException $e) {
             $this->section = $section;
             $this->tabsWithErrors = [$section];
@@ -612,6 +655,32 @@ class BusinessSettings extends Component
             ]), dedupe: false);
             throw $e;
         }
+    }
+
+    private function syncBusinessState(BusinessSetting $business): void
+    {
+        $fresh = $business->fresh() ?? $business;
+        $this->business = $fresh;
+        $this->businessId = $fresh->id;
+        BusinessContext::set($fresh);
+        $this->hydrateFromBusiness($fresh);
+    }
+
+    private function failSave(string $section, Throwable $e): void
+    {
+        Log::error('business.settings.livewire_save_failed', [
+            'section' => $section,
+            'business_id' => $this->businessId,
+            'message' => $e->getMessage(),
+        ]);
+        $this->section = $section;
+        $this->tabsWithErrors = [$section];
+        $this->toastError(
+            $e instanceof ValidationException
+                ? __('business.validation.section_failed', ['section' => __('business.sections.'.$section)])
+                : __('business.errors.save_failed'),
+            persistent: true,
+        );
     }
 
     private function liveRulesForProperty(string $property): ?string

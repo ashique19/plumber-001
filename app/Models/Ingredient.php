@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Support\Catalog\CatalogLocalizedText;
 use App\Support\Inventory\IngredientInventorySchema;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -56,7 +57,20 @@ class Ingredient extends Model
             );
         }
 
-        return (string) $this->name_en;
+        if (IngredientInventorySchema::hasLegacyNameColumn()) {
+            return (string) $this->getAttribute('name');
+        }
+
+        return (string) ($this->name_en ?? '');
+    }
+
+    /**
+     * @param  Builder<self>  $query
+     * @return Builder<self>
+     */
+    public function scopeOrderedForDisplay(Builder $query): Builder
+    {
+        return IngredientInventorySchema::applyDisplayNameOrder($query);
     }
 
     public function isLowStock(): bool

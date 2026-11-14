@@ -494,7 +494,7 @@ class MenuManager extends Component
             'catalogI18nReady' => CatalogI18n::columnsExist(),
             'inventoryReady' => IngredientInventorySchema::productIngredientsReady(),
             'ingredientOptions' => IngredientInventorySchema::ingredientsReady()
-                ? Ingredient::query()->whereNull('branch_id')->orderBy('name_en')->get()
+                ? Ingredient::query()->whereNull('branch_id')->orderedForDisplay()->get()
                 : collect(),
         ]);
     }

@@ -2,13 +2,13 @@
 
 return [
     'title' => 'ড্যাশবোর্ড',
-    'subtitle' => 'আজকের বিক্রয়, ইনভয়েস এবং আপনার ব্যবসার সাইনিং সার্ভিস জমা দেওয়ার অবস্থা।',
+    'subtitle' => 'আজকের বিক্রয়, ইনভয়েস এবং জমার অবস্থা।',
     'nav' => 'ড্যাশবোর্ড',
     'quick_actions' => 'দ্রুত কাজ',
     'make_invoice' => 'ইনভয়েস তৈরি করুন',
     'add_products' => 'পণ্য যোগ করুন',
     'open_analytics' => 'সম্পূর্ণ বিশ্লেষণ',
-    'signing_queue' => 'সাইনিং সার্ভিস সারি',
+    'signing_queue_link' => 'ZATCA জমার তালিকা',
     'today_orders' => 'আজকের অর্ডার',
     'today_sales' => 'আজকের বিক্রয়',
     'today_vat' => 'আজকের ভ্যাট',
@@ -25,9 +25,10 @@ return [
         'credit_note' => 'ক্রেডিট নোট',
         'debit_note' => 'ডেবিট নোট',
     ],
-    'signing_queue_hint' => 'রিপোর্টিং ও ক্লিয়ারেন্স সারির ফলাফল।',
+    'signing_queue' => 'জমার অবস্থা',
+    'signing_queue_hint' => 'রিপোর্টিং ও ক্লিয়ারেন্সের ফলাফল।',
     'signing_pending' => 'অপেক্ষমাণ',
     'signing_reported' => 'রিপোর্ট হয়েছে / ক্লিয়ার',
     'signing_failed' => 'ব্যর্থ',
-    'no_submissions' => 'এখনও কোনো সাইনিং সার্ভিস জমা নেই।',
+    'no_submissions' => 'এখনও কোনো জমা নেই।',
 ];
