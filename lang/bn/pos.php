@@ -57,6 +57,8 @@ return [
     'recent_orders' => 'সাম্প্রতিক অর্ডার',
     'no_sales_yet' => 'আজ এখনও কোনো পরিশোধিত অর্ডার নেই।',
     'search_orders' => 'অর্ডার খুঁজুন…',
+    'history_search_label' => 'খুঁজুন',
+    'history_status_label' => 'স্ট্যাটাস',
     'filter_all' => 'সব',
     'filter_paid' => 'পরিশোধিত',
     'filter_refunded' => 'রিফান্ড হয়েছে',

@@ -1,9 +1,9 @@
-@props(['label', 'name', 'hint' => null, 'required' => false, 'liveValidate' => true])
+@props(['label', 'name', 'hint' => null, 'required' => false, 'liveValidate' => true, 'wrapperClass' => ''])
 
 @php
     $fieldInvalid = $errors->has($name);
 @endphp
-<label @class(['form-field', 'form-field--invalid' => $fieldInvalid])>
+<label @class(['form-field', 'form-field--invalid' => $fieldInvalid, $wrapperClass])>
     <span class="form-field__label">
         {{ $label }}
         @if($required)<span class="text-rose-600" aria-hidden="true">*</span>@endif

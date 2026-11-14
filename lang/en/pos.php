@@ -57,6 +57,8 @@ return [
     'recent_orders' => 'Recent orders',
     'no_sales_yet' => 'No paid orders yet today.',
     'search_orders' => 'Search orders…',
+    'history_search_label' => 'Search',
+    'history_status_label' => 'Status',
     'filter_all' => 'All',
     'filter_paid' => 'Paid',
     'filter_refunded' => 'Refunded',
