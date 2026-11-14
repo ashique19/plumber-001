@@ -37,10 +37,7 @@ final class AppShellNav
      */
     public static function branchesForSwitcher(BusinessSetting $business): array
     {
-        return Branch::query()
-            ->withoutGlobalScopes()
-            ->orderBy('name')
-            ->get()
+        return StaffBranchContext::accessibleBranches()
             ->all();
     }
 }

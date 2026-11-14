@@ -14,6 +14,8 @@ beforeEach(function () {
     BusinessContext::set($this->business);
     $this->branch = Branch::query()->where('code', 'jad-main')->firstOrFail();
     $this->owner = StaffUser::query()->where('email', 'owner@example.test')->firstOrFail();
+    Branch::query()->update(['is_active' => true]);
+    $this->owner->forceFill(['branch_id' => null])->save();
 });
 
 it('serves the guest login homepage without a server error', function () {

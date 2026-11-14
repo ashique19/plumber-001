@@ -14,7 +14,7 @@ final class StaffLandingRoute
         }
 
         if ($user->can('pos.access')) {
-            return route('admin.pos.home');
+            return StaffBranchContext::posHomeUrl($user);
         }
 
         return route('admin.business');

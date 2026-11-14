@@ -5,6 +5,7 @@ namespace App\Livewire\Operations;
 use App\Livewire\Concerns\DispatchesToasts;
 use App\Livewire\Concerns\ValidatesFieldsLive;
 use App\Support\Geo\GeoMapsUrl;
+use App\Support\StaffBranchContext;
 use App\Support\Validation\FieldValidationRules;
 use App\Models\Branch;
 use App\Models\BusinessSetting;
@@ -94,11 +95,16 @@ class TeamHub extends Component
         BusinessContext::set($this->business);
         app(PermissionRegistrar::class)->setPermissionsTeamId($this->business->id);
 
-        if ($this->shiftBranchId === null) {
-            $this->shiftBranchId = Branch::query()
-                ->withoutGlobalScopes()
-                ->orderBy('name')
-                ->value('id');
+        $default = StaffBranchContext::resolve();
+        if ($this->shiftBranchId === null && $default !== null) {
+            $this->shiftBranchId = $default->id;
+        }
+    }
+
+    public function updatedShiftBranchId(mixed $value): void
+    {
+        if ($value !== null && $value !== '') {
+            StaffBranchContext::remember((int) $value);
         }
     }
 
@@ -113,6 +119,12 @@ class TeamHub extends Component
     {
         $this->resetStaffForm();
         $this->showStaffForm = true;
+        if ($id === null && ! StaffBranchContext::selectorVisible()) {
+            $only = StaffBranchContext::resolve();
+            if ($only !== null) {
+                $this->staffBranchId = $only->id;
+            }
+        }
         if ($id !== null) {
             $user = $this->staffQuery()->with('roles')->findOrFail($id);
             $this->editingStaffId = $user->id;
@@ -367,6 +379,8 @@ class TeamHub extends Component
             'openShift' => $openShift,
             'recentShifts' => $recentShifts,
             'roleOptions' => ['owner', 'manager', 'cashier', 'accountant'],
+            'showShiftBranchSelector' => StaffBranchContext::selectorVisible(),
+            'shiftBranchResolved' => StaffBranchContext::resolve(),
         ]);
     }
 

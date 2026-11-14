@@ -55,15 +55,22 @@
                     <option value="month">{{ __('reports.grain_month') }}</option>
                 </select>
             </label>
-            <label class="form-field min-w-[9rem] flex-1">
-                <span class="form-field__label">{{ __('reports.branch_filter') }}</span>
-                <select wire:model.live="branchId" class="form-field__control">
-                    <option value="">{{ __('reports.all_branches') }}</option>
-                    @foreach ($branches as $b)
-                        <option value="{{ $b->id }}">{{ $b->name }}</option>
-                    @endforeach
-                </select>
-            </label>
+            @if ($showBranchSelector)
+                <label class="form-field min-w-[9rem] flex-1">
+                    <span class="form-field__label">{{ __('reports.branch_filter') }}</span>
+                    <select wire:model.live="branchId" class="form-field__control">
+                        <option value="">{{ __('reports.all_branches') }}</option>
+                        @foreach ($branches as $b)
+                            <option value="{{ $b->id }}">{{ $b->name }}</option>
+                        @endforeach
+                    </select>
+                </label>
+            @elseif ($resolvedBranch)
+                <p class="flex min-h-[2.75rem] flex-col justify-center text-sm text-[var(--app-muted)]">
+                    <span class="form-field__label">{{ __('reports.branch_filter') }}</span>
+                    <span class="font-medium text-[var(--app-fg)]">{{ $resolvedBranch->name }}</span>
+                </p>
+            @endif
         </div>
     </section>
 

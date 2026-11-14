@@ -89,6 +89,8 @@ it('deactivates a branch and hides it from POS home', function () {
 
     BusinessContext::set($this->tenant);
 
+    Branch::query()->update(['is_active' => false]);
+
     Livewire::actingAs($this->cashier, 'staff')
         ->test(\App\Livewire\Pos\Home::class)
         ->assertSee(__('pos.empty_branches'), false);

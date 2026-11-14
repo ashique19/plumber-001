@@ -46,6 +46,7 @@ class OrderHistory extends Component
         }
 
         $this->branchId = $branch->id;
+        \App\Support\StaffBranchContext::remember($branch);
         $this->business = BusinessSetting::singleton();
     }
 

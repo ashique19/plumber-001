@@ -1,6 +1,6 @@
 <div>
     <header class="mb-4">
-        <h1 class="app-page-title">{{ __('pos.select_branch') }}</h1>
+        <h1 class="app-page-title">{{ ($showBranchPicker ?? true) ? __('pos.select_branch') : __('pos.title') }}</h1>
         <p class="app-page-lead">{{ __('pos.title') }}</p>
     </header>
     <div class="grid gap-3 sm:grid-cols-2">

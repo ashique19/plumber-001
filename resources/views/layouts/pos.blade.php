@@ -5,6 +5,7 @@
     use App\Models\BusinessSetting;
     use App\Support\AppShellNav;
     use App\Support\BusinessSettingDisplayName;
+    use App\Support\StaffBranchContext;
 
     $business = \App\Business\BusinessContext::get() ?? BusinessSetting::query()->find(1);
     $branch = $branch ?? request()->route('branch');
@@ -18,7 +19,10 @@
     $logoUrl = $business ? data_get($business->settings, 'theme.logo_url') : null;
     $logoAltKey = 'plumber.logo_alt';
     $colors = $business?->themeColors() ?? [];
-    $branches = $business ? AppShellNav::branchesForSwitcher($business) : [];
+    $staffUser = auth('staff')->user();
+    $branches = $staffUser ? StaffBranchContext::accessibleBranches($staffUser) : [];
+    $showBranchSwitcher = $staffUser && StaffBranchContext::selectorVisible($staffUser);
+    $posHomeUrl = $staffUser ? StaffBranchContext::posHomeUrl($staffUser) : route('admin.pos.home');
     app(\Spatie\Permission\PermissionRegistrar::class)->setPermissionsTeamId($business?->id ?? 1);
 @endphp
 <!DOCTYPE html>
@@ -62,7 +66,7 @@
             </div>
             <nav class="flex flex-1 flex-col gap-1 p-2">
                 @php
-                    $branchParam = $branch ?? ($branches[0] ?? null);
+                    $branchParam = $branch ?? StaffBranchContext::resolve($staffUser);
                 @endphp
                 @can('reports.view')
                     <a href="{{ route('admin.dashboard') }}" @class(['app-nav-link', 'app-nav-link--active' => $active === 'dashboard'])>
@@ -70,7 +74,7 @@
                         <span class="app-sidebar__label">{{ __('dashboard.nav') }}</span>
                     </a>
                 @endcan
-                <a href="{{ route('admin.pos.home') }}" @class(['app-nav-link', 'app-nav-link--active' => $active === 'pos'])>
+                <a href="{{ $posHomeUrl }}" @class(['app-nav-link', 'app-nav-link--active' => $active === 'pos'])>
                     <x-app.icon name="chart" class="h-5 w-5 shrink-0" />
                     <span class="app-sidebar__label">{{ __('pos.nav_pos') }}</span>
                 </a>
@@ -160,7 +164,9 @@
                             <p class="truncate text-sm font-semibold">{{ $displayName }}</p>
                             @if($branch)
                                 <p class="truncate text-xs text-[var(--app-muted)]">{{ $branch->name }}</p>
-                            @elseif(count($branches) > 1)
+                            @elseif($branchParam && ! $showBranchSwitcher)
+                                <p class="truncate text-xs text-[var(--app-muted)]">{{ $branchParam->name }}</p>
+                            @elseif($showBranchSwitcher)
                                 <details class="relative text-xs">
                                     <summary class="cursor-pointer list-none text-[var(--app-accent)]">{{ __('pos.switch_branch') }}</summary>
                                     <ul class="app-card app-card--flat absolute z-20 mt-1 min-w-[12rem] p-1 shadow-lg">

@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Admin\AdminDashboard;
+use App\Models\Branch;
 use App\Models\BusinessSetting;
 use App\Models\StaffUser;
 use Database\Seeders\DemoStaffSeeder;
@@ -54,6 +55,9 @@ it('hides quick actions when the user lacks the required permissions', function 
 });
 
 it('sends cashiers without dashboard access to pos after login', function () {
+    Branch::query()->update(['is_active' => true]);
+    $this->cashier->forceFill(['branch_id' => null])->save();
+
     $response = $this->post('/login', [
         'email' => $this->cashier->email,
         'password' => 'TestPassword!2026',
