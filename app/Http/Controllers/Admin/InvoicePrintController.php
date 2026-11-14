@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Invoice;
 use App\Models\PosOrder;
+use App\Support\EnabledLocales;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -15,11 +16,11 @@ class InvoicePrintController extends Controller
         if ($invoice->source_type === PosOrder::class && $invoice->source_id !== null) {
             $order = PosOrder::query()->findOrFail($invoice->source_id);
 
-            $locale = $request->query('locale', app()->getLocale());
+            $locale = EnabledLocales::resolve($request->query('locale', app()->getLocale()));
 
             return redirect()->route('admin.pos.receipt', [
                 'order' => $order,
-                'locale' => in_array($locale, ['en', 'ar'], true) ? $locale : 'en',
+                'locale' => $locale,
             ]);
         }
 

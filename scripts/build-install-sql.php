@@ -361,7 +361,7 @@ INSERT IGNORE INTO migrations (migration, batch) VALUES
 ('0001_01_01_000020_create_permission_tables', 1);
 
 INSERT IGNORE INTO business_settings (id, name, settings, created_at, updated_at) VALUES
-(1, 'Demo Plumbing Co', JSON_OBJECT('theme', JSON_OBJECT('layout_key', 'plumber')), NOW(), NOW());
+(1, 'Demo Plumbing Co', JSON_OBJECT('theme', JSON_OBJECT('layout_key', 'plumber'), 'default_locale', 'bn'), NOW(), NOW());
 
 INSERT IGNORE INTO branches (id, code, name, name_ar, is_active, created_at, updated_at) VALUES
 (1, 'ruh-main', 'Riyadh Service Center', 'مركز الرياض', 1, NOW(), NOW());

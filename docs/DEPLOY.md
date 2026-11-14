@@ -29,6 +29,8 @@ On hosts without reliable `php artisan migrate`, import **`docs/sql/install.sql`
 
 If the database was created from an **older** `install.sql` (before Nov 2026), run **`docs/sql/2026-11-14-schema-fix.sql`** once after import so column types match the application (inventory decimals, JSON columns, VARCHAR lengths).
 
+To align stored business UI defaults with Bangla, run **`docs/sql/2026-11-14-default-locale-bn.sql`** once on live databases (idempotent).
+
 When Artisan is available:
 
 ```bash
@@ -46,8 +48,9 @@ Copy `.env.example` to `.env` and set:
 - `APP_KEY`
 - `APP_DEBUG`
 - `APP_URL`
-- `APP_LOCALE`
-- `APP_ENABLED_LOCALES`
+- `APP_LOCALE` (default **`bn`**; set live `.env` to `APP_LOCALE=bn`)
+- `APP_FALLBACK_LOCALE` (`en`)
+- `APP_ENABLED_LOCALES` (`en,bn,ar`)
 - `AUTH_GUARD` (`staff`)
 - `DB_CONNECTION`
 - `DB_HOST`

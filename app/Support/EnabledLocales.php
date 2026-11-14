@@ -36,12 +36,14 @@ final class EnabledLocales
     public static function resolve(?string $locale, ?string $fallback = null): string
     {
         $codes = self::codes();
-        $fallback = $fallback ?? (string) config('locales.default', 'en');
+        $fallback = $fallback ?? (string) config('locales.default', 'bn');
         $locale = is_string($locale) ? strtolower(trim($locale)) : '';
         $supported = array_keys(config('locales.supported', []));
 
         if ($locale !== '' && in_array($locale, $supported, true) && ! in_array($locale, $codes, true)) {
-            return in_array('en', $codes, true) ? 'en' : ($codes[0] ?? 'en');
+            $default = (string) config('locales.default', 'bn');
+
+            return in_array($default, $codes, true) ? $default : ($codes[0] ?? $default);
         }
 
         if ($locale !== '' && in_array($locale, $codes, true)) {
@@ -53,7 +55,7 @@ final class EnabledLocales
             return $fallback;
         }
 
-        return $codes[0] ?? 'en';
+        return $codes[0] ?? (string) config('locales.default', 'bn');
     }
 
     public static function direction(string $locale): string
