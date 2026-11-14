@@ -21,6 +21,29 @@
         </div>
     </header>
 
+    @if ($canIssueInvoice || $canAddProducts)
+        <section class="dashboard-quick-actions mb-4 flex flex-col gap-3" aria-label="{{ __('dashboard.quick_actions') }}">
+            @if ($canIssueInvoice)
+                <a
+                    href="{{ route('admin.invoices.issue', $invoiceIssueMode) }}"
+                    class="tap-action-primary flex min-h-14 w-full items-center justify-center gap-2 px-5 text-base font-semibold sm:text-lg"
+                >
+                    <x-app.icon name="clipboard" class="h-5 w-5 shrink-0" />
+                    {{ __('dashboard.make_invoice') }}
+                </a>
+            @endif
+            @if ($canAddProducts)
+                <a
+                    href="{{ route('admin.catalog', ['create' => 'product']) }}"
+                    class="tap-action-primary flex min-h-14 w-full items-center justify-center gap-2 px-5 text-base font-semibold sm:text-lg"
+                >
+                    <x-app.icon name="plus" class="h-5 w-5 shrink-0" />
+                    {{ __('dashboard.add_products') }}
+                </a>
+            @endif
+        </section>
+    @endif
+
     @if(count($lowStock ?? []) > 0)
         <section class="app-card mb-4 border-amber-200 bg-amber-50/90 p-4">
             <h2 class="text-sm font-semibold text-amber-950">{{ __('inventory.dashboard_low_stock') }}</h2>

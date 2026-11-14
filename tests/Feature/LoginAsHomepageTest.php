@@ -29,6 +29,6 @@ it('authenticates staff via POST login and redirects into admin', function () {
       'password' => 'TestPassword!2026',
   ]);
 
-    $response->assertRedirect(route('admin.pos.home', absolute: false));
+    $response->assertRedirect(route('admin.dashboard', absolute: false));
     $this->assertAuthenticatedAs($this->owner, 'staff');
 });

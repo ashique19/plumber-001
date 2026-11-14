@@ -39,6 +39,8 @@ class AdminDashboard extends Component
         $signingQueue = $snapshot['signing_queue'];
         $signingMax = max(1, $signingQueue['pending'], $signingQueue['reported'], $signingQueue['failed']);
 
+        $user = auth('staff')->user();
+
         return view('livewire.admin.admin-dashboard', [
             'snapshot' => $snapshot,
             'series' => $series,
@@ -47,6 +49,9 @@ class AdminDashboard extends Component
             'signingQueue' => $signingQueue,
             'signingMax' => $signingMax,
             'lowStock' => $lowStock,
+            'invoiceIssueMode' => $this->business->alternateInvoiceDocumentType()->value,
+            'canIssueInvoice' => $user?->can('invoices.issue') ?? false,
+            'canAddProducts' => ($user?->can('inventory.view') && $user?->can('staff.manage')) ?? false,
         ]);
     }
 }
