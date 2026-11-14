@@ -345,9 +345,11 @@ final class ReceiptThermalPresenter
         $mobile2 = $legal['mobile_secondary'] ?? null;
         $email = $legacy['email'] ?? $content['email'] ?? $legal['email'] ?? null;
 
+        $mobileOut = filled($mobile) ? (string) $mobile : (filled($phone) ? (string) $phone : null);
+
         return [
             'phone' => filled($phone) ? (string) $phone : null,
-            'mobile' => filled($mobile) ? (string) $mobile : null,
+            'mobile' => $mobileOut,
             'mobile_secondary' => filled($mobile2) ? (string) $mobile2 : null,
             'fax' => filled($legal['fax'] ?? null) ? (string) $legal['fax'] : null,
             'email' => filled($email) ? (string) $email : null,

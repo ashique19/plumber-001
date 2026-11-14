@@ -91,6 +91,7 @@
             @else
                 <p class="rounded-lg bg-amber-50 p-3 text-sm text-amber-900 ring-1 ring-amber-200">{{ __('business.invoicing.api_key_missing') }}</p>
             @endif
+            <x-form.input type="number" min="0" step="1" :label="__('invoices.payment_terms_days')" name="paymentTermsDays" wire:model.blur="paymentTermsDays" />
             <label class="flex items-start gap-3">
                 <input type="checkbox" class="mt-1 rounded border-gray-300" wire:model="invoicingIntegrationEnabled" />
                 <span>
