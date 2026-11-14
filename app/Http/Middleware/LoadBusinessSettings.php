@@ -12,12 +12,12 @@ class LoadBusinessSettings
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (BusinessContext::get() === null) {
-            $business = BusinessSetting::query()->find(1)
-                ?? BusinessSetting::query()->orderBy('id')->first();
-            if ($business !== null) {
-                BusinessContext::set($business);
-            }
+        BusinessContext::clear();
+
+        try {
+            BusinessContext::set(BusinessSetting::primary()->fresh());
+        } catch (\Throwable) {
+            // Single-tenant app: allow boot without a row (install in progress).
         }
 
         return $next($request);
