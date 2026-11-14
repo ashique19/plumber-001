@@ -31,6 +31,8 @@ If the database was created from an **older** `install.sql` (before Nov 2026), r
 
 To align stored business UI defaults with Bangla, run **`docs/sql/2026-11-14-default-locale-bn.sql`** once on live databases (idempotent).
 
+For invoice due dates on existing databases, run **`docs/sql/2026-11-14-invoice-due-date.sql`** once (idempotent).
+
 When Artisan is available:
 
 ```bash

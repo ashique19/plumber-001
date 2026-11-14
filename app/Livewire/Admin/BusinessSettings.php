@@ -113,6 +113,8 @@ class BusinessSettings extends Component
 
     public bool $invoicingIntegrationEnabled = true;
 
+    public int $paymentTermsDays = 30;
+
     /** @var list<string> */
     public array $tabsWithErrors = [];
 
@@ -271,6 +273,7 @@ class BusinessSettings extends Component
 
         $service->saveInvoicing($this->business(), [
             'integration_enabled' => $this->invoicingIntegrationEnabled,
+            'payment_terms_days' => $this->paymentTermsDays,
         ], auth('staff')->user());
 
         $this->toastSuccess(__('business.invoicing.saved'));
@@ -540,6 +543,7 @@ class BusinessSettings extends Component
         $this->plumberResponseAr = (string) ($extras['response_time_ar'] ?? '');
 
         $this->invoicingIntegrationEnabled = $business->invoicingIntegrationEnabled();
+        $this->paymentTermsDays = max(0, (int) data_get($business->settings, 'invoicing.payment_terms_days', 30));
     }
 
     /**

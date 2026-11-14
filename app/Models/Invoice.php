@@ -27,6 +27,7 @@ class Invoice extends Model
         'qr_tlv_base64',
         'payload',
         'issued_at',
+        'due_date',
     ];
 
     protected function casts(): array
@@ -36,6 +37,7 @@ class Invoice extends Model
             'status' => InvoiceStatus::class,
             'payload' => 'array',
             'issued_at' => 'datetime',
+            'due_date' => 'date',
         ];
     }
 

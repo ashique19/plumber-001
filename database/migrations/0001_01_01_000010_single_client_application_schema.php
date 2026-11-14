@@ -144,6 +144,7 @@ return new class extends Migration
             $table->text('qr_tlv_base64')->nullable();
             $table->json('payload')->nullable();
             $table->timestamp('issued_at')->nullable();
+            $table->date('due_date')->nullable();
             $table->timestamps();
 
             $table->index(['source_type', 'source_id']);

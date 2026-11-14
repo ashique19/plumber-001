@@ -58,10 +58,11 @@ class PosInvoiceService
             'source_id' => $order->id,
             'payload' => array_merge($draft->payload ?? [], [
                 'pos_order_id' => $order->id,
-                'discount_ex_vat' => (float) $order->discount_ex_vat,
+                'invoice_discount_ex_vat' => (float) $order->promo_discount_ex_vat + (float) $order->loyalty_discount_ex_vat,
                 'loyalty_discount_ex_vat' => (float) $order->loyalty_discount_ex_vat,
                 'loyalty_points_redeemed' => $order->loyalty_points_redeemed,
                 'payment_method' => $order->payment_method,
+                ...$this->simplifiedBuyerFromCustomer($order),
             ]),
         ])->save();
 
@@ -100,10 +101,12 @@ class PosInvoiceService
             'source_id' => $order->id,
             'payload' => array_merge($draft->payload ?? [], [
                 'pos_order_id' => $order->id,
-                'discount_ex_vat' => (float) $order->discount_ex_vat,
+                'invoice_discount_ex_vat' => (float) $order->promo_discount_ex_vat + (float) $order->loyalty_discount_ex_vat,
                 'loyalty_discount_ex_vat' => (float) $order->loyalty_discount_ex_vat,
                 'loyalty_points_redeemed' => $order->loyalty_points_redeemed,
                 'payment_method' => $order->payment_method,
+                'buyer_phone' => $order->customer?->phone,
+                'buyer_email' => $order->customer?->email,
                 ...$buyer,
             ]),
         ])->save();
@@ -162,20 +165,18 @@ class PosInvoiceService
     {
         $items = [];
         foreach ($order->line_items as $line) {
-            $items[] = [
+            $items[] = array_filter([
                 'name' => (string) ($line['name'] ?? 'Item'),
+                'name_ar' => filled($line['name_ar'] ?? null) ? (string) $line['name_ar'] : null,
                 'quantity' => (float) ($line['quantity'] ?? 1),
                 'unit_price_ex_vat' => (float) ($line['unit_price_ex_vat'] ?? 0),
                 'vat_rate' => (float) ($line['vat_rate'] ?? 15),
                 'discount_ex_vat' => (float) ($line['discount_ex_vat'] ?? 0),
                 'item_type' => (string) ($line['item_type'] ?? 'item'),
-            ];
+            ], static fn ($v) => $v !== null);
         }
 
         $orderDiscount = (float) $order->promo_discount_ex_vat + (float) $order->loyalty_discount_ex_vat;
-        if ($items !== [] && $orderDiscount > 0) {
-            $items[0]['discount_ex_vat'] += $orderDiscount;
-        }
 
         if ($items === [] && (float) $order->subtotal_ex_vat > 0) {
             $loyaltyDiscount = (float) $order->loyalty_discount_ex_vat + (float) $order->discount_ex_vat;
@@ -189,5 +190,25 @@ class PosInvoiceService
         }
 
         return $items;
+    }
+
+    /**
+     * @return array<string, string|null>
+     */
+    private function simplifiedBuyerFromCustomer(PosOrder $order): array
+    {
+        $customer = $order->customer;
+        if ($customer === null) {
+            return [];
+        }
+
+        $vat = preg_replace('/\D/', '', (string) data_get($customer->profile, 'vat_number', '')) ?? '';
+
+        return array_filter([
+            'buyer_name' => filled($customer->name) ? $customer->name : null,
+            'buyer_phone' => filled($customer->phone) ? $customer->phone : null,
+            'buyer_email' => filled($customer->email) ? $customer->email : null,
+            'buyer_vat' => $vat !== '' ? $vat : null,
+        ], static fn ($v) => $v !== null && $v !== '');
     }
 }

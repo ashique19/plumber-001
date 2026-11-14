@@ -26,10 +26,20 @@ class IssueInvoice extends Component
 
     public string $mode;
 
-    /** @var list<array{name: string, quantity: string, unit_price: string, vat_rate: string}> */
+    /** @var list<array{name: string, name_ar: string, quantity: string, unit_price: string, vat_rate: string}> */
     public array $lines = [
-        ['name' => '', 'quantity' => '1', 'unit_price' => '', 'vat_rate' => '15'],
+        ['name' => '', 'name_ar' => '', 'quantity' => '1', 'unit_price' => '', 'vat_rate' => '15'],
     ];
+
+    public string $invoiceDiscountExVat = '0';
+
+    public string $retentionPercent = '';
+
+    public string $retentionFixed = '';
+
+    public string $buyerPhone = '';
+
+    public string $buyerEmail = '';
 
     public string $buyerName = '';
 
@@ -65,7 +75,7 @@ class IssueInvoice extends Component
 
     public function addLine(): void
     {
-        $this->lines[] = ['name' => '', 'quantity' => '1', 'unit_price' => '', 'vat_rate' => '15'];
+        $this->lines[] = ['name' => '', 'name_ar' => '', 'quantity' => '1', 'unit_price' => '', 'vat_rate' => '15'];
     }
 
     public function removeLine(int $index): void
@@ -96,12 +106,20 @@ class IssueInvoice extends Component
         $documentNumber = strtoupper($this->mode === 'standard' ? 'STD' : 'SIMP')
             .'-'.now('Asia/Riyadh')->format('Ymd-His');
 
-        $lineItems = array_map(fn (array $row) => [
-            'name' => trim($row['name']),
-            'quantity' => (float) $row['quantity'],
-            'unit_price_ex_vat' => (float) $row['unit_price'],
-            'vat_rate' => (float) $row['vat_rate'],
-        ], $this->lines);
+        $lineItems = array_map(function (array $row): array {
+            $item = [
+                'name' => trim($row['name']),
+                'quantity' => round((float) $row['quantity'], 3),
+                'unit_price_ex_vat' => (float) $row['unit_price'],
+                'vat_rate' => (float) $row['vat_rate'],
+            ];
+            $ar = trim((string) ($row['name_ar'] ?? ''));
+            if ($ar !== '') {
+                $item['name_ar'] = $ar;
+            }
+
+            return $item;
+        }, $this->lines);
 
         $draft = $issuer->issueDraft($branch, $documentNumber, $type, $lineItems);
 
@@ -121,8 +139,29 @@ class IssueInvoice extends Component
                     'additional' => $this->addrAdditional,
                 ],
             ]);
-        } elseif (trim((string) $this->buyerNameOptional) !== '') {
-            $payload['buyer_name'] = trim($this->buyerNameOptional);
+        } else {
+            if (trim((string) $this->buyerNameOptional) !== '') {
+                $payload['buyer_name'] = trim($this->buyerNameOptional);
+            }
+            if (trim($this->buyerPhone) !== '') {
+                $payload['buyer_phone'] = trim($this->buyerPhone);
+            }
+            if (trim($this->buyerEmail) !== '') {
+                $payload['buyer_email'] = trim($this->buyerEmail);
+            }
+        }
+
+        $discount = max(0, (float) $this->invoiceDiscountExVat);
+        if ($discount > 0) {
+            $payload['invoice_discount_ex_vat'] = round($discount, 2);
+        }
+
+        $retentionFixed = max(0, (float) $this->retentionFixed);
+        $retentionPercent = max(0, (float) $this->retentionPercent);
+        if ($retentionFixed > 0) {
+            $payload['retention_fixed'] = round($retentionFixed, 2);
+        } elseif ($retentionPercent > 0) {
+            $payload['retention_percent'] = round($retentionPercent, 2);
         }
 
         $draft->forceFill(['payload' => $payload])->save();
@@ -152,7 +191,13 @@ class IssueInvoice extends Component
         $lineRules = [
             'lines' => ['required', 'array', 'min:1'],
             'lines.*.name' => ['required', 'string', 'max:200'],
-            'lines.*.quantity' => ['required', 'numeric', 'min:0.01'],
+            'lines.*.name_ar' => ['nullable', 'string', 'max:200'],
+            'lines.*.quantity' => ['required', 'numeric', 'min:0.001'],
+            'invoiceDiscountExVat' => ['nullable', 'numeric', 'min:0'],
+            'retentionPercent' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'retentionFixed' => ['nullable', 'numeric', 'min:0'],
+            'buyerPhone' => ['nullable', 'string', 'max:32'],
+            'buyerEmail' => ['nullable', 'email', 'max:120'],
             'lines.*.unit_price' => ['required', 'numeric', 'min:0'],
             'lines.*.vat_rate' => ['required', 'numeric', 'min:0', 'max:100'],
         ];

@@ -291,11 +291,15 @@ class BusinessSettingsService
         if (array_key_exists('integration_enabled', $input)) {
             $invoicing['integration_enabled'] = (bool) $input['integration_enabled'];
         }
+        if (array_key_exists('payment_terms_days', $input)) {
+            $invoicing['payment_terms_days'] = max(0, (int) $input['payment_terms_days']);
+        }
         $settings['invoicing'] = $invoicing;
 
         $business->forceFill(['settings' => $settings])->save();
         $this->audit->record($business, 'business.settings.invoicing', [
             'integration_enabled' => $invoicing['integration_enabled'] ?? false,
+            'payment_terms_days' => $invoicing['payment_terms_days'] ?? null,
         ], $actor);
 
         return $business->fresh();

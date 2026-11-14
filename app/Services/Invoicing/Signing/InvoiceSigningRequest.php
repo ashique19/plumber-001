@@ -25,5 +25,6 @@ final class InvoiceSigningRequest
         public readonly ?string $referencedInvoiceNumber,
         public readonly ?string $referencedInvoiceUuid,
         public readonly ?string $noteReason,
+        public readonly float $documentDiscountExVat = 0.0,
     ) {}
 }

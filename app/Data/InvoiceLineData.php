@@ -2,7 +2,7 @@
 
 namespace App\Data;
 
-use App\Support\VatPricing;
+use App\Support\Invoicing\InvoiceLineMath;
 
 readonly class InvoiceLineData
 {
@@ -12,31 +12,25 @@ readonly class InvoiceLineData
     public float $unitPriceExVat,
     public float $vatRate,
     public float $discountExVat = 0.0,
+    public ?string $nameAr = null,
   ) {}
 
-  /** @return array{line_inc: float, vat: float, net: float} */
-  public function shelfAmounts(): array
+  public function netExVat(): float
   {
-    return VatPricing::lineAmountsFromUnitEx(
+    return InvoiceLineMath::lineNetExVat(
       $this->unitPriceExVat,
       $this->quantity,
-      $this->vatRate,
       $this->discountExVat,
     );
   }
 
-  public function netExVat(): float
-  {
-    return $this->shelfAmounts()['net'];
-  }
-
   public function vatAmount(): float
   {
-    return $this->shelfAmounts()['vat'];
+    return InvoiceLineMath::lineVatAmount($this->netExVat(), $this->vatRate);
   }
 
   public function lineIncVat(): float
   {
-    return $this->shelfAmounts()['line_inc'];
+    return InvoiceLineMath::lineIncVat($this->netExVat(), $this->vatRate);
   }
 }
