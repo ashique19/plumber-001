@@ -199,10 +199,6 @@
                     </div>
                 </fieldset>
                 <x-form.toggle wire:model="productActive" name="productActive" :label="__('catalog.active')" class="sm:col-span-2" />
-                @if($storefrontVisibilityReady ?? false)
-                    <x-form.toggle wire:model="productShowOnHomepage" name="productShowOnHomepage" :label="__('catalog.show_on_homepage')" class="sm:col-span-1" />
-                    <x-form.toggle wire:model="productShowOnMenu" name="productShowOnMenu" :label="__('catalog.show_on_menu')" class="sm:col-span-1" />
-                @endif
                 <x-ui.livewire-action type="submit" target="saveProduct" loading="saving" class="tap-action-primary w-full sm:col-span-2" variant="primary">{{ __('catalog.save') }}</x-ui.livewire-action>
             </form>
         </div>

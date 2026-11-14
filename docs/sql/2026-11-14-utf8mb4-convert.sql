@@ -7,9 +7,9 @@ SET CHARACTER SET utf8mb4;
 SET collation_connection = 'utf8mb4_unicode_ci';
 SET FOREIGN_KEY_CHECKS=0;
 
-SET @db := DATABASE();
-SET @ddl := CONCAT('ALTER DATABASE `', REPLACE(@db, '`', '``'), '` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
-PREPARE stmt FROM @ddl; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+-- Note: run `ALTER DATABASE <name> CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;`
+-- in phpMyAdmin or mysql CLI if the default database charset is still latin1.
+-- Table-level CONVERT below is sufficient for Bangla/Arabic column data (PDO-safe).
 
 ALTER TABLE `migrations` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ALTER TABLE `cache` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

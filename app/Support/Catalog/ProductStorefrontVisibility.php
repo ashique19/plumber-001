@@ -29,4 +29,12 @@ final class ProductStorefrontVisibility
             'show_on_menu' => true,
         ];
     }
+
+    /**
+     * Plumber-001 has no public storefront; keep DB columns but hide catalog UI controls.
+     */
+    public static function catalogUiEnabled(): bool
+    {
+        return false;
+    }
 }

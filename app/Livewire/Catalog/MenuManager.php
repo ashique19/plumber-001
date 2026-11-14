@@ -268,7 +268,7 @@ class MenuManager extends Component
             'item_type' => $validated['productItemType'],
         ];
 
-        if (ProductStorefrontVisibility::columnsExist()) {
+        if (ProductStorefrontVisibility::columnsExist() && ProductStorefrontVisibility::catalogUiEnabled()) {
             $payload['show_on_homepage'] = $validated['productShowOnHomepage'];
             $payload['show_on_menu'] = $validated['productShowOnMenu'];
         }
@@ -305,7 +305,7 @@ class MenuManager extends Component
     public function toggleProductShowOnHomepage(int $id): void
     {
         $this->authorizeCatalogWrite();
-        if (! ProductStorefrontVisibility::columnsExist()) {
+        if (! ProductStorefrontVisibility::columnsExist() || ! ProductStorefrontVisibility::catalogUiEnabled()) {
             return;
         }
         $product = $this->productQuery()->findOrFail($id);
@@ -316,7 +316,7 @@ class MenuManager extends Component
     public function toggleProductShowOnMenu(int $id): void
     {
         $this->authorizeCatalogWrite();
-        if (! ProductStorefrontVisibility::columnsExist()) {
+        if (! ProductStorefrontVisibility::columnsExist() || ! ProductStorefrontVisibility::catalogUiEnabled()) {
             return;
         }
         $product = $this->productQuery()->findOrFail($id);
@@ -484,7 +484,8 @@ class MenuManager extends Component
             'products' => $products,
             'modifiers' => $modifiers,
             'canWrite' => auth('staff')->user()?->can('staff.manage') ?? false,
-            'storefrontVisibilityReady' => ProductStorefrontVisibility::columnsExist(),
+            'storefrontVisibilityReady' => ProductStorefrontVisibility::columnsExist()
+                && ProductStorefrontVisibility::catalogUiEnabled(),
             'catalogI18nReady' => CatalogI18n::columnsExist(),
             'categoryBanglaFieldsReady' => CatalogI18n::categoryBanglaFieldsReady(),
             'categoryDescriptionFieldsReady' => CatalogI18n::categoryDescriptionFieldsReady(),
