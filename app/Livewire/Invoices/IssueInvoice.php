@@ -7,8 +7,11 @@ use App\Data\InvoiceLineData;
 use App\Enums\InvoiceDocumentType;
 use App\Exceptions\InvoiceSigningException;
 use App\Livewire\Concerns\DispatchesToasts;
+use App\Livewire\Concerns\ManagesInvoicingCatalogPicker;
+use App\Livewire\Concerns\ManagesInvoicingCustomerPicker;
 use App\Livewire\Concerns\ResolvesBusinessContext;
 use App\Livewire\Concerns\ValidatesFieldsLive;
+use App\Models\ProductCategory;
 use App\Models\Product;
 use App\Services\InvoiceIssueService;
 use App\Support\Invoicing\InvoiceDocumentTotals;
@@ -26,6 +29,8 @@ use Livewire\Component;
 class IssueInvoice extends Component
 {
     use DispatchesToasts;
+    use ManagesInvoicingCatalogPicker;
+    use ManagesInvoicingCustomerPicker;
     use ResolvesBusinessContext;
     use ValidatesFieldsLive;
 
@@ -100,37 +105,6 @@ class IssueInvoice extends Component
     public function addLine(): void
     {
         $this->lines[] = $this->emptyLine();
-    }
-
-    public function applyCatalogProduct(int $lineIndex, int $productId): void
-    {
-        if (! isset($this->lines[$lineIndex])) {
-            return;
-        }
-
-        $product = Product::query()->where('is_active', true)->find($productId);
-        if ($product === null) {
-            $this->toastWarning(__('invoices.catalog_product_missing'));
-
-            return;
-        }
-
-        $nameEn = trim((string) ($product->name_en ?? ''));
-        if ($nameEn === '') {
-            $nameEn = $product->displayName('en');
-        }
-
-        $this->lines[$lineIndex] = array_merge($this->lines[$lineIndex], [
-            'name' => $nameEn,
-            'name_ar' => trim((string) ($product->name_ar ?? '')),
-            'quantity' => $this->lines[$lineIndex]['quantity'] !== '' ? $this->lines[$lineIndex]['quantity'] : '1',
-            'unit_price' => (string) $product->price_ex_vat,
-            'vat_rate' => (string) $product->vat_rate,
-            'product_id' => $product->id,
-            'unit_label' => $product->itemType()->label(),
-        ]);
-
-        $this->toastInfo(__('invoices.catalog_product_applied', ['name' => $product->displayName()]));
     }
 
     public function removeLine(int $index): void
@@ -274,7 +248,11 @@ class IssueInvoice extends Component
                 ? __('invoices.issue_standard_title')
                 : __('invoices.issue_simplified_title'),
             'isStandard' => $isStandard,
-            'catalogProducts' => $this->catalogProductsForPicker(),
+            'customerSearchResults' => $this->customerSearchResults(),
+            'addLineProductSearchResults' => $this->addLineProductSearchResults(),
+            'canCreateCustomers' => $this->canCreateCustomersFromDocument(),
+            'canCreateProducts' => $this->canCreateProductsFromDocument(),
+            'productCategories' => ProductCategory::query()->orderBy('name_en')->get(),
             'previewTotals' => $this->previewTotals(),
             'zatcaNotReady' => ! ZatcaSubmissionStatus::canSubmitToZatca($this->business),
         ]);
@@ -310,40 +288,6 @@ class IssueInvoice extends Component
             $retentionPercent,
             $retentionFixed,
         );
-    }
-
-    /**
-     * @return list<array{id: int, label: string, meta: string, search: string}>
-     */
-    protected function catalogProductsForPicker(): array
-    {
-        return Product::query()
-            ->where('is_active', true)
-            ->orderBy('sort_order')
-            ->orderBy('name_en')
-            ->get()
-            ->map(function (Product $product): array {
-                $label = $product->displayName(app()->getLocale());
-                $search = mb_strtolower(implode(' ', array_filter([
-                    $product->sku,
-                    $product->name_en,
-                    $product->name_ar,
-                    $product->name_bn,
-                ])));
-
-                return [
-                    'id' => $product->id,
-                    'label' => $label,
-                    'meta' => __('invoices.catalog_product_meta', [
-                        'type' => $product->itemType()->label(),
-                        'price' => number_format((float) $product->price_ex_vat, 2),
-                        'vat' => number_format((float) $product->vat_rate, 0),
-                    ]),
-                    'search' => $search,
-                ];
-            })
-            ->values()
-            ->all();
     }
 
     /**
@@ -419,7 +363,7 @@ class IssueInvoice extends Component
      *     unit_label: string
      * }
      */
-    private function emptyLine(): array
+    protected function emptyLine(): array
     {
         return [
             'name' => '',

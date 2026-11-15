@@ -16,6 +16,12 @@
         @if ($isStandard)
             <fieldset class="space-y-3">
                 <legend class="app-section-heading">{{ __('invoices.buyer_section') }}</legend>
+                <x-invoices.customer-picker
+                    :results="$customerSearchResults"
+                    :can-create="$canCreateCustomers"
+                    :search="$customerSearch"
+                    :selected-customer-id="$selectedCustomerId"
+                />
                 <x-form.input :label="__('invoices.buyer_name')" name="buyerName" wire:model.blur="buyerName" required />
                 <x-form.input :label="__('business.fields.vat_number')" name="buyerVat" wire:model.blur="buyerVat" />
                 <x-form.input :label="__('business.fields.cr_number')" name="buyerCr" wire:model.blur="buyerCr" />
@@ -28,9 +34,19 @@
 
         <fieldset class="space-y-3">
             <legend class="app-section-heading">{{ __('invoices.lines_section') }}</legend>
+            <x-invoices.add-line-product-search
+                :results="$addLineProductSearchResults"
+                :can-create-product="$canCreateProducts"
+                :search="$addLineProductSearch"
+            />
             @foreach ($lines as $index => $line)
                 <div class="app-inset-panel" wire:key="line-{{ $index }}">
-                    <x-invoices.catalog-product-picker :line-index="$index" :products="$catalogProducts" :compact="! $isStandard" />
+                    <x-invoices.catalog-product-picker
+                        :line-index="$index"
+                        :products="$this->catalogProductsForLine($index)"
+                        :can-create-product="$canCreateProducts"
+                        :compact="! $isStandard"
+                    />
                     <x-form.input :label="__('invoices.line_name')" name="lines.{{ $index }}.name" wire:model.live="lines.{{ $index }}.name" />
                     @if ($isStandard)
                         <x-form.input class="mt-2" :label="__('invoices.line_name_ar')" name="lines.{{ $index }}.name_ar" wire:model.live="lines.{{ $index }}.name_ar" dir="rtl" />
@@ -50,6 +66,13 @@
 
         @unless ($isStandard)
             <div class="space-y-3">
+                <x-invoices.customer-picker
+                    :results="$customerSearchResults"
+                    :can-create="$canCreateCustomers"
+                    :search="$customerSearch"
+                    :selected-customer-id="$selectedCustomerId"
+                    compact
+                />
                 <x-form.input :label="__('invoices.buyer_optional')" name="buyerNameOptional" wire:model.blur="buyerNameOptional" />
                 <x-form.input :label="__('invoices.buyer_phone')" name="buyerPhone" wire:model.blur="buyerPhone" />
             </div>
@@ -63,5 +86,8 @@
         <x-ui.livewire-action type="submit" target="save" loading="save" class="tap-action-primary min-h-11 w-full sm:w-auto">
             {{ __('quotations.save') }}
         </x-ui.livewire-action>
+
+        <x-invoices.quick-customer-modal :show="$showQuickCustomerModal" />
+        <x-invoices.quick-product-modal :show="$showQuickProductModal" :categories="$productCategories" />
     </form>
 </div>
