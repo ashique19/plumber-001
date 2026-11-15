@@ -50,7 +50,7 @@ it('omits mobile tab bar and more drawer when ui.admin_sidebar is false', functi
     expect($html)->not->toContain('app-tabbar')
         ->and($html)->not->toContain(__('pos.nav_more'))
         ->and($html)->toContain('data-mobile-tabbar="0"')
-        ->and($html)->toContain('dashboard-quick-actions');
+        ->and($html)->toContain('dashboard-action-grid');
 });
 
 it('renders compact top bar controls on a 360px-class layout', function () {

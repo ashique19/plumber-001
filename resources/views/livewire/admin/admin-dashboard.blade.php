@@ -4,45 +4,21 @@
     $isRtl = config('locales.supported.'.app()->getLocale().'.dir', 'ltr') === 'rtl';
 @endphp
 <div class="admin-dashboard pb-24 lg:pb-8">
-    <header class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-            <h1 class="app-page-title">{{ __('dashboard.title') }}</h1>
-            <p class="app-page-lead">{{ __('dashboard.subtitle') }}</p>
-        </div>
-        <div class="flex flex-wrap gap-2">
-            <a href="{{ route('admin.reports') }}" class="tap-action-muted min-h-11 items-center gap-2 px-4 text-sm">
-                <x-app.icon name="chart" class="h-4 w-4" />
-                {{ __('dashboard.open_analytics') }}
-            </a>
-            @can('invoices.issue')
-                <a href="{{ route('admin.invoices') }}" class="tap-action-muted min-h-11 items-center gap-2 px-4 text-sm">
-                    <x-app.icon name="clipboard" class="h-4 w-4" />
-                    {{ __('dashboard.signing_queue_link') }}
-                </a>
-            @endcan
-        </div>
+    <header class="mb-3">
+        <h1 class="app-page-title">{{ __('dashboard.title') }}</h1>
+        <p class="app-page-lead">{{ __('dashboard.subtitle') }}</p>
     </header>
 
-    @if ($canIssueInvoice || $canAddProducts)
-        <section class="dashboard-quick-actions mb-4 flex flex-col gap-3" aria-label="{{ __('dashboard.quick_actions') }}">
-            @if ($canIssueInvoice)
-                <a
-                    href="{{ route('admin.invoices') }}"
-                    class="tap-action-primary flex min-h-14 w-full items-center justify-center gap-2 px-5 text-base font-semibold sm:text-lg"
-                >
-                    <x-app.icon name="clipboard" class="h-5 w-5 shrink-0" />
-                    {{ __('dashboard.make_invoice') }}
-                </a>
-            @endif
-            @if ($canAddProducts)
-                <a
-                    href="{{ route('admin.catalog', ['tab' => 'products']) }}"
-                    class="tap-action-primary flex min-h-14 w-full items-center justify-center gap-2 px-5 text-base font-semibold sm:text-lg"
-                >
-                    <x-app.icon name="plus" class="h-5 w-5 shrink-0" />
-                    {{ __('dashboard.add_products') }}
-                </a>
-            @endif
+    @if (count($actionTiles) > 0)
+        <section class="dashboard-action-grid mb-4" aria-label="{{ __('dashboard.quick_actions') }}">
+            @foreach ($actionTiles as $tile)
+                <x-admin.dashboard-action-tile
+                    :icon="$tile['icon']"
+                    :label="$tile['label']"
+                    :href="$tile['href']"
+                    :coming-soon="$tile['coming_soon']"
+                />
+            @endforeach
         </section>
     @endif
 
@@ -60,7 +36,7 @@
         </section>
     @endif
 
-    <div class="app-kpi-grid">
+    <div class="dashboard-stats-compact app-kpi-grid">
         <x-app.stat-card :label="__('dashboard.today_orders')" :value="(string) $today['order_count']" icon="clipboard" />
         <x-app.stat-card :label="__('dashboard.today_sales')" :value="number_format($today['gross_inc_vat'], 2).' '.__('dashboard.sar')" icon="chart" />
         <x-app.stat-card :label="__('dashboard.today_vat')" :value="number_format($today['vat_total'], 2).' '.__('dashboard.sar')" icon="shield" />

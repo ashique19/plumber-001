@@ -86,14 +86,14 @@ it('shows translated dashboard quick actions and business title in bn and ar', f
 
     $html = $this->get(route('admin.dashboard', ['locale' => 'bn']))->assertOk()->getContent();
 
-    expect($html)->toContain(__('dashboard.add_products', [], 'bn'))
+    expect($html)->toContain(__('dashboard.tiles.add_product', [], 'bn'))
         ->and($html)->toContain(__('dashboard.quick_actions', [], 'bn'));
 
     $business = $this->get(route('admin.business', ['locale' => 'bn']))->assertOk()->getContent();
     expect($business)->toContain(__('business.title', [], 'bn'));
 
     $html = $this->get(route('admin.dashboard', ['locale' => 'ar']))->assertOk()->getContent();
-    expect($html)->toContain(__('dashboard.add_products', [], 'ar'));
+    expect($html)->toContain(__('dashboard.tiles.add_product', [], 'ar'));
 
     $business = $this->get(route('admin.business', ['locale' => 'ar']))->assertOk()->getContent();
     expect($business)->toContain(__('business.title', [], 'ar'));
