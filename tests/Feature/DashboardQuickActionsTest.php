@@ -47,7 +47,9 @@ it('shows eight dashboard action tiles for the owner in grid order', function ()
         ->assertSeeHtml('create=customer')
         ->assertSeeHtml('href="'.route('admin.inventory').'"')
         ->assertSeeHtml('href="'.route('admin.reports').'"')
-        ->assertSee(__('dashboard.tiles.coming_soon'), false);
+        ->assertSee('🧾', false)
+        ->assertSee(__('dashboard.tiles.subtitles.create_invoice'), false)
+        ->assertSee('dashboard-action-tile--disabled', false);
 });
 
 it('hides product and purchase tiles when the user lacks catalog permissions', function () {
@@ -90,7 +92,7 @@ it('renders bangla labels for dashboard action tiles', function () {
         ->test(AdminDashboard::class)
         ->assertSee('ইনভয়েস তৈরি', false)
         ->assertSee('পণ্য যোগ', false)
-        ->assertSee('শীঘ্রই', false);
+        ->assertSee(__('dashboard.tiles.subtitles.add_product', [], 'bn'), false);
 });
 
 it('renders arabic labels for dashboard action tiles', function () {
@@ -100,7 +102,7 @@ it('renders arabic labels for dashboard action tiles', function () {
         ->test(AdminDashboard::class)
         ->assertSee('إنشاء فاتورة', false)
         ->assertSee('إضافة منتج', false)
-        ->assertSee('قريباً', false);
+        ->assertSee(__('dashboard.tiles.subtitles.create_invoice', [], 'ar'), false);
 });
 
 it('opens catalog products tab and product form from dashboard product link', function () {

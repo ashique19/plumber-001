@@ -13,10 +13,11 @@
         <section class="dashboard-action-grid mb-4" aria-label="{{ __('dashboard.quick_actions') }}">
             @foreach ($actionTiles as $tile)
                 <x-admin.dashboard-action-tile
-                    :icon="$tile['icon']"
+                    :emoji="$tile['emoji']"
                     :label="$tile['label']"
+                    :subtitle="$tile['subtitle']"
                     :href="$tile['href']"
-                    :coming-soon="$tile['coming_soon']"
+                    :enabled="$tile['enabled']"
                 />
             @endforeach
         </section>

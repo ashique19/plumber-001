@@ -9,12 +9,24 @@ use Illuminate\Support\Facades\Route;
 final class DashboardQuickActionTiles
 {
     /**
+     * Canonical admin routes used by dashboard tiles (later PRs register these).
+     */
+    public const ROUTE_QUOTATIONS = 'admin.quotations';
+
+    public const ROUTE_PURCHASE_CREATE = 'admin.purchases.create';
+
+    public const ROUTE_PAYMENTS_DUES = 'admin.payments.dues';
+
+    public const ROUTE_STOCK_SEARCH = 'admin.stock.search';
+
+    /**
      * @return list<array{
      *     key: string,
+     *     emoji: string,
      *     label: string,
-     *     icon: string,
+     *     subtitle: string,
      *     href: string|null,
-     *     coming_soon: bool,
+     *     enabled: bool,
      * }>
      */
     public static function forUser(?StaffUser $user, BusinessSetting $business): array
@@ -28,69 +40,67 @@ final class DashboardQuickActionTiles
         $definitions = [
             [
                 'key' => 'create_invoice',
+                'emoji' => '🧾',
                 'label' => __('dashboard.tiles.create_invoice'),
-                'icon' => 'clipboard',
+                'subtitle' => __('dashboard.tiles.subtitles.create_invoice'),
                 'visible' => $user->can('invoices.issue'),
-                'coming_soon' => false,
-                'href' => Route::has('admin.invoices.issue')
-                    ? route('admin.invoices.issue', ['mode' => $defaultIssueMode])
-                    : null,
+                'route' => ['admin.invoices.issue', ['mode' => $defaultIssueMode]],
             ],
             [
                 'key' => 'create_quotation',
+                'emoji' => '📋',
                 'label' => __('dashboard.tiles.create_quotation'),
-                'icon' => 'document',
+                'subtitle' => __('dashboard.tiles.subtitles.create_quotation'),
                 'visible' => $user->can('invoices.issue'),
-                'coming_soon' => true,
-                'href' => null,
+                'route' => [self::ROUTE_QUOTATIONS, []],
             ],
             [
                 'key' => 'add_product',
+                'emoji' => '📦',
                 'label' => __('dashboard.tiles.add_product'),
-                'icon' => 'plus',
+                'subtitle' => __('dashboard.tiles.subtitles.add_product'),
                 'visible' => $user->can('inventory.view') && $user->can('staff.manage'),
-                'coming_soon' => false,
-                'href' => route('admin.catalog', ['tab' => 'products', 'create' => 'product']),
+                'route' => ['admin.catalog', ['tab' => 'products', 'create' => 'product']],
             ],
             [
                 'key' => 'add_customer',
+                'emoji' => '👥',
                 'label' => __('dashboard.tiles.add_customer'),
-                'icon' => 'users',
+                'subtitle' => __('dashboard.tiles.subtitles.add_customer'),
                 'visible' => $user->can('reports.view'),
-                'coming_soon' => false,
-                'href' => route('admin.customers', ['create' => 'customer']),
+                'route' => ['admin.customers', ['create' => 'customer']],
             ],
             [
                 'key' => 'check_inventory',
+                'emoji' => '🏬',
                 'label' => __('dashboard.tiles.check_inventory'),
-                'icon' => 'cube',
+                'subtitle' => __('dashboard.tiles.subtitles.check_inventory'),
                 'visible' => $user->can('inventory.view'),
-                'coming_soon' => false,
-                'href' => route('admin.inventory'),
+                'route' => self::resolveStockRoute(),
             ],
             [
                 'key' => 'record_purchase',
+                'emoji' => '🛒',
                 'label' => __('dashboard.tiles.record_purchase'),
-                'icon' => 'cart',
+                'subtitle' => __('dashboard.tiles.subtitles.record_purchase'),
                 'visible' => $user->can('inventory.manage'),
-                'coming_soon' => true,
-                'href' => null,
+                'route' => [self::ROUTE_PURCHASE_CREATE, []],
             ],
             [
                 'key' => 'payments_dues',
+                'emoji' => '💳',
                 'label' => __('dashboard.tiles.payments_dues'),
-                'icon' => 'banknotes',
+                'subtitle' => __('dashboard.tiles.subtitles.payments_dues'),
                 'visible' => $user->can('reports.view'),
-                'coming_soon' => true,
-                'href' => null,
+                'route' => [self::ROUTE_PAYMENTS_DUES, []],
             ],
             [
                 'key' => 'view_reports',
+                'emoji' => '📊',
                 'label' => __('dashboard.tiles.view_reports'),
-                'icon' => 'chart',
+                'subtitle' => __('dashboard.tiles.subtitles.view_reports'),
                 'visible' => $user->can('reports.view'),
-                'coming_soon' => false,
-                'href' => route('admin.reports'),
+                'route' => ['admin.reports', []],
             ],
         ];
 
@@ -99,10 +109,33 @@ final class DashboardQuickActionTiles
             if (! $definition['visible']) {
                 continue;
             }
-            unset($definition['visible']);
-            $tiles[] = $definition;
+
+            [$routeName, $params] = $definition['route'];
+            $enabled = Route::has($routeName);
+            $href = $enabled ? route($routeName, $params) : null;
+
+            $tiles[] = [
+                'key' => $definition['key'],
+                'emoji' => $definition['emoji'],
+                'label' => $definition['label'],
+                'subtitle' => $definition['subtitle'],
+                'href' => $href,
+                'enabled' => $enabled,
+            ];
         }
 
         return $tiles;
+    }
+
+    /**
+     * @return array{0: string, 1: array<string, string>}
+     */
+    private static function resolveStockRoute(): array
+    {
+        if (Route::has(self::ROUTE_STOCK_SEARCH)) {
+            return [self::ROUTE_STOCK_SEARCH, []];
+        }
+
+        return ['admin.inventory', []];
     }
 }
