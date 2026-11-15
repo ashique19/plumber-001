@@ -17,30 +17,35 @@
                 />
                 <x-purchases.quick-supplier-modal :show="$showQuickSupplierModal" />
                 <div class="mt-3">
-                    <x-field.textarea :label="__('purchases.notes')" name="notes" wire:model="notes" rows="2" />
+                    <x-field.textarea :label="__('purchases.notes')" name="notes" wire:model="notes" rows="2" :liveValidate="false" />
                 </div>
             </x-field.section>
 
             <x-field.section :title="__('purchases.lines_heading')">
+                <x-purchases.add-line-product-search
+                    :results="$productHits"
+                    :search="$addLineProductSearch"
+                    :can-create-product="$canCreateProduct"
+                />
+                <x-invoices.quick-product-modal :show="$showQuickProductModal" :categories="$productCategories" />
+
                 @foreach($lines as $index => $line)
-                    <div class="rounded-lg border border-[var(--app-border)] p-3" wire:key="purchase-line-{{ $index }}">
-                        <x-field.select :label="__('stock.product')" :name="'lines.'.$index.'.product_id'" wire:model="lines.{{ $index }}.product_id" required>
-                            <option value="">{{ __('purchases.choose_product') }}</option>
-                            @foreach($products as $product)
-                                <option value="{{ $product->id }}">{{ $product->displayName() }}</option>
-                            @endforeach
-                        </x-field.select>
-                        <div class="admin-form-grid admin-form-grid--3 mt-3 gap-3">
+                    @continue(! filled($line['product_id'] ?? null))
+                    <div class="rounded-lg border border-[var(--app-border)] p-3" wire:key="purchase-line-{{ $index }}-{{ $line['product_id'] }}">
+                        @php
+                            $productLabel = $lineProducts->get($line['product_id'])?->displayName() ?? __('purchases.line_product');
+                        @endphp
+                        <div class="mb-2 flex items-start justify-between gap-2">
+                            <p class="text-sm font-semibold">{{ $productLabel }}</p>
+                            <button type="button" class="tap-action-muted text-xs text-rose-600" wire:click="removeLine({{ $index }})">{{ __('purchases.remove_line') }}</button>
+                        </div>
+                        <div class="admin-form-grid admin-form-grid--3 gap-3">
                             <x-field.input type="number" :label="__('purchases.quantity')" :name="'lines.'.$index.'.quantity'" wire:model="lines.{{ $index }}.quantity" required inputmode="decimal" />
                             <x-field.money :label="__('purchases.unit_cost_ex_vat')" :name="'lines.'.$index.'.unit_cost'" wire:model="lines.{{ $index }}.unit_cost" required />
                             <x-field.input type="number" :label="__('purchases.vat_rate')" :name="'lines.'.$index.'.vat_rate'" wire:model="lines.{{ $index }}.vat_rate" inputmode="decimal" />
                         </div>
-                        @if(count($lines) > 1)
-                            <button type="button" class="tap-action-muted mt-3 text-xs" wire:click="removeLine({{ $index }})">{{ __('purchases.remove_line') }}</button>
-                        @endif
                     </div>
                 @endforeach
-                <button type="button" class="tap-action-muted min-h-11 w-full text-sm font-semibold" wire:click="addLine">{{ __('purchases.add_line') }}</button>
             </x-field.section>
 
             <x-field.actions>

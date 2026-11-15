@@ -4,9 +4,11 @@ namespace App\Livewire\Purchases;
 
 use App\Business\BusinessContext;
 use App\Livewire\Concerns\DispatchesToasts;
+use App\Livewire\Concerns\ManagesPurchaseCatalogPicker;
 use App\Livewire\Concerns\ResolvesBusinessContext;
 use App\Livewire\Concerns\ValidatesFieldsLive;
 use App\Models\Product;
+use App\Models\ProductCategory;
 use App\Models\Supplier;
 use App\Services\Inventory\PurchaseRecordingService;
 use App\Services\Inventory\SupplierService;
@@ -22,6 +24,7 @@ use Spatie\Permission\PermissionRegistrar;
 class CreatePurchase extends Component
 {
     use DispatchesToasts;
+    use ManagesPurchaseCatalogPicker;
     use ResolvesBusinessContext;
     use ValidatesFieldsLive;
 
@@ -82,8 +85,13 @@ class CreatePurchase extends Component
     public function removeLine(int $index): void
     {
         if (count($this->lines) <= 1) {
+            $this->lines = [
+                ['product_id' => null, 'quantity' => '1', 'unit_cost' => '', 'vat_rate' => '15'],
+            ];
+
             return;
         }
+
         unset($this->lines[$index]);
         $this->lines = array_values($this->lines);
     }
@@ -211,14 +219,22 @@ class CreatePurchase extends Component
             ? Supplier::query()->where('branch_id', $branchId)->find($this->supplierId)
             : null;
 
-        $products = $this->schemaReady
-            ? Product::query()->where('is_active', true)->where('track_stock', true)->orderBy('name_en')->get()
-            : collect();
+        $productHits = $this->schemaReady ? $this->purchaseProductSearchResults() : collect();
+
+        $productIds = collect($this->lines)->pluck('product_id')->filter()->unique()->values();
+        $lineProducts = $productIds->isEmpty()
+            ? collect()
+            : Product::query()->whereIn('id', $productIds)->get()->keyBy('id');
+
+        $productCategories = ProductCategory::query()->orderBy('name_en')->get();
 
         return view('livewire.purchases.create-purchase', [
             'supplierHits' => $supplierHits,
             'selectedSupplier' => $selectedSupplier,
-            'products' => $products,
+            'productHits' => $productHits,
+            'lineProducts' => $lineProducts,
+            'productCategories' => $productCategories,
+            'canCreateProduct' => $this->canCreateProductsFromPurchase(),
             'pageTitle' => __('purchases.create_title'),
         ])->layout('layouts.pos', ['pageTitle' => __('purchases.create_title')]);
     }
