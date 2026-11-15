@@ -30,7 +30,6 @@
     if ($clearable) {
         $wrapClass .= ' admin-field-wrap--with-suffix';
     }
-    $iconPaddingClass = $icon ? 'ps-10 pe-3 sm:ps-11' : '';
 @endphp
 <label @class(['form-field', 'form-field--invalid' => $fieldInvalid, $wrapperClass])>
     <span class="form-field__label type-label">
@@ -57,10 +56,13 @@
             @if($pattern) pattern="{{ $pattern }}" @endif
             autocomplete="{{ $autocomplete }}"
             placeholder="{{ $attributes->get('placeholder') ?? ' ' }}"
+            @if ($icon === 'search' || $type === 'search')
+                data-admin-search-input="1"
+            @endif
             @if ($liveValidate)
                 wire:blur="validateLiveField('{{ $name }}')"
             @endif
-            {{ $attributes->except('placeholder')->merge(['class' => trim('form-field__control '.$iconPaddingClass.($fieldInvalid ? ' form-field__control--invalid' : ''))]) }}
+            {{ $attributes->except('placeholder')->merge(['class' => 'form-field__control'.($fieldInvalid ? ' form-field__control--invalid' : '')]) }}
         />
         @if($clearable && $clearAction)
             <button type="button" class="admin-field-clear tap-action-muted" wire:click="{{ $clearAction }}" aria-label="{{ __('payments.clear_statement') }}">

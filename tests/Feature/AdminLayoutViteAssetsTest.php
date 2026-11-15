@@ -54,7 +54,6 @@ it('compiled app css includes typeahead leading icon padding utilities', functio
     $css = (string) file_get_contents($cssPath);
 
     expect($css)
-        ->toContain('.ps-10{')
-        ->toContain('padding-inline-start')
+        ->toMatch('/admin-field-wrap--with-icon[^\\{]*\\{[^}]*padding-inline-start/')
         ->toContain('admin-typeahead__input-wrap');
 });

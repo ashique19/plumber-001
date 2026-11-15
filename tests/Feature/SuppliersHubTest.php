@@ -81,10 +81,10 @@ it('blocks supplier delete when purchases exist', function () {
     expect(Supplier::query()->whereKey($supplier->id)->exists())->toBeTrue();
 });
 
-it('renders list-first empty state without side panel', function () {
+it('renders searchable empty state without side panel', function () {
     Livewire::actingAs($this->owner, 'staff')
         ->test(SupplierHub::class)
-        ->assertSee('admin-hub-empty', false)
+        ->assertSee('data-admin-search-input', false)
         ->assertSee(__('suppliers.empty_list'), false)
         ->assertDontSee(__('suppliers.pick_one'), false);
 });

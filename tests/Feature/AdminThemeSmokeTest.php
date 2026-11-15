@@ -77,7 +77,8 @@ it('renders suppliers hub empty state in bn without broken two-pane layout', fun
     $html = (string) $this->get(route('admin.suppliers', ['locale' => 'bn']))->getContent();
 
     expect($html)
-        ->toContain('admin-hub-empty')
+        ->toContain('data-admin-search-input')
+        ->toContain(__('suppliers.empty_list', [], 'bn'))
         ->toContain(__('suppliers.title', [], 'bn'))
         ->not->toContain(__('suppliers.pick_one', [], 'bn'));
 });

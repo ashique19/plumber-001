@@ -1,0 +1,24 @@
+/**
+ * Unlayered admin icon insets — must load after Tailwind @layer rules and forms.css
+ * so padding-inline-start is not reset by .form-field__control { padding: ... } shorthand.
+ */
+html.admin-app .admin-field-wrap--with-icon > .form-field__control,
+html.admin-app .admin-field-wrap--with-icon > input.form-field__control,
+html.admin-app .admin-field-wrap--with-icon > textarea.form-field__control,
+html.admin-app .admin-field-wrap--with-icon > select.form-field__control {
+    padding-inline-start: 2.75rem;
+}
+
+html.admin-app .admin-field-wrap--with-suffix > .form-field__control,
+html.admin-app .admin-field-wrap--with-suffix > input.form-field__control {
+    padding-inline-end: 2.75rem;
+}
+
+html.admin-app .admin-typeahead__input-wrap.admin-field-wrap--with-icon > .form-field__control {
+    padding-inline-start: 2.75rem;
+    padding-inline-end: 0.875rem;
+}
+
+html.admin-app .admin-typeahead__input-wrap.admin-field-wrap--with-suffix > .form-field__control {
+    padding-inline-end: 2.75rem;
+}
