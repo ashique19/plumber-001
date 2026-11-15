@@ -527,6 +527,27 @@ CREATE INDEX "invoice_payments_invoice_id_paid_on_index" on "invoice_payments"(
   "invoice_id",
   "paid_on"
 );
+CREATE TABLE IF NOT EXISTS "quotations"(
+  "id" integer primary key autoincrement not null,
+  "branch_id" integer,
+  "quotation_number" varchar not null,
+  "invoice_mode" varchar not null default 'simplified',
+  "validity_until" date not null,
+  "payload" text not null,
+  "converted_invoice_id" integer,
+  "created_by_staff_user_id" integer,
+  "created_at" datetime,
+  "updated_at" datetime,
+  foreign key("branch_id") references "branches"("id") on delete set null,
+  foreign key("converted_invoice_id") references "invoices"("id") on delete set null,
+  foreign key("created_by_staff_user_id") references "staff_users"("id") on delete set null
+);
+CREATE INDEX "quotations_validity_until_index" on "quotations"(
+  "validity_until"
+);
+CREATE UNIQUE INDEX "quotations_quotation_number_unique" on "quotations"(
+  "quotation_number"
+);
 
 INSERT INTO migrations VALUES(1,'0001_01_01_000001_create_cache_table',1);
 INSERT INTO migrations VALUES(2,'0001_01_01_000002_create_jobs_table',1);
@@ -535,3 +556,4 @@ INSERT INTO migrations VALUES(4,'0001_01_01_000020_create_permission_tables',1);
 INSERT INTO migrations VALUES(5,'2026_11_14_195500_invoice_buyer_contact_and_due_date',2);
 INSERT INTO migrations VALUES(6,'2026_11_15_130000_product_stock_and_purchases',2);
 INSERT INTO migrations VALUES(7,'2026_11_15_120000_invoice_payments',3);
+INSERT INTO migrations VALUES(8,'2026_11_15_120000_quotations',4);
