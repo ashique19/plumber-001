@@ -37,6 +37,8 @@ class CustomerHub extends Component
 
     public bool $showCustomerForm = false;
 
+    public bool $showDetailSheet = false;
+
     public string $customerName = '';
 
     public string $customerPhone = '';
@@ -56,18 +58,29 @@ class CustomerHub extends Component
         if (request()->query('create') === 'customer') {
             $this->startCustomer();
         }
+
+        if ($this->customer !== null) {
+            $this->showDetailSheet = true;
+        }
     }
 
     public function updatingSearch(): void
     {
         $this->resetPage();
         $this->customer = null;
+        $this->showDetailSheet = false;
     }
 
     public function selectCustomer(int $customerId): void
     {
         $this->customer = $customerId;
         $this->resetAdjustForm();
+        $this->showDetailSheet = true;
+    }
+
+    public function closeDetailSheet(): void
+    {
+        $this->showDetailSheet = false;
     }
 
     public function startCustomer(): void

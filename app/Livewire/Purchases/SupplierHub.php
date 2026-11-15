@@ -33,7 +33,7 @@ class SupplierHub extends Component
     #[Url]
     public ?int $supplier = null;
 
-    public bool $showCreateForm = false;
+    public bool $showFormModal = false;
 
     public string $formName = '';
 
@@ -69,6 +69,7 @@ class SupplierHub extends Component
 
         if ($this->supplier !== null) {
             $this->loadSupplier($this->supplier);
+            $this->showFormModal = true;
         }
     }
 
@@ -76,29 +77,26 @@ class SupplierHub extends Component
     {
         $this->resetPage();
         $this->supplier = null;
-        $this->showCreateForm = false;
+        $this->showFormModal = false;
     }
 
     public function selectSupplier(int $supplierId): void
     {
         $this->supplier = $supplierId;
-        $this->showCreateForm = false;
         $this->loadSupplier($supplierId);
+        $this->showFormModal = true;
     }
 
     public function startCreate(): void
     {
         $this->supplier = null;
-        $this->showCreateForm = true;
         $this->resetForm();
+        $this->showFormModal = true;
     }
 
-    public function cancelForm(): void
+    public function closeFormModal(): void
     {
-        $this->showCreateForm = false;
-        if ($this->supplier !== null) {
-            $this->loadSupplier($this->supplier);
-        }
+        $this->showFormModal = false;
     }
 
     public function saveSupplier(SupplierService $suppliers): void
@@ -125,10 +123,10 @@ class SupplierHub extends Component
         } else {
             $model = $suppliers->create($branch, $payload);
             $this->supplier = $model->id;
-            $this->showCreateForm = false;
             $this->toastSuccess(__('suppliers.created'));
         }
 
+        $this->showFormModal = false;
         $this->loadSupplier($this->supplier);
     }
 
@@ -158,7 +156,7 @@ class SupplierHub extends Component
 
         $this->supplier = null;
         $this->resetForm();
-        $this->showCreateForm = false;
+        $this->showFormModal = false;
         $this->toastSuccess(__('suppliers.deleted'));
     }
 
