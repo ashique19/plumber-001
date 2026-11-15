@@ -72,5 +72,5 @@ export async function expectPrefixClearance(input: Locator): Promise<PrefixPaddi
 }
 
 export function adminPrefixInputs(page: import('playwright/test').Page): Locator {
-    return page.locator('input[data-admin-prefix-input="1"]');
+    return page.locator('input[data-admin-prefix-input="1"]:visible');
 }

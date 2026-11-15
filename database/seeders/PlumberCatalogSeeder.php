@@ -78,6 +78,8 @@ class PlumberCatalogSeeder extends Seeder
                     'price_ex_vat' => $row['price'],
                     'vat_rate' => 15,
                     'is_active' => true,
+                    'track_stock' => true,
+                    'stock_quantity' => 25,
                 ]
             );
         }
