@@ -8,7 +8,7 @@
     <x-admin.typeahead-control
         :label="__('invoices.search_catalog_products')"
         name="addLineProductSearch"
-        wire:model.live.debounce.350ms="addLineProductSearch"
+        wire:model.live.debounce.200ms="addLineProductSearch"
         :placeholder="__('invoices.add_line_product_placeholder')"
         :clearable="trim($search) !== ''"
         clear-action="$set('addLineProductSearch', '')"

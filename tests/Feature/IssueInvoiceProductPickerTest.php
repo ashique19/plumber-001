@@ -65,7 +65,7 @@ it('renders product search on standard issue page', function () {
 
     expect($html)->toContain('invoice-add-line-search')
         ->and($html)->toContain(__('invoices.search_catalog_products', locale: 'bn'))
-        ->and($html)->toContain('wire:model.live.debounce.350ms="addLineProductSearch"')
+        ->and($html)->toContain('wire:model.live.debounce.200ms="addLineProductSearch"')
         ->and($html)->toContain(__('invoices.preview_totals', locale: 'bn'));
 });
 

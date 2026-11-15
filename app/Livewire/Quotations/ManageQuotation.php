@@ -473,7 +473,7 @@ class ManageQuotation extends Component
    */
   protected function validationAttributes(): array
   {
-      return [
+      return array_merge(\App\Support\Validation\QuickModalValidationAttributes::map(), [
           'validityUntil' => __('quotations.validity_until'),
           'buyerName' => __('invoices.buyer_name'),
           'buyerNameOptional' => __('invoices.buyer_optional'),
@@ -481,6 +481,6 @@ class ManageQuotation extends Component
           'lines.*.quantity' => __('invoices.line_qty'),
           'lines.*.unit_price' => __('invoices.line_price_ex_vat'),
           'lines.*.vat_rate' => __('invoices.line_vat'),
-      ];
+      ]);
   }
 }
