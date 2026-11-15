@@ -13,6 +13,7 @@ use App\Livewire\Admin\BusinessSettings;
 use App\Livewire\Catalog\InventoryManager;
 use App\Livewire\Catalog\MenuManager;
 use App\Livewire\Customers\CustomerHub;
+use App\Livewire\Expenses\ExpensesHub;
 use App\Livewire\Invoices\InvoiceHub;
 use App\Livewire\Invoices\IssueInvoice;
 use App\Livewire\Quotations\ManageQuotation;
@@ -35,6 +36,7 @@ Route::prefix('admin')->middleware('auth:staff')->group(function (): void {
     Route::middleware('reports.access')->group(function (): void {
         Route::get('/dashboard', AdminDashboard::class)->name('admin.dashboard');
         Route::get('/payments/dues', PaymentsDuesHub::class)->name('admin.payments.dues');
+        Route::get('/expenses', ExpensesHub::class)->name('admin.expenses');
     });
 
     Route::middleware('team.access')->group(function (): void {

@@ -51,6 +51,8 @@ return [
     'sales_ex_vat' => 'Sales (ex VAT)',
     'cogs_ex_vat' => 'Purchase cost (ex VAT)',
     'gross_profit_ex_vat' => 'Gross profit (ex VAT)',
+    'operating_expenses_ex_vat' => 'Operating expenses (ex VAT)',
+    'net_profit_ex_vat' => 'Net profit (ex VAT)',
     'cost_unknown' => 'Purchase cost is not tracked — profit cannot be calculated.',
     'cost_partial' => 'Some lines lack purchase cost; profit may be understated.',
     'inventory_heading' => 'Inventory valuation & low stock',

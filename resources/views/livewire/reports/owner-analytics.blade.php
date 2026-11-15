@@ -123,6 +123,12 @@
                     <p class="mt-2 tabular-nums text-sm font-medium">
                         {{ __('reports.sales_ex_vat') }}: {{ number_format($profit['sales_ex_vat'] ?? 0, 2) }} SAR
                     </p>
+                    @if (($profit['operating_expenses_ex_vat'] ?? 0) > 0)
+                        <p class="mt-2 tabular-nums text-sm">
+                            {{ __('reports.operating_expenses_ex_vat') }}:
+                            {{ number_format($profit['operating_expenses_ex_vat'], 2) }} SAR
+                        </p>
+                    @endif
                 @else
                     <dl class="mt-3 space-y-2 text-sm">
                         <div class="flex justify-between gap-4">
@@ -136,6 +142,14 @@
                         <div class="flex justify-between gap-4">
                             <dt class="text-[var(--app-muted)]">{{ __('reports.gross_profit_ex_vat') }}</dt>
                             <dd class="tabular-nums font-medium">{{ number_format($profit['gross_profit_ex_vat'] ?? 0, 2) }} SAR</dd>
+                        </div>
+                        <div class="flex justify-between gap-4">
+                            <dt class="text-[var(--app-muted)]">{{ __('reports.operating_expenses_ex_vat') }}</dt>
+                            <dd class="tabular-nums font-medium">{{ number_format($profit['operating_expenses_ex_vat'] ?? 0, 2) }} SAR</dd>
+                        </div>
+                        <div class="flex justify-between gap-4 border-t border-[var(--app-border)] pt-2">
+                            <dt class="font-medium text-[var(--app-text)]">{{ __('reports.net_profit_ex_vat') }}</dt>
+                            <dd class="tabular-nums font-semibold">{{ number_format($profit['net_profit_ex_vat'] ?? 0, 2) }} SAR</dd>
                         </div>
                         @if (($profit['cost_status'] ?? '') === 'partial')
                             <p class="text-xs text-amber-800">{{ __('reports.cost_partial') }}</p>

@@ -26,6 +26,7 @@ final class AppShellNav
             str_contains($name, 'admin.invoices') => 'invoices',
             str_contains($name, 'admin.quotations') => 'quotations',
             str_contains($name, 'admin.payments') => 'payments',
+            str_contains($name, 'admin.expenses') => 'expenses',
             str_contains($name, 'admin.catalog') => 'catalog',
             str_contains($name, 'admin.inventory') => 'inventory',
             str_contains($name, 'admin.stock') => 'inventory',
