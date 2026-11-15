@@ -1,0 +1,23 @@
+<?php
+
+return [
+    'create_title' => 'Record purchase',
+    'create_subtitle' => 'Receive stock from a supplier and update average cost.',
+    'supplier_heading' => 'Supplier',
+    'supplier' => 'Existing supplier',
+    'supplier_new' => 'New supplier',
+    'supplier_name' => 'Supplier name',
+    'supplier_vat' => 'VAT number',
+    'supplier_phone' => 'Phone',
+    'notes' => 'Notes',
+    'lines_heading' => 'Line items',
+    'choose_product' => 'Select product',
+    'quantity' => 'Quantity',
+    'unit_cost_ex_vat' => 'Unit cost (ex VAT)',
+    'vat_rate' => 'VAT %',
+    'add_line' => 'Add line',
+    'remove_line' => 'Remove line',
+    'submit' => 'Save purchase',
+    'recorded' => 'Purchase :number recorded and stock updated.',
+    'schema_missing' => 'Purchase tables are not installed yet.',
+];

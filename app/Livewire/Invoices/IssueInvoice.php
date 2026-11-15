@@ -2,36 +2,32 @@
 
 namespace App\Livewire\Invoices;
 
+use App\Business\BusinessContext;
 use App\Data\InvoiceLineData;
 use App\Enums\InvoiceDocumentType;
+use App\Exceptions\InvoiceSigningException;
 use App\Livewire\Concerns\DispatchesToasts;
+use App\Livewire\Concerns\ResolvesBusinessContext;
 use App\Livewire\Concerns\ValidatesFieldsLive;
 use App\Models\Product;
-use App\Models\BusinessSetting;
-use App\Models\Branch;
+use App\Services\InvoiceIssueService;
 use App\Support\Invoicing\InvoiceDocumentTotals;
 use App\Support\Invoicing\IssueInvoicePrefill;
-use App\Support\Invoicing\ZatcaSubmissionStatus;
-use App\Exceptions\InvoiceSigningException;
-use App\Services\InvoiceIssueService;
-use App\Support\StaffBranchContext;
 use App\Support\Invoicing\SigningFailureSanitizer;
+use App\Support\Invoicing\ZatcaSubmissionStatus;
+use App\Support\StaffBranchContext;
 use App\Support\Validation\FieldValidationRules;
-use App\Business\BusinessContext;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
-use App\Livewire\Concerns\ResolvesBusinessContext;
-use Spatie\Permission\PermissionRegistrar;
 
 #[Layout('layouts.pos')]
 class IssueInvoice extends Component
 {
-    use ResolvesBusinessContext;
     use DispatchesToasts;
+    use ResolvesBusinessContext;
     use ValidatesFieldsLive;
-
 
     public string $mode;
 
@@ -172,6 +168,10 @@ class IssueInvoice extends Component
             $ar = trim((string) ($row['name_ar'] ?? ''));
             if ($ar !== '') {
                 $item['name_ar'] = $ar;
+            }
+            $productId = $row['product_id'] ?? null;
+            if ($productId !== null && (int) $productId > 0) {
+                $item['product_id'] = (int) $productId;
             }
 
             return $item;

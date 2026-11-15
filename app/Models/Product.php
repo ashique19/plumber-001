@@ -7,11 +7,11 @@ use App\Support\Catalog\CatalogI18n;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Product extends Model
 {
-
-    protected $fillable = [        'branch_id',
+    protected $fillable = ['branch_id',
         'product_category_id',
         'sku',
         'item_type',
@@ -28,6 +28,10 @@ class Product extends Model
         'is_active',
         'show_on_homepage',
         'show_on_menu',
+        'track_stock',
+        'stock_quantity',
+        'low_stock_threshold',
+        'cost_ex_vat',
     ];
 
     protected function casts(): array
@@ -38,6 +42,10 @@ class Product extends Model
             'is_active' => 'boolean',
             'show_on_homepage' => 'boolean',
             'show_on_menu' => 'boolean',
+            'track_stock' => 'boolean',
+            'stock_quantity' => 'decimal:3',
+            'low_stock_threshold' => 'decimal:3',
+            'cost_ex_vat' => 'decimal:2',
             'item_type' => ProductItemType::class,
         ];
     }
@@ -62,7 +70,7 @@ class Product extends Model
         return $this->belongsToMany(ProductModifier::class, 'product_product_modifier');
     }
 
-    public function productIngredients(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function productIngredients(): HasMany
     {
         return $this->hasMany(ProductIngredient::class);
     }

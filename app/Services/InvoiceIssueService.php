@@ -10,6 +10,7 @@ use App\Exceptions\InvoiceSigningException;
 use App\Models\Branch;
 use App\Models\BusinessSetting;
 use App\Models\Invoice;
+use App\Services\Inventory\ProductStockService;
 use App\Services\Invoicing\InvoiceIssueResult;
 use App\Services\Invoicing\Signing\InvoiceSigningGatewayFactory;
 use App\Services\Invoicing\Signing\InvoiceSigningRequest;
@@ -23,6 +24,7 @@ class InvoiceIssueService
     public function __construct(
         private readonly InvoiceSigningGatewayFactory $signingFactory,
         private readonly InvoiceAuditService $auditService,
+        private readonly ProductStockService $productStock,
     ) {}
 
     /**
@@ -136,7 +138,10 @@ class InvoiceIssueService
             'invoice_hash' => $signed['hash'],
         ]);
 
-        return new InvoiceIssueResult($invoice->fresh(), true);
+        $issued = $invoice->fresh();
+        $this->productStock->syncFromIssuedInvoice($issued);
+
+        return new InvoiceIssueResult($issued, true);
     }
 
     private function finalizeWithoutRemoteSigning(
@@ -178,9 +183,12 @@ class InvoiceIssueService
             'signing_deferred' => true,
         ]);
 
+        $issued = $invoice->fresh();
+        $this->productStock->syncFromIssuedInvoice($issued);
+
         $userMessage = SigningFailureSanitizer::sanitizeMessage($exception->getMessage());
 
-        return new InvoiceIssueResult($invoice->fresh(), false, $userMessage);
+        return new InvoiceIssueResult($issued, false, $userMessage);
     }
 
     private function resolveDueDate(Invoice $invoice, Carbon $now, BusinessSetting $business): string

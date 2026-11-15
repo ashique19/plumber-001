@@ -1,0 +1,29 @@
+<?php
+
+return [
+    'title' => 'Product stock',
+    'subtitle' => 'Search on-hand quantities, costs, and movement history.',
+    'search' => 'Search',
+    'search_placeholder' => 'Name or SKU',
+    'low_stock_only' => 'Low stock only',
+    'product' => 'Product',
+    'on_hand' => 'On hand',
+    'cost' => 'Avg cost (ex VAT)',
+    'track_stock' => 'Track stock quantity',
+    'low_stock_threshold' => 'Low-stock threshold',
+    'low_stock_badge' => 'Low',
+    'empty' => 'No tracked products match your filters.',
+    'view_movements' => 'Movements',
+    'movements_heading' => 'Stock movement log',
+    'clear_filter' => 'Show all',
+    'movement_when' => 'When',
+    'movement_type' => 'Type',
+    'movement_delta' => 'Qty change',
+    'no_movements' => 'No movements logged yet.',
+    'schema_missing' => 'Stock tables are not installed yet. Run migrations or apply docs/sql patch.',
+    'movement_types' => [
+        'purchase' => 'Purchase',
+        'invoice_issue' => 'Invoice issue',
+        'credit_note' => 'Credit note',
+    ],
+];
