@@ -1,6 +1,7 @@
 <?php
 
 use App\Business\BusinessContext;
+use App\Livewire\Invoices\IssueInvoice;
 use App\Livewire\Purchases\CreatePurchase;
 use App\Models\BusinessSetting;
 use App\Models\StaffUser;
@@ -32,6 +33,22 @@ foreach (['en', 'bn', 'ar'] as $locale) {
             ->assertDontSeeHtml('backdrop-blur-sm');
     });
 }
+
+it('renders quick customer modal outside the invoice form', function () {
+    $html = Livewire::actingAs($this->owner, 'staff')
+        ->test(IssueInvoice::class, ['mode' => 'simplified'])
+        ->set('showQuickCustomerModal', true)
+        ->html();
+
+    $backdropPos = strpos($html, 'x-modal-backdrop');
+    $modalFormPos = strpos($html, 'wire:submit.prevent="saveQuickCustomer"');
+    expect($backdropPos)->toBeGreaterThan(0);
+    expect($modalFormPos)->toBeGreaterThan(0);
+
+    $issueFormClose = strrpos(substr($html, 0, $backdropPos), '</form>');
+    expect($issueFormClose)->not->toBeFalse();
+    expect($modalFormPos)->toBeGreaterThan($issueFormClose);
+});
 
 it('does not use legacy app-modal wrapper for quick supplier', function () {
     Livewire::actingAs($this->owner, 'staff')

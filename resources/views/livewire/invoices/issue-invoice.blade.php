@@ -78,7 +78,8 @@
 
         <x-invoices.document-more-options :is-standard="$isStandard" :lines="$lines" />
 
-        <x-invoices.quick-customer-modal :show="$showQuickCustomerModal" :standard-buyer="$isStandard" />
-        <x-invoices.quick-product-modal :show="$showQuickProductModal" :categories="$productCategories" />
     </form>
+
+    <x-invoices.quick-customer-modal :show="$showQuickCustomerModal" :standard-buyer="$isStandard" />
+    <x-invoices.quick-product-modal :show="$showQuickProductModal" :categories="$productCategories" />
 </div>

@@ -79,6 +79,7 @@ return [
     'save' => 'সংরক্ষণ',
     'save_and_select' => 'সংরক্ষণ ও নির্বাচন',
     'cancel' => 'বাতিল',
+    'modal_error_summary' => 'নিচের ত্রুটিগুলো ঠিক করুন।',
     'created_category' => 'ক্যাটাগরি সংরক্ষিত হয়েছে।',
     'saved_category' => 'ক্যাটাগরি আপডেট হয়েছে।',
     'deleted_category' => 'ক্যাটাগরি সরানো হয়েছে।',

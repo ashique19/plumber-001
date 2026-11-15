@@ -79,6 +79,7 @@ return [
     'save' => 'حفظ',
     'save_and_select' => 'حفظ وتحديد',
     'cancel' => 'إلغاء',
+    'modal_error_summary' => 'يُرجى تصحيح الأخطاء أدناه.',
     'created_category' => 'تم حفظ التصنيف.',
     'saved_category' => 'تم تحديث التصنيف.',
     'deleted_category' => 'تم حذف التصنيف.',
