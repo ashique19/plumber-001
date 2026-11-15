@@ -101,6 +101,39 @@ final class InvoicePrintPresenter
         $contact = self::contactLines($legal, $content);
         $na = (array) ($legal['national_address'] ?? []);
 
+        $issueAt = $meta['paid_at'] ?? $invoice->issued_at;
+        $issueDate = $issueAt?->format('Y-m-d');
+        $issueTime = $issueAt?->format('H:i:s');
+        $supplyDate = $issueDate;
+
+        $paymentMethod = (string) ($meta['payment_method'] ?? 'cash');
+        $paymentLabels = self::paymentLabels($paymentMethod);
+
+        $trn = $legal['vat_number'] ?? null;
+        $cr = $legal['cr_number'] ?? null;
+        $unified = $legal['unified_number'] ?? null;
+        if ($cr !== null && $unified !== null && (string) $cr === (string) $unified) {
+            $unified = null;
+        }
+
+        $qrSigned = filled($invoice->qr_tlv_base64) ? (string) $invoice->qr_tlv_base64 : null;
+        $qrFallback = false;
+        $qr = $qrSigned;
+        if ($qr === null) {
+            $timestamp = $issueAt
+                ? $issueAt->copy()->timezone('Asia/Riyadh')->format('Y-m-d\TH:i:sP')
+                : now('Asia/Riyadh')->format('Y-m-d\TH:i:sP');
+            $sellerForQr = (string) ($legal['name_ar'] ?? $legal['name_en'] ?? $business->name);
+            $qr = ZatcaPhase1QrEncoder::encodeBase64(
+                sellerName: $sellerForQr,
+                vatNumber: (string) ($trn ?? ''),
+                timestampIso8601: $timestamp,
+                invoiceTotalIncVat: number_format($totals['total_inc_vat'], 2, '.', ''),
+                vatTotal: number_format($totals['total_vat'], 2, '.', ''),
+            );
+            $qrFallback = true;
+        }
+
         return [
             'seller_en' => $legal['name_en'] ?? $business->name,
             'seller_ar' => $legal['name_ar'] ?? $business->name,
@@ -117,17 +150,16 @@ final class InvoicePrintPresenter
             'mobile' => $contact['mobile'],
             'mobile_secondary' => $contact['mobile_secondary'],
             'legal_email' => $legal['email'] ?? $contact['email'],
-            'cr_number' => $legal['cr_number'] ?? null,
-            'unified_number' => $legal['unified_number'] ?? null,
-            'trn' => $legal['vat_number'] ?? null,
+            'cr_number' => $cr,
+            'unified_number' => $unified,
+            'trn' => $trn,
             'is_simplified' => $isSimplified,
-            'document_type_label_en' => $isSimplified
-                ? __('invoices.type.simplified')
-                : __('invoices.type.standard'),
+            'document_type_label_en' => $isSimplified ? 'Simplified' : 'Standard',
             'document_type_label_ar' => $isSimplified ? 'فاتورة مبسطة' : 'فاتورة ضريبية',
             'document_number' => $invoice->document_number,
-            'issue_date' => $meta['paid_at']?->format('Y-m-d') ?? $invoice->issued_at?->format('Y-m-d'),
-            'issue_time' => $meta['paid_at']?->format('H:i:s') ?? $invoice->issued_at?->format('H:i:s'),
+            'issue_date' => $issueDate,
+            'issue_time' => $issueTime,
+            'supply_date' => $supplyDate,
             'due_date' => $invoice->due_date?->format('Y-m-d'),
             'customer' => $meta['customer'],
             'lines' => self::numberTableRows($displayLines),
@@ -137,12 +169,11 @@ final class InvoicePrintPresenter
             'amount_words_ar' => $amountWordsTotal['ar'],
             'amount_words_en' => $amountWordsTotal['en'],
             'net_amount_words_ar' => $amountWordsNet['ar'],
-            'payment_method' => $meta['payment_method'],
-            'payment_display' => __("invoices.payment.{$meta['payment_method']}", [], 'en')
-                !== "invoices.payment.{$meta['payment_method']}"
-                ? __("invoices.payment.{$meta['payment_method']}")
-                : __('invoices.payment.cash'),
-            'qr_tlv_base64' => $invoice->qr_tlv_base64,
+            'payment_method' => $paymentMethod,
+            'payment_display_en' => $paymentLabels['en'],
+            'payment_display_ar' => $paymentLabels['ar'],
+            'qr_tlv_base64' => $qr,
+            'qr_phase1_fallback' => $qrFallback,
             'receipt_number' => $meta['receipt_number'],
             'branch' => $meta['branch'],
         ];
@@ -165,12 +196,15 @@ final class InvoicePrintPresenter
             $lineVat = InvoiceLineMath::lineVatAmount($netEx, $vatRate);
             $lineInc = InvoiceLineMath::lineIncVat($netEx, $vatRate);
 
+            $nameEn = (string) ($line['name'] ?? '');
+            $nameAr = trim((string) ($line['name_ar'] ?? ''));
+
             $mapped[] = [
                 'quantity' => $qty,
                 'quantity_display' => InvoiceLineMath::formatQuantity($qty),
                 'unit_price_ex_vat' => round($unitEx, 2),
-                'name_en' => (string) ($line['name'] ?? ''),
-                'name_ar' => (string) ($line['name_ar'] ?? ''),
+                'name_en' => $nameEn,
+                'name_ar' => $nameAr !== '' ? $nameAr : null,
                 'taxable_ex_vat' => $netEx,
                 'vat_amount' => $lineVat,
                 'vat_rate' => $vatRate,
@@ -226,11 +260,14 @@ final class InvoicePrintPresenter
     {
         $address = self::formatBuyerAddress($payload);
 
+        $vat = preg_replace('/\D/', '', (string) ($payload['buyer_vat'] ?? '')) ?? '';
+
         return array_filter([
             'name' => trim((string) ($payload['buyer_name'] ?? '')) ?: null,
             'phone' => trim((string) ($payload['buyer_phone'] ?? '')) ?: null,
             'email' => trim((string) ($payload['buyer_email'] ?? '')) ?: null,
-            'vat_number' => trim((string) ($payload['buyer_vat'] ?? '')) ?: null,
+            'vat_number' => $vat !== '' ? $vat : null,
+            'cr_number' => trim((string) ($payload['buyer_cr'] ?? '')) ?: null,
             'address' => $address,
         ]) ?: null;
     }
@@ -273,6 +310,20 @@ final class InvoicePrintPresenter
             ?? (filled($addr['short_national'] ?? $addr['short_national_address'] ?? null)
                 ? (string) ($addr['short_national'] ?? $addr['short_national_address'])
                 : null);
+    }
+
+    /**
+     * @return array{en: string, ar: string}
+     */
+    private static function paymentLabels(string $method): array
+    {
+        return match ($method) {
+            'card' => ['en' => 'Card', 'ar' => 'بطاقة'],
+            'mada' => ['en' => 'Mada', 'ar' => 'مدى'],
+            'transfer' => ['en' => 'Bank transfer', 'ar' => 'تحويل بنكي'],
+            'credit' => ['en' => 'Credit', 'ar' => 'آجل'],
+            default => ['en' => 'Cash', 'ar' => 'نقداً'],
+        };
     }
 
     /**

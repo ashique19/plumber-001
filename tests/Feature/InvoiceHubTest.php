@@ -60,6 +60,7 @@ it('renders cash print layout by default for simplified pos invoices', function 
     $this->actingAs($this->owner, 'staff')
         ->get(route('admin.invoices.print', [$invoice, 'layout' => 'cash']))
         ->assertOk()
-        ->assertSee(__('invoices.cash_amount'), false)
+        ->assertSee('Subtotal (ex VAT)', false)
+        ->assertSee('المجموع (بدون ضريبة)', false)
         ->assertSee($invoice->document_number, false);
 });

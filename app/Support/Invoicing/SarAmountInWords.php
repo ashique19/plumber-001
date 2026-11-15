@@ -97,20 +97,81 @@ final class SarAmountInWords
 
     private static function english(int $riyals, int $halalas): string
     {
+        if ($riyals === 0 && $halalas === 0) {
+            return 'Zero Saudi Riyals only';
+        }
+
         $parts = [];
 
         if ($riyals > 0) {
-            $parts[] = $riyals.' Saudi Riyal'.($riyals === 1 ? '' : 's');
+            $parts[] = self::englishNumber($riyals).' Saudi Riyal'.($riyals === 1 ? '' : 's');
         }
 
         if ($halalas > 0) {
-            $parts[] = $halalas.' Halala'.($halalas === 1 ? '' : 's');
-        }
-
-        if ($parts === []) {
-            return 'Zero Saudi Riyals';
+            $parts[] = self::englishNumber($halalas).' Halala'.($halalas === 1 ? '' : 's');
         }
 
         return implode(' and ', $parts).' only';
+    }
+
+    private static function englishNumber(int $n): string
+    {
+        if ($n < 0) {
+            return (string) $n;
+        }
+
+        $units = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
+        $teens = ['ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
+        $tens = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+        $scales = ['', 'thousand', 'million', 'billion'];
+
+        if ($n < 10) {
+            return $units[$n];
+        }
+
+        if ($n < 20) {
+            return $teens[$n - 10];
+        }
+
+        if ($n < 100) {
+            $t = intdiv($n, 10);
+            $r = $n % 10;
+
+            return $r === 0 ? $tens[$t] : $tens[$t].'-'.$units[$r];
+        }
+
+        if ($n < 1000) {
+            $h = intdiv($n, 100);
+            $r = $n % 100;
+            $hundred = $h === 1 ? 'one hundred' : $units[$h].' hundred';
+
+            return $r === 0 ? $hundred : $hundred.' '.self::englishNumber($r);
+        }
+
+        if ($n < 1_000_000) {
+            $thousands = intdiv($n, 1000);
+            $rest = $n % 1000;
+            $thousandsWords = $thousands > 0
+                ? self::englishNumber($thousands).' thousand'
+                : '';
+
+            if ($rest === 0) {
+                return $thousandsWords;
+            }
+
+            return $thousandsWords === ''
+                ? self::englishNumber($rest)
+                : $thousandsWords.' '.self::englishNumber($rest);
+        }
+
+        $millions = intdiv($n, 1_000_000);
+        $rest = $n % 1_000_000;
+
+        $millionsWords = self::englishNumber($millions).' million';
+        if ($rest === 0) {
+            return $millionsWords;
+        }
+
+        return $millionsWords.' '.self::englishNumber($rest);
     }
 }
