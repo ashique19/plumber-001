@@ -1,10 +1,14 @@
-<div class="pb-24 lg:pb-8">
+<div class="pb-32 lg:pb-8">
     <header class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <h1 class="app-page-title">{{ $pageTitle }}</h1>
         <a href="{{ route('admin.quotations') }}" class="tap-action-muted min-h-10 px-3 text-xs">{{ __('quotations.back') }}</a>
     </header>
 
-    <form wire:submit="save" class="app-card space-y-4 p-4">
+    <form
+        wire:submit="save"
+        class="app-card space-y-4 p-4"
+        @document-line-added.window="$nextTick(() => document.querySelector('.invoice-document-lines__row:last-child')?.classList.add('invoice-document-lines__row--flash'))"
+    >
         <x-invoices.customer-picker
             :results="$customerSearchResults"
             :can-create="$canCreateCustomers"
@@ -27,9 +31,15 @@
             <p class="text-2xl font-bold tabular-nums">{{ number_format($previewTotals['total_inc_vat'], 2) }}</p>
         </section>
 
-        <x-ui.livewire-action type="submit" target="save" loading="save" class="tap-action-primary min-h-11 w-full sm:w-auto">
+        <x-ui.livewire-action type="submit" target="save" loading="save" class="tap-action-primary hidden min-h-11 w-full sm:w-auto lg:inline-flex">
             {{ __('quotations.save') }}
         </x-ui.livewire-action>
+
+        <x-invoices.document-sticky-action-bar
+            :total="$previewTotals['total_inc_vat']"
+            :submit-label="__('quotations.save')"
+            wire-target="save"
+        />
 
         <x-invoices.document-more-options
             :is-standard="$isStandard"

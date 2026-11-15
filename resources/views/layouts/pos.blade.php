@@ -40,7 +40,7 @@
     $contentUsesNoTabbar = ! $adminSidebar;
 @endphp
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', $locale) }}" dir="{{ $dir }}" class="scroll-smooth"
+<html lang="{{ str_replace('_', '-', $locale) }}" dir="{{ $dir }}" class="scroll-smooth admin-app"
       style="
         --plumber-navy: {{ $colors['navy'] ?? '#0B1F3A' }};
         --plumber-steel: {{ $colors['steel'] ?? '#2D4A6F' }};
@@ -68,7 +68,7 @@
     class="app-shell antialiased"
     data-mobile-tabbar="0"
     @if ($business && $adminSidebar)
-        x-data="{ navDrawerOpen: false }"
+        x-data="{ navDrawerOpen: false, get darkTheme() { return $store.adminTheme?.dark ?? false } }"
         @keydown.escape.window="navDrawerOpen = false"
     @else
         x-data="{}"
@@ -154,6 +154,18 @@
                         </div>
                     </a>
                     <x-app.locale-switch :current="$locale" :class="$localeSwitchClass" />
+                    @if ($adminSidebar)
+                        <button
+                            type="button"
+                            class="admin-theme-toggle shrink-0"
+                            @click="$store.adminTheme.toggle()"
+                            :aria-pressed="($store.adminTheme.dark).toString()"
+                            title="{{ __('admin_nav.theme_toggle') }}"
+                        >
+                            <x-app.icon name="moon" class="h-5 w-5" x-show="! $store.adminTheme.dark" />
+                            <x-app.icon name="sun" class="h-5 w-5" x-show="$store.adminTheme.dark" x-cloak />
+                        </button>
+                    @endif
                     <form method="POST" action="{{ route('admin.logout') }}" class="shrink-0">
                         @csrf
                         <button type="submit" class="app-topbar__logout app-topbar__logout--compact">

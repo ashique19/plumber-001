@@ -5,6 +5,7 @@ return [
     'aria' => 'অ্যাডমিন নেভিগেশন',
     'open_menu' => 'মেনু খুলুন',
     'close_menu' => 'মেনু বন্ধ করুন',
+    'theme_toggle' => 'ডার্ক মোড চালু/বন্ধ',
     'groups' => [
         'sales' => 'বিক্রয়',
         'products' => 'পণ্য',

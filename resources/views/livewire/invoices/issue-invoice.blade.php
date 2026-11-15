@@ -1,4 +1,4 @@
-<div class="pb-24 lg:pb-8">
+<div class="pb-32 lg:pb-8">
     <header class="mb-4">
         <h1 class="app-page-title">{{ $pageTitle }}</h1>
     </header>
@@ -18,7 +18,11 @@
         </a>
     </section>
 
-    <form wire:submit="issue" class="app-card space-y-4 p-4">
+    <form
+        wire:submit="issue"
+        class="app-card space-y-4 p-4"
+        @document-line-added.window="$nextTick(() => document.querySelector('.invoice-document-lines__row:last-child')?.classList.add('invoice-document-lines__row--flash'))"
+    >
         <x-invoices.customer-picker
             :results="$customerSearchResults"
             :can-create="$canCreateCustomers"
@@ -62,9 +66,15 @@
 
         <x-invoices.zatca-not-ready-notice :show="$zatcaNotReady" />
 
-        <x-ui.livewire-action type="submit" target="issue" loading="issue" class="tap-action-primary min-h-14 w-full text-base font-semibold">
+        <x-ui.livewire-action type="submit" target="issue" loading="issue" class="tap-action-primary hidden min-h-14 w-full text-base font-semibold lg:inline-flex">
             {{ __('invoices.issue_submit') }}
         </x-ui.livewire-action>
+
+        <x-invoices.document-sticky-action-bar
+            :total="$previewTotals['total_inc_vat']"
+            :submit-label="__('invoices.issue_submit')"
+            wire-target="issue"
+        />
 
         <x-invoices.document-more-options :is-standard="$isStandard" :lines="$lines" />
 
