@@ -186,7 +186,7 @@
                 </div>
             </header>
 
-            <main @class(['app-content', 'app-content--no-tabbar' => $contentUsesNoTabbar])
+            <main @class(['app-content', 'app-content--no-tabbar' => $contentUsesNoTabbar])>
                 {{ $slot }}
             </main>
 
