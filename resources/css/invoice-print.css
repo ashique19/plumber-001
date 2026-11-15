@@ -14,9 +14,49 @@
     margin-bottom: 1rem;
 }
 
-.sar-symbol::before {
-    content: '\00EA';
+.invoice-sar-symbol {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.15rem;
+    vertical-align: baseline;
+    line-height: 1;
+}
+
+.invoice-sar-symbol__svg {
+    display: inline-block;
+    width: 0.95em;
+    height: 1.05em;
+    object-fit: contain;
+}
+
+.invoice-sar-symbol__fallback {
+    display: none;
+    font-size: 0.72em;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+}
+
+@supports not (object-fit: contain) {
+    .invoice-sar-symbol__svg {
+        display: none;
+    }
+
+    .invoice-sar-symbol__fallback {
+        display: inline;
+    }
+}
+
+.invoice-print-label__ar {
+    display: block;
+    direction: rtl;
+    font-family: Tajawal, sans-serif;
+    font-size: 8pt;
     font-weight: 600;
+    color: var(--inv-muted);
+}
+
+.invoice-a4__totals .invoice-print-label__ar {
+    font-size: 7.5pt;
 }
 
 .invoice-a4__header {
@@ -103,8 +143,9 @@
     display: block;
     direction: rtl;
     font-family: Tajawal, sans-serif;
-    font-size: 7.5pt;
+    font-size: 8.5pt;
     font-weight: 600;
+    line-height: 1.25;
 }
 
 .invoice-a4__desc-ar {
@@ -249,8 +290,19 @@
     }
 
     .invoice-a4__footer::after {
-        content: 'Page ' counter(invPage);
+        content: 'Page ' counter(page) ' of ' counter(pages) ' – ' attr(data-document-number);
         display: block;
         margin-top: 2px;
+        font-weight: 600;
+    }
+
+    .invoice-cash__footer {
+        display: block;
+        margin-top: 12px;
+        padding-top: 6px;
+        border-top: 1px dashed var(--inv-muted);
+        text-align: center;
+        font-size: 8pt;
+        font-weight: 600;
     }
 }
