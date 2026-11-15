@@ -36,7 +36,7 @@ test.describe('quick-add modal save', () => {
         await saveModal(page);
 
         await expect(page.locator('input[name="customerSearch"]')).toHaveValue(customerName);
-        await expect(page.getByText(/customer linked|linked to invoice/i)).toBeVisible();
+        await expect(page.locator('.invoice-customer-picker')).toContainText(customerName);
     });
 
     test('simplified invoice quick product saves and adds a line', async ({ page }) => {
