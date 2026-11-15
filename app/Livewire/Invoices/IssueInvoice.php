@@ -10,6 +10,7 @@ use App\Models\Product;
 use App\Models\BusinessSetting;
 use App\Models\Branch;
 use App\Support\Invoicing\InvoiceDocumentTotals;
+use App\Support\Invoicing\IssueInvoicePrefill;
 use App\Support\Invoicing\ZatcaSubmissionStatus;
 use App\Exceptions\InvoiceSigningException;
 use App\Services\InvoiceIssueService;
@@ -96,6 +97,8 @@ class IssueInvoice extends Component
 
         $termsDays = max(0, (int) data_get($business->settings, 'invoicing.payment_terms_days', 30));
         $this->dueDate = now('Asia/Riyadh')->addDays($termsDays)->format('Y-m-d');
+
+        IssueInvoicePrefill::applyIfPresent($this, $mode, request());
     }
 
     public function addLine(): void

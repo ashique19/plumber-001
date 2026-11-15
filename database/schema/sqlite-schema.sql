@@ -238,6 +238,27 @@ CREATE TABLE IF NOT EXISTS "invoice_audit_logs"(
   "updated_at" datetime,
   foreign key("invoice_id") references "invoices"("id") on delete cascade
 );
+CREATE TABLE IF NOT EXISTS "quotations"(
+  "id" integer primary key autoincrement not null,
+  "branch_id" integer,
+  "quotation_number" varchar not null,
+  "invoice_mode" varchar not null default 'simplified',
+  "validity_until" date not null,
+  "payload" text not null,
+  "converted_invoice_id" integer,
+  "created_by_staff_user_id" integer,
+  "created_at" datetime,
+  "updated_at" datetime,
+  foreign key("branch_id") references "branches"("id") on delete set null,
+  foreign key("converted_invoice_id") references "invoices"("id") on delete set null,
+  foreign key("created_by_staff_user_id") references "staff_users"("id") on delete set null
+);
+CREATE UNIQUE INDEX "quotations_quotation_number_unique" on "quotations"(
+  "quotation_number"
+);
+CREATE INDEX "quotations_validity_until_index" on "quotations"(
+  "validity_until"
+);
 CREATE TABLE IF NOT EXISTS "pos_orders"(
   "id" integer primary key autoincrement not null,
   "branch_id" integer not null,
