@@ -30,6 +30,14 @@
                 <x-form.input :label="__('business.fields.city')" name="addrCity" wire:model.blur="addrCity" required />
                 <x-form.input :label="__('business.fields.postal')" name="addrPostal" wire:model.blur="addrPostal" required />
             </fieldset>
+        @else
+            <x-invoices.customer-picker
+                :results="$customerSearchResults"
+                :can-create="$canCreateCustomers"
+                :search="$customerSearch"
+                :selected-customer-id="$selectedCustomerId"
+                compact
+            />
         @endif
 
         <fieldset class="space-y-3">
@@ -45,6 +53,7 @@
                         :line-index="$index"
                         :products="$this->catalogProductsForLine($index)"
                         :can-create-product="$canCreateProducts"
+                        :search="$catalogLineSearch[$index] ?? ''"
                         :compact="! $isStandard"
                     />
                     <x-form.input :label="__('invoices.line_name')" name="lines.{{ $index }}.name" wire:model.live="lines.{{ $index }}.name" />
@@ -66,13 +75,6 @@
 
         @unless ($isStandard)
             <div class="space-y-3">
-                <x-invoices.customer-picker
-                    :results="$customerSearchResults"
-                    :can-create="$canCreateCustomers"
-                    :search="$customerSearch"
-                    :selected-customer-id="$selectedCustomerId"
-                    compact
-                />
                 <x-form.input :label="__('invoices.buyer_optional')" name="buyerNameOptional" wire:model.blur="buyerNameOptional" />
                 <x-form.input :label="__('invoices.buyer_phone')" name="buyerPhone" wire:model.blur="buyerPhone" />
             </div>

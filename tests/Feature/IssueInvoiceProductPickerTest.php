@@ -63,8 +63,9 @@ it('renders catalog picker on standard issue page', function () {
         ->test(IssueInvoice::class, ['mode' => 'standard'])
         ->html();
 
-    expect($html)->toContain('invoice-catalog-picker')
-        ->and($html)->toContain(__('invoices.pick_catalog_product', locale: 'bn'))
+    expect($html)->toContain('invoice-catalog-picker--inline')
+        ->and($html)->toContain(__('invoices.search_catalog_products', locale: 'bn'))
+        ->and($html)->toContain('wire:model.live.debounce.350ms="catalogLineSearch.0"')
         ->and($html)->toContain(__('invoices.preview_totals', locale: 'bn'));
 });
 

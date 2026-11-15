@@ -6,7 +6,7 @@
     'selectedCustomerId' => null,
 ])
 
-<div class="invoice-customer-picker {{ $compact ? 'invoice-customer-picker--compact' : '' }}" wire:ignore.self>
+<div class="invoice-customer-picker {{ $compact ? 'invoice-customer-picker--compact' : '' }}">
     <label class="form-field">
         <span class="form-field__label">{{ __('invoices.customer_search') }}</span>
         <div class="flex gap-2">

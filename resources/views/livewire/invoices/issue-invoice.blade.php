@@ -75,6 +75,7 @@
                             :line-index="$index"
                             :products="$this->catalogProductsForLine($index)"
                             :can-create-product="$canCreateProducts"
+                            :search="$catalogLineSearch[$index] ?? ''"
                         />
 
                         @if (filled($line['unit_label'] ?? null))
@@ -98,14 +99,16 @@
                 <button type="button" class="tap-action-muted min-h-11 w-full sm:w-auto" wire:click="addLine">{{ __('invoices.add_line') }}</button>
             </fieldset>
         @else
+            <x-invoices.customer-picker
+                :results="$customerSearchResults"
+                :can-create="$canCreateCustomers"
+                :search="$customerSearch"
+                :selected-customer-id="$selectedCustomerId"
+                compact
+            />
+
             <fieldset class="issue-simplified-lines space-y-3">
                 <legend class="sr-only">{{ __('invoices.lines_section') }}</legend>
-
-                <x-invoices.add-line-product-search
-                    :results="$addLineProductSearchResults"
-                    :can-create-product="$canCreateProducts"
-                    :search="$addLineProductSearch"
-                />
 
                 @foreach ($lines as $index => $line)
                     <div class="issue-simplified-line app-inset-panel space-y-3" wire:key="line-{{ $index }}">
@@ -113,6 +116,7 @@
                             :line-index="$index"
                             :products="$this->catalogProductsForLine($index)"
                             :can-create-product="$canCreateProducts"
+                            :search="$catalogLineSearch[$index] ?? ''"
                             compact
                         />
 
@@ -201,13 +205,6 @@
                 </button>
 
                 <div x-show="moreOpen" x-cloak class="issue-simplified-more__panel space-y-4 pt-3">
-                    <x-invoices.customer-picker
-                        :results="$customerSearchResults"
-                        :can-create="$canCreateCustomers"
-                        :search="$customerSearch"
-                        :selected-customer-id="$selectedCustomerId"
-                        compact
-                    />
                     <x-form.input :label="__('invoices.buyer_optional')" name="buyerNameOptional" wire:model.blur="buyerNameOptional" />
                     <x-form.input :label="__('invoices.buyer_phone')" name="buyerPhone" wire:model.blur="buyerPhone" />
                     <x-form.input :label="__('invoices.buyer_email')" name="buyerEmail" wire:model.blur="buyerEmail" />

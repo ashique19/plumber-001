@@ -86,6 +86,18 @@ it('renders customer and product pickers on quotation create', function () {
         ->and($html)->toContain(__('invoices.customer_search', locale: 'bn'));
 });
 
+it('shows inline customer and product search on simplified issue without pick-product button', function () {
+    $html = Livewire::actingAs($this->owner, 'staff')
+        ->test(IssueInvoice::class, ['mode' => 'simplified'])
+        ->html();
+
+    expect($html)->toContain('invoice-customer-picker')
+        ->and($html)->toContain('wire:model.live.debounce.350ms="customerSearch"')
+        ->and($html)->toContain('catalogLineSearch.0')
+        ->and($html)->toContain('invoice-catalog-picker--inline')
+        ->and($html)->toContain(__('invoices.search_catalog_products'));
+});
+
 it('hides quick create buttons for staff without catalog write access', function () {
     $cashier = StaffUser::query()->where('email', 'cashier@example.test')->firstOrFail();
 
