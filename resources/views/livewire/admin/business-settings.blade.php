@@ -1,23 +1,14 @@
 @php
     use App\Support\EnabledLocales;
 @endphp
-<div class="business-settings-page pb-24 lg:pb-8 min-w-0 max-w-full overflow-x-hidden" dir="{{ EnabledLocales::direction(app()->getLocale()) }}" x-data="{ sectionTab: @entangle('section').live }">
+<div class="business-settings-page pb-24 lg:pb-8 min-w-0 max-w-full" dir="{{ EnabledLocales::direction(app()->getLocale()) }}" x-data="{ sectionTab: @entangle('section').live }">
     <div class="business-settings-page__sticky-head">
         <header class="min-w-0">
             <h1 class="app-page-title break-words">{{ __('business.title') }}</h1>
             <p class="app-page-lead break-words">{{ __('business.subtitle') }}</p>
         </header>
 
-        <label class="mt-4 block min-w-0 sm:hidden">
-            <span class="sr-only">{{ __('business.title') }}</span>
-            <select class="app-toolbar-select w-full max-w-full" wire:model.live="section" x-model="sectionTab" aria-label="{{ __('business.title') }}">
-                @foreach (['brand', 'legal', 'invoicing', 'contact', 'hours', 'branches', 'extras'] as $key)
-                    <option value="{{ $key }}">{{ __('business.sections.'.$key) }}</option>
-                @endforeach
-            </select>
-        </label>
-
-        <nav class="app-section-tabs app-section-tabs--scroll mt-4 hidden min-w-0 sm:flex" aria-label="{{ __('business.title') }}">
+        <nav class="app-section-tabs app-section-tabs--scroll business-settings-page__tabs mt-4 flex min-w-0 w-full" aria-label="{{ __('business.title') }}">
             @foreach (['brand', 'legal', 'invoicing', 'contact', 'hours', 'branches', 'extras'] as $key)
                 <button
                     type="button"
@@ -40,6 +31,7 @@
         </nav>
     </div>
 
+    <div class="business-settings-page__panels min-w-0">
     @if ($errors->isNotEmpty())
         <div class="app-card mb-4 border-amber-200 bg-amber-50 p-4 text-sm text-amber-950" role="alert">
             <p class="font-semibold">{{ __('business.validation.summary_title') }}</p>
@@ -249,4 +241,5 @@
             </div>
         </form>
     @endif
+    </div>
 </div>
