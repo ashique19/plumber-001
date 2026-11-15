@@ -8,7 +8,11 @@ const LOCALES = ['en', 'bn', 'ar'] as const;
 const ARTIFACT_DIR = process.env.E2E_ARTIFACTS || '/opt/cursor/artifacts/e2e';
 
 async function closeModalWithCancel(page: import('playwright/test').Page): Promise<void> {
-    const cancel = page.locator('.x-modal__footer button.tap-action-muted, .x-modal__close').first();
+    const backdrop = page.locator('.x-modal-backdrop');
+    const cancel = backdrop
+        .locator('.x-modal__footer button.tap-action-muted')
+        .or(backdrop.locator('.x-modal__close'))
+        .first();
     await cancel.click();
     await expect(page.locator('.x-modal-backdrop')).toHaveCount(0, { timeout: 15_000 });
     await page.waitForFunction(() => document.body.style.overflow !== 'hidden');
@@ -25,6 +29,7 @@ for (const locale of LOCALES) {
         test(`purchase quick supplier open+cancel preserves main layout (${locale})`, async ({ page }) => {
             await page.goto(adminPath('/admin/purchases/create', locale));
             await page.waitForLoadState('networkidle');
+            await expect(page.locator('html.admin-app')).toHaveCount(1);
 
             const before = await mainContentBox(page);
             await page.locator('.purchase-supplier-picker .admin-typeahead__add').click();
@@ -43,6 +48,7 @@ for (const locale of LOCALES) {
         test(`purchase quick product open+cancel preserves main layout (${locale})`, async ({ page }) => {
             await page.goto(adminPath('/admin/purchases/create', locale));
             await page.waitForLoadState('networkidle');
+            await expect(page.locator('html.admin-app')).toHaveCount(1);
 
             const before = await mainContentBox(page);
             const addProduct = page.locator('.purchase-add-line-search .admin-typeahead__add');
@@ -64,6 +70,7 @@ for (const locale of LOCALES) {
         test(`suppliers hub create open+cancel preserves main layout (${locale})`, async ({ page }) => {
             await page.goto(adminPath('/admin/suppliers', locale));
             await page.waitForLoadState('networkidle');
+            await expect(page.locator('html.admin-app')).toHaveCount(1);
 
             const before = await mainContentBox(page);
             await page.getByRole('button', { name: new RegExp('add|যোগ|إضافة', 'i') }).first().click();
