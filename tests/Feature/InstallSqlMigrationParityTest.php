@@ -19,6 +19,10 @@ it('documents install-schema-repair sql for live drift', function () {
     expect(base_path('docs/sql/2026-11-14-install-schema-repair.sql'))->toBeReadableFile();
 });
 
+it('documents invoice payments sql for live drift', function () {
+    expect(base_path('docs/sql/2026-11-15-invoice-payments.sql'))->toBeReadableFile();
+});
+
 it('does not define a legacy ingredients.name column in install.sql', function () {
     $parsed = InstallSqlTableParser::parseInstallSql(file_get_contents(base_path('docs/sql/install.sql')) ?: '');
 

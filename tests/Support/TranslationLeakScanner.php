@@ -18,6 +18,7 @@ final class TranslationLeakScanner
         'pos.',
         'reports.',
         'customers.',
+        'payments.',
         'team.',
         'operations.',
     ];

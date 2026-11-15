@@ -2,18 +2,18 @@
 
 namespace App\Livewire\Admin;
 
+use App\Business\BusinessContext;
+use App\Livewire\Concerns\ResolvesBusinessContext;
 use App\Models\Branch;
-use App\Models\BusinessSetting;
+use App\Services\Business\BusinessDashboardService;
 use App\Services\Business\DashboardMonthlyInvoiceReportService;
 use App\Services\Inventory\IngredientStockService;
-use App\Services\Business\BusinessDashboardService;
+use App\Services\Invoicing\InvoiceDuesLedgerService;
 use App\Support\Admin\DashboardQuickActionTiles;
 use App\Support\ChartScale;
-use App\Business\BusinessContext;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
-use App\Livewire\Concerns\ResolvesBusinessContext;
 use Spatie\Permission\PermissionRegistrar;
 
 #[Layout('layouts.pos')]
@@ -46,6 +46,7 @@ class AdminDashboard extends Component
         BusinessDashboardService $dashboard,
         DashboardMonthlyInvoiceReportService $monthlyReports,
         IngredientStockService $stock,
+        InvoiceDuesLedgerService $duesLedger,
     ): View {
         $branch = $this->resolveBranch();
         $snapshot = $dashboard->snapshot($this->business);
@@ -64,6 +65,7 @@ class AdminDashboard extends Component
             'maxTotal' => $maxTotal,
             'lowStock' => $lowStock,
             'actionTiles' => DashboardQuickActionTiles::forUser($user, $this->business),
+            'duesOutstanding' => $duesLedger->totalOutstandingPrincipal(),
         ]);
     }
 }

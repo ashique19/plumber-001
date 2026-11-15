@@ -29,6 +29,8 @@ return [
     ],
     'open_analytics' => 'تحليلات كاملة',
     'signing_queue_link' => 'طابور الإرسال',
+    'dues_tile' => 'المدفوعات والمستحقات',
+    'dues_outstanding' => 'المستحق الآن',
     'today_orders' => 'طلبات اليوم',
     'today_sales' => 'مبيعات اليوم',
     'today_vat' => 'ضريبة اليوم',

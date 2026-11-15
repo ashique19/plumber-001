@@ -29,6 +29,8 @@ return [
     ],
     'open_analytics' => 'Full analytics',
     'signing_queue_link' => 'Signing queue',
+    'dues_tile' => 'Payments & dues',
+    'dues_outstanding' => 'Outstanding (due now)',
     'today_orders' => 'Orders today',
     'today_sales' => 'Sales today',
     'today_vat' => 'VAT today',

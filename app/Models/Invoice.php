@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Invoice extends Model
 {
-
     protected $fillable = [
         'document_number',
         'document_type',
@@ -71,6 +70,11 @@ class Invoice extends Model
     public function auditLogs(): HasMany
     {
         return $this->hasMany(InvoiceAuditLog::class);
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(InvoicePayment::class);
     }
 
     public function isIssued(): bool

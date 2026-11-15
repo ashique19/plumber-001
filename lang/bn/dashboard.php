@@ -29,6 +29,8 @@ return [
     ],
     'open_analytics' => 'সম্পূর্ণ বিশ্লেষণ',
     'signing_queue_link' => 'ZATCA জমার তালিকা',
+    'dues_tile' => 'পেমেন্ট ও বকেয়া',
+    'dues_outstanding' => 'বকেয়া (এখন)',
     'today_orders' => 'আজকের অর্ডার',
     'today_sales' => 'আজকের বিক্রয়',
     'today_vat' => 'আজকের ভ্যাট',

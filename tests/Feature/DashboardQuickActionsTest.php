@@ -48,10 +48,11 @@ it('shows eight dashboard action tiles for the owner in grid order', function ()
         ->assertSeeHtml('href="'.route('admin.stock.search').'"')
         ->assertSeeHtml('href="'.route('admin.purchases.create').'"')
         ->assertSeeHtml('href="'.route('admin.quotations').'"')
+        ->assertSeeHtml('href="'.route('admin.payments.dues').'"')
         ->assertSeeHtml('href="'.route('admin.reports').'"')
         ->assertSee('🧾', false)
         ->assertSee(__('dashboard.tiles.subtitles.create_invoice'), false)
-        ->assertSee('dashboard-action-tile--disabled', false);
+        ->assertDontSee('dashboard-action-tile--disabled', false);
 });
 
 it('hides product and purchase tiles when the user lacks catalog permissions', function () {

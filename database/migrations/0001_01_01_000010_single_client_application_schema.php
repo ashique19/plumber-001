@@ -159,6 +159,21 @@ return new class extends Migration
             $table->timestamps();
         });
 
+        Schema::create('invoice_payments', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('invoice_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('customer_id')->nullable()->constrained()->nullOnDelete();
+            $table->date('paid_on');
+            $table->decimal('amount', 12, 2);
+            $table->string('method', 32);
+            $table->string('reference', 128)->nullable();
+            $table->boolean('for_retention')->default(false);
+            $table->foreignId('recorded_by_id')->nullable()->constrained('staff_users')->nullOnDelete();
+            $table->timestamps();
+
+            $table->index(['invoice_id', 'paid_on']);
+        });
+
         Schema::create('pos_orders', function (Blueprint $table) {
             $table->id();
             $table->foreignId('branch_id')->constrained();
@@ -283,6 +298,7 @@ return new class extends Migration
             'ingredients',
             'loyalty_transactions',
             'pos_orders',
+            'invoice_payments',
             'invoice_audit_logs',
             'invoices',
             'product_product_modifier',
