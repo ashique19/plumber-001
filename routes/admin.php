@@ -26,6 +26,7 @@ use App\Livewire\Pos\Home;
 use App\Livewire\Pos\OrderHistory;
 use App\Livewire\Pos\Terminal;
 use App\Livewire\Purchases\CreatePurchase;
+use App\Livewire\Purchases\SupplierHub;
 use App\Livewire\Reports\OwnerAnalytics;
 use App\Livewire\Stock\StockSearch;
 use Illuminate\Support\Facades\Route;
@@ -52,6 +53,7 @@ Route::prefix('admin')->middleware('auth:staff')->group(function (): void {
         Route::get('/inventory', InventoryManager::class)->name('admin.inventory');
         Route::get('/stock/search', StockSearch::class)->name('admin.stock.search');
         Route::get('/purchases/create', CreatePurchase::class)->name('admin.purchases.create');
+        Route::get('/suppliers', SupplierHub::class)->name('admin.suppliers');
     });
 
     Route::middleware('reports.access')->group(function (): void {

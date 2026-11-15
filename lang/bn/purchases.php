@@ -6,6 +6,8 @@ return array_replace_recursive($en, [
     'create_title' => 'ক্রয় রেকর্ড',
     'create_subtitle' => 'সরবরাহকারীর কাছ থেকে স্টক গ্রহণ ও গড় খরচ আপডেট।',
     'supplier_heading' => 'সরবরাহকারী',
+    'supplier_search' => 'সাপ্লায়ার খুঁজুন',
+    'supplier_selected' => 'নির্বাচিত: :name',
     'supplier' => 'বিদ্যমান সরবরাহকারী',
     'supplier_new' => 'নতুন সরবরাহকারী',
     'supplier_name' => 'সরবরাহকারীর নাম',

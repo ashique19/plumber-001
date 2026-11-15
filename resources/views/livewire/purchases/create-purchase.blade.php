@@ -8,26 +8,20 @@
         <p class="app-card p-4 text-sm text-[var(--app-muted)]">{{ __('purchases.schema_missing') }}</p>
     @else
         <form wire:submit="save" class="app-admin-form space-y-4">
-            <section class="app-card space-y-3 p-4">
-                <h2 class="text-sm font-semibold">{{ __('purchases.supplier_heading') }}</h2>
-                <x-field.select :label="__('purchases.supplier')" name="supplierId" wire:model.live="supplierId">
-                    <option value="">{{ __('purchases.supplier_new') }}</option>
-                    @foreach($suppliers as $supplier)
-                        <option value="{{ $supplier->id }}">{{ $supplier->name }}</option>
-                    @endforeach
-                </x-field.select>
-                @if(!$supplierId)
-                    <x-field.input :label="__('purchases.supplier_name')" name="supplierName" wire:model="supplierName" required />
-                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                        <x-field.input :label="__('purchases.supplier_vat')" name="supplierVat" wire:model="supplierVat" />
-                        <x-field.input :label="__('purchases.supplier_phone')" name="supplierPhone" wire:model="supplierPhone" />
-                    </div>
-                @endif
-                <x-field.textarea :label="__('purchases.notes')" name="notes" wire:model="notes" rows="2" />
-            </section>
+            <x-field.section :title="__('purchases.supplier_heading')">
+                <x-purchases.supplier-picker
+                    :results="$supplierHits"
+                    :search="$supplierSearch"
+                    :selected-supplier-id="$supplierId"
+                    :selected-label="$selectedSupplier?->name"
+                />
+                <x-purchases.quick-supplier-modal :show="$showQuickSupplierModal" />
+                <div class="mt-3">
+                    <x-field.textarea :label="__('purchases.notes')" name="notes" wire:model="notes" rows="2" />
+                </div>
+            </x-field.section>
 
-            <section class="app-card space-y-3 p-4">
-                <h2 class="text-sm font-semibold">{{ __('purchases.lines_heading') }}</h2>
+            <x-field.section :title="__('purchases.lines_heading')">
                 @foreach($lines as $index => $line)
                     <div class="rounded-lg border border-[var(--app-border)] p-3" wire:key="purchase-line-{{ $index }}">
                         <x-field.select :label="__('stock.product')" :name="'lines.'.$index.'.product_id'" wire:model="lines.{{ $index }}.product_id" required>
@@ -36,9 +30,9 @@
                                 <option value="{{ $product->id }}">{{ $product->displayName() }}</option>
                             @endforeach
                         </x-field.select>
-                        <div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                        <div class="admin-form-grid admin-form-grid--3 mt-3 gap-3">
                             <x-field.input type="number" :label="__('purchases.quantity')" :name="'lines.'.$index.'.quantity'" wire:model="lines.{{ $index }}.quantity" required inputmode="decimal" />
-                            <x-field.input type="number" :label="__('purchases.unit_cost_ex_vat')" :name="'lines.'.$index.'.unit_cost'" wire:model="lines.{{ $index }}.unit_cost" required inputmode="decimal" />
+                            <x-field.money :label="__('purchases.unit_cost_ex_vat')" :name="'lines.'.$index.'.unit_cost'" wire:model="lines.{{ $index }}.unit_cost" required />
                             <x-field.input type="number" :label="__('purchases.vat_rate')" :name="'lines.'.$index.'.vat_rate'" wire:model="lines.{{ $index }}.vat_rate" inputmode="decimal" />
                         </div>
                         @if(count($lines) > 1)
@@ -47,11 +41,13 @@
                     </div>
                 @endforeach
                 <button type="button" class="tap-action-muted min-h-11 w-full text-sm font-semibold" wire:click="addLine">{{ __('purchases.add_line') }}</button>
-            </section>
+            </x-field.section>
 
-            <x-ui.livewire-action type="submit" target="save" loading="saving" class="tap-action-primary min-h-12 w-full text-base font-semibold" variant="primary">
-                {{ __('purchases.submit') }}
-            </x-ui.livewire-action>
+            <x-field.actions>
+                <x-ui.livewire-action type="submit" target="save" loading="save" class="tap-action-primary min-h-12 w-full flex-1 text-base font-semibold" variant="primary">
+                    {{ __('purchases.submit') }}
+                </x-ui.livewire-action>
+            </x-field.actions>
         </form>
     @endunless
 </div>
