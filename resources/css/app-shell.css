@@ -488,11 +488,13 @@
     }
 
     .app-section-tabs--scroll {
-        @apply flex-nowrap overflow-x-auto pb-1;
+        @apply flex-nowrap gap-2 overflow-x-auto overscroll-x-contain;
         max-width: 100%;
+        padding-bottom: 0.25rem;
         -webkit-overflow-scrolling: touch;
         scroll-snap-type: x proximity;
         scrollbar-width: thin;
+        scrollbar-gutter: stable;
     }
 
     .app-section-tabs--scroll .app-segment-tab {
@@ -500,25 +502,55 @@
     }
 
     .business-settings-page {
-        --business-settings-subhead-height: 7.25rem;
+        --business-settings-subhead-height: 8.5rem;
     }
 
     @media (min-width: 640px) {
         .business-settings-page {
-            --business-settings-subhead-height: 9.5rem;
+            --business-settings-subhead-height: 10.5rem;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .business-settings-page {
+            --business-settings-subhead-height: 11rem;
         }
     }
 
     .business-settings-page__sticky-head {
         position: sticky;
         top: calc(env(safe-area-inset-top) + var(--app-topbar-height, 3.5rem));
-        z-index: 40;
-        margin-inline: -0.25rem;
-        margin-bottom: 1rem;
-        padding: 0.25rem 0.25rem 0.75rem;
-        background: color-mix(in srgb, var(--app-bg, #f4f8fc) 88%, transparent);
-        box-shadow: 0 1px 0 color-mix(in srgb, var(--app-border) 65%, transparent);
+        z-index: 35;
+        margin-bottom: 1.5rem;
+        padding-inline: 0;
+        padding-block-end: 0.875rem;
+        background: var(--app-bg, #f4f8fc);
+        box-shadow: 0 1px 0 var(--app-border);
         isolation: isolate;
+    }
+
+    @supports (backdrop-filter: blur(8px)) {
+        .business-settings-page__sticky-head {
+            background: color-mix(in srgb, var(--app-bg, #f4f8fc) 94%, transparent);
+            backdrop-filter: blur(10px);
+        }
+    }
+
+    .business-settings-page__tabs {
+        @apply w-full max-w-full;
+        margin-inline: 0;
+        padding-inline-end: 0.25rem;
+    }
+
+    .business-settings-page__panels {
+        position: relative;
+        z-index: 0;
+        padding-top: 0.25rem;
+    }
+
+    .business-settings-page__panels > .app-card:first-child,
+    .business-settings-page__panels > form.app-card:first-of-type {
+        margin-top: 0;
     }
 
     .business-settings-page .form-field,
@@ -535,6 +567,12 @@
         max-width: 100%;
         position: relative;
         z-index: 0;
+    }
+
+    .catalog-admin > .app-section-tabs {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
     }
 
     .app-toolbar-select {

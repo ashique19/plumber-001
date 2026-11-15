@@ -7,7 +7,7 @@
         <p class="text-xs text-[var(--app-muted)]">{{ __('catalog.price_hint') }}</p>
     </header>
 
-    <div class="app-section-tabs min-w-0 max-w-full flex-wrap gap-2 overflow-x-hidden">
+    <div class="app-section-tabs app-section-tabs--scroll min-w-0 max-w-full gap-2">
         @foreach (['products' => __('catalog.tab_products'), 'categories' => __('catalog.tab_categories'), 'modifiers' => __('catalog.tab_modifiers')] as $key => $label)
             <button
                 type="button"

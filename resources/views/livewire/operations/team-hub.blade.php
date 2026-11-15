@@ -4,8 +4,8 @@
         <p class="app-page-lead">{{ __('operations.subtitle') }}</p>
     </header>
 
-    <div class="flex flex-wrap gap-2">
-        <div class="app-section-tabs">
+    <div class="flex min-w-0 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+        <div class="app-section-tabs app-section-tabs--scroll min-w-0 max-w-full">
         @foreach (['staff' => __('operations.tab_staff'), 'branches' => __('operations.tab_branches'), 'shifts' => __('operations.tab_shifts')] as $key => $label)
             <button type="button" wire:click="setTab('{{ $key }}')" @class([
                 'app-segment-tab',
