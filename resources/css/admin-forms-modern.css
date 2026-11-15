@@ -208,4 +208,46 @@
     html.admin-app .admin-hub-list {
         @apply grid gap-2 sm:grid-cols-2 xl:grid-cols-3;
     }
+
+    html.admin-app .admin-typeahead {
+        @apply flex w-full flex-col gap-1.5;
+    }
+
+    html.admin-app .admin-typeahead__control {
+        @apply flex w-full items-stretch gap-0;
+    }
+
+    html.admin-app .admin-typeahead__control--with-add .admin-typeahead__input-wrap .form-field__control {
+        border-start-end-radius: 0;
+        border-end-end-radius: 0;
+        border-inline-end-width: 0;
+    }
+
+    html.admin-app .admin-typeahead__input-wrap {
+        @apply min-w-0 flex-1;
+    }
+
+    html.admin-app .admin-typeahead__add {
+        @apply flex min-h-12 min-w-12 shrink-0 items-center justify-center self-stretch rounded-xl border border-[var(--app-border)] text-lg font-bold;
+        border-start-start-radius: 0;
+        border-end-start-radius: 0;
+        border-start-end-radius: 1rem;
+        border-end-end-radius: 1rem;
+    }
+
+    [dir='rtl'] html.admin-app .admin-typeahead__control--with-add .admin-typeahead__input-wrap .form-field__control {
+        border-start-end-radius: 1rem;
+        border-end-end-radius: 1rem;
+        border-start-start-radius: 0;
+        border-end-start-radius: 0;
+        border-inline-end-width: 1px;
+        border-inline-start-width: 0;
+    }
+
+    [dir='rtl'] html.admin-app .admin-typeahead__add {
+        border-start-end-radius: 0;
+        border-end-end-radius: 0;
+        border-start-start-radius: 1rem;
+        border-end-start-radius: 1rem;
+    }
 }

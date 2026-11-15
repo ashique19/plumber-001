@@ -10,7 +10,7 @@
     'pattern' => null,
     'autocomplete' => 'off',
     'wrapperClass' => '',
-    'liveValidate' => true,
+    'liveValidate' => null,
     'icon' => null,
     'prefix' => null,
     'clearable' => false,
@@ -18,6 +18,7 @@
 ])
 
 @php
+    $liveValidate = $liveValidate ?? ! in_array($type, ['search'], true);
     $fieldInvalid = $errors->has($name);
     $wrapClass = 'admin-field-wrap';
     if ($icon) {
@@ -55,7 +56,7 @@
             @if($pattern) pattern="{{ $pattern }}" @endif
             autocomplete="{{ $autocomplete }}"
             placeholder="{{ $attributes->get('placeholder') ?? ' ' }}"
-            @if($liveValidate)
+            @if ($liveValidate)
                 wire:blur="validateLiveField('{{ $name }}')"
             @endif
             {{ $attributes->except('placeholder')->merge(['class' => 'form-field__control'.($fieldInvalid ? ' form-field__control--invalid' : '')]) }}

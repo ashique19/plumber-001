@@ -14,6 +14,8 @@ return [
     'notes' => 'Notes',
     'lines_heading' => 'Line items',
     'choose_product' => 'Select product',
+    'line_product' => 'Product',
+    'add_product_search_hint' => 'Search stock-tracked products to add a line.',
     'quantity' => 'Quantity',
     'unit_cost_ex_vat' => 'Unit cost (ex VAT)',
     'vat_rate' => 'VAT %',
