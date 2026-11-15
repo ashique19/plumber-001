@@ -71,18 +71,18 @@ it('shows translated sidebar nav labels in bn and ar when admin sidebar is enabl
 
     $html = $this->get(route('admin.dashboard', ['locale' => 'bn']))->assertOk()->getContent();
 
-    expect($html)->toContain(__('pos.nav_pos', [], 'bn'))
-        ->and($html)->toContain(__('business.nav', [], 'bn'))
-        ->and($html)->toContain(__('catalog.nav', [], 'bn'))
-        ->and($html)->toContain(__('inventory.nav', [], 'bn'));
+    expect($html)->toContain(__('admin_nav.items.dashboard', [], 'bn'))
+        ->and($html)->toContain(__('admin_nav.groups.products', [], 'bn'))
+        ->and($html)->toContain(__('admin_nav.items.all_products', [], 'bn'))
+        ->and($html)->toContain(__('admin_nav.items.settings', [], 'bn'));
 
     $html = $this->get(route('admin.dashboard', ['locale' => 'ar']))->assertOk()->getContent();
-    expect($html)->toContain(__('business.nav', [], 'ar'))
-        ->and($html)->toContain(__('catalog.nav', [], 'ar'));
+    expect($html)->toContain(__('admin_nav.groups.sales', [], 'ar'))
+        ->and($html)->toContain(__('admin_nav.items.customers', [], 'ar'));
 });
 
 it('shows translated dashboard quick actions and business title in bn and ar', function () {
-    config(['ui.admin_sidebar' => false]);
+    config(['ui.admin_sidebar' => true]);
 
     $html = $this->get(route('admin.dashboard', ['locale' => 'bn']))->assertOk()->getContent();
 

@@ -3,6 +3,7 @@
 @php
     use App\Models\Branch;
     use App\Models\BusinessSetting;
+    use App\Support\Admin\AdminSidebarMenu;
     use App\Support\AppShellNav;
     use App\Support\BusinessSettingDisplayName;
     use App\Support\StaffBranchContext;
@@ -24,12 +25,19 @@
     $branches = $staffUser ? StaffBranchContext::accessibleBranches($staffUser) : [];
     $showBranchSwitcher = $staffUser && StaffBranchContext::selectorVisible($staffUser);
     $posHomeUrl = $staffUser ? StaffBranchContext::posHomeUrl($staffUser) : route('admin.pos.home');
-    $adminSidebar = (bool) config('ui.admin_sidebar', false);
+    $adminSidebar = (bool) config('ui.admin_sidebar', true);
+    $adminMenu = ($business && $staffUser && $adminSidebar)
+        ? AdminSidebarMenu::build($staffUser, $business, request())
+        : null;
     $branchParam = $branch ?? ($staffUser ? StaffBranchContext::resolve($staffUser) : null);
     $brandHomeUrl = ($staffUser && $business)
         ? StaffLandingRoute::forUser($business, $staffUser)
         : route('admin.pos.home');
     app(\Spatie\Permission\PermissionRegistrar::class)->setPermissionsTeamId($business?->id ?? 1);
+    $localeSwitchClass = ($adminSidebar && $adminMenu)
+        ? 'hidden min-[380px]:flex shrink-0'
+        : 'app-locale-switch--compact shrink-0';
+    $contentUsesNoTabbar = ! $adminSidebar;
 @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', $locale) }}" dir="{{ $dir }}" class="scroll-smooth"
@@ -58,10 +66,10 @@
 </head>
 <body
     class="app-shell antialiased"
-    data-mobile-tabbar="{{ $business && $adminSidebar ? '1' : '0' }}"
+    data-mobile-tabbar="0"
     @if ($business && $adminSidebar)
-        x-data="{ sidebarCollapsed: false, moreOpen: false, userOpen: false }"
-        @keydown.escape.window="moreOpen = false; userOpen = false"
+        x-data="{ navDrawerOpen: false }"
+        @keydown.escape.window="navDrawerOpen = false"
     @else
         x-data="{}"
     @endif
@@ -70,104 +78,53 @@
     <x-toast-stack @class(['has-app-tab-bar' => $business && $adminSidebar]) />
 
     @if($business)
-        @if ($adminSidebar)
-        <aside class="app-sidebar" :class="sidebarCollapsed ? 'app-sidebar--collapsed' : ''" aria-label="{{ __('pos.title') }}">
-            <div class="flex items-center gap-2 border-b px-3 py-4" style="border-color: var(--app-border)">
-                @if ($logoUrl)
-                    <img src="{{ asset($logoUrl) }}" alt="{{ __($logoAltKey, ['name' => $displayName]) }}" class="h-9 w-9 shrink-0 rounded-lg object-contain" width="36" height="36">
-                @else
-                    <x-plumber.logo-mark class="h-9 w-9 shrink-0 text-[var(--app-accent)]" :name="$displayName" />
-                @endif
-                <span class="app-sidebar__label truncate text-sm font-semibold">{{ $displayName }}</span>
-            </div>
-            <nav class="flex flex-1 flex-col gap-1 p-2">
-                @can('reports.view')
-                    <a href="{{ route('admin.dashboard') }}" @class(['app-nav-link', 'app-nav-link--active' => $active === 'dashboard'])>
-                        <x-app.icon name="home" class="h-5 w-5 shrink-0" />
-                        <span class="app-sidebar__label">{{ __('dashboard.nav') }}</span>
-                    </a>
-                @endcan
-                <a href="{{ $posHomeUrl }}" @class(['app-nav-link', 'app-nav-link--active' => $active === 'pos'])>
-                    <x-app.icon name="chart" class="h-5 w-5 shrink-0" />
-                    <span class="app-sidebar__label">{{ __('pos.nav_pos') }}</span>
-                </a>
-                @if($branchParam)
-                    <a href="{{ route('admin.pos.history', [ $branchParam]) }}" @class(['app-nav-link', 'app-nav-link--active' => $active === 'orders'])>
-                        <x-app.icon name="clipboard" class="h-5 w-5 shrink-0" />
-                        <span class="app-sidebar__label">{{ __('pos.nav_orders') }}</span>
-                    </a>
-                    <a href="{{ route('admin.pos.eod', [ $branchParam]) }}" @class(['app-nav-link', 'app-nav-link--active' => $active === 'eod'])>
-                        <x-app.icon name="clock" class="h-5 w-5 shrink-0" />
-                        <span class="app-sidebar__label">{{ __('pos.nav_eod') }}</span>
-                    </a>
-                    <a href="{{ route('admin.pos.ops', [ $branchParam]) }}" @class(['app-nav-link', 'app-nav-link--active' => $active === 'ops'])>
-                        <x-app.icon name="chart" class="h-5 w-5 shrink-0" />
-                        <span class="app-sidebar__label">{{ __('pos.nav_ops') }}</span>
-                    </a>
-                @endif
-                @can('business.manage')
-                    <a href="{{ route('admin.business') }}" @class(['app-nav-link', 'app-nav-link--active' => $active === 'business'])>
-                        <x-app.icon name="paint" class="h-5 w-5 shrink-0" />
-                        <span class="app-sidebar__label">{{ __('business.nav') }}</span>
-                    </a>
-                @endcan
-                @can('staff.manage')
-                    <a href="{{ route('admin.team') }}" @class(['app-nav-link', 'app-nav-link--active' => $active === 'team'])>
-                        <x-app.icon name="clipboard" class="h-5 w-5 shrink-0" />
-                        <span class="app-sidebar__label">{{ __('operations.nav') }}</span>
-                    </a>
-                @endcan
-                @can('inventory.view')
-                    <a href="{{ route('admin.catalog') }}" @class(['app-nav-link', 'app-nav-link--active' => $active === 'catalog'])>
-                        <x-app.icon name="paint" class="h-5 w-5 shrink-0" />
-                        <span class="app-sidebar__label">{{ __('catalog.nav') }}</span>
-                    </a>
-                    <a href="{{ route('admin.inventory') }}" @class(['app-nav-link', 'app-nav-link--active' => $active === 'inventory'])>
-                        <x-app.icon name="shield" class="h-5 w-5 shrink-0" />
-                        <span class="app-sidebar__label">{{ __('inventory.nav') }}</span>
-                    </a>
-                @endcan
-                @can('reports.view')
-                    <a href="{{ route('admin.reports') }}" @class(['app-nav-link', 'app-nav-link--active' => $active === 'analytics'])>
-                        <x-app.icon name="chart" class="h-5 w-5 shrink-0" />
-                        <span class="app-sidebar__label">{{ __('reports.nav') }}</span>
-                    </a>
-                    <a href="{{ route('admin.customers') }}" @class(['app-nav-link', 'app-nav-link--active' => $active === 'customers'])>
-                        <x-app.icon name="users" class="h-5 w-5 shrink-0" />
-                        <span class="app-sidebar__label">{{ __('customers.nav') }}</span>
-                    </a>
-                @endcan
-                @if (auth('staff')->user()?->can('invoices.issue') || auth('staff')->user()?->can('reports.view'))
-                    <a href="{{ route('admin.invoices') }}" @class(['app-nav-link', 'app-nav-link--active' => $active === 'invoices'])>
-                        <x-app.icon name="clipboard" class="h-5 w-5 shrink-0" />
-                        <span class="app-sidebar__label">{{ __('invoices.nav') }}</span>
-                    </a>
-                    @can('invoices.issue')
-                        @php $altInvoiceMode = $business->alternateInvoiceDocumentType()->value; @endphp
-                        <a href="{{ route('admin.invoices.issue', [ $altInvoiceMode]) }}" @class(['app-nav-link', 'app-nav-link--active' => $active === 'invoices-issue'])>
-                            <x-app.icon name="clipboard" class="h-5 w-5 shrink-0" />
-                            <span class="app-sidebar__label">{{ __('invoices.nav_issue_'.$altInvoiceMode) }}</span>
-                        </a>
-                    @endcan
-                @endif
-            </nav>
-            <div class="border-t p-2" style="border-color: var(--app-border)">
-                <button type="button" class="app-nav-link w-full" @click="sidebarCollapsed = !sidebarCollapsed">
-                    <x-app.icon name="menu" class="h-5 w-5 shrink-0" />
-                    <span class="app-sidebar__label">{{ __('pos.collapse_sidebar') }}</span>
-                </button>
-            </div>
+        @if ($adminSidebar && $adminMenu)
+        <aside class="app-sidebar app-sidebar--admin" aria-label="{{ __('admin_nav.aria') }}">
+            <x-admin.sidebar-nav :menu="$adminMenu" variant="desktop" />
         </aside>
         @endif
 
-        <div
-            class="app-main @if($adminSidebar) app-main--with-sidebar @endif"
-            @if($adminSidebar)
-                :class="sidebarCollapsed ? 'app-main--sidebar-collapsed' : ''"
+        <div class="app-main @if($adminSidebar && $adminMenu) app-main--with-sidebar @endif">
+            @if ($adminSidebar && $adminMenu)
+                <div
+                    x-show="navDrawerOpen"
+                    x-cloak
+                    class="app-nav-drawer-backdrop"
+                    @click="navDrawerOpen = false"
+                    aria-hidden="true"
+                ></div>
+                <div
+                    x-show="navDrawerOpen"
+                    x-cloak
+                    class="app-nav-drawer"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label="{{ __('admin_nav.aria') }}"
+                    @click.outside="navDrawerOpen = false"
+                >
+                    <button
+                        type="button"
+                        class="app-nav-drawer__close tap-action-muted min-h-11 min-w-11"
+                        @click="navDrawerOpen = false"
+                        aria-label="{{ __('admin_nav.close_menu') }}"
+                    >
+                        <x-app.icon name="x" class="h-5 w-5" />
+                    </button>
+                    <x-admin.sidebar-nav :menu="$adminMenu" variant="drawer" />
+                </div>
             @endif
-        >
             <header class="app-topbar">
                 <div class="app-topbar__inner">
+                    @if ($adminSidebar && $adminMenu)
+                        <button
+                            type="button"
+                            class="app-topbar__menu-btn shrink-0"
+                            @click="navDrawerOpen = true"
+                            aria-label="{{ __('admin_nav.open_menu') }}"
+                        >
+                            <x-app.icon name="menu" class="h-6 w-6" />
+                        </button>
+                    @endif
                     <a href="{{ $brandHomeUrl }}" class="app-topbar__brand app-brand-home min-w-0 flex-1">
                         @if ($logoUrl)
                             <img src="{{ asset($logoUrl) }}" alt="{{ __($logoAltKey, ['name' => $displayName]) }}" class="h-7 w-7 shrink-0 rounded-lg object-contain sm:h-8 sm:w-8" width="32" height="32">
@@ -196,20 +153,7 @@
                             @endif
                         </div>
                     </a>
-                    @if ($adminSidebar)
-                        <x-app.locale-switch :current="$locale" class="hidden min-[380px]:flex shrink-0" />
-                        <div class="relative min-[380px]:hidden">
-                            <button type="button" class="tap-action-muted min-h-11 min-w-11 rounded-full px-3" @click="userOpen = !userOpen" :aria-expanded="userOpen">
-                                <span class="sr-only">{{ __('pos.user_menu') }}</span>
-                                <x-app.icon name="dots" />
-                            </button>
-                            <div x-show="userOpen" x-cloak @click.outside="userOpen = false" class="app-card app-card--flat absolute end-0 z-30 mt-1 min-w-[11rem] p-1 shadow-xl">
-                                <x-app.locale-switch :current="$locale" class="flex p-2" />
-                            </div>
-                        </div>
-                    @else
-                        <x-app.locale-switch :current="$locale" class="app-locale-switch--compact shrink-0" />
-                    @endif
+                    <x-app.locale-switch :current="$locale" :class="$localeSwitchClass" />
                     <form method="POST" action="{{ route('admin.logout') }}" class="shrink-0">
                         @csrf
                         <button type="submit" class="app-topbar__logout app-topbar__logout--compact">
@@ -220,77 +164,10 @@
                 </div>
             </header>
 
-            <main @class(['app-content', 'app-content--no-tabbar' => ! $adminSidebar])>
+            <main @class(['app-content', 'app-content--no-tabbar' => $contentUsesNoTabbar])
                 {{ $slot }}
             </main>
 
-            @if ($adminSidebar && $branchParam)
-                <nav class="app-tabbar" aria-label="{{ __('pos.mobile_nav') }}">
-                    <a href="{{ route('admin.pos.terminal', [ $branchParam]) }}" class="app-tab @if($active === 'pos') app-tab--active @endif">
-                        <x-app.icon name="cart" />
-                        {{ __('pos.nav_pos') }}
-                    </a>
-                    <a href="{{ route('admin.pos.history', [ $branchParam]) }}" class="app-tab @if($active === 'orders') app-tab--active @endif">
-                        <x-app.icon name="clipboard" />
-                        {{ __('pos.nav_orders') }}
-                    </a>
-                    <a href="{{ route('admin.pos.eod', [ $branchParam]) }}" class="app-tab @if($active === 'eod') app-tab--active @endif">
-                        <x-app.icon name="clock" />
-                        {{ __('pos.nav_eod') }}
-                    </a>
-                    <a href="{{ route('admin.pos.ops', [ $branchParam]) }}" class="app-tab @if($active === 'ops') app-tab--active @endif">
-                        <x-app.icon name="chart" />
-                        {{ __('pos.nav_ops') }}
-                    </a>
-                    <button type="button" class="app-tab @if($active === 'more') app-tab--active @endif" @click="moreOpen = true">
-                        <x-app.icon name="dots" />
-                        {{ __('pos.nav_more') }}
-                    </button>
-                </nav>
-
-                <div x-show="moreOpen" x-cloak class="app-sheet-backdrop" @click="moreOpen = false"></div>
-                <div x-show="moreOpen" x-cloak class="app-sheet p-4 lg:hidden" role="dialog" aria-label="{{ __('pos.nav_more') }}">
-                    <div class="mx-auto mb-3 h-1 w-10 rounded-full bg-[var(--app-border)]"></div>
-                    <ul class="space-y-1">
-                        <li><a class="app-nav-link" href="{{ route('admin.pos.home') }}">{{ __('pos.nav_home') }}</a></li>
-                        @can('business.manage')
-                            <li><a class="app-nav-link" href="{{ route('admin.business') }}">{{ __('business.nav') }}</a></li>
-                        @endcan
-                        @can('staff.manage')
-                            <li><a class="app-nav-link" href="{{ route('admin.team') }}">{{ __('operations.nav') }}</a></li>
-                        @endcan
-                        @can('inventory.view')
-                            <li><a class="app-nav-link" href="{{ route('admin.catalog') }}">{{ __('catalog.nav') }}</a></li>
-                            <li><a class="app-nav-link" href="{{ route('admin.inventory') }}">{{ __('inventory.nav') }}</a></li>
-                        @endcan
-                        @can('reports.view')
-                            <li><a class="app-nav-link" href="{{ route('admin.dashboard') }}">{{ __('dashboard.nav') }}</a></li>
-                            <li><a class="app-nav-link" href="{{ route('admin.reports') }}">{{ __('reports.nav') }}</a></li>
-                            <li><a class="app-nav-link" href="{{ route('admin.customers') }}">{{ __('customers.nav') }}</a></li>
-                        @endcan
-                        @if (auth('staff')->user()?->can('invoices.issue') || auth('staff')->user()?->can('reports.view'))
-                            <li><a class="app-nav-link" href="{{ route('admin.invoices') }}">{{ __('invoices.nav') }}</a></li>
-                        @endif
-                        @can('invoices.issue')
-                            @php $altInvoiceMode = $business->alternateInvoiceDocumentType()->value; @endphp
-                            <li><a class="app-nav-link" href="{{ route('admin.invoices.issue', [ $altInvoiceMode]) }}">{{ __('invoices.nav_issue_'.$altInvoiceMode) }}</a></li>
-                        @endcan
-                        <li>
-                            <form method="POST" action="{{ route('admin.logout') }}">
-                                @csrf
-                                <button type="submit" class="app-nav-link w-full">{{ __('pos.logout') }}</button>
-                            </form>
-                        </li>
-                    </ul>
-                </div>
-            @elseif ($adminSidebar)
-                <nav class="app-tabbar" aria-label="{{ __('pos.mobile_nav') }}">
-                    <a href="{{ route('admin.pos.home') }}" class="app-tab app-tab--active">
-                        <x-app.icon name="home" />
-                        {{ __('pos.nav_home') }}
-                    </a>
-                </nav>
-            @endif
         </div>
     @else
         <main class="app-content">{{ $slot }}</main>

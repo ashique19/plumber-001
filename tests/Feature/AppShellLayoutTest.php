@@ -13,22 +13,23 @@ beforeEach(function () {
     $this->business = BusinessSetting::singleton();
     BusinessContext::set($this->business);
     $this->actingAs($this->owner, 'staff');
-    Config::set('ui.admin_sidebar', false);
+    Config::set('ui.admin_sidebar', true);
 });
 
 it('hides the desktop admin sidebar when ui.admin_sidebar is false', function () {
+    Config::set('ui.admin_sidebar', false);
+
     $html = $this->get(route('admin.dashboard'))->assertOk()->getContent();
 
-    expect($html)->not->toContain('class="app-sidebar"')
+    expect($html)->not->toContain('app-sidebar--admin')
         ->and($html)->toContain('app-main');
 });
 
-it('renders the desktop sidebar when ui.admin_sidebar is true', function () {
-    Config::set('ui.admin_sidebar', true);
-
+it('renders the structured admin sidebar by default', function () {
     $html = $this->get(route('admin.dashboard'))->assertOk()->getContent();
 
-    expect($html)->toContain('app-sidebar');
+    expect($html)->toContain('app-sidebar--admin')
+        ->and($html)->toContain('admin-sidebar-nav');
 });
 
 it('links business name to dashboard and shows localized logout in top nav', function () {
@@ -44,12 +45,13 @@ it('links business name to dashboard and shows localized logout in top nav', fun
     }
 });
 
-it('omits mobile tab bar and more drawer when ui.admin_sidebar is false', function () {
+it('uses the mobile nav drawer instead of the legacy tab bar', function () {
     $html = $this->get(route('admin.dashboard'))->assertOk()->getContent();
 
     expect($html)->not->toContain('app-tabbar')
         ->and($html)->not->toContain(__('pos.nav_more'))
         ->and($html)->toContain('data-mobile-tabbar="0"')
+        ->and($html)->toContain('app-nav-drawer')
         ->and($html)->toContain('dashboard-action-grid');
 });
 
@@ -57,6 +59,6 @@ it('renders compact top bar controls on a 360px-class layout', function () {
     $html = $this->get(route('admin.dashboard'))->assertOk()->getContent();
 
     expect($html)->toContain('app-topbar__inner')
-        ->and($html)->toContain('app-locale-switch--compact')
+        ->and($html)->toContain('app-topbar__menu-btn')
         ->and($html)->toContain('app-topbar__logout--compact');
 });
