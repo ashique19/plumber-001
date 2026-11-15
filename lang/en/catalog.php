@@ -79,6 +79,7 @@ return [
     'save' => 'Save',
     'save_and_select' => 'Save & select',
     'cancel' => 'Cancel',
+    'modal_error_summary' => 'Please fix the errors below.',
     'created_category' => 'Category saved.',
     'saved_category' => 'Category updated.',
     'deleted_category' => 'Category removed.',

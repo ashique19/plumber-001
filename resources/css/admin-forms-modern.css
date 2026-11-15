@@ -214,7 +214,7 @@
         }
 
         html.admin-app .x-modal--lg {
-            @apply max-w-lg;
+            @apply max-h-[min(92dvh,40rem)] max-w-lg;
         }
     }
 
@@ -231,8 +231,11 @@
     }
 
     html.admin-app .x-modal__body {
-        @apply min-h-0 flex-1 overflow-y-auto overscroll-contain bg-white px-5 py-5;
-        padding-bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+        @apply flex min-h-0 flex-1 flex-col overflow-hidden bg-white p-0;
+    }
+
+    html.admin-app .x-modal__body > .x-modal-form {
+        @apply min-h-0 flex-1;
     }
 
     html.admin-app .x-modal__body .form-field,
@@ -246,7 +249,7 @@
     }
 
     html.admin-app .x-modal__footer--in-form {
-        @apply -mx-5 -mb-5 mt-5 w-[calc(100%+2.5rem)];
+        @apply mt-0 w-full shrink-0 border-t border-[var(--app-border)] bg-white px-5 py-4;
         padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
     }
 
@@ -263,7 +266,19 @@
     }
 
     html.admin-app .x-modal-form__fields {
-        @apply grid gap-4;
+        @apply grid min-h-0 flex-1 gap-4 overflow-y-auto overscroll-contain px-5 py-5;
+    }
+
+    html.admin-app .x-modal-form__error-summary {
+        @apply mx-5 mt-5 shrink-0 rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-950;
+    }
+
+    html.admin-app .x-modal-form__error-summary-title {
+        @apply mb-1 font-semibold;
+    }
+
+    html.admin-app .x-modal-form__error-summary-list {
+        @apply list-disc space-y-1 ps-5;
     }
 
     @media (min-width: 768px) {

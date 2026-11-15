@@ -15,7 +15,6 @@
                     :selected-supplier-id="$supplierId"
                     :selected-label="$selectedSupplier?->name"
                 />
-                <x-purchases.quick-supplier-modal :show="$showQuickSupplierModal" />
                 <div class="mt-3">
                     <x-field.textarea :label="__('purchases.notes')" name="notes" wire:model="notes" rows="2" :liveValidate="false" />
                 </div>
@@ -27,8 +26,6 @@
                     :search="$addLineProductSearch"
                     :can-create-product="$canCreateProduct"
                 />
-                <x-invoices.quick-product-modal :show="$showQuickProductModal" :categories="$productCategories" />
-
                 @foreach($lines as $index => $line)
                     @continue(! filled($line['product_id'] ?? null))
                     <div class="rounded-lg border border-[var(--app-border)] p-3" wire:key="purchase-line-{{ $index }}-{{ $line['product_id'] }}">
@@ -54,5 +51,8 @@
                 </x-ui.livewire-action>
             </x-field.actions>
         </form>
+
+        <x-purchases.quick-supplier-modal :show="$showQuickSupplierModal" />
+        <x-invoices.quick-product-modal :show="$showQuickProductModal" :categories="$productCategories" />
     @endunless
 </div>
