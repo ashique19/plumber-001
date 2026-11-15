@@ -15,13 +15,13 @@
 
 @if ($enabled && $href !== null)
     <a href="{{ $href }}" class="{{ $baseClass }} {{ $stateClass }} tap-action">
-        <span class="dashboard-action-tile__emoji text-3xl leading-none" aria-hidden="true">{{ $emoji }}</span>
+        <span class="dashboard-action-tile__icon-circle" aria-hidden="true">{{ $emoji }}</span>
         <span class="dashboard-action-tile__label text-sm font-semibold leading-snug text-[var(--app-text)]">{{ $label }}</span>
         <span class="dashboard-action-tile__subtitle text-[0.65rem] leading-snug text-[var(--app-muted)]">{{ $subtitle }}</span>
     </a>
 @else
     <div class="{{ $baseClass }} {{ $stateClass }}" aria-disabled="true">
-        <span class="dashboard-action-tile__emoji text-3xl leading-none grayscale" aria-hidden="true">{{ $emoji }}</span>
+        <span class="dashboard-action-tile__icon-circle grayscale" aria-hidden="true">{{ $emoji }}</span>
         <span class="dashboard-action-tile__label text-sm font-semibold leading-snug text-[var(--app-text)]">{{ $label }}</span>
         <span class="dashboard-action-tile__subtitle text-[0.65rem] leading-snug text-[var(--app-muted)]">{{ $subtitle }}</span>
     </div>

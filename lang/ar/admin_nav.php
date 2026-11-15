@@ -5,6 +5,7 @@ return [
     'aria' => 'تنقل الإدارة',
     'open_menu' => 'فتح القائمة',
     'close_menu' => 'إغلاق القائمة',
+    'theme_toggle' => 'تبديل الوضع الداكن',
     'groups' => [
         'sales' => 'المبيعات',
         'products' => 'المنتجات',

@@ -4,5 +4,9 @@
         <p class="app-stat-label">{{ $label }}</p>
         <x-app.icon :name="$icon" class="h-5 w-5 text-[var(--app-accent)]" />
     </div>
-    <p class="app-stat-value mt-2">{{ $value }}</p>
+    @if (! $slot->isEmpty())
+        {{ $slot }}
+    @elseif (isset($value))
+        <p class="app-stat-value mt-2">{{ $value }}</p>
+    @endif
 </div>

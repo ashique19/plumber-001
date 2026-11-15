@@ -76,6 +76,7 @@ trait ManagesInvoicingCatalogPicker
         $index = count($this->lines) - 1;
         $this->fillLineFromProduct($index, $product);
         $this->addLineProductSearch = '';
+        $this->dispatch('document-line-added');
         $this->toastInfo(__('invoices.catalog_product_applied', ['name' => $product->displayName()]));
     }
 
@@ -130,6 +131,7 @@ trait ManagesInvoicingCatalogPicker
         $this->showQuickProductModal = false;
         $this->quickProductLineIndex = null;
         $this->resetQuickProductForm();
+        $this->dispatch('document-line-added');
         $this->toastSuccess(__('invoices.product_created_applied'));
     }
 

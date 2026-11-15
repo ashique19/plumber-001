@@ -38,7 +38,9 @@
     @endif
 
     <div class="dashboard-stats-compact app-kpi-grid">
-        <x-app.stat-card :label="__('dashboard.today_orders')" :value="(string) $today['order_count']" icon="clipboard" />
+        <x-app.stat-card :label="__('dashboard.today_orders')" :value="(string) $today['order_count']" icon="clipboard">
+            <span class="app-stat-value mt-2" x-count-up="{{ (int) $today['order_count'] }}">{{ (string) $today['order_count'] }}</span>
+        </x-app.stat-card>
         <x-app.stat-card :label="__('dashboard.today_sales')" :value="number_format($today['gross_inc_vat'], 2).' '.__('dashboard.sar')" icon="chart" />
         <x-app.stat-card :label="__('dashboard.today_vat')" :value="number_format($today['vat_total'], 2).' '.__('dashboard.sar')" icon="shield" />
         <a href="{{ route('admin.payments.dues') }}" class="block no-underline">
@@ -80,7 +82,7 @@
                     </div>
 
                     <div class="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-                        <table class="dashboard-monthly-report__table w-full min-w-[32rem] text-left text-xs sm:text-sm">
+                        <table class="dashboard-monthly-report__table admin-table-cards-sm w-full min-w-[32rem] text-left text-xs sm:text-sm">
                             <thead>
                                 <tr class="border-b border-[var(--app-border)] text-[var(--app-muted)]">
                                     <th class="pb-2 pe-2 font-medium">{{ __('dashboard.monthly_report.document') }}</th>

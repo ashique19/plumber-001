@@ -5,6 +5,7 @@ return [
     'aria' => 'Admin navigation',
     'open_menu' => 'Open menu',
     'close_menu' => 'Close menu',
+    'theme_toggle' => 'Toggle dark mode',
     'groups' => [
         'sales' => 'Sales',
         'products' => 'Products',
