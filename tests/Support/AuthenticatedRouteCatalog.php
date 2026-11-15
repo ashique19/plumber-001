@@ -16,6 +16,7 @@ final class AuthenticatedRouteCatalog
     {
         return [
             ['admin.dashboard', [], 200],
+            ['admin.payments.dues', [], 200],
             ['admin.business', [], 200],
             ['admin.pos.home', [], $posHomeStatus],
             ['admin.pos.terminal', ['branch' => $branch], 200],

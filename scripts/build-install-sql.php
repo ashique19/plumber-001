@@ -250,6 +250,21 @@ function applyMysqlColumnOverrides(string $sql): string
     ) ?? $sql;
 
     $sql = preg_replace_callback(
+        '/CREATE TABLE IF NOT EXISTS `invoice_payments`[\s\S]*?\);/i',
+        static function (array $m): string {
+            $block = $m[0];
+            $block = preg_replace('/`method`\s+VARCHAR\(255\)(\s+NOT\s+NULL)?/i', '`method` VARCHAR(32) NOT NULL', $block, 1) ?? $block;
+            $block = preg_replace('/`reference`\s+VARCHAR\(255\)/', '`reference` VARCHAR(128)', $block, 1) ?? $block;
+            $block = preg_replace('/`paid_on`\s+date\s+not\s+null/i', '`paid_on` DATE NOT NULL', $block, 1) ?? $block;
+            $block = preg_replace('/`for_retention`\s+tinyint\(1\)\s+not\s+null/i', '`for_retention` TINYINT(1) NOT NULL', $block, 1) ?? $block;
+
+            return $block;
+        },
+        $sql,
+        1
+    ) ?? $sql;
+
+    $sql = preg_replace_callback(
         '/CREATE TABLE IF NOT EXISTS `pos_orders`[\s\S]*?\);/i',
         static function (array $m): string {
             $block = $m[0];

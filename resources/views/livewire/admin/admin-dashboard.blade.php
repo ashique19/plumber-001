@@ -41,6 +41,9 @@
         <x-app.stat-card :label="__('dashboard.today_orders')" :value="(string) $today['order_count']" icon="clipboard" />
         <x-app.stat-card :label="__('dashboard.today_sales')" :value="number_format($today['gross_inc_vat'], 2).' '.__('dashboard.sar')" icon="chart" />
         <x-app.stat-card :label="__('dashboard.today_vat')" :value="number_format($today['vat_total'], 2).' '.__('dashboard.sar')" icon="shield" />
+        <a href="{{ route('admin.payments.dues') }}" class="block no-underline">
+            <x-app.stat-card :label="__('dashboard.dues_outstanding')" :value="number_format($duesOutstanding, 2).' '.__('dashboard.sar')" icon="users" />
+        </a>
     </div>
 
     <section

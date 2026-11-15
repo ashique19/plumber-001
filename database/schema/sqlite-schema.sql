@@ -242,6 +242,26 @@ CREATE TABLE IF NOT EXISTS "invoice_audit_logs"(
   "updated_at" datetime,
   foreign key("invoice_id") references "invoices"("id") on delete cascade
 );
+CREATE TABLE IF NOT EXISTS "invoice_payments"(
+  "id" integer primary key autoincrement not null,
+  "invoice_id" integer not null,
+  "customer_id" integer,
+  "paid_on" date not null,
+  "amount" numeric not null,
+  "method" varchar not null,
+  "reference" varchar,
+  "for_retention" tinyint(1) not null default '0',
+  "recorded_by_id" integer,
+  "created_at" datetime,
+  "updated_at" datetime,
+  foreign key("invoice_id") references "invoices"("id") on delete cascade,
+  foreign key("customer_id") references "customers"("id") on delete set null,
+  foreign key("recorded_by_id") references "staff_users"("id") on delete set null
+);
+CREATE INDEX "invoice_payments_invoice_id_paid_on_index" on "invoice_payments"(
+  "invoice_id",
+  "paid_on"
+);
 CREATE TABLE IF NOT EXISTS "pos_orders"(
   "id" integer primary key autoincrement not null,
   "branch_id" integer not null,
