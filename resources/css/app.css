@@ -19,6 +19,7 @@
 @import './admin-forms-modern.css';
 @import 'leaflet/dist/leaflet.css';
 @import 'cropperjs/dist/cropper.css';
+@import './admin-field-icons.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';

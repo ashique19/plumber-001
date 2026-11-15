@@ -62,7 +62,8 @@
     border-radius: 0.75rem;
     border: 1px solid var(--app-border);
     background: var(--app-surface);
-    padding: 0.5rem 0.75rem;
+    padding-block: 0.5rem;
+    padding-inline: 0.75rem;
     font-size: 0.875rem;
     color: var(--app-text);
     transition: border-color 0.15s ease, box-shadow 0.15s ease;

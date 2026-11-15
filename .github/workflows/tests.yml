@@ -69,3 +69,65 @@ jobs:
         run: |
           vendor/bin/pest tests/Feature/InstallSqlMigrationParityTest.php
           vendor/bin/pest --testsuite=InstallSql
+
+  playwright-search-icon:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: plumber_e2e
+          MYSQL_USER: plumber_e2e
+          MYSQL_PASSWORD: plumber_e2e_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+    env:
+      DB_CONNECTION: mysql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_DATABASE: plumber_e2e
+      DB_USERNAME: plumber_e2e
+      DB_PASSWORD: plumber_e2e_test
+      E2E_PORT: 8765
+      E2E_BASE_URL: http://127.0.0.1:8765
+      E2E_ARTIFACTS: ${{ github.workspace }}/e2e-artifacts
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: dom, mbstring, pdo_mysql
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist
+      - name: Install Node dependencies
+        run: npm ci
+      - name: Build assets
+        run: npm run build
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Wait for MySQL
+        run: |
+          for i in {1..30}; do
+            mysqladmin ping -h127.0.0.1 -P3306 -uplumber_e2e -pplumber_e2e_test --silent && break
+            sleep 2
+          done
+      - name: Playwright admin search icon padding
+        run: npm run test:e2e -- tests/e2e/admin/search-icon-padding.spec.ts
+      - name: Upload search icon screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: search-icon-padding-screenshots
+          path: e2e-artifacts/search-icon-padding
+          if-no-files-found: ignore
