@@ -71,6 +71,18 @@ it('serves every admin GET route in en bn and ar without server errors or missin
     }
 });
 
+it('renders modern admin field components on issue invoice', function () {
+    $this->actingAs($this->owner, 'staff');
+
+    foreach (['en', 'bn', 'ar'] as $locale) {
+        $html = (string) $this->get(route('admin.invoices.issue', ['mode' => 'simplified', 'locale' => $locale]))->getContent();
+
+        expect($html)
+            ->toContain('admin-field-wrap--with-icon')
+            ->and($html)->toContain('form-field__label');
+    }
+});
+
 it('renders key livewire admin components', function () {
     $this->actingAs($this->owner, 'staff');
 

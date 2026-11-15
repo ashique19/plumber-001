@@ -1,0 +1,175 @@
+@layer components {
+    html.admin-app .form-field {
+        gap: 0.375rem;
+    }
+
+    html.admin-app .form-field__control,
+    html.admin-app select.form-field__control,
+    html.admin-app textarea.form-field__control {
+        min-height: 3rem;
+        border-radius: 1rem;
+        border: 1px solid color-mix(in srgb, var(--app-border) 92%, var(--app-text) 8%);
+        padding: 0.625rem 0.875rem;
+        font-size: 1rem;
+        box-shadow: 0 1px 0 rgb(255 255 255 / 0.4) inset;
+        transition:
+            border-color var(--theme-motion, 180ms) ease,
+            box-shadow var(--theme-motion, 180ms) ease;
+    }
+
+    @media (min-width: 768px) {
+        html.admin-app .form-field__control,
+        html.admin-app select.form-field__control {
+            font-size: 0.9375rem;
+            min-height: 2.75rem;
+        }
+    }
+
+    html.admin-app .form-field__control:focus,
+    html.admin-app select.form-field__control:focus,
+    html.admin-app textarea.form-field__control:focus {
+        outline: none;
+        border-color: var(--app-accent);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-accent) 28%, transparent);
+    }
+
+    html.admin-app .form-field__control--invalid,
+    html.admin-app .form-field--invalid .form-field__control {
+        border-color: #e11d48;
+        box-shadow: 0 0 0 2px color-mix(in srgb, #e11d48 22%, transparent);
+    }
+
+    html.admin-app .form-field__error {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.375rem;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: #e11d48;
+        line-height: 1.35;
+    }
+
+    html.admin-app .admin-field-wrap {
+        position: relative;
+        display: flex;
+        align-items: stretch;
+        width: 100%;
+    }
+
+    html.admin-app .admin-field-wrap--with-icon .form-field__control {
+        padding-inline-start: 2.75rem;
+    }
+
+    html.admin-app .admin-field-wrap--with-prefix .form-field__control {
+        padding-inline-start: 3.25rem;
+    }
+
+    html.admin-app .admin-field-wrap--with-suffix .form-field__control {
+        padding-inline-end: 2.75rem;
+    }
+
+    html.admin-app .admin-field-icon {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        inset-inline-start: 0.875rem;
+        color: var(--app-muted);
+        pointer-events: none;
+    }
+
+    html.admin-app .admin-field-prefix {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        inset-inline-start: 0.875rem;
+        font-size: 0.8125rem;
+        font-weight: 700;
+        color: var(--app-muted);
+        pointer-events: none;
+    }
+
+    html.admin-app .admin-field-clear {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        inset-inline-end: 0.35rem;
+        min-height: 2.5rem;
+        min-width: 2.5rem;
+    }
+
+    html.admin-app .admin-form-grid {
+        display: grid;
+        gap: 0.875rem;
+    }
+
+    @media (min-width: 768px) {
+        html.admin-app .admin-form-grid--2 {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        html.admin-app .admin-form-grid--3 {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+    }
+
+    html.admin-app .form-section {
+        @apply rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] p-4 shadow-sm sm:p-5;
+    }
+
+    html.admin-app .form-section__title {
+        font-size: var(--type-h3-size, 1rem);
+        font-weight: 600;
+        line-height: var(--type-h3-lh, 1.4);
+    }
+
+    html.admin-app .form-toggle__input {
+        @apply sr-only;
+    }
+
+    html.admin-app .form-toggle__track {
+        @apply relative inline-flex h-8 w-14 shrink-0 cursor-pointer items-center rounded-full border border-[var(--app-border)] bg-[var(--app-surface)] transition-colors;
+    }
+
+    html.admin-app .form-toggle:has(.form-toggle__input:checked) .form-toggle__track {
+        background: color-mix(in srgb, var(--app-accent) 88%, #fff);
+        border-color: var(--app-accent);
+    }
+
+    html.admin-app .form-toggle__thumb {
+        @apply absolute h-6 w-6 rounded-full bg-white shadow transition-transform;
+        inset-inline-start: 0.2rem;
+    }
+
+    html.admin-app .form-toggle:has(.form-toggle__input:checked) .form-toggle__thumb {
+        transform: translateX(1.45rem);
+    }
+
+    [dir='rtl'] html.admin-app .form-toggle:has(.form-toggle__input:checked) .form-toggle__thumb {
+        transform: translateX(-1.45rem);
+    }
+
+    html.admin-app .admin-segmented {
+        @apply flex rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] p-1;
+    }
+
+    html.admin-app .admin-segmented__option {
+        @apply min-h-11 flex-1 rounded-lg px-3 text-center text-sm font-semibold text-[var(--app-muted)] transition-colors;
+    }
+
+    html.admin-app .admin-segmented__option:has(input:checked) {
+        background: color-mix(in srgb, var(--app-accent) 14%, var(--app-surface));
+        color: var(--app-text);
+        box-shadow: 0 1px 2px rgb(15 23 42 / 0.08);
+    }
+
+    html.admin-app .form-actions--sticky-mobile {
+        @apply fixed inset-x-0 bottom-0 z-40 border-t border-[var(--app-border)] bg-[var(--app-surface)]/95 px-4 py-3 backdrop-blur-md lg:static lg:border-0 lg:bg-transparent lg:px-0 lg:py-0;
+        padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+    }
+
+    @media (min-width: 1024px) {
+        html.admin-app .form-actions--sticky-mobile {
+            box-shadow: none;
+        }
+    }
+}

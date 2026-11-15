@@ -32,7 +32,7 @@
     @endif
 
     <section class="app-card app-filter-fields mb-4 grid grid-cols-1 items-end gap-3 p-4 sm:grid-cols-2 lg:grid-cols-3">
-        <x-form.input
+        <x-field.input
             :label="__('invoices.search')"
             name="search"
             wire:model.live.debounce.300ms="search"
@@ -42,7 +42,7 @@
             autocomplete="off"
             wrapperClass="min-w-0 sm:col-span-2"
         />
-        <x-form.select
+        <x-field.select
             :label="__('invoices.type_filter')"
             name="typeFilter"
             wire:model.live="typeFilter"
@@ -54,7 +54,7 @@
             <option value="credit_note">{{ __('invoices.type.credit_note') }}</option>
             <option value="debit_note">{{ __('invoices.type.debit_note') }}</option>
             <option value="standard">{{ __('invoices.type.standard') }}</option>
-        </x-form.select>
+        </x-field.select>
     </section>
 
     <div class="space-y-2">

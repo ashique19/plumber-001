@@ -130,13 +130,13 @@
             <div class="app-card grid gap-3 p-4 sm:grid-cols-2">
                 <form wire:submit="openShift" class="space-y-2">
                     <h2 class="text-sm font-semibold">{{ __('operations.open_shift') }}</h2>
-                    <x-form.input type="number" :label="__('operations.opening_float')" name="openingFloat" wire:model="openingFloat" placeholder="0.00" @disabled($openShift) />
+                    <x-field.input type="number" :label="__('operations.opening_float')" name="openingFloat" wire:model="openingFloat" placeholder="0.00" @disabled($openShift) />
                     <x-ui.livewire-action type="submit" target="openShift" loading="saving" class="w-full" variant="primary" :disabled="$openShift">{{ __('operations.open_shift') }}</x-ui.livewire-action>
                 </form>
                 <form wire:submit="closeShift" class="space-y-2">
                     <h2 class="text-sm font-semibold">{{ __('operations.close_shift') }}</h2>
-                    <x-form.input type="number" :label="__('pos.cash_drawer_counted')" name="closingCounted" wire:model="closingCounted" placeholder="0.00" @disabled(! $openShift) />
-                    <x-form.input :label="__('operations.close_notes')" name="closeNotes" wire:model="closeNotes" @disabled(! $openShift) />
+                    <x-field.input type="number" :label="__('pos.cash_drawer_counted')" name="closingCounted" wire:model="closingCounted" placeholder="0.00" @disabled(! $openShift) />
+                    <x-field.input :label="__('operations.close_notes')" name="closeNotes" wire:model="closeNotes" @disabled(! $openShift) />
                     <x-ui.livewire-action type="submit" target="closeShift" loading="saving" class="w-full" variant="primary" :disabled="! $openShift">{{ __('operations.close_shift') }}</x-ui.livewire-action>
                 </form>
             </div>
@@ -168,15 +168,15 @@
             wide
         >
             <form id="team-staff-form" class="app-admin-form" wire:submit="saveStaff">
-                <x-form.input :label="__('operations.name')" name="staffName" wire:model="staffName" required />
-                <x-form.input type="email" :label="__('operations.email')" name="staffEmail" wire:model="staffEmail" required />
-                <x-form.input type="password" :label="__('operations.password')" name="staffPassword" wire:model="staffPassword" @if(!$editingStaffId) required @endif />
-                <x-form.select :label="__('operations.branch_assign')" name="staffBranchId" wire:model="staffBranchId">
+                <x-field.input :label="__('operations.name')" name="staffName" wire:model="staffName" required />
+                <x-field.input type="email" :label="__('operations.email')" name="staffEmail" wire:model="staffEmail" required />
+                <x-field.input type="password" :label="__('operations.password')" name="staffPassword" wire:model="staffPassword" @if(!$editingStaffId) required @endif />
+                <x-field.select :label="__('operations.branch_assign')" name="staffBranchId" wire:model="staffBranchId">
                     <option value="">{{ __('operations.no_branch') }}</option>
                     @foreach ($branches as $branch)
                         <option value="{{ $branch->id }}">{{ $branch->name }}</option>
                     @endforeach
-                </x-form.select>
+                </x-field.select>
                 <fieldset>
                     <legend class="text-xs font-medium leading-snug">{{ __('operations.roles') }}</legend>
                     <div class="mt-2 flex flex-wrap gap-2">
@@ -188,7 +188,7 @@
                         @endforeach
                     </div>
                 </fieldset>
-                <x-form.toggle wire:model="staffActive" name="staffActive" :label="__('operations.active')" />
+                <x-field.toggle wire:model="staffActive" name="staffActive" :label="__('operations.active')" />
             </form>
         </x-ui.admin-sheet>
     @endif
@@ -203,13 +203,13 @@
             :submit-label="__('operations.save')"
         >
             <form id="team-branch-form" class="app-admin-form" wire:submit="saveBranch">
-                <x-form.input :label="__('operations.branch_code')" name="branchCode" wire:model="branchCode" required />
-                <x-form.input :label="__('operations.branch_name')" name="branchName" wire:model="branchName" required />
-                <x-form.input :label="__('operations.branch_name_ar')" name="branchNameAr" wire:model="branchNameAr" dir="rtl" />
-                <x-form.input :label="__('operations.address')" name="branchAddress" wire:model="branchAddress" />
-                <x-form.input :label="__('operations.branch_city')" name="branchCity" wire:model="branchCity" />
-                <x-form.input type="tel" :label="__('operations.branch_phone')" name="branchPhone" wire:model="branchPhone" />
-                <x-form.input type="email" :label="__('operations.branch_contact_email')" name="branchEmail" wire:model="branchEmail" />
+                <x-field.input :label="__('operations.branch_code')" name="branchCode" wire:model="branchCode" required />
+                <x-field.input :label="__('operations.branch_name')" name="branchName" wire:model="branchName" required />
+                <x-field.input :label="__('operations.branch_name_ar')" name="branchNameAr" wire:model="branchNameAr" dir="rtl" />
+                <x-field.input :label="__('operations.address')" name="branchAddress" wire:model="branchAddress" />
+                <x-field.input :label="__('operations.branch_city')" name="branchCity" wire:model="branchCity" />
+                <x-field.input type="tel" :label="__('operations.branch_phone')" name="branchPhone" wire:model="branchPhone" />
+                <x-field.input type="email" :label="__('operations.branch_contact_email')" name="branchEmail" wire:model="branchEmail" />
                 <x-form.location-picker
                     lat-wire="branchLat"
                     lng-wire="branchLng"
@@ -225,14 +225,14 @@
                         </div>
                         @if ($branchLocationAdvanced)
                             <div class="mt-3 grid gap-3 sm:grid-cols-2">
-                                <x-form.input :label="__('business.contact.lat')" name="branchLat" wire:model.blur="branchLat" :liveValidate="false" />
-                                <x-form.input :label="__('business.contact.lng')" name="branchLng" wire:model.blur="branchLng" :liveValidate="false" />
-                                <x-form.input :label="__('business.contact.maps_url')" name="branchMapsUrl" wire:model.blur="branchMapsUrl" :liveValidate="false" wrapperClass="sm:col-span-2" />
+                                <x-field.input :label="__('business.contact.lat')" name="branchLat" wire:model.blur="branchLat" :liveValidate="false" />
+                                <x-field.input :label="__('business.contact.lng')" name="branchLng" wire:model.blur="branchLng" :liveValidate="false" />
+                                <x-field.input :label="__('business.contact.maps_url')" name="branchMapsUrl" wire:model.blur="branchMapsUrl" :liveValidate="false" wrapperClass="sm:col-span-2" />
                             </div>
                         @endif
                     </x-slot>
                 </x-form.location-picker>
-                <x-form.toggle wire:model="branchActive" name="branchActive" :label="__('operations.active')" />
+                <x-field.toggle wire:model="branchActive" name="branchActive" :label="__('operations.active')" />
             </form>
         </x-ui.admin-sheet>
     @endif

@@ -152,18 +152,18 @@
             submit-target="saveCategory"
         >
             <form id="catalog-category-form" class="app-admin-form" wire:submit="saveCategory">
-                <x-form.input :label="__('catalog.name_en')" name="categoryNameEn" wire:model="categoryNameEn" required />
-                <x-form.input :label="__('catalog.name_ar')" name="categoryNameAr" wire:model="categoryNameAr" dir="rtl" />
+                <x-field.input :label="__('catalog.name_en')" name="categoryNameEn" wire:model="categoryNameEn" required />
+                <x-field.input :label="__('catalog.name_ar')" name="categoryNameAr" wire:model="categoryNameAr" dir="rtl" />
                 @if($categoryBanglaFieldsReady ?? false)
-                    <x-form.input :label="__('catalog.name_bn')" name="categoryNameBn" wire:model="categoryNameBn" />
+                    <x-field.input :label="__('catalog.name_bn')" name="categoryNameBn" wire:model="categoryNameBn" />
                 @endif
                 @if($categoryDescriptionFieldsReady ?? false)
-                    <x-form.textarea :label="__('catalog.description_en')" name="categoryDescriptionEn" wire:model="categoryDescriptionEn" />
-                    <x-form.textarea :label="__('catalog.description_ar')" name="categoryDescriptionAr" wire:model="categoryDescriptionAr" dir="rtl" />
-                    <x-form.textarea :label="__('catalog.description_bn')" name="categoryDescriptionBn" wire:model="categoryDescriptionBn" />
+                    <x-field.textarea :label="__('catalog.description_en')" name="categoryDescriptionEn" wire:model="categoryDescriptionEn" />
+                    <x-field.textarea :label="__('catalog.description_ar')" name="categoryDescriptionAr" wire:model="categoryDescriptionAr" dir="rtl" />
+                    <x-field.textarea :label="__('catalog.description_bn')" name="categoryDescriptionBn" wire:model="categoryDescriptionBn" />
                 @endif
-                <x-form.input :label="__('catalog.icon_key')" name="categoryIconKey" wire:model="categoryIconKey" />
-                <x-form.toggle wire:model="categoryActive" name="categoryActive" :label="__('catalog.active')" />
+                <x-field.input :label="__('catalog.icon_key')" name="categoryIconKey" wire:model="categoryIconKey" />
+                <x-field.toggle wire:model="categoryActive" name="categoryActive" :label="__('catalog.active')" />
             </form>
         </x-ui.admin-sheet>
     @endif
@@ -178,22 +178,22 @@
             wide
         >
             <form id="catalog-product-form" class="app-admin-form" wire:submit="saveProduct">
-                <x-form.input :label="__('catalog.name_en')" name="productNameEn" wire:model="productNameEn" required />
-                <x-form.input :label="__('catalog.name_ar')" name="productNameAr" wire:model="productNameAr" dir="rtl" required />
+                <x-field.input :label="__('catalog.name_en')" name="productNameEn" wire:model="productNameEn" required />
+                <x-field.input :label="__('catalog.name_ar')" name="productNameAr" wire:model="productNameAr" dir="rtl" required />
                 @if($catalogI18nReady ?? false)
-                    <x-form.input :label="__('catalog.name_bn')" name="productNameBn" wire:model="productNameBn" />
-                    <x-form.textarea :label="__('catalog.description_en')" name="productDescriptionEn" wire:model="productDescriptionEn" />
-                    <x-form.textarea :label="__('catalog.description_ar')" name="productDescriptionAr" wire:model="productDescriptionAr" dir="rtl" />
-                    <x-form.textarea :label="__('catalog.description_bn')" name="productDescriptionBn" wire:model="productDescriptionBn" />
+                    <x-field.input :label="__('catalog.name_bn')" name="productNameBn" wire:model="productNameBn" />
+                    <x-field.textarea :label="__('catalog.description_en')" name="productDescriptionEn" wire:model="productDescriptionEn" />
+                    <x-field.textarea :label="__('catalog.description_ar')" name="productDescriptionAr" wire:model="productDescriptionAr" dir="rtl" />
+                    <x-field.textarea :label="__('catalog.description_bn')" name="productDescriptionBn" wire:model="productDescriptionBn" />
                 @endif
                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <x-form.input :label="__('catalog.sku')" name="productSku" wire:model="productSku" />
-                    <x-form.select :label="__('catalog.category')" name="productCategoryId" wire:model="productCategoryId">
+                    <x-field.input :label="__('catalog.sku')" name="productSku" wire:model="productSku" />
+                    <x-field.select :label="__('catalog.category')" name="productCategoryId" wire:model="productCategoryId">
                         <option value="">{{ __('catalog.none') }}</option>
                         @foreach($categories as $cat)
                             <option value="{{ $cat->id }}">{{ $cat->displayName() }}</option>
                         @endforeach
-                    </x-form.select>
+                    </x-field.select>
                 </div>
                 <x-form.product-image-upload
                     :label="__('catalog.product_image.label')"
@@ -201,8 +201,8 @@
                     :preview-url="$productImageRemove ? null : $productExistingImage"
                 />
                 <div class="app-admin-form__row--price grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <x-form.input type="number" :label="__('catalog.price').' ('.($priceMode === 'inc' ? __('catalog.inc_short') : __('catalog.ex_short')).')'" name="productPriceInput" wire:model="productPriceInput" required inputmode="decimal" />
-                    <x-form.input type="number" :label="__('catalog.vat_rate')" name="productVatRate" wire:model="productVatRate" inputmode="decimal" />
+                    <x-field.input type="number" :label="__('catalog.price').' ('.($priceMode === 'inc' ? __('catalog.inc_short') : __('catalog.ex_short')).')'" name="productPriceInput" wire:model="productPriceInput" required inputmode="decimal" />
+                    <x-field.input type="number" :label="__('catalog.vat_rate')" name="productVatRate" wire:model="productVatRate" inputmode="decimal" />
                 </div>
                 <fieldset>
                     <legend class="text-xs font-medium leading-snug text-[var(--app-muted)]">{{ __('catalog.modifiers') }}</legend>
@@ -215,10 +215,10 @@
                         @endforeach
                     </div>
                 </fieldset>
-                <x-form.toggle wire:model="productActive" name="productActive" :label="__('catalog.active')" />
+                <x-field.toggle wire:model="productActive" name="productActive" :label="__('catalog.active')" />
                 @if($productStockReady ?? false)
-                    <x-form.toggle wire:model="productTrackStock" name="productTrackStock" :label="__('stock.track_stock')" />
-                    <x-form.input type="number" :label="__('stock.low_stock_threshold')" name="productLowStockThreshold" wire:model="productLowStockThreshold" inputmode="decimal" />
+                    <x-field.toggle wire:model="productTrackStock" name="productTrackStock" :label="__('stock.track_stock')" />
+                    <x-field.input type="number" :label="__('stock.low_stock_threshold')" name="productLowStockThreshold" wire:model="productLowStockThreshold" inputmode="decimal" />
                 @endif
             </form>
         </x-ui.admin-sheet>
@@ -238,15 +238,15 @@
             <div class="app-admin-form">
                 @foreach($ingredientLines as $index => $line)
                     <div class="grid grid-cols-1 gap-2 border-b pb-3 sm:grid-cols-1" style="border-color: var(--app-border)" wire:key="ing-line-{{ $index }}">
-                        <x-form.select :label="__('inventory.nav')" name="ingredientLines.{{ $index }}.ingredient_id" wire:model="ingredientLines.{{ $index }}.ingredient_id">
+                        <x-field.select :label="__('inventory.nav')" name="ingredientLines.{{ $index }}.ingredient_id" wire:model="ingredientLines.{{ $index }}.ingredient_id">
                             <option value="">{{ __('catalog.none') }}</option>
                             @foreach($ingredientOptions as $opt)
                                 <option value="{{ $opt->id }}">{{ $opt->displayName() }} ({{ $opt->unit }})</option>
                             @endforeach
-                        </x-form.select>
+                        </x-field.select>
                         <div class="flex flex-wrap items-end gap-2">
                             <div class="min-w-0 flex-1">
-                                <x-form.input type="number" :label="__('inventory.quantity_per_unit')" name="ingredientLines.{{ $index }}.quantity_per_unit" wire:model="ingredientLines.{{ $index }}.quantity_per_unit" inputmode="decimal" />
+                                <x-field.input type="number" :label="__('inventory.quantity_per_unit')" name="ingredientLines.{{ $index }}.quantity_per_unit" wire:model="ingredientLines.{{ $index }}.quantity_per_unit" inputmode="decimal" />
                             </div>
                             <button type="button" class="tap-action-muted min-h-11 shrink-0 px-3 text-sm text-rose-600" wire:click="removeIngredientLine({{ $index }})">{{ __('catalog.delete') }}</button>
                         </div>
@@ -256,8 +256,8 @@
                 <form class="rounded-xl border p-3" style="border-color: var(--app-border)" wire:submit="quickCreateIngredient">
                     <p class="text-xs font-medium text-[var(--app-muted)]">{{ __('inventory.quick_create') }}</p>
                     <div class="mt-2 grid grid-cols-1 gap-2">
-                        <x-form.input :label="__('catalog.name_en')" name="quickIngredientNameEn" wire:model="quickIngredientNameEn" />
-                        <x-form.input :label="__('inventory.unit')" name="quickIngredientUnit" wire:model="quickIngredientUnit" />
+                        <x-field.input :label="__('catalog.name_en')" name="quickIngredientNameEn" wire:model="quickIngredientNameEn" />
+                        <x-field.input :label="__('inventory.unit')" name="quickIngredientUnit" wire:model="quickIngredientUnit" />
                     </div>
                     <x-ui.livewire-action type="submit" target="quickCreateIngredient" loading="saving" class="tap-action-muted mt-2 min-h-11 w-full text-sm" variant="muted">{{ __('inventory.quick_create') }}</x-ui.livewire-action>
                 </form>
@@ -274,13 +274,13 @@
             submit-target="saveModifier"
         >
             <form id="catalog-modifier-form" class="app-admin-form" wire:submit="saveModifier">
-                <x-form.input :label="__('catalog.name_en')" name="modifierNameEn" wire:model="modifierNameEn" required />
-                <x-form.input :label="__('catalog.name_ar')" name="modifierNameAr" wire:model="modifierNameAr" dir="rtl" />
+                <x-field.input :label="__('catalog.name_en')" name="modifierNameEn" wire:model="modifierNameEn" required />
+                <x-field.input :label="__('catalog.name_ar')" name="modifierNameAr" wire:model="modifierNameAr" dir="rtl" />
                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <x-form.input type="number" :label="__('catalog.price')" name="modifierPriceInput" wire:model="modifierPriceInput" required inputmode="decimal" />
-                    <x-form.input type="number" :label="__('catalog.vat_rate')" name="modifierVatRate" wire:model="modifierVatRate" inputmode="decimal" />
+                    <x-field.input type="number" :label="__('catalog.price')" name="modifierPriceInput" wire:model="modifierPriceInput" required inputmode="decimal" />
+                    <x-field.input type="number" :label="__('catalog.vat_rate')" name="modifierVatRate" wire:model="modifierVatRate" inputmode="decimal" />
                 </div>
-                <x-form.toggle wire:model="modifierActive" name="modifierActive" :label="__('catalog.active')" />
+                <x-field.toggle wire:model="modifierActive" name="modifierActive" :label="__('catalog.active')" />
             </form>
         </x-ui.admin-sheet>
     @endif

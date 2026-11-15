@@ -1,26 +1,24 @@
-@props(['label', 'name', 'hint' => null, 'rows' => 3, 'required' => false, 'liveValidate' => true])
+@props(['label', 'name', 'hint' => null, 'required' => false, 'dir' => null, 'liveValidate' => true, 'wrapperClass' => ''])
 
 @php
     $fieldInvalid = $errors->has($name);
 @endphp
-<label @class(['form-field', 'form-field--invalid' => $fieldInvalid])>
-    <span class="form-field__label">
+<label @class(['form-field', 'form-field--invalid' => $fieldInvalid, $wrapperClass])>
+    <span class="form-field__label type-label">
         {{ $label }}
         @if($required)<span class="text-rose-600" aria-hidden="true">*</span>@endif
     </span>
     @if($hint)
-        <span class="form-field__hint">{{ $hint }}</span>
+        <span class="form-field__hint type-small">{{ $hint }}</span>
     @endif
     <textarea
         name="{{ $name }}"
         id="{{ $name }}"
-        rows="{{ $rows }}"
+        @if($dir) dir="{{ $dir }}" @endif
         @if($liveValidate)
             wire:blur="validateLiveField('{{ $name }}')"
         @endif
-        {{ $attributes->merge(['class' => 'form-field__control font-mono text-xs'.($fieldInvalid ? ' form-field__control--invalid' : '')]) }}
+        {{ $attributes->merge(['class' => 'form-field__control'.($fieldInvalid ? ' form-field__control--invalid' : '')]) }}
     >{{ $slot }}</textarea>
-    @error($name)
-        <span class="form-field__error" role="alert">{{ $message }}</span>
-    @enderror
+    <x-field.partials.error :name="$name" />
 </label>

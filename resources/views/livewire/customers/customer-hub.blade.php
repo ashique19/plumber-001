@@ -9,7 +9,7 @@
 
     <section class="app-card grid gap-4 p-4 lg:grid-cols-5">
         <div class="space-y-3 lg:col-span-2">
-            <x-form.input :label="__('customers.search')" name="search" wire:model.live.debounce.300ms="search" placeholder="{{ __('customers.search_placeholder') }}" autocomplete="off" />
+            <x-field.input :label="__('customers.search')" name="search" wire:model.live.debounce.300ms="search" placeholder="{{ __('customers.search_placeholder') }}" autocomplete="off" />
             <ul class="max-h-[32rem] space-y-2 overflow-y-auto">
                 @forelse ($customers as $row)
                     <li wire:key="cust-{{ $row->id }}">
@@ -41,7 +41,7 @@
 
         <div class="space-y-4 lg:col-span-3">
             @if ($selected)
-                <x-form.section :title="$selected->name ?: $selected->phone" icon="users">
+                <x-field.section :title="$selected->name ?: $selected->phone" icon="users">
                     <dl class="grid gap-2 text-sm sm:grid-cols-2">
                         <div>
                             <dt class="text-xs text-[var(--app-muted)]">{{ __('customers.phone') }}</dt>
@@ -70,15 +70,15 @@
                     </p>
 
                     <form class="mt-4 grid gap-3 sm:grid-cols-2" wire:submit="saveAdjust">
-                        <x-form.input type="number" :label="__('customers.adjust_points')" name="adjustPoints" wire:model.blur="adjustPoints" placeholder="±10" />
-                        <x-form.input :label="__('customers.adjust_note')" name="adjustNote" wire:model.blur="adjustNote" wrapperClass="sm:col-span-2" />
+                        <x-field.input type="number" :label="__('customers.adjust_points')" name="adjustPoints" wire:model.blur="adjustPoints" placeholder="±10" />
+                        <x-field.input :label="__('customers.adjust_note')" name="adjustNote" wire:model.blur="adjustNote" wrapperClass="sm:col-span-2" />
                         <x-ui.livewire-action type="submit" target="saveAdjust" loading="saving" class="tap-action-muted min-h-11 text-sm sm:col-span-2 sm:w-auto">
                             {{ __('customers.adjust_save') }}
                         </x-ui.livewire-action>
                     </form>
-                </x-form.section>
+                </x-field.section>
 
-                <x-form.section :title="__('customers.ledger_title')" icon="clipboard">
+                <x-field.section :title="__('customers.ledger_title')" icon="clipboard">
                     <ul class="max-h-80 space-y-2 overflow-y-auto text-sm">
                         @forelse ($transactions as $tx)
                             <li class="app-inset-panel flex flex-wrap items-baseline justify-between gap-2 !p-3" wire:key="tx-{{ $tx->id }}">
@@ -97,7 +97,7 @@
                             <li class="text-[var(--app-muted)]">{{ __('customers.ledger_empty') }}</li>
                         @endforelse
                     </ul>
-                </x-form.section>
+                </x-field.section>
             @else
                 <div class="app-card flex min-h-48 items-center justify-center p-6 text-center text-sm text-[var(--app-muted)]">
                     {{ __('customers.pick_one') }}
@@ -111,9 +111,9 @@
             <div class="app-modal" role="dialog" aria-modal="true">
                 <h2>{{ __('customers.add') }}</h2>
                 <form class="grid gap-3" wire:submit="saveCustomer">
-                    <x-form.input :label="__('customers.name')" name="customerName" wire:model.blur="customerName" required />
-                    <x-form.input :label="__('customers.phone')" name="customerPhone" wire:model.blur="customerPhone" required inputmode="tel" />
-                    <x-form.input type="email" :label="__('customers.email_optional')" name="customerEmail" wire:model.blur="customerEmail" />
+                    <x-field.input :label="__('customers.name')" name="customerName" wire:model.blur="customerName" required />
+                    <x-field.input :label="__('customers.phone')" name="customerPhone" wire:model.blur="customerPhone" required inputmode="tel" />
+                    <x-field.input type="email" :label="__('customers.email_optional')" name="customerEmail" wire:model.blur="customerEmail" />
                     <div class="flex flex-wrap gap-2 pt-2">
                         <x-ui.livewire-action type="submit" target="saveCustomer" loading="saving" class="min-h-11 flex-1">{{ __('customers.save') }}</x-ui.livewire-action>
                         <button type="button" class="tap-action-muted min-h-11 flex-1" wire:click="$set('showCustomerForm', false)">{{ __('catalog.cancel') }}</button>

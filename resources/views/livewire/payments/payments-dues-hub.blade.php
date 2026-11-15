@@ -131,7 +131,7 @@
 
             <div class="mt-4 grid gap-4 lg:grid-cols-2">
                 <div>
-                    <x-form.input
+                    <x-field.input
                         type="search"
                         :label="__('payments.invoice_search')"
                         name="invoiceSearch"
@@ -171,14 +171,14 @@
                         </div>
                     @endif
 
-                    <x-form.input type="date" :label="__('payments.paid_on')" name="paidOn" wire:model="paidOn" />
-                    <x-form.input type="number" step="0.01" min="0.01" :label="__('payments.amount')" name="paymentAmount" wire:model="paymentAmount" />
-                    <x-form.select :label="__('payments.method.label')" name="paymentMethod" wire:model="paymentMethod">
+                    <x-field.input type="date" :label="__('payments.paid_on')" name="paidOn" wire:model="paidOn" />
+                    <x-field.input type="number" step="0.01" min="0.01" :label="__('payments.amount')" name="paymentAmount" wire:model="paymentAmount" />
+                    <x-field.select :label="__('payments.method.label')" name="paymentMethod" wire:model="paymentMethod">
                         <option value="cash">{{ __('payments.method.cash') }}</option>
                         <option value="bank">{{ __('payments.method.bank') }}</option>
                         <option value="card">{{ __('payments.method.card') }}</option>
-                    </x-form.select>
-                    <x-form.input :label="__('payments.reference')" name="paymentReference" wire:model="paymentReference" />
+                    </x-field.select>
+                    <x-field.input :label="__('payments.reference')" name="paymentReference" wire:model="paymentReference" />
                     <label class="flex items-center gap-2 text-sm">
                         <input type="checkbox" class="rounded border-[var(--app-border)]" wire:model="forRetention" />
                         {{ __('payments.apply_to_retention') }}

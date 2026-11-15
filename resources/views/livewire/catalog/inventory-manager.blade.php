@@ -80,13 +80,13 @@
             submit-target="save"
         >
             <form id="inventory-item-form" class="app-admin-form" wire:submit="save">
-                <x-form.input :label="__('catalog.name_en')" name="nameEn" wire:model="nameEn" required />
-                <x-form.input :label="__('catalog.name_ar')" name="nameAr" wire:model="nameAr" dir="rtl" />
-                <x-form.input :label="__('catalog.name_bn')" name="nameBn" wire:model="nameBn" />
-                <x-form.input :label="__('inventory.unit')" name="unit" wire:model="unit" required />
-                <x-form.input type="number" :label="__('inventory.quantity_on_hand')" name="quantityOnHand" wire:model="quantityOnHand" required inputmode="decimal" />
-                <x-form.input type="number" :label="__('inventory.low_stock_threshold')" name="lowStockThreshold" wire:model="lowStockThreshold" required inputmode="decimal" />
-                <x-form.toggle wire:model="isActive" name="isActive" :label="__('catalog.active')" />
+                <x-field.input :label="__('catalog.name_en')" name="nameEn" wire:model="nameEn" required />
+                <x-field.input :label="__('catalog.name_ar')" name="nameAr" wire:model="nameAr" dir="rtl" />
+                <x-field.input :label="__('catalog.name_bn')" name="nameBn" wire:model="nameBn" />
+                <x-field.input :label="__('inventory.unit')" name="unit" wire:model="unit" required />
+                <x-field.input type="number" :label="__('inventory.quantity_on_hand')" name="quantityOnHand" wire:model="quantityOnHand" required inputmode="decimal" />
+                <x-field.input type="number" :label="__('inventory.low_stock_threshold')" name="lowStockThreshold" wire:model="lowStockThreshold" required inputmode="decimal" />
+                <x-field.toggle wire:model="isActive" name="isActive" :label="__('catalog.active')" />
             </form>
         </x-ui.admin-sheet>
     @endif
@@ -102,12 +102,12 @@
             narrow
         >
             <form id="inventory-adjust-form" class="app-admin-form" wire:submit="saveAdjust">
-                <x-form.select :label="__('inventory.adjust_mode')" name="adjustMode" wire:model="adjustMode" :liveValidate="true">
+                <x-field.select :label="__('inventory.adjust_mode')" name="adjustMode" wire:model="adjustMode" :liveValidate="true">
                     <option value="add">{{ __('inventory.adjust_add') }}</option>
                     <option value="remove">{{ __('inventory.adjust_remove') }}</option>
                     <option value="set">{{ __('inventory.adjust_set') }}</option>
-                </x-form.select>
-                <x-form.input type="number" :label="__('inventory.adjust_amount')" name="adjustAmount" wire:model="adjustAmount" required inputmode="decimal" />
+                </x-field.select>
+                <x-field.input type="number" :label="__('inventory.adjust_amount')" name="adjustAmount" wire:model="adjustAmount" required inputmode="decimal" />
             </form>
         </x-ui.admin-sheet>
     @endif

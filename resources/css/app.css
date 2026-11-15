@@ -16,6 +16,7 @@
 @import './auth-forms.css';
 @import './admin-theme-modern.css';
 @import './admin-typography.css';
+@import './admin-forms-modern.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
