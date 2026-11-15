@@ -449,7 +449,7 @@
     }
 
     .app-modal-backdrop {
-        @apply fixed inset-0 z-[90] flex items-end justify-center bg-black/40 backdrop-blur-[2px] sm:items-center sm:p-4;
+        @apply fixed inset-0 z-[90] flex items-end justify-center bg-black/40 sm:items-center sm:p-4;
         padding-top: calc(env(safe-area-inset-top) + var(--app-topbar-height));
     }
 

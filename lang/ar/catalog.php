@@ -77,6 +77,7 @@ return [
     'edit' => 'تعديل',
     'delete' => 'حذف',
     'save' => 'حفظ',
+    'save_and_select' => 'حفظ وتحديد',
     'cancel' => 'إلغاء',
     'created_category' => 'تم حفظ التصنيف.',
     'saved_category' => 'تم تحديث التصنيف.',

@@ -77,6 +77,7 @@ return [
     'edit' => 'Edit',
     'delete' => 'Delete',
     'save' => 'Save',
+    'save_and_select' => 'Save & select',
     'cancel' => 'Cancel',
     'created_category' => 'Category saved.',
     'saved_category' => 'Category updated.',

@@ -51,22 +51,25 @@
     @endif
 
     <x-admin.hub-sheet :show="$showForm" :title="__('expenses.add')" close-wire="closeExpenseForm">
-        <form wire:submit="saveExpense" class="admin-form-grid gap-3">
-            <x-field.date :label="__('expenses.spent_on')" name="spentOn" wire:model="spentOn" />
-            <x-field.select :label="__('expenses.category')" name="formCategory" wire:model="formCategory">
-                @foreach ($categories as $cat)
-                    <option value="{{ $cat->value }}">{{ __('expenses.categories.'.$cat->value) }}</option>
-                @endforeach
-            </x-field.select>
-            <x-field.input :label="__('expenses.vendor')" name="vendor" wire:model="vendor" />
-            <x-field.money :label="__('expenses.amount_ex_vat')" name="amountExVat" wire:model="amountExVat" />
-            <x-field.textarea :label="__('expenses.description')" name="description" wire:model="description" rows="2" />
-            <x-field.actions>
-                <x-ui.livewire-action type="submit" target="saveExpense" loading="saveExpense" class="tap-action-primary min-h-11 flex-1">
-                    {{ __('expenses.save') }}
-                </x-ui.livewire-action>
-                <button type="button" class="tap-action-muted min-h-11 flex-1" wire:click="closeExpenseForm">{{ __('expenses.cancel') }}</button>
-            </x-field.actions>
+        <form wire:submit="saveExpense" class="x-modal-form">
+            <div class="x-modal-form__fields">
+                <x-field.date :label="__('expenses.spent_on')" name="spentOn" wire:model="spentOn" />
+                <x-field.select :label="__('expenses.category')" name="formCategory" wire:model="formCategory">
+                    @foreach ($categories as $cat)
+                        <option value="{{ $cat->value }}">{{ __('expenses.categories.'.$cat->value) }}</option>
+                    @endforeach
+                </x-field.select>
+                <x-field.input :label="__('expenses.vendor')" name="vendor" wire:model="vendor" />
+                <x-field.money :label="__('expenses.amount_ex_vat')" name="amountExVat" wire:model="amountExVat" />
+                <x-field.textarea :label="__('expenses.description')" name="description" wire:model="description" rows="2" />
+            </div>
+            <div class="x-modal__footer x-modal__footer--in-form">
+                <x-modal.footer
+                    cancel-wire="closeExpenseForm"
+                    submit-target="saveExpense"
+                    :submit-label="__('expenses.save')"
+                />
+            </div>
         </form>
     </x-admin.hub-sheet>
 

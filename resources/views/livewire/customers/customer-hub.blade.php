@@ -122,14 +122,19 @@
 
     @if ($showCustomerForm)
         <x-admin.hub-sheet :show="true" :title="__('customers.add')" close-wire="$set('showCustomerForm', false)">
-            <form class="grid gap-3" wire:submit="saveCustomer">
-                <x-field.input :label="__('customers.name')" name="customerName" wire:model.blur="customerName" required />
-                <x-field.input :label="__('customers.phone')" name="customerPhone" wire:model.blur="customerPhone" required inputmode="tel" icon="phone" />
-                <x-field.input type="email" :label="__('customers.email_optional')" name="customerEmail" wire:model.blur="customerEmail" icon="mail" />
-                <x-field.actions>
-                    <x-ui.livewire-action type="submit" target="saveCustomer" loading="saving" class="tap-action-primary min-h-11 flex-1">{{ __('customers.save') }}</x-ui.livewire-action>
-                    <button type="button" class="tap-action-muted min-h-11 flex-1" wire:click="$set('showCustomerForm', false)">{{ __('catalog.cancel') }}</button>
-                </x-field.actions>
+            <form class="x-modal-form" wire:submit="saveCustomer">
+                <div class="x-modal-form__fields">
+                    <x-field.input :label="__('customers.name')" name="customerName" wire:model.blur="customerName" required />
+                    <x-field.input :label="__('customers.phone')" name="customerPhone" wire:model.blur="customerPhone" required inputmode="tel" icon="phone" />
+                    <x-field.input type="email" :label="__('customers.email_optional')" name="customerEmail" wire:model.blur="customerEmail" icon="mail" />
+                </div>
+                <div class="x-modal__footer x-modal__footer--in-form">
+                    <x-modal.footer
+                        cancel-wire="$set('showCustomerForm', false)"
+                        submit-target="saveCustomer"
+                        :submit-label="__('customers.save')"
+                    />
+                </div>
             </form>
         </x-admin.hub-sheet>
     @endif
