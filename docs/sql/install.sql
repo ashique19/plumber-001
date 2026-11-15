@@ -250,26 +250,6 @@ CREATE TABLE IF NOT EXISTS `invoice_audit_logs`(
   `updated_at` datetime,
   foreign key(`invoice_id`) references `invoices`(`id`) on delete cascade
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-CREATE TABLE IF NOT EXISTS `invoice_payments`(
-  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  `invoice_id` BIGINT UNSIGNED NOT NULL,
-  `customer_id` BIGINT UNSIGNED,
-  `paid_on` DATE NOT NULL,
-  `amount` DECIMAL(12,2) NOT NULL,
-  `method` VARCHAR(32) NOT NULL,
-  `reference` VARCHAR(128),
-  `for_retention` TINYINT(1) NOT NULL default '0',
-  `recorded_by_id` BIGINT UNSIGNED,
-  `created_at` datetime,
-  `updated_at` datetime,
-  foreign key(`invoice_id`) references `invoices`(`id`) on delete cascade,
-  foreign key(`customer_id`) references `customers`(`id`) on delete set null,
-  foreign key(`recorded_by_id`) references `staff_users`(`id`) on delete set null
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-CREATE INDEX `invoice_payments_invoice_id_paid_on_index` on `invoice_payments`(
-  `invoice_id`,
-  `paid_on`
-);
 CREATE TABLE IF NOT EXISTS `pos_orders`(
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `branch_id` BIGINT UNSIGNED NOT NULL,
@@ -539,11 +519,11 @@ CREATE TABLE IF NOT EXISTS `invoice_payments`(
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `invoice_id` BIGINT UNSIGNED NOT NULL,
   `customer_id` BIGINT UNSIGNED,
-  `paid_on` date not null,
+  `paid_on` DATE NOT NULL,
   `amount` DECIMAL(12,2) NOT NULL,
-  `method` VARCHAR(255) NOT NULL,
-  `reference` VARCHAR(255),
-  `for_retention` tinyint(1) not null default '0',
+  `method` VARCHAR(32) NOT NULL,
+  `reference` VARCHAR(128),
+  `for_retention` TINYINT(1) NOT NULL default '0',
   `recorded_by_id` BIGINT UNSIGNED,
   `created_at` datetime,
   `updated_at` datetime,
