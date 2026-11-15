@@ -45,6 +45,17 @@ it('selects a customer into standard invoice buyer fields', function () {
         ->assertSet('addrCity', 'Riyadh');
 });
 
+it('creates a product from the modal without Arabic name and falls back to English', function () {
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(IssueInvoice::class, ['mode' => 'simplified'])
+        ->set('quickProductNameEn', 'English Only Widget')
+        ->set('quickProductPrice', '50')
+        ->call('saveQuickProduct')
+        ->assertHasNoErrors()
+        ->assertSet('lines.0.name', 'English Only Widget')
+        ->assertSet('lines.0.name_ar', 'English Only Widget');
+});
+
 it('creates a customer from the invoice modal and keeps line state', function () {
     Livewire::actingAs($this->owner, 'staff')
         ->test(IssueInvoice::class, ['mode' => 'simplified'])

@@ -65,6 +65,7 @@ return [
     'catalog_no_match' => 'لا توجد عناصر مطابقة.',
     'catalog_product_meta' => ':type · :price ر.س بدون ضريبة · :vat% ضريبة',
     'catalog_product_applied' => 'تم تعبئة البند من «:name».',
+    'product_created_applied' => 'تم حفظ المنتج وإضافته إلى المستند.',
     'catalog_product_missing' => 'عنصر الكتالوج لم يعد متاحاً.',
     'manual_line_hint' => 'اختر من الكتالوج أو أدخل بنداً يدوياً أدناه.',
     'customer_search' => 'العميل',

@@ -100,7 +100,7 @@ trait ManagesInvoicingCatalogPicker
 
         $rules = [
             'quickProductNameEn' => ['required', 'string', 'max:160'],
-            'quickProductNameAr' => ['required', 'string', 'max:160'],
+            'quickProductNameAr' => ['nullable', 'string', 'max:160'],
             'quickProductPrice' => ['required', 'numeric', 'min:0'],
             'quickProductVat' => ['required', 'numeric', 'min:0', 'max:100'],
             'quickProductItemType' => ['required', Rule::in(array_map(fn (ProductItemType $t) => $t->value, ProductItemType::cases()))],
@@ -113,9 +113,14 @@ trait ManagesInvoicingCatalogPicker
 
         $this->validate($rules);
 
+        $nameAr = trim($this->quickProductNameAr);
+        if ($nameAr === '') {
+            $nameAr = trim($this->quickProductNameEn);
+        }
+
         $product = Product::query()->create([
             'name_en' => trim($this->quickProductNameEn),
-            'name_ar' => trim($this->quickProductNameAr),
+            'name_ar' => $nameAr,
             'price_ex_vat' => round((float) $this->quickProductPrice, 2),
             'vat_rate' => round((float) $this->quickProductVat, 2),
             'product_category_id' => $this->quickProductCategoryId,
@@ -142,9 +147,14 @@ trait ManagesInvoicingCatalogPicker
             $nameEn = $product->displayName('en');
         }
 
+        $nameAr = trim((string) ($product->name_ar ?? ''));
+        if ($nameAr === '') {
+            $nameAr = $nameEn;
+        }
+
         $this->lines[$lineIndex] = array_merge($this->lines[$lineIndex], [
             'name' => $nameEn,
-            'name_ar' => trim((string) ($product->name_ar ?? '')),
+            'name_ar' => $nameAr,
             'quantity' => $this->lines[$lineIndex]['quantity'] !== '' ? $this->lines[$lineIndex]['quantity'] : '1',
             'unit_price' => (string) $product->price_ex_vat,
             'vat_rate' => (string) $product->vat_rate,

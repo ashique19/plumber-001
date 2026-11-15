@@ -22,3 +22,10 @@ html.admin-app .admin-typeahead__input-wrap.admin-field-wrap--with-icon > .form-
 html.admin-app .admin-typeahead__input-wrap.admin-field-wrap--with-suffix > .form-field__control {
     padding-inline-end: 2.75rem;
 }
+
+html.admin-app .admin-field-wrap--with-prefix > .form-field__control,
+html.admin-app .admin-field-wrap--with-prefix > input.form-field__control,
+html.admin-app .admin-field-wrap--with-prefix > textarea.form-field__control,
+html.admin-app .admin-field-wrap--with-prefix > select.form-field__control {
+    padding-inline-start: 3.25rem;
+}

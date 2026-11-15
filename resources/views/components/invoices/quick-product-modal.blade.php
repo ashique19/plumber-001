@@ -23,7 +23,7 @@
 
         <div class="x-modal-form__fields x-modal-form__fields--2">
             <x-field.input :label="__('catalog.name_en')" name="quickProductNameEn" wire:model="quickProductNameEn" :liveValidate="false" required wrapper-class="md:col-span-2" />
-            <x-field.input :label="__('catalog.name_ar')" name="quickProductNameAr" wire:model="quickProductNameAr" :liveValidate="false" required dir="rtl" wrapper-class="md:col-span-2" />
+            <x-field.input :label="__('catalog.name_ar')" name="quickProductNameAr" wire:model="quickProductNameAr" :liveValidate="false" dir="rtl" wrapper-class="md:col-span-2" />
             <x-field.input type="number" step="0.01" min="0" :label="__('catalog.price_ex_vat')" name="quickProductPrice" wire:model="quickProductPrice" :liveValidate="false" required />
             <x-field.input type="number" step="0.01" min="0" max="100" :label="__('catalog.vat_rate')" name="quickProductVat" wire:model="quickProductVat" :liveValidate="false" required />
             <x-field.select :label="__('catalog.item_type')" name="quickProductItemType" wire:model.live="quickProductItemType" wrapper-class="md:col-span-2">

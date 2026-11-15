@@ -59,6 +59,9 @@
             @if ($icon === 'search' || $type === 'search')
                 data-admin-search-input="1"
             @endif
+            @if ($prefix)
+                data-admin-prefix-input="1"
+            @endif
             @if ($liveValidate)
                 wire:blur="validateLiveField('{{ $name }}')"
             @endif
