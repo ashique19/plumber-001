@@ -4,6 +4,8 @@ return [
     'create_title' => 'Record purchase',
     'create_subtitle' => 'Receive stock from a supplier and update average cost.',
     'supplier_heading' => 'Supplier',
+    'supplier_search' => 'Find supplier',
+    'supplier_selected' => 'Selected: :name',
     'supplier' => 'Existing supplier',
     'supplier_new' => 'New supplier',
     'supplier_name' => 'Supplier name',

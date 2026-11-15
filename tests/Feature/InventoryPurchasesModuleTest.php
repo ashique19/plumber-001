@@ -40,11 +40,17 @@ it('records a purchase and increases tracked stock with cost', function () {
         'name_ar' => 'كوع نحاس',
     ]);
 
+    $supplier = \App\Models\Supplier::query()->create([
+        'branch_id' => $this->branch->id,
+        'name' => 'Al Rajhi Supplies',
+        'vat_number' => '300000000000003',
+        'phone' => '0500000001',
+        'is_active' => true,
+    ]);
+
     Livewire::actingAs($this->owner, 'staff')
         ->test(CreatePurchase::class)
-        ->set('supplierName', 'Al Rajhi Supplies')
-        ->set('supplierVat', '300000000000003')
-        ->set('supplierPhone', '0500000001')
+        ->set('supplierId', $supplier->id)
         ->set('lines', [
             ['product_id' => $product->id, 'quantity' => '10', 'unit_cost' => '20', 'vat_rate' => '15'],
         ])

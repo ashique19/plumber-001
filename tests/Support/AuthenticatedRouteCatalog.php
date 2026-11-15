@@ -48,6 +48,7 @@ final class AuthenticatedRouteCatalog
             ['admin.inventory', [], 200],
             ['admin.stock.search', [], 200],
             ['admin.purchases.create', [], 200],
+            ['admin.suppliers', [], 200],
             ['admin.team', [], 200],
         ];
     }
@@ -85,6 +86,7 @@ final class AuthenticatedRouteCatalog
             \App\Livewire\Admin\BusinessSettings::class,
             \App\Livewire\Catalog\MenuManager::class,
             \App\Livewire\Expenses\ExpensesHub::class,
+            \App\Livewire\Purchases\SupplierHub::class,
         ];
     }
 }
