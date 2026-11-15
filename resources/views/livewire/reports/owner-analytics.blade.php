@@ -2,30 +2,45 @@
     $summary = $report['summary'];
     $trend = $summary['trend_gross_pct'];
     $trendUp = $trend >= 0;
+    $extended = $report['extended'] ?? [];
+    $vatSummary = $extended['vat_summary'] ?? [];
+    $profit = $extended['profit'] ?? [];
+    $inventory = $extended['inventory'] ?? [];
+    $dues = $extended['dues_aging'] ?? [];
 @endphp
 <div class="owner-analytics pb-24 lg:pb-8">
-    @vite(['resources/css/analytics-dashboard.css', 'resources/js/analytics-dashboard.js'])
+    @vite(['resources/css/analytics-dashboard.css', 'resources/css/reports-print.css', 'resources/js/analytics-dashboard.js'])
 
     <header class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
             <h1 class="app-page-title">{{ __('reports.title') }}</h1>
             <p class="app-page-lead">{{ __('reports.subtitle') }}</p>
         </div>
-        <a
-            href="{{ route('admin.reports.export', [
-                'from' => $dateFrom,
-                'to' => $dateTo,
-                'granularity' => $granularity,
-                'branch' => $branchId,
-            ]) }}"
-            class="tap-action-muted inline-flex min-h-11 items-center justify-center gap-2 px-4 text-sm"
-        >
-            <x-app.icon name="external" class="h-4 w-4" />
-            {{ __('reports.export_csv') }}
-        </a>
+        <div class="flex flex-wrap gap-2 reports-no-print">
+            <button
+                type="button"
+                onclick="window.print()"
+                class="tap-action-muted inline-flex min-h-11 items-center justify-center gap-2 px-4 text-sm"
+            >
+                <x-app.icon name="clipboard" class="h-4 w-4" />
+                {{ __('reports.print') }}
+            </button>
+            <a
+                href="{{ route('admin.reports.export', [
+                    'from' => $dateFrom,
+                    'to' => $dateTo,
+                    'granularity' => $granularity,
+                    'branch' => $branchId,
+                ]) }}"
+                class="tap-action-muted inline-flex min-h-11 items-center justify-center gap-2 px-4 text-sm"
+            >
+                <x-app.icon name="external" class="h-4 w-4" />
+                {{ __('reports.export_csv') }}
+            </a>
+        </div>
     </header>
 
-    <section class="app-card flex flex-col gap-3 p-4 sm:flex-row sm:flex-wrap sm:items-end">
+    <section class="app-card flex flex-col gap-3 p-4 sm:flex-row sm:flex-wrap sm:items-end reports-no-print">
         <div class="app-section-tabs">
             @foreach (['7d' => __('reports.preset_7d'), '30d' => __('reports.preset_30d'), '90d' => __('reports.preset_90d'), 'month' => __('reports.preset_month')] as $key => $label)
                 <button
@@ -80,6 +95,122 @@
         <x-app.stat-card :label="__('reports.vat_collected')" :value="number_format($summary['vat_total'], 2).' SAR'" icon="shield" />
         <x-app.stat-card :label="__('reports.aov')" :value="number_format($summary['avg_order_value'], 2).' SAR'" icon="clock" />
     </div>
+
+  @if ($extended !== [])
+        <section class="reports-print-block mt-4 grid gap-4 lg:grid-cols-2">
+            <div class="app-card p-4">
+                <h2 class="text-sm font-semibold uppercase tracking-wide text-[var(--app-muted)]">{{ __('reports.vat_summary_heading') }}</h2>
+                <dl class="mt-3 space-y-2 text-sm">
+                    <div class="flex justify-between gap-4">
+                        <dt class="text-[var(--app-muted)]">{{ __('reports.taxable_ex_vat') }}</dt>
+                        <dd class="tabular-nums font-medium">{{ number_format($vatSummary['taxable_ex_vat'] ?? 0, 2) }} SAR</dd>
+                    </div>
+                    <div class="flex justify-between gap-4">
+                        <dt class="text-[var(--app-muted)]">{{ __('reports.vat_collected') }}</dt>
+                        <dd class="tabular-nums font-medium">{{ number_format($vatSummary['vat_collected'] ?? 0, 2) }} SAR</dd>
+                    </div>
+                    <div class="flex justify-between gap-4">
+                        <dt class="text-[var(--app-muted)]">{{ __('reports.gross_inc_vat') }}</dt>
+                        <dd class="tabular-nums font-medium">{{ number_format($vatSummary['gross_inc_vat'] ?? 0, 2) }} SAR</dd>
+                    </div>
+                </dl>
+            </div>
+
+            <div class="app-card p-4">
+                <h2 class="text-sm font-semibold uppercase tracking-wide text-[var(--app-muted)]">{{ __('reports.profit_heading') }}</h2>
+                @if (($profit['cost_status'] ?? 'unknown') === 'unknown')
+                    <p class="mt-3 text-sm text-[var(--app-muted)]">{{ __('reports.cost_unknown') }}</p>
+                    <p class="mt-2 tabular-nums text-sm font-medium">
+                        {{ __('reports.sales_ex_vat') }}: {{ number_format($profit['sales_ex_vat'] ?? 0, 2) }} SAR
+                    </p>
+                @else
+                    <dl class="mt-3 space-y-2 text-sm">
+                        <div class="flex justify-between gap-4">
+                            <dt class="text-[var(--app-muted)]">{{ __('reports.sales_ex_vat') }}</dt>
+                            <dd class="tabular-nums font-medium">{{ number_format($profit['sales_ex_vat'] ?? 0, 2) }} SAR</dd>
+                        </div>
+                        <div class="flex justify-between gap-4">
+                            <dt class="text-[var(--app-muted)]">{{ __('reports.cogs_ex_vat') }}</dt>
+                            <dd class="tabular-nums font-medium">{{ number_format($profit['cogs_ex_vat'] ?? 0, 2) }} SAR</dd>
+                        </div>
+                        <div class="flex justify-between gap-4">
+                            <dt class="text-[var(--app-muted)]">{{ __('reports.gross_profit_ex_vat') }}</dt>
+                            <dd class="tabular-nums font-medium">{{ number_format($profit['gross_profit_ex_vat'] ?? 0, 2) }} SAR</dd>
+                        </div>
+                        @if (($profit['cost_status'] ?? '') === 'partial')
+                            <p class="text-xs text-amber-800">{{ __('reports.cost_partial') }}</p>
+                        @endif
+                    </dl>
+                @endif
+            </div>
+
+            <div class="app-card p-4 lg:col-span-2">
+                <h2 class="text-sm font-semibold uppercase tracking-wide text-[var(--app-muted)]">{{ __('reports.inventory_heading') }}</h2>
+                @if (($inventory['valuation_status'] ?? '') === 'known')
+                    <p class="mt-2 text-sm font-medium tabular-nums">
+                        {{ __('reports.inventory_valuation') }}: {{ number_format($inventory['valuation_total_ex_vat'] ?? 0, 2) }} SAR
+                    </p>
+                @else
+                    <p class="mt-2 text-sm text-[var(--app-muted)]">{{ __('reports.valuation_unknown') }}</p>
+                @endif
+                @if (count($inventory['low_stock'] ?? []) > 0)
+                    <h3 class="mt-4 text-xs font-semibold uppercase text-amber-900">{{ __('reports.low_stock_heading') }}</h3>
+                    <ul class="mt-2 space-y-1 text-sm">
+                        @foreach ($inventory['low_stock'] as $ing)
+                            <li class="flex justify-between gap-4">
+                                <span>{{ $ing['name'] }}</span>
+                                <span class="tabular-nums text-[var(--app-muted)]">
+                                    {{ number_format($ing['quantity'], 2) }} {{ $ing['unit'] }}
+                                    / {{ __('reports.threshold') }} {{ number_format($ing['threshold'], 2) }}
+                                </span>
+                            </li>
+                        @endforeach
+                    </ul>
+                @else
+                    <p class="mt-3 text-sm text-[var(--app-muted)]">{{ __('reports.no_low_stock') }}</p>
+                @endif
+            </div>
+
+            <div class="app-card p-4 lg:col-span-2">
+                <h2 class="text-sm font-semibold uppercase tracking-wide text-[var(--app-muted)]">{{ __('reports.dues_heading') }}</h2>
+                <p class="mt-1 text-xs text-[var(--app-muted)]">
+                    {{ __('reports.dues_as_of', ['date' => $dues['as_of'] ?? $dateTo]) }}
+                </p>
+                <p class="mt-2 text-sm font-medium tabular-nums">
+                    {{ __('reports.total_outstanding') }}: {{ number_format($dues['total_outstanding_inc_vat'] ?? 0, 2) }} SAR
+                </p>
+                <div class="mt-4 overflow-x-auto">
+                    <table class="w-full min-w-[32rem] text-left text-sm">
+                        <thead>
+                            <tr class="text-xs uppercase text-[var(--app-muted)]">
+                                <th class="pb-2 pe-4">{{ __('reports.aging_bucket') }}</th>
+                                <th class="pb-2 pe-4">{{ __('reports.aging_count') }}</th>
+                                <th class="pb-2">{{ __('reports.aging_amount') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ([
+                                'current' => __('reports.bucket_current'),
+                                'days_1_30' => __('reports.bucket_1_30'),
+                                'days_31_60' => __('reports.bucket_31_60'),
+                                'days_61_90' => __('reports.bucket_61_90'),
+                                'days_90_plus' => __('reports.bucket_90_plus'),
+                            ] as $key => $label)
+                                @php
+                                    $bucket = $dues['buckets'][$key] ?? ['count' => 0, 'total_inc_vat' => 0];
+                                @endphp
+                                <tr class="border-t border-[var(--app-border)]">
+                                    <td class="py-2 pe-4">{{ $label }}</td>
+                                    <td class="py-2 pe-4 tabular-nums">{{ $bucket['count'] }}</td>
+                                    <td class="py-2 tabular-nums">{{ number_format($bucket['total_inc_vat'], 2) }} SAR</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    @endif
 
     @php
         $analyticsPayload = [

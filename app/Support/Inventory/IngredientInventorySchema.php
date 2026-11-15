@@ -49,6 +49,11 @@ final class IngredientInventorySchema
         return self::movementsReady() && Schema::hasColumn('inventory_movements', 'reason');
     }
 
+    public static function hasUnitCost(): bool
+    {
+        return self::ingredientsReady() && Schema::hasColumn('ingredients', 'unit_cost_ex_vat');
+    }
+
     public static function displayNameOrderColumn(): string
     {
         if (! self::ingredientsReady()) {
