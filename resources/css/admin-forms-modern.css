@@ -337,6 +337,30 @@
         @apply min-w-0 flex-1;
     }
 
+    html.admin-app .admin-typeahead__input-wrap.admin-field-wrap--with-icon .form-field__control {
+        padding-inline-start: 2.75rem;
+        padding-inline-end: 0.875rem;
+    }
+
+    @media (min-width: 768px) {
+        html.admin-app .admin-typeahead__input-wrap.admin-field-wrap--with-icon .form-field__control {
+            padding-inline-start: 2.75rem;
+        }
+    }
+
+    html.admin-app .admin-typeahead__input-wrap.admin-field-wrap--with-suffix .form-field__control {
+        padding-inline-end: 2.75rem;
+    }
+
+    html.admin-app .app-main--with-sidebar .app-content,
+    html.admin-app .app-main--with-sidebar .app-topbar__inner {
+        max-width: none;
+    }
+
+    html.admin-app .app-content {
+        @apply max-w-7xl;
+    }
+
     html.admin-app .admin-typeahead__add {
         @apply flex min-h-12 min-w-12 shrink-0 items-center justify-center self-stretch rounded-xl border border-[var(--app-border)] text-lg font-bold;
         border-start-start-radius: 0;

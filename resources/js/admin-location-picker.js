@@ -1,5 +1,4 @@
 import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
 import { configureLeafletDefaultIcon } from './leaflet-default-icon.js';
 
 configureLeafletDefaultIcon(L);

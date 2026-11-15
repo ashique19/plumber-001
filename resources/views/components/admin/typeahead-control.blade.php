@@ -31,9 +31,8 @@
                 inputmode="search"
                 autocomplete="off"
                 placeholder="{{ $placeholder !== '' ? $placeholder : ' ' }}"
-                class="form-field__control admin-typeahead__input"
                 @keydown.enter.prevent
-                {{ $attributes->merge(['class' => 'form-field__control admin-typeahead__input']) }}
+                {{ $attributes->merge(['class' => 'form-field__control admin-typeahead__input ps-10 pe-3 sm:ps-11']) }}
             />
             @if ($clearable && $clearAction)
                 <button type="button" class="admin-field-clear tap-action-muted" wire:click="{{ $clearAction }}" aria-label="{{ __('payments.clear_statement') }}">

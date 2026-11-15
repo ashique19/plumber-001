@@ -1,5 +1,4 @@
 import Cropper from 'cropperjs';
-import 'cropperjs/dist/cropper.css';
 
 const MAX_EDGE = 800;
 const OUTPUT_QUALITY = 0.8;
