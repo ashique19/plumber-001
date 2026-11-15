@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AnalyticsExportController;
 use App\Http\Controllers\Admin\Auth\LoginController;
 use App\Http\Controllers\Admin\InvoicePrintController;
+use App\Http\Controllers\Admin\QuotationPrintController;
 use App\Http\Controllers\Admin\Pos\ReceiptController;
 use App\Http\Middleware\EnsureBranchActiveForPos;
 use App\Http\Middleware\EnsureBusinessManageAccess;
@@ -18,6 +19,8 @@ use App\Livewire\Catalog\MenuManager;
 use App\Livewire\Customers\CustomerHub;
 use App\Livewire\Invoices\InvoiceHub;
 use App\Livewire\Invoices\IssueInvoice;
+use App\Livewire\Quotations\ManageQuotation;
+use App\Livewire\Quotations\QuotationHub;
 use App\Livewire\Operations\TeamHub;
 use App\Livewire\Ops\BranchDashboard;
 use App\Livewire\Pos\EndOfDay;
@@ -59,6 +62,10 @@ Route::prefix('admin')->middleware('auth:staff')->group(function (): void {
             ->where('mode', 'standard|simplified')
             ->name('admin.invoices.issue');
         Route::get('/invoices/{invoice}/print', InvoicePrintController::class)->name('admin.invoices.print');
+        Route::get('/quotations', QuotationHub::class)->name('admin.quotations');
+        Route::get('/quotations/create', ManageQuotation::class)->name('admin.quotations.create');
+        Route::get('/quotations/{quotation}/edit', ManageQuotation::class)->name('admin.quotations.edit');
+        Route::get('/quotations/{quotation}/print', QuotationPrintController::class)->name('admin.quotations.print');
     });
 
     Route::middleware(EnsurePosAccess::class)->prefix('pos')->name('admin.pos.')->group(function (): void {

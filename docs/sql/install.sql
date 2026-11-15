@@ -246,6 +246,27 @@ CREATE TABLE IF NOT EXISTS `invoice_audit_logs`(
   `updated_at` datetime,
   foreign key(`invoice_id`) references `invoices`(`id`) on delete cascade
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE IF NOT EXISTS `quotations`(
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `branch_id` BIGINT UNSIGNED,
+  `quotation_number` VARCHAR(255) NOT NULL,
+  `invoice_mode` VARCHAR(255) NOT NULL default 'simplified',
+  `validity_until` date not null,
+  `payload` TEXT NOT NULL,
+  `converted_invoice_id` BIGINT UNSIGNED,
+  `created_by_staff_user_id` BIGINT UNSIGNED,
+  `created_at` datetime,
+  `updated_at` datetime,
+  foreign key(`branch_id`) references `branches`(`id`) on delete set null,
+  foreign key(`converted_invoice_id`) references `invoices`(`id`) on delete set null,
+  foreign key(`created_by_staff_user_id`) references `staff_users`(`id`) on delete set null
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE UNIQUE INDEX `quotations_quotation_number_unique` on `quotations`(
+  `quotation_number`
+);
+CREATE INDEX `quotations_validity_until_index` on `quotations`(
+  `validity_until`
+);
 CREATE TABLE IF NOT EXISTS `pos_orders`(
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `branch_id` BIGINT UNSIGNED NOT NULL,
