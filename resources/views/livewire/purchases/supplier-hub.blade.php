@@ -16,24 +16,19 @@
             $listEmpty = ($suppliers?->total() ?? 0) === 0 && trim($search) === '';
         @endphp
 
-        @if ($listEmpty)
-            <x-admin.hub-empty
-                icon="users"
-                :title="__('suppliers.empty_list')"
-                :action-label="__('suppliers.add')"
-                action-wire="startCreate"
+        <section class="app-card space-y-4 p-4">
+            <x-field.search
+                :label="__('suppliers.search')"
+                name="search"
+                wire:model.live.debounce.300ms="search"
+                :placeholder="__('suppliers.search_placeholder')"
+                :clearable="trim($search) !== ''"
+                clear-action="$set('search', '')"
             />
-        @else
-            <section class="app-card space-y-4 p-4">
-                <x-field.search
-                    :label="__('suppliers.search')"
-                    name="search"
-                    wire:model.live.debounce.300ms="search"
-                    :placeholder="__('suppliers.search_placeholder')"
-                    :clearable="trim($search) !== ''"
-                    clear-action="$set('search', '')"
-                />
 
+        @if ($listEmpty)
+            <p class="text-sm text-[var(--app-muted)]">{{ __('suppliers.empty_list') }}</p>
+        @else
                 <ul class="admin-hub-list" role="list">
                     @forelse ($suppliers ?? [] as $row)
                         <li wire:key="supplier-{{ $row->id }}">
@@ -67,8 +62,8 @@
                 @if ($suppliers)
                     <div>{{ $suppliers->links() }}</div>
                 @endif
-            </section>
         @endif
+        </section>
 
         <x-admin.hub-fab wire:click="startCreate" :label="__('suppliers.add')" />
 

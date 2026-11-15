@@ -56,7 +56,7 @@
             @if($pattern) pattern="{{ $pattern }}" @endif
             autocomplete="{{ $autocomplete }}"
             placeholder="{{ $attributes->get('placeholder') ?? ' ' }}"
-            @if ($icon)
+            @if ($icon === 'search' || $type === 'search')
                 data-admin-search-input="1"
             @endif
             @if ($liveValidate)

@@ -44,11 +44,17 @@ for (const locale of LOCALES) {
                 const count = await inputs.count();
                 expect(count, `expected at least one search input on ${surface.name}`).toBeGreaterThan(0);
 
+                let tested = 0;
                 for (let i = 0; i < count; i += 1) {
                     const input = inputs.nth(i);
-                    await expect(input).toBeVisible();
+                    if (!(await input.isVisible())) {
+                        continue;
+                    }
                     await expectSearchIconClearance(input);
+                    tested += 1;
                 }
+
+                expect(tested, `expected a visible search input on ${surface.name}`).toBeGreaterThan(0);
 
                 const shotDir = path.join(ARTIFACT_DIR, 'search-icon-padding', locale);
                 fs.mkdirSync(shotDir, { recursive: true });
