@@ -4,6 +4,7 @@
     "type": "module",
     "scripts": {
         "build": "vite build && npm run build:toast-prime",
+        "fonts:admin": "bash scripts/copy-admin-fonts.sh",
         "build:toast-prime": "npx --yes esbuild@0.28 resources/js/toast-prime.js --bundle --format=iife --outfile=public/js/toast-prime.js",
         "dev": "vite",
         "test:e2e": "bash scripts/run-e2e.sh",
@@ -26,6 +27,8 @@
         "@fontsource/ibm-plex-sans-arabic": "^5.3.0",
         "@fontsource/instrument-sans": "^5.3.0",
         "@fontsource/inter": "^5.3.0",
+        "@fontsource/noto-sans-bengali": "^5.3.0",
+        "@fontsource/plus-jakarta-sans": "^5.3.0",
         "@fontsource/tajawal": "^5.3.0",
         "alpinejs": "^3.17.5",
         "apexcharts": "^4.7.0",

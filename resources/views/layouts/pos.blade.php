@@ -3,6 +3,7 @@
 @php
     use App\Models\Branch;
     use App\Models\BusinessSetting;
+    use App\Support\Admin\AdminLocaleFont;
     use App\Support\Admin\AdminSidebarMenu;
     use App\Support\AppShellNav;
     use App\Support\BusinessSettingDisplayName;
@@ -60,6 +61,15 @@
         $documentTitle = $pageTitle ?? __('pos.title');
     @endphp
     <title>{{ $documentTitle }} — {{ $displayName }}</title>
+    @if ($adminSidebar)
+        <link
+            rel="preload"
+            href="{{ asset(AdminLocaleFont::preloadPath($locale)) }}"
+            as="font"
+            type="font/woff2"
+            crossorigin
+        />
+    @endif
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('head')
     @livewireStyles

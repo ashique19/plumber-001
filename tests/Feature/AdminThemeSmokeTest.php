@@ -105,6 +105,20 @@ it('registers admin layout theme hooks on invoice issue page', function () {
         ->and($html)->toContain('document-sticky-action-bar');
 });
 
+it('preloads self-hosted admin fonts per locale', function () {
+    $this->actingAs($this->owner, 'staff');
+
+    foreach ([
+        ['en', '/fonts/admin/en/plus-jakarta-sans-400.woff2'],
+        ['bn', '/fonts/admin/bn/noto-sans-bengali-400.woff2'],
+        ['ar', '/fonts/admin/ar/ibm-plex-sans-arabic-400.woff2'],
+    ] as [$locale, $path]) {
+        $html = $this->get(route('admin.dashboard').'?locale='.$locale)->assertOk()->getContent();
+        expect($html)->toContain('rel="preload"')
+            ->and($html)->toContain($path);
+    }
+});
+
 it('includes print stylesheet separately from admin shell', function () {
     expect(Route::has('admin.invoices.print'))->toBeTrue();
     $this->actingAs($this->owner, 'staff');
