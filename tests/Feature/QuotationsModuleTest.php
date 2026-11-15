@@ -117,7 +117,7 @@ it('prefills issue invoice from quotation convert action using default mode', fu
 
     expect($component->get('lines')[0]['name'])->toBe('Gasket');
     expect((float) $component->get('lines')[0]['quantity'])->toBe(3.0);
-    expect($component->get('buyerNameOptional'))->toBe('Acme Plumbing');
+    expect($component->get('buyerName'))->toBe('Acme Plumbing');
 });
 
 it('serves quotation hub routes for authorized staff smoke', function () {

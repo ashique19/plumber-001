@@ -34,18 +34,6 @@ final class IssueInvoicePrefill
             ];
         }
 
-        if ($mappedLines === []) {
-            $mappedLines[] = [
-                'name' => '',
-                'name_ar' => '',
-                'quantity' => '1',
-                'unit_price' => '',
-                'vat_rate' => '15',
-                'product_id' => null,
-                'unit_label' => '',
-            ];
-        }
-
         $prefill = [
             'quotation_id' => $quotation->id,
             'mode' => $quotation->invoice_mode,

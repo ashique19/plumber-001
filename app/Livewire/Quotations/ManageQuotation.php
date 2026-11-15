@@ -46,9 +46,7 @@ class ManageQuotation extends Component
    *     unit_label: string
    * }>
    */
-  public array $lines = [
-      ['name' => '', 'name_ar' => '', 'quantity' => '1', 'unit_price' => '', 'vat_rate' => '15', 'product_id' => null, 'unit_label' => ''],
-  ];
+  public array $lines = [];
 
   public string $invoiceDiscountExVat = '0';
 
@@ -82,6 +80,10 @@ class ManageQuotation extends Component
 
   public string $buyerCountry = 'SA';
 
+  public string $supplyDate = '';
+
+  public string $documentNotes = '';
+
   public function mount(?Quotation $quotation = null): void
   {
       $this->resolveBusiness();
@@ -92,6 +94,7 @@ class ManageQuotation extends Component
       $defaultMode = $this->business->defaultInvoiceDocumentType()->value;
       $this->invoiceMode = in_array($defaultMode, ['standard', 'simplified'], true) ? $defaultMode : 'simplified';
       $this->validityUntil = now('Asia/Riyadh')->addDays(30)->format('Y-m-d');
+      $this->supplyDate = now('Asia/Riyadh')->format('Y-m-d');
 
       if ($quotation !== null) {
           $this->quotationId = $quotation->id;
@@ -143,27 +146,24 @@ class ManageQuotation extends Component
           ];
       }
 
-      if ($this->lines === []) {
-          $this->lines = [$this->emptyLine()];
-      }
-  }
-
-  public function addLine(): void
-  {
-      $this->lines[] = $this->emptyLine();
+      $this->supplyDate = (string) ($payload['supply_date'] ?? $this->supplyDate);
+      $this->documentNotes = (string) ($payload['document_notes'] ?? '');
   }
 
   public function removeLine(int $index): void
   {
-      if (count($this->lines) <= 1) {
-          return;
-      }
       unset($this->lines[$index]);
       $this->lines = array_values($this->lines);
   }
 
+  protected function documentStandardBuyerRequired(): bool
+  {
+      return $this->invoiceMode === 'standard';
+  }
+
   public function save(): void
   {
+      $this->pruneEmptyDocumentLines();
       $this->hydrateCatalogLineNames();
       $this->validate($this->rules());
 
@@ -240,8 +240,8 @@ class ManageQuotation extends Component
               ],
           ]);
       } else {
-          if (trim((string) $this->buyerNameOptional) !== '') {
-              $payload['buyer_name'] = trim($this->buyerNameOptional);
+          if ($this->selectedCustomerId !== null && trim($this->buyerName) !== '') {
+              $payload['buyer_name'] = trim($this->buyerName);
           }
           if (trim($this->buyerPhone) !== '') {
               $payload['buyer_phone'] = trim($this->buyerPhone);
@@ -249,6 +249,16 @@ class ManageQuotation extends Component
           if (trim($this->buyerEmail) !== '') {
               $payload['buyer_email'] = trim($this->buyerEmail);
           }
+      }
+
+      $supplyDate = trim($this->supplyDate);
+      if ($supplyDate !== '') {
+          $payload['supply_date'] = $supplyDate;
+      }
+
+      $notes = trim($this->documentNotes);
+      if ($notes !== '') {
+          $payload['document_notes'] = $notes;
       }
 
       $discount = max(0, (float) $this->invoiceDiscountExVat);
@@ -296,6 +306,9 @@ class ManageQuotation extends Component
   {
       $lines = [];
       foreach ($this->lines as $row) {
+          if (! filled($row['product_id'] ?? null)) {
+              continue;
+          }
           $name = trim((string) ($row['name'] ?? ''));
           $unitPrice = (float) ($row['unit_price'] ?? 0);
           if ($name === '' && $unitPrice <= 0) {
@@ -403,6 +416,7 @@ class ManageQuotation extends Component
   {
       $lineRules = [
           'lines' => ['required', 'array', 'min:1'],
+          'lines.*.product_id' => ['required', 'integer', 'exists:products,id'],
           'lines.*.name' => ['required', 'string', 'max:200'],
           'lines.*.name_ar' => ['nullable', 'string', 'max:200'],
           'lines.*.quantity' => ['required', 'numeric', 'min:0.001'],
@@ -415,15 +429,16 @@ class ManageQuotation extends Component
           'lines.*.vat_rate' => ['required', 'numeric', 'min:0', 'max:100'],
           'validityUntil' => ['required', 'date'],
           'invoiceMode' => ['required', 'in:standard,simplified'],
+          'supplyDate' => ['nullable', 'date'],
+          'documentNotes' => ['nullable', 'string', 'max:2000'],
       ];
 
       if ($this->invoiceMode === 'simplified') {
-          return array_merge($lineRules, [
-              'buyerNameOptional' => ['nullable', 'string', 'max:200'],
-          ]);
+          return $lineRules;
       }
 
       return array_merge($lineRules, [
+          'selectedCustomerId' => ['required', 'integer', 'exists:customers,id'],
           'buyerName' => ['required', 'string', 'max:200'],
           'buyerVat' => array_merge(FieldValidationRules::vatOptional(), ['required_without:buyerCr']),
           'buyerCr' => array_merge(FieldValidationRules::crNumberOptional(), ['required_without:buyerVat']),
@@ -435,6 +450,14 @@ class ManageQuotation extends Component
           'addrPostal' => FieldValidationRules::postalCodeRequired(),
           'addrAdditional' => ['nullable', 'string', 'max:32'],
       ]);
+  }
+
+  private function pruneEmptyDocumentLines(): void
+  {
+      $this->lines = array_values(array_filter(
+          $this->lines,
+          fn (array $row): bool => filled($row['product_id'] ?? null),
+      ));
   }
 
   /**

@@ -5,6 +5,7 @@ namespace App\Livewire\Concerns;
 use App\Models\Customer;
 use App\Services\Loyalty\LoyaltyService;
 use App\Support\Invoicing\InvoicingCustomerLookup;
+use App\Support\Validation\FieldValidationRules;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
 
@@ -79,7 +80,7 @@ trait ManagesInvoicingCustomerPicker
             abort(403);
         }
 
-        $this->validate([
+        $rules = [
             'customerQuickName' => ['required', 'string', 'max:160'],
             'customerQuickNameAr' => ['nullable', 'string', 'max:160'],
             'customerQuickPhone' => [
@@ -99,7 +100,18 @@ trait ManagesInvoicingCustomerPicker
             'customerQuickAddrCity' => ['nullable', 'string', 'max:80'],
             'customerQuickAddrPostal' => ['nullable', 'string', 'max:20'],
             'customerQuickAddrAdditional' => ['nullable', 'string', 'max:160'],
-        ]);
+        ];
+
+        if ($this->documentStandardBuyerRequired()) {
+            $rules['customerQuickVat'] = array_merge(FieldValidationRules::vatOptional(), ['required_without:customerQuickCr']);
+            $rules['customerQuickCr'] = array_merge(FieldValidationRules::crNumberOptional(), ['required_without:customerQuickVat']);
+            $rules['customerQuickAddrBuilding'] = ['required', 'string', 'max:120'];
+            $rules['customerQuickAddrStreet'] = ['required', 'string', 'max:120'];
+            $rules['customerQuickAddrCity'] = ['required', 'string', 'max:80'];
+            $rules['customerQuickAddrPostal'] = FieldValidationRules::postalCodeRequired();
+        }
+
+        $this->validate($rules);
 
         $vatDigits = preg_replace('/\D/', '', $this->customerQuickVat) ?? '';
 
@@ -151,5 +163,10 @@ trait ManagesInvoicingCustomerPicker
         $this->customerQuickAddrPostal = '';
         $this->customerQuickAddrAdditional = '';
         $this->resetValidation();
+    }
+
+    protected function documentStandardBuyerRequired(): bool
+    {
+        return false;
     }
 }

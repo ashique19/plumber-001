@@ -4,6 +4,7 @@
     'compact' => false,
     'search' => '',
     'selectedCustomerId' => null,
+    'showWalkInHint' => false,
 ])
 
 <div class="invoice-customer-picker {{ $compact ? 'invoice-customer-picker--compact' : '' }}">
@@ -56,5 +57,7 @@
 
     @if ($selectedCustomerId)
         <p class="mt-1 text-xs text-[var(--app-muted)]">{{ __('invoices.customer_linked') }}</p>
+    @elseif ($showWalkInHint)
+        <p class="mt-1 text-xs text-[var(--app-muted)]">{{ __('invoices.cash_customer_default') }}</p>
     @endif
 </div>

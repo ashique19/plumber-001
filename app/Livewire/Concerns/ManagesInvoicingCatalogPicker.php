@@ -62,19 +62,7 @@ trait ManagesInvoicingCatalogPicker
 
     public function applyCatalogProduct(int $lineIndex, int $productId): void
     {
-        if (! isset($this->lines[$lineIndex])) {
-            return;
-        }
-
-        $product = Product::query()->where('is_active', true)->find($productId);
-        if ($product === null) {
-            $this->toastWarning(__('invoices.catalog_product_missing'));
-
-            return;
-        }
-
-        $this->fillLineFromProduct($lineIndex, $product);
-        $this->toastInfo(__('invoices.catalog_product_applied', ['name' => $product->displayName()]));
+        $this->addLineFromProduct($productId);
     }
 
     public function addLineFromProduct(int $productId): void
@@ -136,12 +124,8 @@ trait ManagesInvoicingCatalogPicker
             'track_stock' => ProductStockSchema::ready() ? $this->quickProductTrackStock : false,
         ]);
 
-        $lineIndex = $this->quickProductLineIndex;
-        if ($lineIndex === null || ! isset($this->lines[$lineIndex])) {
-            $this->lines[] = $this->emptyLine();
-            $lineIndex = count($this->lines) - 1;
-        }
-
+        $this->lines[] = $this->emptyLine();
+        $lineIndex = count($this->lines) - 1;
         $this->fillLineFromProduct($lineIndex, $product);
         $this->showQuickProductModal = false;
         $this->quickProductLineIndex = null;

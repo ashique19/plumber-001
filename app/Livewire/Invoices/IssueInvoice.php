@@ -47,9 +47,7 @@ class IssueInvoice extends Component
      *     unit_label: string
      * }>
      */
-    public array $lines = [
-        ['name' => '', 'name_ar' => '', 'quantity' => '1', 'unit_price' => '', 'vat_rate' => '15', 'product_id' => null, 'unit_label' => ''],
-    ];
+    public array $lines = [];
 
     public string $invoiceDiscountExVat = '0';
 
@@ -85,6 +83,10 @@ class IssueInvoice extends Component
 
     public string $dueDate = '';
 
+    public string $supplyDate = '';
+
+    public string $documentNotes = '';
+
     public function mount(string $mode): void
     {
         $this->resolveBusiness();
@@ -98,6 +100,7 @@ class IssueInvoice extends Component
 
         $termsDays = max(0, (int) data_get($business->settings, 'invoicing.payment_terms_days', 30));
         $this->dueDate = now('Asia/Riyadh')->addDays($termsDays)->format('Y-m-d');
+        $this->supplyDate = now('Asia/Riyadh')->format('Y-m-d');
 
         IssueInvoicePrefill::applyIfPresent($this, $mode, request());
     }
@@ -109,15 +112,18 @@ class IssueInvoice extends Component
 
     public function removeLine(int $index): void
     {
-        if (count($this->lines) <= 1) {
-            return;
-        }
         unset($this->lines[$index]);
         $this->lines = array_values($this->lines);
     }
 
+    protected function documentStandardBuyerRequired(): bool
+    {
+        return $this->mode === 'standard';
+    }
+
     public function issue(InvoiceIssueService $issuer): void
     {
+        $this->pruneEmptyDocumentLines();
         $this->hydrateCatalogLineNames();
         $this->validate($this->rulesForMode());
 
@@ -175,8 +181,8 @@ class IssueInvoice extends Component
                 ],
             ]);
         } else {
-            if (trim((string) $this->buyerNameOptional) !== '') {
-                $payload['buyer_name'] = trim($this->buyerNameOptional);
+            if ($this->selectedCustomerId !== null && trim($this->buyerName) !== '') {
+                $payload['buyer_name'] = trim($this->buyerName);
             }
             if (trim($this->buyerPhone) !== '') {
                 $payload['buyer_phone'] = trim($this->buyerPhone);
@@ -184,6 +190,16 @@ class IssueInvoice extends Component
             if (trim($this->buyerEmail) !== '') {
                 $payload['buyer_email'] = trim($this->buyerEmail);
             }
+        }
+
+        $supplyDate = trim($this->supplyDate);
+        if ($supplyDate !== '') {
+            $payload['supply_date'] = $supplyDate;
+        }
+
+        $notes = trim($this->documentNotes);
+        if ($notes !== '') {
+            $payload['document_notes'] = $notes;
         }
 
         $discount = max(0, (float) $this->invoiceDiscountExVat);
@@ -265,6 +281,9 @@ class IssueInvoice extends Component
     {
         $lines = [];
         foreach ($this->lines as $row) {
+            if (! filled($row['product_id'] ?? null)) {
+                continue;
+            }
             $name = trim((string) ($row['name'] ?? ''));
             $unitPrice = (float) ($row['unit_price'] ?? 0);
             if ($name === '' && $unitPrice <= 0) {
@@ -383,6 +402,7 @@ class IssueInvoice extends Component
     {
         $lineRules = [
             'lines' => ['required', 'array', 'min:1'],
+            'lines.*.product_id' => ['required', 'integer', 'exists:products,id'],
             'lines.*.name' => ['required', 'string', 'max:200'],
             'lines.*.name_ar' => ['nullable', 'string', 'max:200'],
             'lines.*.quantity' => ['required', 'numeric', 'min:0.001'],
@@ -393,15 +413,16 @@ class IssueInvoice extends Component
             'buyerEmail' => ['nullable', 'email', 'max:120'],
             'lines.*.unit_price' => ['required', 'numeric', 'min:0'],
             'lines.*.vat_rate' => ['required', 'numeric', 'min:0', 'max:100'],
+            'supplyDate' => ['nullable', 'date'],
+            'documentNotes' => ['nullable', 'string', 'max:2000'],
         ];
 
         if ($this->mode === 'simplified') {
-            return array_merge($lineRules, [
-                'buyerNameOptional' => ['nullable', 'string', 'max:200'],
-            ]);
+            return $lineRules;
         }
 
         return array_merge($lineRules, [
+            'selectedCustomerId' => ['required', 'integer', 'exists:customers,id'],
             'buyerName' => ['required', 'string', 'max:200'],
             'buyerVat' => array_merge(FieldValidationRules::vatOptional(), ['required_without:buyerCr']),
             'buyerCr' => array_merge(FieldValidationRules::crNumberOptional(), ['required_without:buyerVat']),
@@ -414,6 +435,14 @@ class IssueInvoice extends Component
             'addrPostal' => FieldValidationRules::postalCodeRequired(),
             'addrAdditional' => ['nullable', 'string', 'max:32'],
         ]);
+    }
+
+    private function pruneEmptyDocumentLines(): void
+    {
+        $this->lines = array_values(array_filter(
+            $this->lines,
+            fn (array $row): bool => filled($row['product_id'] ?? null),
+        ));
     }
 
     /**
@@ -432,6 +461,7 @@ class IssueInvoice extends Component
         return [
             'buyerVat.required_without' => __('invoices.errors.buyer_id_required'),
             'buyerCr.required_without' => __('invoices.errors.buyer_id_required'),
+            'selectedCustomerId.required' => __('invoices.errors.customer_required'),
         ];
     }
 

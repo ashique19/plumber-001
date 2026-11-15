@@ -6,7 +6,7 @@
 
 <div class="invoice-add-line-search mb-3">
     <label class="form-field">
-        <span class="form-field__label">{{ __('invoices.add_line_product_search') }}</span>
+        <span class="form-field__label">{{ __('invoices.search_catalog_products') }}</span>
         <div class="flex gap-2">
             <input
                 type="search"

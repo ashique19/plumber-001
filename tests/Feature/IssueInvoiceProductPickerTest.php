@@ -18,7 +18,7 @@ beforeEach(function () {
 it('applies catalog product to a simplified invoice line', function () {
     Livewire::actingAs($this->owner, 'staff')
         ->test(IssueInvoice::class, ['mode' => 'simplified'])
-        ->call('applyCatalogProduct', 0, $this->product->id)
+        ->call('addLineFromProduct', $this->product->id)
         ->assertSet('lines.0.name', 'Leak repair visit')
         ->assertSet('lines.0.name_ar', 'زيارة إصلاح تسرب')
         ->assertSet('lines.0.unit_price', (string) $this->product->price_ex_vat)
@@ -30,7 +30,7 @@ it('applies catalog product to a simplified invoice line', function () {
 it('recalculates preview totals when catalog line is added', function () {
     $component = Livewire::actingAs($this->owner, 'staff')
         ->test(IssueInvoice::class, ['mode' => 'simplified'])
-        ->call('applyCatalogProduct', 0, $this->product->id);
+        ->call('addLineFromProduct', $this->product->id);
 
     $totals = $component->instance()->previewTotals();
 
@@ -56,16 +56,16 @@ it('does not render issue page integration lead on standard or simplified pages'
     }
 });
 
-it('renders catalog picker on standard issue page', function () {
+it('renders product search on standard issue page', function () {
     app()->setLocale('bn');
 
     $html = Livewire::actingAs($this->owner, 'staff')
         ->test(IssueInvoice::class, ['mode' => 'standard'])
         ->html();
 
-    expect($html)->toContain('invoice-catalog-picker--inline')
+    expect($html)->toContain('invoice-add-line-search')
         ->and($html)->toContain(__('invoices.search_catalog_products', locale: 'bn'))
-        ->and($html)->toContain('wire:model.live.debounce.350ms="catalogLineSearch.0"')
+        ->and($html)->toContain('wire:model.live.debounce.350ms="addLineProductSearch"')
         ->and($html)->toContain(__('invoices.preview_totals', locale: 'bn'));
 });
 
@@ -74,7 +74,7 @@ it('issues simplified invoice after picking a catalog product line', function ()
 
     Livewire::actingAs($this->owner, 'staff')
         ->test(IssueInvoice::class, ['mode' => 'simplified'])
-        ->call('applyCatalogProduct', 0, $this->product->id)
+        ->call('addLineFromProduct', $this->product->id)
         ->call('issue')
         ->assertHasNoErrors()
         ->assertDispatched('toast', type: 'success');
@@ -94,7 +94,7 @@ it('renders collapsed more section on simplified issue form', function () {
         ->html();
 
     expect($html)->toContain(__('invoices.more_options'))
-        ->and($html)->toContain('issue-simplified-more')
+        ->and($html)->toContain('invoice-document-more')
         ->and($html)->toContain('moreOpen: false');
 });
 
@@ -103,7 +103,7 @@ it('issues simplified invoice with only picker price and quantity', function () 
 
     Livewire::actingAs($this->owner, 'staff')
         ->test(IssueInvoice::class, ['mode' => 'simplified'])
-        ->call('applyCatalogProduct', 0, $this->product->id)
+        ->call('addLineFromProduct', $this->product->id)
         ->set('lines.0.quantity', '2')
         ->call('issue')
         ->assertHasNoErrors()

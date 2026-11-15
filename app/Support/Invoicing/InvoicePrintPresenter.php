@@ -104,7 +104,8 @@ final class InvoicePrintPresenter
         $issueAt = $meta['paid_at'] ?? $invoice->issued_at;
         $issueDate = $issueAt?->format('Y-m-d');
         $issueTime = $issueAt?->format('H:i:s');
-        $supplyDate = $issueDate;
+        $payloadSupply = trim((string) (data_get($invoice->payload, 'supply_date') ?? ''));
+        $supplyDate = $payloadSupply !== '' ? $payloadSupply : $issueDate;
 
         $paymentMethod = (string) ($meta['payment_method'] ?? 'cash');
         $paymentLabels = self::paymentLabels($paymentMethod);
