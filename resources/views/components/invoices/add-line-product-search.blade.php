@@ -5,28 +5,28 @@
 ])
 
 <div class="invoice-add-line-search mb-3">
-    <label class="form-field">
-        <span class="form-field__label">{{ __('invoices.search_catalog_products') }}</span>
-        <div class="flex gap-2">
-            <input
-                type="search"
-                class="form-field__control min-h-11 flex-1"
+    <div class="flex gap-2">
+        <div class="min-w-0 flex-1">
+            <x-field.search
+                :label="__('invoices.search_catalog_products')"
+                name="addLineProductSearch"
                 wire:model.live.debounce.350ms="addLineProductSearch"
-                placeholder="{{ __('invoices.add_line_product_placeholder') }}"
-                autocomplete="off"
+                :placeholder="__('invoices.add_line_product_placeholder')"
+                :clearable="trim($search) !== ''"
+                clear-action="$set('addLineProductSearch', '')"
             />
-            @if ($canCreateProduct)
-                <button
-                    type="button"
-                    class="invoice-picker-add tap-action-muted flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-xl text-lg font-bold"
-                    wire:click="openQuickProductModal"
-                    aria-label="{{ __('invoices.add_product') }}"
-                >
-                    +
-                </button>
-            @endif
         </div>
-    </label>
+        @if ($canCreateProduct)
+            <button
+                type="button"
+                class="invoice-picker-add tap-action-muted mt-7 flex min-h-12 min-w-12 shrink-0 items-center justify-center rounded-xl text-lg font-bold"
+                wire:click="openQuickProductModal"
+                aria-label="{{ __('invoices.add_product') }}"
+            >
+                +
+            </button>
+        @endif
+    </div>
     @if (trim($search) !== '')
         <ul class="invoice-customer-picker__results mt-1">
             @forelse ($results as $product)

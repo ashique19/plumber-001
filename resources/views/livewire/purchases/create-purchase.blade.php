@@ -10,36 +10,36 @@
         <form wire:submit="save" class="app-admin-form space-y-4">
             <section class="app-card space-y-3 p-4">
                 <h2 class="text-sm font-semibold">{{ __('purchases.supplier_heading') }}</h2>
-                <x-form.select :label="__('purchases.supplier')" name="supplierId" wire:model.live="supplierId">
+                <x-field.select :label="__('purchases.supplier')" name="supplierId" wire:model.live="supplierId">
                     <option value="">{{ __('purchases.supplier_new') }}</option>
                     @foreach($suppliers as $supplier)
                         <option value="{{ $supplier->id }}">{{ $supplier->name }}</option>
                     @endforeach
-                </x-form.select>
+                </x-field.select>
                 @if(!$supplierId)
-                    <x-form.input :label="__('purchases.supplier_name')" name="supplierName" wire:model="supplierName" required />
+                    <x-field.input :label="__('purchases.supplier_name')" name="supplierName" wire:model="supplierName" required />
                     <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                        <x-form.input :label="__('purchases.supplier_vat')" name="supplierVat" wire:model="supplierVat" />
-                        <x-form.input :label="__('purchases.supplier_phone')" name="supplierPhone" wire:model="supplierPhone" />
+                        <x-field.input :label="__('purchases.supplier_vat')" name="supplierVat" wire:model="supplierVat" />
+                        <x-field.input :label="__('purchases.supplier_phone')" name="supplierPhone" wire:model="supplierPhone" />
                     </div>
                 @endif
-                <x-form.textarea :label="__('purchases.notes')" name="notes" wire:model="notes" rows="2" />
+                <x-field.textarea :label="__('purchases.notes')" name="notes" wire:model="notes" rows="2" />
             </section>
 
             <section class="app-card space-y-3 p-4">
                 <h2 class="text-sm font-semibold">{{ __('purchases.lines_heading') }}</h2>
                 @foreach($lines as $index => $line)
                     <div class="rounded-lg border border-[var(--app-border)] p-3" wire:key="purchase-line-{{ $index }}">
-                        <x-form.select :label="__('stock.product')" :name="'lines.'.$index.'.product_id'" wire:model="lines.{{ $index }}.product_id" required>
+                        <x-field.select :label="__('stock.product')" :name="'lines.'.$index.'.product_id'" wire:model="lines.{{ $index }}.product_id" required>
                             <option value="">{{ __('purchases.choose_product') }}</option>
                             @foreach($products as $product)
                                 <option value="{{ $product->id }}">{{ $product->displayName() }}</option>
                             @endforeach
-                        </x-form.select>
+                        </x-field.select>
                         <div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
-                            <x-form.input type="number" :label="__('purchases.quantity')" :name="'lines.'.$index.'.quantity'" wire:model="lines.{{ $index }}.quantity" required inputmode="decimal" />
-                            <x-form.input type="number" :label="__('purchases.unit_cost_ex_vat')" :name="'lines.'.$index.'.unit_cost'" wire:model="lines.{{ $index }}.unit_cost" required inputmode="decimal" />
-                            <x-form.input type="number" :label="__('purchases.vat_rate')" :name="'lines.'.$index.'.vat_rate'" wire:model="lines.{{ $index }}.vat_rate" inputmode="decimal" />
+                            <x-field.input type="number" :label="__('purchases.quantity')" :name="'lines.'.$index.'.quantity'" wire:model="lines.{{ $index }}.quantity" required inputmode="decimal" />
+                            <x-field.input type="number" :label="__('purchases.unit_cost_ex_vat')" :name="'lines.'.$index.'.unit_cost'" wire:model="lines.{{ $index }}.unit_cost" required inputmode="decimal" />
+                            <x-field.input type="number" :label="__('purchases.vat_rate')" :name="'lines.'.$index.'.vat_rate'" wire:model="lines.{{ $index }}.vat_rate" inputmode="decimal" />
                         </div>
                         @if(count($lines) > 1)
                             <button type="button" class="tap-action-muted mt-3 text-xs" wire:click="removeLine({{ $index }})">{{ __('purchases.remove_line') }}</button>

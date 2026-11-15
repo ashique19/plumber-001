@@ -12,7 +12,7 @@
     </header>
 
     <section class="app-card app-filter-fields mb-4 grid grid-cols-1 items-end gap-3 p-4 sm:grid-cols-2">
-        <x-form.input
+        <x-field.input
             :label="__('quotations.search')"
             name="search"
             wire:model.live.debounce.300ms="search"

@@ -25,16 +25,16 @@
                 <p class="text-xs text-[var(--app-muted)]">{{ __('invoices.line_unit') }}: {{ $line['unit_label'] }}</p>
             @endif
             <div class="grid grid-cols-2 gap-3 {{ $compact ? '' : 'sm:grid-cols-3' }}">
-                <x-form.input
+                <x-field.input
                     type="number"
                     step="0.001"
                     min="0.001"
+                    inputmode="decimal"
                     :label="__('invoices.line_qty')"
                     name="lines.{{ $index }}.quantity"
                     wire:model.live="lines.{{ $index }}.quantity"
                 />
-                <x-form.input
-                    type="number"
+                <x-field.money
                     step="0.01"
                     min="0"
                     :label="__('invoices.line_price_ex_vat')"
@@ -43,7 +43,7 @@
                 />
                 @unless ($compact)
                     <div class="hidden sm:block">
-                        <x-form.input
+                        <x-field.input
                             type="number"
                             step="0.01"
                             min="0"

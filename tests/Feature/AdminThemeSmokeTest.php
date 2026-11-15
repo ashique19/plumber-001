@@ -71,6 +71,18 @@ it('serves every admin GET route in en bn and ar without server errors or missin
     }
 });
 
+it('renders modern admin field components on issue invoice', function () {
+    $this->actingAs($this->owner, 'staff');
+
+    foreach (['en', 'bn', 'ar'] as $locale) {
+        $html = (string) $this->get(route('admin.invoices.issue', ['mode' => 'simplified', 'locale' => $locale]))->getContent();
+
+        expect($html)
+            ->toContain('admin-field-wrap--with-icon')
+            ->and($html)->toContain('form-field__label');
+    }
+});
+
 it('renders key livewire admin components', function () {
     $this->actingAs($this->owner, 'staff');
 
@@ -103,6 +115,20 @@ it('registers admin layout theme hooks on invoice issue page', function () {
     expect($html)->toContain('admin-app')
         ->and($html)->toContain('admin-theme-toggle')
         ->and($html)->toContain('document-sticky-action-bar');
+});
+
+it('preloads self-hosted admin fonts per locale', function () {
+    $this->actingAs($this->owner, 'staff');
+
+    foreach ([
+        ['en', '/fonts/admin/en/plus-jakarta-sans-400.woff2'],
+        ['bn', '/fonts/admin/bn/noto-sans-bengali-400.woff2'],
+        ['ar', '/fonts/admin/ar/ibm-plex-sans-arabic-400.woff2'],
+    ] as [$locale, $path]) {
+        $html = $this->get(route('admin.dashboard').'?locale='.$locale)->assertOk()->getContent();
+        expect($html)->toContain('rel="preload"')
+            ->and($html)->toContain($path);
+    }
 });
 
 it('includes print stylesheet separately from admin shell', function () {

@@ -16,7 +16,7 @@
         <p class="app-card p-4 text-sm text-[var(--app-muted)]">{{ __('stock.schema_missing') }}</p>
     @else
         <div class="app-admin-filter mb-4 flex flex-col gap-3 sm:flex-row sm:items-end">
-            <x-form.input
+            <x-field.input
                 type="search"
                 :label="__('stock.search')"
                 name="search"
