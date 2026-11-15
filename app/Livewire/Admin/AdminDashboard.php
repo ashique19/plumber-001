@@ -7,6 +7,7 @@ use App\Models\BusinessSetting;
 use App\Services\Business\DashboardMonthlyInvoiceReportService;
 use App\Services\Inventory\IngredientStockService;
 use App\Services\Business\BusinessDashboardService;
+use App\Support\Admin\DashboardQuickActionTiles;
 use App\Support\ChartScale;
 use App\Business\BusinessContext;
 use Illuminate\View\View;
@@ -62,9 +63,7 @@ class AdminDashboard extends Component
             'series' => $series,
             'maxTotal' => $maxTotal,
             'lowStock' => $lowStock,
-            'invoiceIssueMode' => $this->business->alternateInvoiceDocumentType()->value,
-            'canIssueInvoice' => $user?->can('invoices.issue') ?? false,
-            'canAddProducts' => ($user?->can('inventory.view') && $user?->can('staff.manage')) ?? false,
+            'actionTiles' => DashboardQuickActionTiles::forUser($user, $this->business),
         ]);
     }
 }

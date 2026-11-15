@@ -12,6 +12,6 @@ return [
     | Set UI_ADMIN_SIDEBAR=true to restore sidebar (lg+) and mobile bottom nav.
     |
     */
-    'admin_sidebar' => (bool) env('UI_ADMIN_SIDEBAR', false),
+    'admin_sidebar' => (bool) env('UI_ADMIN_SIDEBAR', true),
 
 ];

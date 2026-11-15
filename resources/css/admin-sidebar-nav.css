@@ -1,0 +1,51 @@
+@layer components {
+    .app-sidebar--admin {
+        @apply fixed inset-y-0 z-50 hidden w-64 flex-col border-e pt-[env(safe-area-inset-top)] lg:flex;
+        border-color: var(--app-border);
+        background: var(--app-surface);
+        inset-inline-start: 0;
+    }
+
+    .admin-sidebar-nav__scroll {
+        max-height: calc(100dvh - 5.5rem - env(safe-area-inset-top));
+    }
+
+    .admin-sidebar-nav__group-toggle {
+        font-weight: 600;
+        color: var(--app-text);
+    }
+
+    .admin-sidebar-nav__item--nested {
+        @apply min-h-10 ps-5 text-[0.8125rem];
+    }
+
+    .admin-sidebar-nav__item--disabled {
+        @apply cursor-not-allowed opacity-50;
+        pointer-events: none;
+    }
+
+    .app-nav-drawer-backdrop {
+        @apply fixed inset-0 z-[55] bg-black/40 lg:hidden;
+    }
+
+    .app-nav-drawer {
+        @apply fixed inset-y-0 z-[60] flex w-[min(20rem,88vw)] flex-col border-e shadow-xl lg:hidden;
+        inset-inline-start: 0;
+        border-color: var(--app-border);
+        background: var(--app-surface);
+        padding-top: env(safe-area-inset-top);
+    }
+
+    .app-nav-drawer__close {
+        @apply absolute end-2 top-2 z-10;
+    }
+
+    .app-topbar__menu-btn {
+        @apply inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl lg:hidden;
+        color: var(--app-text);
+    }
+
+    .app-topbar__menu-btn:hover {
+        background: rgb(212 165 116 / 0.15);
+    }
+}

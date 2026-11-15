@@ -52,6 +52,10 @@ class CustomerHub extends Component
         $this->resolveBusiness();
         BusinessContext::set($this->business);
         app(PermissionRegistrar::class)->setPermissionsTeamId($this->business->id);
+
+        if (request()->query('create') === 'customer') {
+            $this->startCustomer();
+        }
     }
 
     public function updatingSearch(): void

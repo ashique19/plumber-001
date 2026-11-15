@@ -1,0 +1,36 @@
+<?php
+
+return [
+    'business_fallback' => 'PLUMBING BUSINESS',
+    'aria' => 'Admin navigation',
+    'open_menu' => 'Open menu',
+    'close_menu' => 'Close menu',
+    'groups' => [
+        'sales' => 'Sales',
+        'products' => 'Products',
+        'purchases' => 'Purchases',
+        'payments' => 'Payments',
+        'reports' => 'Reports',
+    ],
+    'items' => [
+        'dashboard' => 'Dashboard',
+        'invoices' => 'Invoices',
+        'quotations' => 'Quotations',
+        'sales_returns' => 'Sales Returns',
+        'all_products' => 'All Products',
+        'categories' => 'Categories',
+        'stock_management' => 'Stock Management',
+        'customers' => 'Customers',
+        'purchase_records' => 'Purchase Records',
+        'suppliers' => 'Suppliers',
+        'received_payments' => 'Received Payments',
+        'outstanding_payments' => 'Outstanding Payments',
+        'expenses' => 'Expenses',
+        'sales_reports' => 'Sales Reports',
+        'profit_reports' => 'Profit Reports',
+        'inventory_reports' => 'Inventory Reports',
+        'customer_reports' => 'Customer Reports',
+        'staff_management' => 'Staff Management',
+        'settings' => 'Settings',
+    ],
+];
