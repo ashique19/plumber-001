@@ -19,6 +19,7 @@ class Ingredient extends Model
         'name_bn',
         'unit',
         'quantity_on_hand',
+        'unit_cost_ex_vat',
         'reorder_level',
         'low_stock_threshold',
         'is_active',
@@ -28,6 +29,7 @@ class Ingredient extends Model
     {
         return [
             'quantity_on_hand' => 'decimal:3',
+            'unit_cost_ex_vat' => 'decimal:4',
             'reorder_level' => 'decimal:3',
             'low_stock_threshold' => 'decimal:3',
             'is_active' => 'boolean',
@@ -71,6 +73,20 @@ class Ingredient extends Model
     public function scopeOrderedForDisplay(Builder $query): Builder
     {
         return IngredientInventorySchema::applyDisplayNameOrder($query);
+    }
+
+    public function unitCostExVat(): ?float
+    {
+        if (! IngredientInventorySchema::hasUnitCost()) {
+            return null;
+        }
+
+        $value = $this->getAttribute('unit_cost_ex_vat');
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        return round((float) $value, 4);
     }
 
     public function isLowStock(): bool

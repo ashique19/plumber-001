@@ -13,6 +13,7 @@ export default defineConfig({
                 'resources/css/invoice-print.css',
                 'resources/js/receipt.js',
                 'resources/css/analytics-dashboard.css',
+                'resources/css/reports-print.css',
                 'resources/js/analytics-dashboard.js',
             ],
             refresh: true,

@@ -9,11 +9,15 @@ use App\Models\PosOrder;
 use App\Models\Product;
 use App\Models\BusinessSetting;
 use App\Models\StaffUser;
+use App\Services\Business\AdminExtendedReportsService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 class PosAnalyticsService
 {
+    public function __construct(
+        private readonly AdminExtendedReportsService $extendedReports,
+    ) {}
     /**
      * @return array<string, mixed>
      */
@@ -25,6 +29,7 @@ class PosAnalyticsService
         string $granularity = 'day',
     ): array {
         $orders = $this->paidOrders($business, $branch, $from, $to);
+        $extended = $this->extendedReports->build($business, $branch, $from, $to, $orders);
 
         $count = $orders->count();
         $gross = round((float) $orders->sum('total_inc_vat'), 2);
@@ -55,6 +60,7 @@ class PosAnalyticsService
             'payment_split' => $this->paymentSplit($orders),
             'branch_comparison' => $branch === null ? $this->branchComparison($business, $orders) : [],
             'cashier_performance' => $this->cashierPerformance($business, $orders),
+            'extended' => $extended,
             'meta' => [
                 'from' => $from->toIso8601String(),
                 'to' => $to->toIso8601String(),
@@ -384,7 +390,12 @@ class PosAnalyticsService
             $lines[] = 'payment,'.$row['method'].','.$row['total'].','.$row['orders'];
         }
 
-        return implode("\n", $lines)."\n";
+        $base = implode("\n", $lines)."\n";
+        $extended = $report['extended'] ?? [];
+
+        return $extended !== []
+            ? $this->extendedReports->appendCsv($base, $extended)
+            : $base;
     }
 
     private function csvEscape(string $value): string

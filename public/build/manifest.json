@@ -353,7 +353,7 @@
     "isEntry": true
   },
   "resources/css/app.css": {
-    "file": "assets/app-DR7fm8ou.css",
+    "file": "assets/app-lOQ0BT_y.css",
     "name": "app",
     "names": [
       "app.css"
@@ -468,6 +468,15 @@
       "receipt.css"
     ],
     "src": "resources/css/receipt.css",
+    "isEntry": true
+  },
+  "resources/css/reports-print.css": {
+    "file": "assets/reports-print-CmLY14uu.css",
+    "name": "reports-print",
+    "names": [
+      "reports-print.css"
+    ],
+    "src": "resources/css/reports-print.css",
     "isEntry": true
   },
   "resources/js/analytics-dashboard.js": {
