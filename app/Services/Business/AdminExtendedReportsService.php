@@ -7,6 +7,7 @@ use App\Enums\InvoiceDocumentType;
 use App\Enums\InvoiceStatus;
 use App\Enums\PosOrderStatus;
 use App\Models\Branch;
+use App\Models\BusinessExpense;
 use App\Models\BusinessSetting;
 use App\Models\Ingredient;
 use App\Models\Invoice;
@@ -37,7 +38,7 @@ final class AdminExtendedReportsService
     ): array {
         return [
             'vat_summary' => $this->vatSummary($paidOrders),
-            'profit' => $this->profitSummary($paidOrders, $branch),
+            'profit' => $this->profitSummary($paidOrders, $branch, $from, $to),
             'inventory' => $this->inventorySnapshot($branch),
             'dues_aging' => $this->duesAging($business, $branch, $from, $to),
         ];
@@ -66,17 +67,20 @@ final class AdminExtendedReportsService
      * @param  Collection<int, PosOrder>  $orders
      * @return array<string, mixed>
      */
-    private function profitSummary(Collection $orders, ?Branch $branch): array
+    private function profitSummary(Collection $orders, ?Branch $branch, Carbon $from, Carbon $to): array
     {
         $salesExVat = round((float) $orders->sum('subtotal_ex_vat') - (float) $orders->sum('discount_ex_vat')
             - (float) $orders->sum('promo_discount_ex_vat') - (float) $orders->sum('loyalty_discount_ex_vat'), 2);
         $salesExVat = max(0, $salesExVat);
+        $operatingExpenses = $this->operatingExpensesExVat($branch, $from, $to);
 
         if (! IngredientInventorySchema::hasUnitCost()) {
             return [
                 'sales_ex_vat' => $salesExVat,
                 'cogs_ex_vat' => null,
                 'gross_profit_ex_vat' => null,
+                'operating_expenses_ex_vat' => $operatingExpenses,
+                'net_profit_ex_vat' => null,
                 'margin_pct' => null,
                 'cost_status' => 'unknown',
             ];
@@ -122,21 +126,45 @@ final class AdminExtendedReportsService
                 'sales_ex_vat' => $salesExVat,
                 'cogs_ex_vat' => null,
                 'gross_profit_ex_vat' => null,
+                'operating_expenses_ex_vat' => $operatingExpenses,
+                'net_profit_ex_vat' => null,
                 'margin_pct' => null,
                 'cost_status' => 'unknown',
             ];
         }
 
         $profit = round($salesExVat - $cogs, 2);
+        $netProfit = round($profit - $operatingExpenses, 2);
         $margin = $salesExVat > 0 ? round(($profit / $salesExVat) * 100, 1) : 0.0;
 
         return [
             'sales_ex_vat' => $salesExVat,
             'cogs_ex_vat' => $cogs,
             'gross_profit_ex_vat' => $profit,
+            'operating_expenses_ex_vat' => $operatingExpenses,
+            'net_profit_ex_vat' => $netProfit,
             'margin_pct' => $margin,
             'cost_status' => $missingCost ? 'partial' : 'known',
         ];
+    }
+
+    private function operatingExpensesExVat(?Branch $branch, Carbon $from, Carbon $to): float
+    {
+        if (! Schema::hasTable('business_expenses')) {
+            return 0.0;
+        }
+
+        $query = BusinessExpense::query()
+            ->whereDate('spent_on', '>=', $from->toDateString())
+            ->whereDate('spent_on', '<=', $to->toDateString());
+
+        if ($branch !== null) {
+            $query->where(function ($q) use ($branch): void {
+                $q->whereNull('branch_id')->orWhere('branch_id', $branch->id);
+            });
+        }
+
+        return round((float) $query->sum('amount_ex_vat'), 2);
     }
 
     /**

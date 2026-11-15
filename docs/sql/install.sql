@@ -556,6 +556,28 @@ CREATE INDEX `quotations_validity_until_index` on `quotations`(
 CREATE UNIQUE INDEX `quotations_quotation_number_unique` on `quotations`(
   `quotation_number`
 );
+CREATE TABLE IF NOT EXISTS `business_expenses`(
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `branch_id` BIGINT UNSIGNED,
+  `spent_on` date not null,
+  `category` VARCHAR(255) NOT NULL,
+  `vendor` VARCHAR(255),
+  `description` TEXT,
+  `amount_ex_vat` DECIMAL(12,2) NOT NULL,
+  `recorded_by_staff_user_id` BIGINT UNSIGNED,
+  `created_at` datetime,
+  `updated_at` datetime,
+  foreign key(`branch_id`) references `branches`(`id`) on delete set null,
+  foreign key(`recorded_by_staff_user_id`) references `staff_users`(`id`) on delete set null
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE INDEX `business_expenses_spent_on_category_index` on `business_expenses`(
+  `spent_on`,
+  `category`
+);
+CREATE INDEX `business_expenses_branch_id_spent_on_index` on `business_expenses`(
+  `branch_id`,
+  `spent_on`
+);
 
 INSERT IGNORE INTO migrations (migration, batch) VALUES
 ('0001_01_01_000001_create_cache_table', 1),
