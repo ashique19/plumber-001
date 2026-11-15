@@ -122,12 +122,12 @@ jobs:
             mysqladmin ping -h127.0.0.1 -P3306 -uplumber_e2e -pplumber_e2e_test --silent && break
             sleep 2
           done
-      - name: Playwright admin search icon padding
-        run: npm run test:e2e -- tests/e2e/admin/search-icon-padding.spec.ts
-      - name: Upload search icon screenshots
+      - name: Playwright admin UI checks
+        run: npm run test:e2e -- tests/e2e/admin/
+      - name: Upload Playwright admin screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: search-icon-padding-screenshots
-          path: e2e-artifacts/search-icon-padding
+          name: admin-e2e-screenshots
+          path: e2e-artifacts/**
           if-no-files-found: ignore

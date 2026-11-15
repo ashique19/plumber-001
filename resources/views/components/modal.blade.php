@@ -19,7 +19,7 @@
     <div
         class="x-modal-backdrop"
         wire:click.self="{{ $closeWire }}"
-        x-data="{}"
+        x-data="adminModalBackdrop()"
         x-on:keydown.escape.window="$refs.modalClose?.click()"
     >
         <div
@@ -28,7 +28,7 @@
             aria-modal="true"
             aria-labelledby="{{ $titleId }}"
             wire:click.stop
-            x-trap.noscroll.inert="true"
+            x-trap.inert="true"
             x-init="$nextTick(() => $el.querySelector('input:not([type=hidden]):not([disabled]), select:not([disabled]), textarea:not([disabled])')?.focus())"
         >
             <header class="x-modal__header">
