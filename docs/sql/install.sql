@@ -173,8 +173,8 @@ CREATE TABLE IF NOT EXISTS `products`(
   `created_at` datetime,
   `updated_at` datetime,
   `track_stock` tinyint(1) not null default '0',
-  `stock_quantity` DECIMAL(12,2) NOT NULL default '0',
-  `low_stock_threshold` DECIMAL(12,2) NOT NULL default '0',
+  `stock_quantity` DECIMAL(12,3) NOT NULL default '0',
+  `low_stock_threshold` DECIMAL(12,3) NOT NULL default '0',
   `cost_ex_vat` DECIMAL(12,2) NOT NULL default '0',
   foreign key(`branch_id`) references `branches`(`id`) on delete set null,
   foreign key(`product_category_id`) references `product_categories`(`id`) on delete set null
@@ -250,27 +250,6 @@ CREATE TABLE IF NOT EXISTS `invoice_audit_logs`(
   `updated_at` datetime,
   foreign key(`invoice_id`) references `invoices`(`id`) on delete cascade
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-CREATE TABLE IF NOT EXISTS `quotations`(
-  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  `branch_id` BIGINT UNSIGNED,
-  `quotation_number` VARCHAR(255) NOT NULL,
-  `invoice_mode` VARCHAR(255) NOT NULL default 'simplified',
-  `validity_until` date not null,
-  `payload` TEXT NOT NULL,
-  `converted_invoice_id` BIGINT UNSIGNED,
-  `created_by_staff_user_id` BIGINT UNSIGNED,
-  `created_at` datetime,
-  `updated_at` datetime,
-  foreign key(`branch_id`) references `branches`(`id`) on delete set null,
-  foreign key(`converted_invoice_id`) references `invoices`(`id`) on delete set null,
-  foreign key(`created_by_staff_user_id`) references `staff_users`(`id`) on delete set null
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-CREATE UNIQUE INDEX `quotations_quotation_number_unique` on `quotations`(
-  `quotation_number`
-);
-CREATE INDEX `quotations_validity_until_index` on `quotations`(
-  `validity_until`
-);
 CREATE TABLE IF NOT EXISTS `pos_orders`(
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `branch_id` BIGINT UNSIGNED NOT NULL,
@@ -535,6 +514,26 @@ CREATE INDEX `product_stock_movements_product_id_created_at_index` on `product_s
 );
 CREATE INDEX `product_stock_movements_invoice_id_index` on `product_stock_movements`(
   `invoice_id`
+);
+CREATE TABLE IF NOT EXISTS `invoice_payments`(
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `invoice_id` BIGINT UNSIGNED NOT NULL,
+  `customer_id` BIGINT UNSIGNED,
+  `paid_on` date not null,
+  `amount` DECIMAL(12,2) NOT NULL,
+  `method` VARCHAR(255) NOT NULL,
+  `reference` VARCHAR(255),
+  `for_retention` tinyint(1) not null default '0',
+  `recorded_by_id` BIGINT UNSIGNED,
+  `created_at` datetime,
+  `updated_at` datetime,
+  foreign key(`invoice_id`) references `invoices`(`id`) on delete cascade,
+  foreign key(`customer_id`) references `customers`(`id`) on delete set null,
+  foreign key(`recorded_by_id`) references `staff_users`(`id`) on delete set null
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE INDEX `invoice_payments_invoice_id_paid_on_index` on `invoice_payments`(
+  `invoice_id`,
+  `paid_on`
 );
 
 INSERT IGNORE INTO migrations (migration, batch) VALUES

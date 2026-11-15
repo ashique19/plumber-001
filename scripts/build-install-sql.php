@@ -113,6 +113,7 @@ function applyMysqlColumnOverrides(string $sql): string
     }
 
     $decimal12_3Tables = [
+        'products' => ['stock_quantity', 'low_stock_threshold'],
         'ingredients' => ['quantity_on_hand', 'reorder_level', 'low_stock_threshold'],
         'inventory_movements' => ['quantity_delta'],
         'recipe_ingredients' => ['quantity'],
