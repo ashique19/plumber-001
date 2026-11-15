@@ -17,6 +17,8 @@
 @import './admin-theme-modern.css';
 @import './admin-typography.css';
 @import './admin-forms-modern.css';
+@import 'leaflet/dist/leaflet.css';
+@import 'cropperjs/dist/cropper.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
