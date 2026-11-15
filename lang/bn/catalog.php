@@ -77,6 +77,7 @@ return [
     'edit' => 'সম্পাদনা',
     'delete' => 'মুছুন',
     'save' => 'সংরক্ষণ',
+    'save_and_select' => 'সংরক্ষণ ও নির্বাচন',
     'cancel' => 'বাতিল',
     'created_category' => 'ক্যাটাগরি সংরক্ষিত হয়েছে।',
     'saved_category' => 'ক্যাটাগরি আপডেট হয়েছে।',

@@ -181,22 +181,132 @@
         }
     }
 
-    html.admin-app .admin-hub-sheet-backdrop {
-        @apply fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-0 backdrop-blur-sm;
-        @apply lg:items-stretch lg:justify-end lg:p-0;
+    html.admin-app .x-modal-backdrop {
+        @apply fixed inset-0 z-[90] flex items-end justify-center bg-black/40 p-0;
+        padding-top: env(safe-area-inset-top, 0px);
+        animation: x-modal-backdrop-in var(--theme-motion, 180ms) ease-out;
     }
 
-    html.admin-app .admin-hub-sheet {
-        @apply flex max-h-[min(92vh,calc(100dvh-1rem))] w-full flex-col overflow-hidden rounded-t-2xl border border-[var(--app-border)] bg-[var(--app-surface)] shadow-2xl;
-        @apply lg:h-full lg:max-h-none lg:max-w-lg lg:rounded-none lg:rounded-s-2xl lg:border-s;
+    @media (min-width: 640px) {
+        html.admin-app .x-modal-backdrop {
+            @apply items-center p-4;
+            padding-top: calc(env(safe-area-inset-top, 0px) + 1rem);
+        }
     }
 
-    html.admin-app .admin-hub-sheet__body {
-        @apply flex-1 overflow-y-auto px-4 pb-6 sm:px-5;
+    html.admin-app .x-modal {
+        @apply flex w-full max-w-[100vw] flex-col overflow-hidden rounded-t-2xl border border-[var(--app-border)] bg-white shadow-2xl;
+        max-height: min(92dvh, calc(100dvh - env(safe-area-inset-top, 0px) - 0.5rem));
+        animation: x-modal-panel-in var(--theme-motion, 220ms) cubic-bezier(0.22, 1, 0.36, 1);
     }
 
-    html.admin-app .admin-hub-sheet__head {
-        @apply px-4 pt-4 sm:px-5;
+    @media (min-width: 640px) {
+        html.admin-app .x-modal {
+            @apply max-h-[min(90dvh,36rem)] rounded-2xl;
+        }
+
+        html.admin-app .x-modal--md {
+            @apply max-w-md;
+        }
+
+        html.admin-app .x-modal--sm {
+            @apply max-w-sm;
+        }
+
+        html.admin-app .x-modal--lg {
+            @apply max-w-lg;
+        }
+    }
+
+    html.admin-app .x-modal__header {
+        @apply flex shrink-0 items-start justify-between gap-3 border-b border-[var(--app-border)] bg-white px-5 py-4;
+    }
+
+    html.admin-app .x-modal__title {
+        @apply text-lg font-semibold leading-snug text-[var(--app-text)];
+    }
+
+    html.admin-app .x-modal__close {
+        @apply flex min-h-10 min-w-10 shrink-0 items-center justify-center rounded-xl;
+    }
+
+    html.admin-app .x-modal__body {
+        @apply min-h-0 flex-1 overflow-y-auto overscroll-contain bg-white px-5 py-5;
+        padding-bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+    }
+
+    html.admin-app .x-modal__body .form-field,
+    html.admin-app .x-modal__body .form-field__label {
+        background: transparent;
+    }
+
+    html.admin-app .x-modal__footer {
+        @apply sticky bottom-0 z-10 shrink-0 border-t border-[var(--app-border)] bg-white px-5 py-4;
+        padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+    }
+
+    html.admin-app .x-modal__footer--in-form {
+        @apply -mx-5 -mb-5 mt-5 w-[calc(100%+2.5rem)];
+        padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+    }
+
+    html.admin-app .x-modal-footer-actions {
+        @apply flex w-full flex-wrap items-center justify-end gap-3;
+    }
+
+  [dir='rtl'] html.admin-app .x-modal-footer-actions {
+        @apply flex-row-reverse justify-start;
+    }
+
+    html.admin-app .x-modal-form {
+        @apply flex min-h-0 flex-1 flex-col;
+    }
+
+    html.admin-app .x-modal-form__fields {
+        @apply grid gap-4;
+    }
+
+    @media (min-width: 768px) {
+        html.admin-app .x-modal-form__fields--2 {
+            @apply grid-cols-2;
+        }
+    }
+
+    html.admin-app .x-modal-form__fields .admin-field-wrap {
+        min-height: 3rem;
+    }
+
+    @keyframes x-modal-backdrop-in {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes x-modal-panel-in {
+        from {
+            opacity: 0;
+            transform: translateY(12px) scale(0.98);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    @media (min-width: 640px) {
+        @keyframes x-modal-panel-in {
+            from {
+                opacity: 0;
+                transform: scale(0.96);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
     }
 
     html.admin-app .admin-hub-fab {
