@@ -173,6 +173,7 @@ class PosInvoiceService
                 'vat_rate' => (float) ($line['vat_rate'] ?? 15),
                 'discount_ex_vat' => (float) ($line['discount_ex_vat'] ?? 0),
                 'item_type' => (string) ($line['item_type'] ?? 'item'),
+                'product_id' => isset($line['product_id']) ? (int) $line['product_id'] : null,
             ], static fn ($v) => $v !== null);
         }
 

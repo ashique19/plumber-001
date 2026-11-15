@@ -30,6 +30,8 @@ final class AuthenticatedRouteCatalog
             ['admin.quotations.create', [], 200],
             ['admin.catalog', [], 200],
             ['admin.inventory', [], 200],
+            ['admin.stock.search', [], 200],
+            ['admin.purchases.create', [], 200],
             ['admin.team', [], 200],
         ];
     }

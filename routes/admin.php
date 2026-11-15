@@ -7,11 +7,7 @@ use App\Http\Controllers\Admin\QuotationPrintController;
 use App\Http\Controllers\Admin\Pos\ReceiptController;
 use App\Http\Middleware\EnsureBranchActiveForPos;
 use App\Http\Middleware\EnsureBusinessManageAccess;
-use App\Http\Middleware\EnsureInventoryAccess;
-use App\Http\Middleware\EnsureInvoicesAccess;
 use App\Http\Middleware\EnsurePosAccess;
-use App\Http\Middleware\EnsureReportsAccess;
-use App\Http\Middleware\EnsureStaffManageAccess;
 use App\Livewire\Admin\AdminDashboard;
 use App\Livewire\Admin\BusinessSettings;
 use App\Livewire\Catalog\InventoryManager;
@@ -27,7 +23,9 @@ use App\Livewire\Pos\EndOfDay;
 use App\Livewire\Pos\Home;
 use App\Livewire\Pos\OrderHistory;
 use App\Livewire\Pos\Terminal;
+use App\Livewire\Purchases\CreatePurchase;
 use App\Livewire\Reports\OwnerAnalytics;
+use App\Livewire\Stock\StockSearch;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->middleware('auth:staff')->group(function (): void {
@@ -48,6 +46,8 @@ Route::prefix('admin')->middleware('auth:staff')->group(function (): void {
     Route::middleware('inventory.access')->group(function (): void {
         Route::get('/catalog', MenuManager::class)->name('admin.catalog');
         Route::get('/inventory', InventoryManager::class)->name('admin.inventory');
+        Route::get('/stock/search', StockSearch::class)->name('admin.stock.search');
+        Route::get('/purchases/create', CreatePurchase::class)->name('admin.purchases.create');
     });
 
     Route::middleware('reports.access')->group(function (): void {

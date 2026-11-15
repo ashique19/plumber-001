@@ -216,6 +216,10 @@
                     </div>
                 </fieldset>
                 <x-form.toggle wire:model="productActive" name="productActive" :label="__('catalog.active')" />
+                @if($productStockReady ?? false)
+                    <x-form.toggle wire:model="productTrackStock" name="productTrackStock" :label="__('stock.track_stock')" />
+                    <x-form.input type="number" :label="__('stock.low_stock_threshold')" name="productLowStockThreshold" wire:model="productLowStockThreshold" inputmode="decimal" />
+                @endif
             </form>
         </x-ui.admin-sheet>
     @endif

@@ -12,6 +12,8 @@ final class TranslationLeakScanner
         'invoices.',
         'catalog.',
         'inventory.',
+        'stock.',
+        'purchases.',
         'dashboard.',
         'pos.',
         'reports.',

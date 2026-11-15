@@ -172,6 +172,10 @@ CREATE TABLE IF NOT EXISTS `products`(
   `show_on_menu` tinyint(1) not null default '1',
   `created_at` datetime,
   `updated_at` datetime,
+  `track_stock` tinyint(1) not null default '0',
+  `stock_quantity` DECIMAL(12,3) NOT NULL default '0',
+  `low_stock_threshold` DECIMAL(12,3) NOT NULL default '0',
+  `cost_ex_vat` DECIMAL(12,2) NOT NULL default '0',
   foreign key(`branch_id`) references `branches`(`id`) on delete set null,
   foreign key(`product_category_id`) references `product_categories`(`id`) on delete set null
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -246,27 +250,6 @@ CREATE TABLE IF NOT EXISTS `invoice_audit_logs`(
   `updated_at` datetime,
   foreign key(`invoice_id`) references `invoices`(`id`) on delete cascade
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-CREATE TABLE IF NOT EXISTS `quotations`(
-  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  `branch_id` BIGINT UNSIGNED,
-  `quotation_number` VARCHAR(255) NOT NULL,
-  `invoice_mode` VARCHAR(255) NOT NULL default 'simplified',
-  `validity_until` date not null,
-  `payload` TEXT NOT NULL,
-  `converted_invoice_id` BIGINT UNSIGNED,
-  `created_by_staff_user_id` BIGINT UNSIGNED,
-  `created_at` datetime,
-  `updated_at` datetime,
-  foreign key(`branch_id`) references `branches`(`id`) on delete set null,
-  foreign key(`converted_invoice_id`) references `invoices`(`id`) on delete set null,
-  foreign key(`created_by_staff_user_id`) references `staff_users`(`id`) on delete set null
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-CREATE UNIQUE INDEX `quotations_quotation_number_unique` on `quotations`(
-  `quotation_number`
-);
-CREATE INDEX `quotations_validity_until_index` on `quotations`(
-  `validity_until`
-);
 CREATE TABLE IF NOT EXISTS `pos_orders`(
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `branch_id` BIGINT UNSIGNED NOT NULL,
@@ -459,6 +442,120 @@ CREATE TABLE IF NOT EXISTS `role_has_permissions`(
   foreign key(`role_id`) references `roles`(`id`) on delete cascade,
   primary key(`permission_id`, `role_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE IF NOT EXISTS `suppliers`(
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `branch_id` BIGINT UNSIGNED,
+  `name` VARCHAR(255) NOT NULL,
+  `vat_number` VARCHAR(255),
+  `phone` VARCHAR(255),
+  `created_at` datetime,
+  `updated_at` datetime,
+  foreign key(`branch_id`) references `branches`(`id`) on delete set null
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE INDEX `suppliers_branch_id_name_index` on `suppliers`(
+  `branch_id`,
+  `name`
+);
+CREATE TABLE IF NOT EXISTS `purchases`(
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `branch_id` BIGINT UNSIGNED,
+  `supplier_id` BIGINT UNSIGNED NOT NULL,
+  `purchase_number` VARCHAR(255) NOT NULL,
+  `purchased_at` datetime not null,
+  `notes` TEXT,
+  `created_by_staff_user_id` BIGINT UNSIGNED,
+  `created_at` datetime,
+  `updated_at` datetime,
+  foreign key(`branch_id`) references `branches`(`id`) on delete set null,
+  foreign key(`supplier_id`) references `suppliers`(`id`) on delete cascade,
+  foreign key(`created_by_staff_user_id`) references `staff_users`(`id`) on delete set null
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE INDEX `purchases_branch_id_purchased_at_index` on `purchases`(
+  `branch_id`,
+  `purchased_at`
+);
+CREATE UNIQUE INDEX `purchases_purchase_number_unique` on `purchases`(
+  `purchase_number`
+);
+CREATE TABLE IF NOT EXISTS `purchase_lines`(
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `purchase_id` BIGINT UNSIGNED NOT NULL,
+  `product_id` BIGINT UNSIGNED NOT NULL,
+  `quantity` DECIMAL(12,2) NOT NULL,
+  `unit_cost_ex_vat` DECIMAL(12,2) NOT NULL,
+  `vat_rate` DECIMAL(12,2) NOT NULL default '15',
+  `created_at` datetime,
+  `updated_at` datetime,
+  foreign key(`purchase_id`) references `purchases`(`id`) on delete cascade,
+  foreign key(`product_id`) references `products`(`id`) on delete cascade
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE IF NOT EXISTS `product_stock_movements`(
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `branch_id` BIGINT UNSIGNED,
+  `product_id` BIGINT UNSIGNED NOT NULL,
+  `type` VARCHAR(255) NOT NULL,
+  `quantity_delta` DECIMAL(12,2) NOT NULL,
+  `unit_cost_ex_vat` DECIMAL(12,2),
+  `purchase_id` BIGINT UNSIGNED,
+  `invoice_id` BIGINT UNSIGNED,
+  `user_id` BIGINT UNSIGNED,
+  `reason` VARCHAR(255),
+  `created_at` datetime,
+  `updated_at` datetime,
+  foreign key(`branch_id`) references `branches`(`id`) on delete set null,
+  foreign key(`product_id`) references `products`(`id`) on delete cascade,
+  foreign key(`purchase_id`) references `purchases`(`id`) on delete set null,
+  foreign key(`invoice_id`) references `invoices`(`id`) on delete set null,
+  foreign key(`user_id`) references `staff_users`(`id`) on delete set null
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE INDEX `product_stock_movements_product_id_created_at_index` on `product_stock_movements`(
+  `product_id`,
+  `created_at`
+);
+CREATE INDEX `product_stock_movements_invoice_id_index` on `product_stock_movements`(
+  `invoice_id`
+);
+CREATE TABLE IF NOT EXISTS `invoice_payments`(
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `invoice_id` BIGINT UNSIGNED NOT NULL,
+  `customer_id` BIGINT UNSIGNED,
+  `paid_on` date not null,
+  `amount` DECIMAL(12,2) NOT NULL,
+  `method` VARCHAR(255) NOT NULL,
+  `reference` VARCHAR(255),
+  `for_retention` tinyint(1) not null default '0',
+  `recorded_by_id` BIGINT UNSIGNED,
+  `created_at` datetime,
+  `updated_at` datetime,
+  foreign key(`invoice_id`) references `invoices`(`id`) on delete cascade,
+  foreign key(`customer_id`) references `customers`(`id`) on delete set null,
+  foreign key(`recorded_by_id`) references `staff_users`(`id`) on delete set null
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE INDEX `invoice_payments_invoice_id_paid_on_index` on `invoice_payments`(
+  `invoice_id`,
+  `paid_on`
+);
+CREATE TABLE IF NOT EXISTS `quotations`(
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `branch_id` BIGINT UNSIGNED,
+  `quotation_number` VARCHAR(255) NOT NULL,
+  `invoice_mode` VARCHAR(255) NOT NULL default 'simplified',
+  `validity_until` date not null,
+  `payload` TEXT NOT NULL,
+  `converted_invoice_id` BIGINT UNSIGNED,
+  `created_by_staff_user_id` BIGINT UNSIGNED,
+  `created_at` datetime,
+  `updated_at` datetime,
+  foreign key(`branch_id`) references `branches`(`id`) on delete set null,
+  foreign key(`converted_invoice_id`) references `invoices`(`id`) on delete set null,
+  foreign key(`created_by_staff_user_id`) references `staff_users`(`id`) on delete set null
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE INDEX `quotations_validity_until_index` on `quotations`(
+  `validity_until`
+);
+CREATE UNIQUE INDEX `quotations_quotation_number_unique` on `quotations`(
+  `quotation_number`
+);
 
 INSERT IGNORE INTO migrations (migration, batch) VALUES
 ('0001_01_01_000001_create_cache_table', 1),

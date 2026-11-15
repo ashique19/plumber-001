@@ -2,41 +2,39 @@
 
 namespace App\Livewire\Catalog;
 
+use App\Business\BusinessContext;
 use App\Enums\ProductItemType;
 use App\Livewire\Concerns\DispatchesToasts;
+use App\Livewire\Concerns\ResolvesBusinessContext;
 use App\Livewire\Concerns\ValidatesFieldsLive;
-use App\Support\Validation\FieldValidationRules;
 use App\Models\Ingredient;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\ProductIngredient;
 use App\Models\ProductModifier;
-use App\Support\Inventory\IngredientInventorySchema;
-use App\Models\BusinessSetting;
+use App\Services\Catalog\ProductImageService;
 use App\Support\Catalog\CatalogI18n;
 use App\Support\Catalog\ProductCategorySchema;
 use App\Support\Catalog\ProductStorefrontVisibility;
-use App\Support\VatPricing;
-use App\Business\BusinessContext;
-use App\Services\Catalog\ProductImageService;
+use App\Support\Inventory\IngredientInventorySchema;
+use App\Support\Inventory\ProductStockSchema;
 use App\Support\Upload\ProductImageConstraints;
+use App\Support\VatPricing;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
-use App\Livewire\Concerns\ResolvesBusinessContext;
 use Livewire\WithFileUploads;
 
 #[Layout('layouts.pos')]
 class MenuManager extends Component
 {
-    use ResolvesBusinessContext;
     use AuthorizesRequests;
     use DispatchesToasts;
+    use ResolvesBusinessContext;
     use ValidatesFieldsLive;
     use WithFileUploads;
-
 
     public string $tab = 'products';
 
@@ -99,6 +97,10 @@ class MenuManager extends Component
 
     public bool $productShowOnMenu = true;
 
+    public bool $productTrackStock = false;
+
+    public string $productLowStockThreshold = '0';
+
     /** @var 'item'|'service'|'part' */
     public string $productItemType = 'item';
 
@@ -123,7 +125,7 @@ class MenuManager extends Component
 
     public ?int $ingredientsProductId = null;
 
-  /** @var list<array{ingredient_id: int|string, quantity_per_unit: string}> */
+    /** @var list<array{ingredient_id: int|string, quantity_per_unit: string}> */
     public array $ingredientLines = [];
 
     public string $quickIngredientNameEn = '';
@@ -242,6 +244,10 @@ class MenuManager extends Component
             $this->productModifierIds = $product->modifiers->pluck('id')->all();
             $this->productPriceInput = $this->formatPriceForMode((float) $product->price_ex_vat, $this->productVatRate);
             $this->productItemType = $product->itemType()->value;
+            if (ProductStockSchema::ready()) {
+                $this->productTrackStock = (bool) $product->track_stock;
+                $this->productLowStockThreshold = (string) ($product->low_stock_threshold ?? 0);
+            }
         }
     }
 
@@ -305,6 +311,10 @@ class MenuManager extends Component
             'productModifierIds' => ['array'],
             'productItemType' => ['required', Rule::in(array_map(fn (ProductItemType $t) => $t->value, ProductItemType::cases()))],
         ];
+        if (ProductStockSchema::ready()) {
+            $rules['productTrackStock'] = ['boolean'];
+            $rules['productLowStockThreshold'] = ['nullable', 'numeric', 'min:0'];
+        }
         if ($this->productImageUpload !== null) {
             $rules['productImageUpload'] = ProductImageConstraints::componentRules();
         }
@@ -354,6 +364,11 @@ class MenuManager extends Component
             $payload['description_en'] = $validated['productDescriptionEn'] ?: null;
             $payload['description_ar'] = $validated['productDescriptionAr'] ?: null;
             $payload['description_bn'] = $validated['productDescriptionBn'] ?: null;
+        }
+
+        if (ProductStockSchema::ready()) {
+            $payload['track_stock'] = (bool) ($validated['productTrackStock'] ?? false);
+            $payload['low_stock_threshold'] = round((float) ($validated['productLowStockThreshold'] ?? 0), 3);
         }
 
         if ($this->editingProductId) {
@@ -567,6 +582,7 @@ class MenuManager extends Component
             'categoryBanglaFieldsReady' => CatalogI18n::categoryBanglaFieldsReady(),
             'categoryDescriptionFieldsReady' => CatalogI18n::categoryDescriptionFieldsReady(),
             'inventoryReady' => IngredientInventorySchema::productIngredientsReady(),
+            'productStockReady' => ProductStockSchema::ready(),
             'ingredientOptions' => IngredientInventorySchema::ingredientsReady()
                 ? Ingredient::query()->whereNull('branch_id')->orderedForDisplay()->get()
                 : collect(),
@@ -636,6 +652,8 @@ class MenuManager extends Component
         $this->productShowOnMenu = true;
         $this->productItemType = ProductItemType::Item->value;
         $this->productModifierIds = [];
+        $this->productTrackStock = false;
+        $this->productLowStockThreshold = '0';
     }
 
     private function rejectProductImageUpload(string $message): void
