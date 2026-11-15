@@ -28,6 +28,12 @@
         @if ($isStandard)
             <fieldset class="space-y-3">
                 <legend class="app-section-heading">{{ __('invoices.buyer_section') }}</legend>
+                <x-invoices.customer-picker
+                    :results="$customerSearchResults"
+                    :can-create="$canCreateCustomers"
+                    :search="$customerSearch"
+                    :selected-customer-id="$selectedCustomerId"
+                />
                 <x-form.input :label="__('invoices.buyer_name')" name="buyerName" wire:model.blur="buyerName" required />
                 <p class="text-xs text-[var(--app-muted)]">{{ __('invoices.buyer_id_hint') }}</p>
                 <x-form.input :label="__('business.fields.vat_number')" name="buyerVat" wire:model.blur="buyerVat" />
@@ -57,10 +63,19 @@
             <fieldset class="space-y-3">
                 <legend class="app-section-heading">{{ __('invoices.lines_section') }}</legend>
                 <p class="text-xs text-[var(--app-muted)]">{{ __('invoices.manual_line_hint') }}</p>
+                <x-invoices.add-line-product-search
+                    :results="$addLineProductSearchResults"
+                    :can-create-product="$canCreateProducts"
+                    :search="$addLineProductSearch"
+                />
 
                 @foreach ($lines as $index => $line)
                     <div class="app-inset-panel" wire:key="line-{{ $index }}">
-                        <x-invoices.catalog-product-picker :line-index="$index" :products="$catalogProducts" />
+                        <x-invoices.catalog-product-picker
+                            :line-index="$index"
+                            :products="$this->catalogProductsForLine($index)"
+                            :can-create-product="$canCreateProducts"
+                        />
 
                         @if (filled($line['unit_label'] ?? null))
                             <p class="mb-2 text-xs font-medium text-[var(--app-muted)]">
@@ -86,9 +101,20 @@
             <fieldset class="issue-simplified-lines space-y-3">
                 <legend class="sr-only">{{ __('invoices.lines_section') }}</legend>
 
+                <x-invoices.add-line-product-search
+                    :results="$addLineProductSearchResults"
+                    :can-create-product="$canCreateProducts"
+                    :search="$addLineProductSearch"
+                />
+
                 @foreach ($lines as $index => $line)
                     <div class="issue-simplified-line app-inset-panel space-y-3" wire:key="line-{{ $index }}">
-                        <x-invoices.catalog-product-picker :line-index="$index" :products="$catalogProducts" compact />
+                        <x-invoices.catalog-product-picker
+                            :line-index="$index"
+                            :products="$this->catalogProductsForLine($index)"
+                            :can-create-product="$canCreateProducts"
+                            compact
+                        />
 
                         <div class="grid grid-cols-2 gap-3">
                             <x-form.input
@@ -175,6 +201,13 @@
                 </button>
 
                 <div x-show="moreOpen" x-cloak class="issue-simplified-more__panel space-y-4 pt-3">
+                    <x-invoices.customer-picker
+                        :results="$customerSearchResults"
+                        :can-create="$canCreateCustomers"
+                        :search="$customerSearch"
+                        :selected-customer-id="$selectedCustomerId"
+                        compact
+                    />
                     <x-form.input :label="__('invoices.buyer_optional')" name="buyerNameOptional" wire:model.blur="buyerNameOptional" />
                     <x-form.input :label="__('invoices.buyer_phone')" name="buyerPhone" wire:model.blur="buyerPhone" />
                     <x-form.input :label="__('invoices.buyer_email')" name="buyerEmail" wire:model.blur="buyerEmail" />
@@ -241,5 +274,8 @@
                 {{ __('invoices.issue_submit') }}
             </x-ui.livewire-action>
         @endif
+
+        <x-invoices.quick-customer-modal :show="$showQuickCustomerModal" />
+        <x-invoices.quick-product-modal :show="$showQuickProductModal" :categories="$productCategories" />
     </form>
 </div>
