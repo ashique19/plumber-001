@@ -48,7 +48,7 @@ it('selects a customer into standard invoice buyer fields', function () {
 it('creates a customer from the invoice modal and keeps line state', function () {
     Livewire::actingAs($this->owner, 'staff')
         ->test(IssueInvoice::class, ['mode' => 'simplified'])
-        ->call('applyCatalogProduct', 0, $this->product->id)
+        ->call('addLineFromProduct', $this->product->id)
         ->set('customerQuickName', 'New Buyer LLC')
         ->set('customerQuickPhone', '0598765432')
         ->set('customerQuickVat', '300000000000005')
@@ -58,20 +58,15 @@ it('creates a customer from the invoice modal and keeps line state', function ()
         ->assertSet('buyerPhone', '0598765432');
 });
 
-it('filters catalog picker rows from debounced livewire search', function () {
-    Livewire::actingAs($this->owner, 'staff')
-        ->test(IssueInvoice::class, ['mode' => 'standard'])
-        ->set('catalogLineSearch.0', 'SRV-LEAK')
-        ->assertSet('catalogLineSearch.0', 'SRV-LEAK');
-
+it('filters add-line product search results', function () {
     $rows = Livewire::actingAs($this->owner, 'staff')
         ->test(IssueInvoice::class, ['mode' => 'standard'])
-        ->set('catalogLineSearch.0', 'SRV-LEAK')
+        ->set('addLineProductSearch', 'SRV-LEAK')
         ->instance()
-        ->catalogProductsForLine(0);
+        ->addLineProductSearchResults();
 
     expect($rows)->not->toBeEmpty()
-        ->and(collect($rows)->contains(fn ($r) => $r['id'] === $this->product->id))->toBeTrue();
+        ->and($rows->contains(fn ($p) => $p->id === $this->product->id))->toBeTrue();
 });
 
 it('renders customer and product pickers on quotation create', function () {
@@ -82,8 +77,20 @@ it('renders customer and product pickers on quotation create', function () {
         ->html();
 
     expect($html)->toContain('invoice-customer-picker')
-        ->and($html)->toContain('invoice-catalog-picker')
+        ->and($html)->toContain('invoice-add-line-search')
         ->and($html)->toContain(__('invoices.customer_search', locale: 'bn'));
+});
+
+it('shows inline customer and product search on simplified issue', function () {
+    $html = Livewire::actingAs($this->owner, 'staff')
+        ->test(IssueInvoice::class, ['mode' => 'simplified'])
+        ->html();
+
+    expect($html)->toContain('invoice-customer-picker')
+        ->and($html)->toContain('wire:model.live.debounce.350ms="customerSearch"')
+        ->and($html)->toContain('addLineProductSearch')
+        ->and($html)->toContain(__('invoices.search_catalog_products'))
+        ->and($html)->toContain(__('invoices.cash_customer_default'));
 });
 
 it('hides quick create buttons for staff without catalog write access', function () {

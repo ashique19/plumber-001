@@ -27,11 +27,11 @@ beforeEach(function () {
 it('issues simplified invoice without zheart credentials', function () {
     $before = Invoice::query()->count();
 
+    $product = \App\Models\Product::query()->where('sku', 'SRV-LEAK')->firstOrFail();
+
     Livewire::actingAs($this->owner, 'staff')
         ->test(IssueInvoice::class, ['mode' => 'simplified'])
-        ->set('lines', [
-            ['name' => 'Leak repair', 'name_ar' => '', 'quantity' => '1', 'unit_price' => '100', 'vat_rate' => '15', 'product_id' => null, 'unit_label' => ''],
-        ])
+        ->call('addLineFromProduct', $product->id)
         ->call('issue')
         ->assertHasNoErrors()
         ->assertDispatched('toast', type: 'warning', persistent: true)
