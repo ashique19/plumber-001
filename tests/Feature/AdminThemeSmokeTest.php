@@ -71,6 +71,25 @@ it('serves every admin GET route in en bn and ar without server errors or missin
     }
 });
 
+it('renders suppliers hub empty state in bn without broken two-pane layout', function () {
+    $this->actingAs($this->owner, 'staff');
+
+    $html = (string) $this->get(route('admin.suppliers', ['locale' => 'bn']))->getContent();
+
+    expect($html)
+        ->toContain('admin-hub-empty')
+        ->toContain(__('suppliers.title', [], 'bn'))
+        ->not->toContain(__('suppliers.pick_one', [], 'bn'));
+});
+
+it('renders search icon field padding on customers hub en', function () {
+    $this->actingAs($this->owner, 'staff');
+
+    $html = (string) $this->get(route('admin.customers', ['locale' => 'en']))->getContent();
+
+    expect($html)->toContain('admin-field-wrap--with-icon');
+});
+
 it('renders modern admin field components on issue invoice', function () {
     $this->actingAs($this->owner, 'staff');
 

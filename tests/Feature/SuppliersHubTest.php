@@ -81,6 +81,14 @@ it('blocks supplier delete when purchases exist', function () {
     expect(Supplier::query()->whereKey($supplier->id)->exists())->toBeTrue();
 });
 
+it('renders list-first empty state without side panel', function () {
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(SupplierHub::class)
+        ->assertSee('admin-hub-empty', false)
+        ->assertSee(__('suppliers.empty_list'), false)
+        ->assertDontSee(__('suppliers.pick_one'), false);
+});
+
 it('enables suppliers nav link on dashboard', function () {
     $html = $this->actingAs($this->owner, 'staff')
         ->get(route('admin.dashboard', ['locale' => 'en']))

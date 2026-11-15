@@ -5,9 +5,9 @@
             <p class="app-page-lead">{{ __('expenses.subtitle') }}</p>
         </div>
         @if ($canManage)
-            <button type="button" wire:click="openForm" class="tap-action min-h-11 px-4 text-sm">
+            <x-app.add-button type="button" variant="primary" wire:click="openForm" class="mb-0 hidden sm:inline-flex">
                 {{ __('expenses.add') }}
-            </button>
+            </x-app.add-button>
         @endif
     </header>
 
@@ -46,43 +46,29 @@
         {{ __('expenses.filtered_total') }}: {{ number_format($totalExVat, 2) }} SAR
     </p>
 
-    @if ($showForm)
-        <form wire:submit="saveExpense" class="app-card mt-4 space-y-3 p-4">
-            <h2 class="text-sm font-semibold">{{ __('expenses.add') }}</h2>
-            <div class="grid gap-3 sm:grid-cols-2">
-                <label class="form-field">
-                    <span class="form-field__label">{{ __('expenses.spent_on') }}</span>
-                    <input type="date" wire:model="spentOn" class="form-field__control">
-                </label>
-                <label class="form-field">
-                    <span class="form-field__label">{{ __('expenses.category') }}</span>
-                    <select wire:model="formCategory" class="form-field__control">
-                        @foreach ($categories as $cat)
-                            <option value="{{ $cat->value }}">{{ __('expenses.categories.'.$cat->value) }}</option>
-                        @endforeach
-                    </select>
-                </label>
-                <label class="form-field">
-                    <span class="form-field__label">{{ __('expenses.vendor') }}</span>
-                    <input type="text" wire:model="vendor" class="form-field__control">
-                </label>
-                <label class="form-field">
-                    <span class="form-field__label">{{ __('expenses.amount_ex_vat') }}</span>
-                    <input type="number" step="0.01" min="0" wire:model="amountExVat" class="form-field__control">
-                </label>
-                <label class="form-field sm:col-span-2">
-                    <span class="form-field__label">{{ __('expenses.description') }}</span>
-                    <textarea wire:model="description" rows="2" class="form-field__control"></textarea>
-                </label>
-            </div>
-            <div class="flex flex-wrap gap-2">
-                <button type="submit" class="tap-action min-h-11 px-4 text-sm">{{ __('expenses.save') }}</button>
-                <button type="button" wire:click="$set('showForm', false)" class="tap-action-muted min-h-11 px-4 text-sm">
-                    {{ __('expenses.cancel') }}
-                </button>
-            </div>
-        </form>
+    @if ($canManage)
+        <x-admin.hub-fab wire:click="openForm" :label="__('expenses.add')" />
     @endif
+
+    <x-admin.hub-sheet :show="$showForm" :title="__('expenses.add')" close-wire="closeExpenseForm">
+        <form wire:submit="saveExpense" class="admin-form-grid gap-3">
+            <x-field.date :label="__('expenses.spent_on')" name="spentOn" wire:model="spentOn" />
+            <x-field.select :label="__('expenses.category')" name="formCategory" wire:model="formCategory">
+                @foreach ($categories as $cat)
+                    <option value="{{ $cat->value }}">{{ __('expenses.categories.'.$cat->value) }}</option>
+                @endforeach
+            </x-field.select>
+            <x-field.input :label="__('expenses.vendor')" name="vendor" wire:model="vendor" />
+            <x-field.money :label="__('expenses.amount_ex_vat')" name="amountExVat" wire:model="amountExVat" />
+            <x-field.textarea :label="__('expenses.description')" name="description" wire:model="description" rows="2" />
+            <x-field.actions>
+                <x-ui.livewire-action type="submit" target="saveExpense" loading="saveExpense" class="tap-action-primary min-h-11 flex-1">
+                    {{ __('expenses.save') }}
+                </x-ui.livewire-action>
+                <button type="button" class="tap-action-muted min-h-11 flex-1" wire:click="closeExpenseForm">{{ __('expenses.cancel') }}</button>
+            </x-field.actions>
+        </form>
+    </x-admin.hub-sheet>
 
     <div class="app-card mt-4 overflow-x-auto p-0">
         <table class="w-full min-w-[36rem] text-left text-sm">

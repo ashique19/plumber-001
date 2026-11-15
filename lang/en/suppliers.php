@@ -8,7 +8,7 @@ return [
     'search' => 'Search suppliers',
     'search_placeholder' => 'Name, phone, or VAT…',
     'search_empty' => 'No suppliers match this search.',
-    'empty_list' => 'No suppliers yet. Add one to get started.',
+    'empty_list' => 'No suppliers yet',
     'pick_one' => 'Select a supplier from the list or add a new one.',
     'name' => 'Supplier name',
     'name_ar' => 'Arabic name',

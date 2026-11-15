@@ -97,6 +97,11 @@ class ExpensesHub extends Component
         $this->showForm = true;
     }
 
+    public function closeExpenseForm(): void
+    {
+        $this->showForm = false;
+    }
+
     public function saveExpense(): void
     {
         $this->authorize('staff.manage');
