@@ -1,12 +1,18 @@
 @props(['t'])
 
 @php
-    $isSimplified = (bool) ($t['is_simplified'] ?? false);
-    $titleEn = $isSimplified ? __('pos.receipt_title_simplified_en') : __('pos.receipt_title_standard_en');
-    $titleAr = $isSimplified ? __('pos.receipt_title_simplified_ar') : __('pos.receipt_title_standard_ar');
+    $titles = \App\Support\Invoicing\DocumentPrintTitles::forContext($t);
+    $classicLayout = (bool) ($t['classic_title_stack'] ?? false);
 @endphp
 
-<h1 {{ $attributes->class(['invoice-a4__title']) }}>
-    {{ $titleEn }}
-    <span class="invoice-a4__title-ar block">{{ $titleAr }}</span>
-</h1>
+@if ($classicLayout)
+    <h1 {{ $attributes->class(['print-classic__title']) }}>
+        <span class="print-classic__title-ar" dir="rtl">{{ $titles['ar'] }}</span>
+        <span class="print-classic__title-en">{{ $titles['en'] }}</span>
+    </h1>
+@else
+    <h1 {{ $attributes->class(['invoice-a4__title']) }}>
+        <span class="invoice-a4__title-en">{{ $titles['en'] }}</span>
+        <span class="invoice-a4__title-ar" dir="rtl">{{ $titles['ar'] }}</span>
+    </h1>
+@endif

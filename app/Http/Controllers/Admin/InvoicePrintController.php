@@ -9,6 +9,7 @@ use App\Models\Invoice;
 use App\Models\PosOrder;
 use App\Support\EnabledLocales;
 use App\Support\Invoicing\InvoicePrintPresenter;
+use App\Support\Invoicing\PrintTemplateResolver;
 use App\Support\Invoicing\ZatcaSubmissionStatus;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -64,13 +65,23 @@ class InvoicePrintController extends Controller
             ? route('admin.pos.receipt', array_merge([$order], $baseParams, ['layout' => 'receipt']))
             : null;
 
-        $viewName = $layout === 'cash' ? 'admin.invoices.print-cash' : 'admin.invoices.print-a4';
+        if ($layout === 'cash') {
+            return view('admin.invoices.print-cash', [
+                't' => $t,
+                'receiptUrl' => $receiptUrl,
+                'cashUrl' => null,
+                'a4Url' => $printRoute('a4'),
+                'zatcaNotSent' => ZatcaSubmissionStatus::invoiceNotSentToZatca($invoice),
+            ]);
+        }
 
-        return view($viewName, [
+        $template = PrintTemplateResolver::forInvoice($business, $request)->value;
+
+        return view("print.invoices.{$template}", [
             't' => $t,
             'receiptUrl' => $receiptUrl,
-            'cashUrl' => $layout !== 'cash' ? $printRoute('cash') : null,
-            'a4Url' => $layout !== 'a4' ? $printRoute('a4') : null,
+            'cashUrl' => $printRoute('cash'),
+            'a4Url' => null,
             'zatcaNotSent' => ZatcaSubmissionStatus::invoiceNotSentToZatca($invoice),
         ]);
     }

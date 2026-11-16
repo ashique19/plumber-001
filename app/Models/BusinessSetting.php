@@ -155,6 +155,8 @@ class BusinessSetting extends Model
         'default_document_type' => 'simplified',
         'integration_enabled' => false,
         'payment_terms_days' => 30,
+        'invoice_print_template' => 'modern',
+        'quotation_print_template' => 'modern',
       ],
       'content' => [
         'plumber' => [],

@@ -303,7 +303,7 @@ class BusinessSettingsService
     }
 
     /**
-     * @param  array{integration_enabled?: bool}  $input
+     * @param  array{integration_enabled?: bool, payment_terms_days?: int, invoice_print_template?: string, quotation_print_template?: string}  $input
      */
     public function saveInvoicing(BusinessSetting $business, array $input, ?StaffUser $actor = null): BusinessSetting
     {
@@ -315,12 +315,24 @@ class BusinessSettingsService
         if (array_key_exists('payment_terms_days', $input)) {
             $invoicing['payment_terms_days'] = max(0, (int) $input['payment_terms_days']);
         }
+        if (array_key_exists('invoice_print_template', $input)) {
+            $invoicing['invoice_print_template'] = in_array($input['invoice_print_template'], ['modern', 'classic'], true)
+                ? $input['invoice_print_template']
+                : 'modern';
+        }
+        if (array_key_exists('quotation_print_template', $input)) {
+            $invoicing['quotation_print_template'] = in_array($input['quotation_print_template'], ['modern', 'classic'], true)
+                ? $input['quotation_print_template']
+                : 'modern';
+        }
         $settings['invoicing'] = $invoicing;
 
         $this->persist($business, $settings);
         $this->audit->record($business, 'business.settings.invoicing', [
             'integration_enabled' => $invoicing['integration_enabled'] ?? false,
             'payment_terms_days' => $invoicing['payment_terms_days'] ?? null,
+            'invoice_print_template' => $invoicing['invoice_print_template'] ?? 'modern',
+            'quotation_print_template' => $invoicing['quotation_print_template'] ?? 'modern',
         ], $actor);
 
         return $business->fresh();

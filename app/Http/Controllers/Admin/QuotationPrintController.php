@@ -7,6 +7,7 @@ use App\Models\BusinessSetting;
 use App\Models\Quotation;
 use App\Support\EnabledLocales;
 use App\Support\Invoicing\QuotationPrintPresenter;
+use App\Support\Invoicing\PrintTemplateResolver;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -23,8 +24,14 @@ class QuotationPrintController extends Controller
         $branch = $quotation->branch;
         $t = QuotationPrintPresenter::fromQuotation($business, $quotation, $branch);
 
-        return view('admin.quotations.print', [
+        $template = PrintTemplateResolver::forQuotation($business, $request)->value;
+
+        return view("print.invoices.{$template}", [
             't' => $t,
+            'receiptUrl' => null,
+            'cashUrl' => null,
+            'a4Url' => null,
+            'zatcaNotSent' => false,
         ]);
     }
 }

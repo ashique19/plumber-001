@@ -1,0 +1,191 @@
+.print-tpl-modern__rule {
+    border: 0;
+    border-top: 1px solid var(--inv-border);
+    margin: 0 0 8px;
+}
+
+.print-tpl-modern__seller {
+    border-bottom: none;
+}
+
+.print-tpl-modern__lines thead th .ar {
+    display: block;
+    direction: rtl;
+    font-family: Tajawal, sans-serif;
+    font-size: 7.5pt;
+    font-weight: 600;
+}
+
+.print-tpl-modern__lines tbody tr {
+    border-bottom: 1px solid color-mix(in srgb, var(--inv-border) 45%, transparent);
+}
+
+.print-tpl-modern__vat-cell {
+    text-align: center;
+    line-height: 1.25;
+}
+
+.print-tpl-modern__vat-pct {
+    display: block;
+    font-size: 8pt;
+    color: var(--inv-muted);
+}
+
+.print-tpl-modern__closing {
+    display: grid;
+    grid-template-columns: minmax(160px, 200px) 1fr;
+    gap: 20px 24px;
+    align-items: start;
+    margin-top: 12px;
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
+
+.print-tpl-modern__qr-wrap .invoice-a4__qr {
+    margin: 0;
+    text-align: start;
+    max-width: none;
+}
+
+.print-tpl-modern__qr-wrap .invoice-a4__qr canvas {
+    width: 140px !important;
+    height: 140px !important;
+}
+
+.print-tpl-modern__qr-wrap .invoice-a4__qr-note {
+    text-align: start;
+    font-size: 7pt;
+    line-height: 1.35;
+    max-width: 14rem;
+}
+
+.print-tpl-modern__qr-wrap--empty {
+    display: none;
+}
+
+.print-tpl-modern__totals {
+    width: 100%;
+    max-width: 340px;
+    margin-left: auto;
+    border-collapse: collapse;
+    font-size: 9pt;
+}
+
+.print-tpl-modern__totals td {
+    padding: 5px 6px;
+    vertical-align: middle;
+}
+
+.print-tpl-modern__totals-label {
+    text-align: start;
+    color: var(--inv-muted);
+    font-size: 8.5pt;
+}
+
+.print-tpl-modern__totals-en {
+    margin-inline-end: 0.35em;
+}
+
+.print-tpl-modern__totals-ar {
+    font-family: Tajawal, sans-serif;
+    font-size: 8pt;
+}
+
+.print-tpl-modern__totals-value {
+    text-align: end;
+    white-space: nowrap;
+}
+
+.print-tpl-modern__totals-total td,
+.print-tpl-modern__totals-net td {
+    padding-top: 6px;
+}
+
+.print-tpl-modern__words {
+    margin-top: 6px;
+    page-break-inside: avoid;
+}
+
+.print-tpl-modern__sheet-footer {
+    position: relative;
+    margin-top: 20px;
+    padding-top: 8px;
+    min-height: 2.5rem;
+    border-top: none;
+}
+
+.print-tpl-modern__sheet-footer--screen {
+    text-align: center;
+    font-size: 8.5pt;
+}
+
+.print-tpl-modern__footer-names {
+    text-align: center;
+    line-height: 1.35;
+}
+
+.print-tpl-modern__footer-page {
+    margin: 4px 0 0;
+    text-align: end;
+    font-size: 8pt;
+    color: var(--inv-muted);
+}
+
+.print-tpl-modern__sheet-footer--screen .print-tpl-modern__footer-page {
+    text-align: center;
+}
+
+@media print {
+    .print-tpl-modern {
+        padding-bottom: 20mm;
+    }
+
+    .print-tpl-modern__lines thead {
+        display: table-header-group;
+    }
+
+    .print-tpl-modern__lines tbody tr {
+        page-break-inside: avoid;
+    }
+
+    .print-tpl-modern .print-tpl-modern__intro {
+        page-break-after: auto;
+    }
+
+    .print-tpl-modern__closing {
+        break-before: auto;
+    }
+
+    .print-tpl-modern .invoice-a4__footer.print-tpl-modern__sheet-footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: 0;
+        padding: 4mm 12mm 6mm;
+        background: #fff;
+        display: block;
+        border-top: none;
+    }
+
+    .print-tpl-modern .invoice-a4__footer.print-tpl-modern__sheet-footer::after {
+        content: 'Page ' counter(page) ' of ' counter(pages) ' - ' attr(data-document-number);
+        position: absolute;
+        right: 12mm;
+        bottom: 6mm;
+        font-size: 8pt;
+        font-weight: 600;
+        color: var(--inv-muted);
+        text-align: right;
+    }
+
+    .print-tpl-modern__footer-names {
+        padding-right: 28%;
+        padding-left: 28%;
+    }
+
+    @page {
+        size: A4;
+        margin: 10mm 12mm 18mm;
+    }
+}

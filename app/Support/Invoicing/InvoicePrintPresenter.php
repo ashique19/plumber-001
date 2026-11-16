@@ -193,8 +193,12 @@ final class InvoicePrintPresenter
             'official_print_blocked' => $officialPrintBlocked,
             'receipt_number' => $meta['receipt_number'],
             'branch' => $meta['branch'],
+            'document_kind' => 'invoice',
+            'show_qr' => true,
+            'issue_datetime' => $issueAt?->timezone(config('app.timezone'))->format('Y/m/d h:i A'),
         ];
     }
+
 
     /**
      * @param  list<array<string, mixed>>  $rawLines
@@ -222,6 +226,7 @@ final class InvoicePrintPresenter
                 'unit_price_ex_vat' => round($unitEx, 2),
                 'name_en' => $nameEn,
                 'name_ar' => $nameAr !== '' ? $nameAr : null,
+                'discount_ex_vat' => round($discountEx, 2),
                 'taxable_ex_vat' => $netEx,
                 'vat_amount' => $lineVat,
                 'vat_rate' => $vatRate,
@@ -273,7 +278,7 @@ final class InvoicePrintPresenter
      * @param  array<string, mixed>  $payload
      * @return array<string, mixed>|null
      */
-    private static function customerFromPayload(array $payload): ?array
+    public static function customerFromPayload(array $payload): ?array
     {
         $address = self::formatBuyerAddress($payload);
 

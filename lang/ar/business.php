@@ -21,6 +21,14 @@ return [
         'api_key_missing' => 'لم يُضبط ZHEART_API_KEY على الخادم — ستفشل مكالمات signing service حتى ضبط البيئة.',
         'saved' => 'تم حفظ إعدادات الفوترة.',
     ],
+    'print' => [
+        'invoice_template' => 'قالب طباعة الفاتورة',
+        'quotation_template' => 'قالب طباعة عرض السعر',
+        'template_modern' => 'القالب أ — حديث',
+        'template_classic' => 'القالب ب — كلاسيكي',
+        'preview' => 'معاينة في تبويب جديد',
+        'hint' => 'القالبان جاهزان لطباعة A4 / PDF. المعاينة تستخدم أحدث فاتورة أو عرض سعر صادر لديك.',
+    ],
     'brand' => [
         'logo_choose' => 'اختيار ملف الشعار',
         'logo_remove' => 'إزالة الشعار',

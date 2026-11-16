@@ -110,6 +110,27 @@
                 <p class="rounded-lg bg-amber-50 p-3 text-sm text-amber-900 ring-1 ring-amber-200">{{ __('business.invoicing.api_key_missing') }}</p>
             @endif
             <x-field.input type="number" min="0" step="1" :label="__('invoices.payment_terms_days')" name="paymentTermsDays" wire:model.live="paymentTermsDays" />
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                    <label class="mb-1 block text-sm font-medium text-[var(--app-fg)]" for="invoicePrintTemplate">{{ __('business.print.invoice_template') }}</label>
+                    <select id="invoicePrintTemplate" class="min-h-11 w-full rounded-lg border border-[var(--app-border)] px-3 text-sm" wire:model="invoicePrintTemplate">
+                        @foreach (\App\Enums\PrintDocumentTemplate::cases() as $tpl)
+                            <option value="{{ $tpl->value }}">{{ $tpl->label() }}</option>
+                        @endforeach
+                    </select>
+                    <a class="mt-1 inline-block text-xs text-[var(--app-accent)] underline" href="{{ route('admin.print.template-preview', ['kind' => 'invoice', 'template' => $invoicePrintTemplate]) }}" target="_blank" rel="noopener">{{ __('business.print.preview') }}</a>
+                </div>
+                <div>
+                    <label class="mb-1 block text-sm font-medium text-[var(--app-fg)]" for="quotationPrintTemplate">{{ __('business.print.quotation_template') }}</label>
+                    <select id="quotationPrintTemplate" class="min-h-11 w-full rounded-lg border border-[var(--app-border)] px-3 text-sm" wire:model="quotationPrintTemplate">
+                        @foreach (\App\Enums\PrintDocumentTemplate::cases() as $tpl)
+                            <option value="{{ $tpl->value }}">{{ $tpl->label() }}</option>
+                        @endforeach
+                    </select>
+                    <a class="mt-1 inline-block text-xs text-[var(--app-accent)] underline" href="{{ route('admin.print.template-preview', ['kind' => 'quotation', 'template' => $quotationPrintTemplate]) }}" target="_blank" rel="noopener">{{ __('business.print.preview') }}</a>
+                </div>
+            </div>
+            <p class="text-xs text-[var(--app-muted)]">{{ __('business.print.hint') }}</p>
             <label class="flex items-start gap-3">
                 <input type="checkbox" class="mt-1 rounded border-gray-300" wire:model="invoicingIntegrationEnabled" />
                 <span>
