@@ -170,15 +170,33 @@ class CreatePurchase extends Component
             return;
         }
 
-        $validated = $this->validate([
-            'supplierId' => ['required', 'integer', 'exists:suppliers,id'],
-            'notes' => ['nullable', 'string', 'max:2000'],
-            'lines' => ['required', 'array', 'min:1'],
-            'lines.*.product_id' => ['required', 'integer', 'exists:products,id'],
-            'lines.*.quantity' => ['required', 'numeric', 'gt:0'],
-            'lines.*.unit_cost' => ['required', 'numeric', 'min:0'],
-            'lines.*.vat_rate' => ['required', 'numeric', 'min:0', 'max:100'],
-        ]);
+        $this->lines = array_values(array_filter(
+            $this->lines,
+            fn (array $row): bool => filled($row['product_id'] ?? null),
+        ));
+
+        if ($this->lines === []) {
+            $this->addError('document', __('invoices.errors.lines_required'));
+            $this->dispatch('document-validation-failed');
+
+            return;
+        }
+
+        try {
+            $validated = $this->validate([
+                'supplierId' => ['required', 'integer', 'exists:suppliers,id'],
+                'notes' => ['nullable', 'string', 'max:2000'],
+                'lines' => ['required', 'array', 'min:1'],
+                'lines.*.product_id' => ['required', 'integer', 'exists:products,id'],
+                'lines.*.quantity' => ['required', 'numeric', 'gt:0'],
+                'lines.*.unit_cost' => ['required', 'numeric', 'min:0'],
+                'lines.*.vat_rate' => ['required', 'numeric', 'min:0', 'max:100'],
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $exception) {
+            $this->dispatch('document-validation-failed');
+
+            throw $exception;
+        }
 
         $branch = StaffBranchContext::resolve();
         if ($branch === null) {

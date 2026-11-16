@@ -19,10 +19,13 @@
     </section>
 
     <form
+        id="invoice-issue-form"
         wire:submit="issue"
         class="app-card space-y-4 p-4"
         @document-line-added.window="$nextTick(() => document.querySelector('.invoice-document-lines__row:last-child')?.classList.add('invoice-document-lines__row--flash'))"
+        x-on:document-validation-failed.window="$nextTick(() => document.getElementById('document-validation-summary')?.scrollIntoView({ behavior: 'smooth', block: 'start' }))"
     >
+        <x-invoices.document-validation-summary />
         <x-invoices.customer-picker
             :results="$customerSearchResults"
             :can-create="$canCreateCustomers"
@@ -44,7 +47,7 @@
 
         <x-invoices.zatca-not-ready-notice :show="$zatcaNotReady" />
 
-        <x-ui.livewire-action type="submit" target="issue" loading="issue" class="document-primary-submit min-h-14 w-full text-base font-semibold">
+        <x-ui.livewire-action type="submit" wire-click="issue" target="issue" loading="issue" class="document-primary-submit min-h-14 w-full text-base font-semibold">
             {{ __('invoices.issue_submit') }}
         </x-ui.livewire-action>
 
@@ -52,12 +55,23 @@
             :total="$previewTotals['total_inc_vat']"
             :submit-label="__('invoices.issue_submit')"
             wire-target="issue"
+            form="invoice-issue-form"
+            wire-click="issue"
         />
 
         <x-invoices.document-more-options :is-standard="$isStandard" :lines="$lines" />
 
     </form>
 
-    <x-invoices.quick-customer-modal :show="$showQuickCustomerModal" :standard-buyer="$isStandard" />
+    <x-invoices.quick-customer-modal
+        :show="$showQuickCustomerModal"
+        :standard-buyer="$isStandard || $customerQuickEditMode"
+        :edit-mode="$customerQuickEditMode"
+    />
+    <x-invoices.standard-buyer-completion-modal
+        :show="$showStandardBuyerCompletionModal"
+        :missing-keys="$standardBuyerMissingKeys"
+        :customer-name="$buyerName"
+    />
     <x-invoices.quick-product-modal :show="$showQuickProductModal" :categories="$productCategories" />
 </div>

@@ -125,11 +125,22 @@ export function registerAdminTypeaheadControl(Alpine) {
         addAction: config.addAction ?? null,
 
         init() {
-            this.$watch('panelOpen', (open) => {
-                if (! open) {
-                    return;
+            const syncFromDom = () => {
+                const openFlag = this.$el.getAttribute('data-typeahead-results-open');
+                if (openFlag === '0') {
+                    this.panelOpen = false;
                 }
-            });
+            };
+
+            syncFromDom();
+
+            if (typeof Livewire !== 'undefined') {
+                Livewire.hook('commit', ({ succeed }) => {
+                    succeed(() => {
+                        requestAnimationFrame(() => syncFromDom());
+                    });
+                });
+            }
         },
 
         openPanel() {

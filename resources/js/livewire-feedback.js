@@ -90,6 +90,10 @@ export function wireLivewireRequestFeedback(copy) {
     document.addEventListener('livewire:init', () => {
         Livewire.hook('request', ({ fail }) => {
             fail(({ status, content, preventDefault }) => {
+                if (status === 422) {
+                    return;
+                }
+
                 preventDefault();
 
                 if (typeof navigator !== 'undefined' && navigator.onLine === false) {

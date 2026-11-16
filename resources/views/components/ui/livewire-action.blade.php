@@ -5,6 +5,8 @@
     'variant' => 'primary',
     'loading' => 'generic',
     'disabled' => false,
+    'wireClick' => null,
+    'form' => null,
 ])
 
 @php
@@ -15,6 +17,8 @@
 <button
     type="{{ $type }}"
     {{ $attributes->merge(['class' => $variantClass.' inline-flex items-center justify-center gap-2'])->except('type') }}
+    @if ($wireClick) wire:click="{{ $wireClick }}" @endif
+    @if ($form) form="{{ $form }}" @endif
     wire:loading.attr="disabled"
     wire:target="{{ $target }}"
     @disabled($disabled)

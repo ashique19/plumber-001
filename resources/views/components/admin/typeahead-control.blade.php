@@ -16,6 +16,7 @@
 
 <div
     class="admin-typeahead"
+    data-typeahead-results-open="{{ $resultsOpen ? '1' : '0' }}"
     x-data="adminTypeaheadControl({ resultsOpen: @js($resultsOpen), addAction: @js($hasAdd ? $addAction : null) })"
     x-on:focusin="if ($el.contains($event.target) && ! $event.target.closest('.admin-typeahead__add')) { openPanel() }"
     x-on:click.outside="closePanel()"

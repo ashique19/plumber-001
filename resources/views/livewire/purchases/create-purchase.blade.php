@@ -7,7 +7,13 @@
     @unless($schemaReady)
         <p class="app-card p-4 text-sm text-[var(--app-muted)]">{{ __('purchases.schema_missing') }}</p>
     @else
-        <form wire:submit="save" class="app-admin-form space-y-4">
+        <form
+            id="purchase-save-form"
+            wire:submit="save"
+            class="app-admin-form space-y-4"
+            x-on:document-validation-failed.window="$nextTick(() => document.getElementById('document-validation-summary')?.scrollIntoView({ behavior: 'smooth', block: 'start' }))"
+        >
+            <x-invoices.document-validation-summary />
             <x-field.section :title="__('purchases.supplier_heading')">
                 <x-purchases.supplier-picker
                     :results="$supplierHits"
@@ -46,7 +52,7 @@
             </x-field.section>
 
             <x-field.actions>
-                <x-ui.livewire-action type="submit" target="save" loading="save" class="tap-action-primary min-h-12 w-full flex-1 text-base font-semibold" variant="primary">
+                <x-ui.livewire-action type="submit" wire-click="save" target="save" loading="save" class="tap-action-primary min-h-12 w-full flex-1 text-base font-semibold" variant="primary">
                     {{ __('purchases.submit') }}
                 </x-ui.livewire-action>
             </x-field.actions>

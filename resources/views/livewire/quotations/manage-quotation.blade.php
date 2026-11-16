@@ -5,10 +5,13 @@
     </header>
 
     <form
+        id="quotation-save-form"
         wire:submit="save"
         class="app-card space-y-4 p-4"
         @document-line-added.window="$nextTick(() => document.querySelector('.invoice-document-lines__row:last-child')?.classList.add('invoice-document-lines__row--flash'))"
+        x-on:document-validation-failed.window="$nextTick(() => document.getElementById('document-validation-summary')?.scrollIntoView({ behavior: 'smooth', block: 'start' }))"
     >
+        <x-invoices.document-validation-summary />
         <x-invoices.customer-picker
             :results="$customerSearchResults"
             :can-create="$canCreateCustomers"
@@ -28,7 +31,7 @@
 
         <x-invoices.document-preview-totals-breakdown :preview-totals="$previewTotals" />
 
-        <x-ui.livewire-action type="submit" target="save" loading="save" class="document-primary-submit min-h-11 w-full text-base font-semibold">
+        <x-ui.livewire-action type="submit" wire-click="save" target="save" loading="save" class="document-primary-submit min-h-11 w-full text-base font-semibold">
             {{ __('quotations.save') }}
         </x-ui.livewire-action>
 
@@ -36,6 +39,8 @@
             :total="$previewTotals['total_inc_vat']"
             :submit-label="__('quotations.save')"
             wire-target="save"
+            wire-click="save"
+            form="quotation-save-form"
         />
 
         <x-invoices.document-more-options

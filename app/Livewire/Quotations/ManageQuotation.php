@@ -165,7 +165,21 @@ class ManageQuotation extends Component
   {
       $this->pruneEmptyDocumentLines();
       $this->hydrateCatalogLineNames();
-      $this->validate($this->rules());
+
+      if ($this->lines === []) {
+          $this->addError('document', __('invoices.errors.lines_required'));
+          $this->dispatch('document-validation-failed');
+
+          return;
+      }
+
+      try {
+          $this->validate($this->rules());
+      } catch (\Illuminate\Validation\ValidationException $exception) {
+          $this->dispatch('document-validation-failed');
+
+          throw $exception;
+      }
 
       $branch = StaffBranchContext::resolve();
       if ($branch === null) {

@@ -18,7 +18,7 @@
         :show-add="$canCreate"
         add-action="openQuickCustomerModal"
         :add-label="__('invoices.add_customer')"
-        :results-open="trim($search) !== ''"
+        :results-open="trim($search) !== '' && ! $selectedCustomerId"
     >
         @if (trim($search) !== '')
             <ul class="invoice-customer-picker__results" role="listbox">
@@ -32,7 +32,7 @@
                         >
                             <span class="block font-medium">{{ $customer->name }}</span>
                             <span class="block text-xs text-[var(--app-muted)]">
-                                {{ collect([$customer->phone, $customer->vat_number, data_get($customer->profile, 'cr_number')])->filter()->implode(' · ') }}
+                                {{ \App\Support\Invoicing\InvoicingCustomerLookup::typeaheadMetaLine($customer) }}
                             </span>
                         </button>
                     </li>
@@ -44,7 +44,7 @@
     </x-admin.typeahead-control>
 
     @if ($selectedCustomerId)
-        <p class="mt-1 text-xs text-[var(--app-muted)]">{{ __('invoices.customer_linked') }}</p>
+        <p class="invoice-customer-picker__hint mt-1 text-xs text-[var(--app-muted)]">{{ __('invoices.customer_linked') }}</p>
     @elseif ($showWalkInHint)
         <p class="mt-1 text-xs text-[var(--app-muted)]">{{ __('invoices.cash_customer_default') }}</p>
     @endif

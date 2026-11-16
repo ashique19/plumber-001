@@ -82,4 +82,25 @@ final class InvoicingCustomerLookup
             $host->selectedCustomerId = $customer->id;
         }
     }
+
+    public static function typeaheadMetaLine(Customer $customer): string
+    {
+        $segments = [];
+        $phone = trim((string) ($customer->phone ?? ''));
+        if ($phone !== '') {
+            $segments[] = __('invoices.customer_meta_phone', ['value' => $phone]);
+        }
+
+        $vat = trim((string) ($customer->vat_number ?? ''));
+        if ($vat !== '') {
+            $segments[] = __('invoices.customer_meta_vat', ['value' => $vat]);
+        }
+
+        $cr = trim((string) data_get($customer->profile, 'cr_number', ''));
+        if ($cr !== '') {
+            $segments[] = __('invoices.customer_meta_cr', ['value' => $cr]);
+        }
+
+        return implode(' · ', $segments);
+    }
 }

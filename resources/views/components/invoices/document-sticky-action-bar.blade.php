@@ -4,6 +4,7 @@
     'wireTarget',
     'wireClick' => null,
     'form' => null,
+    'formId' => null,
 ])
 
 <div class="document-sticky-action-bar lg:hidden" aria-live="polite">
@@ -16,6 +17,8 @@
         </div>
         <x-ui.livewire-action
             type="submit"
+            :form="$formId ?? $form"
+            :wire-click="$wireClick"
             :target="$wireTarget"
             :loading="$wireTarget"
             class="tap-action-primary min-h-11 shrink-0 px-5 text-sm font-semibold"
