@@ -78,5 +78,5 @@ it('passes buyer validation when cr is provided on the customer', function () {
         ->call('selectDocumentCustomer', $customer->id)
         ->call('addLineFromProduct', $this->product->id)
         ->call('issue')
-        ->assertHasNoErrors(['buyerVat', 'buyerCr']);
+        ->assertHasNoErrors(['buyerVat', 'buyerAltIdType', 'buyerAltIdNumber']);
 });

@@ -2,33 +2,34 @@
 
 namespace App\Livewire\Customers;
 
+use App\Business\BusinessContext;
 use App\Livewire\Concerns\DispatchesToasts;
+use App\Livewire\Concerns\ResolvesBusinessContext;
 use App\Livewire\Concerns\ValidatesFieldsLive;
-use App\Support\Validation\FieldValidationRules;
-use App\Models\Customer;
 use App\Models\BusinessSetting;
+use App\Models\Customer;
 use App\Services\Invoicing\InvoiceDuesLedgerService;
 use App\Services\Loyalty\LoyaltyService;
+use App\Support\Customers\CustomerIdentityPersistence;
+use App\Support\Customers\CustomerIdentityRules;
 use App\Support\Customers\CustomerProfileFields;
 use App\Support\Loyalty\LoyaltyConfig;
-use App\Business\BusinessContext;
+use App\Support\Validation\FieldValidationRules;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
-use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
-use App\Livewire\Concerns\ResolvesBusinessContext;
 use Livewire\WithPagination;
 use Spatie\Permission\PermissionRegistrar;
 
 #[Layout('layouts.pos')]
 class CustomerHub extends Component
 {
-    use ResolvesBusinessContext;
     use DispatchesToasts;
+    use ResolvesBusinessContext;
     use ValidatesFieldsLive;
     use WithPagination;
 
@@ -50,17 +51,21 @@ class CustomerHub extends Component
 
     public ?int $editingCustomerId = null;
 
-    public string $customerName = '';
+    public string $customerLegalNameAr = '';
 
-    public string $customerNameAr = '';
+    public string $customerLegalNameEn = '';
+
+    public bool $customerVatRegistered = false;
+
+    public string $customerVat = '';
+
+    public string $customerAltIdType = '';
+
+    public string $customerAltIdNumber = '';
 
     public string $customerPhone = '';
 
     public string $customerEmail = '';
-
-    public string $customerVat = '';
-
-    public string $customerCr = '';
 
     public string $customerCountry = 'SA';
 
@@ -75,6 +80,8 @@ class CustomerHub extends Component
     public string $customerAddrPostal = '';
 
     public string $customerAddrAdditional = '';
+
+    public bool $customerShowMoreAddress = false;
 
     public string $adjustPoints = '';
 
@@ -110,6 +117,11 @@ class CustomerHub extends Component
         if ($this->customer !== null) {
             $this->openCustomerModal($this->customer, 'details');
         }
+    }
+
+    public function updatedCustomerVatRegistered(mixed $value): void
+    {
+        $this->customerVatRegistered = filter_var($value, FILTER_VALIDATE_BOOLEAN);
     }
 
     public function updatingSearch(): void
@@ -193,74 +205,30 @@ class CustomerHub extends Component
 
     public function saveCustomer(LoyaltyService $loyalty): void
     {
-        $phoneRules = [
-            'required',
-            'string',
-            'max:20',
-            'regex:/^(?:\+966|966|0)?5\d{8}$/',
-        ];
-        if ($this->editingCustomerId !== null) {
-            $phoneRules[] = Rule::unique('customers', 'phone')->ignore($this->editingCustomerId);
-        } else {
-            $phoneRules[] = Rule::unique('customers', 'phone');
-        }
+        $fields = CustomerIdentityRules::hubFields();
+        $rules = CustomerIdentityRules::forHost($this, $fields, [
+            'phone_unique' => true,
+            'phone_unique_ignore_id' => $this->editingCustomerId,
+        ]);
 
-        $this->validate(array_merge($this->liveValidationRules(), [
-            'customerPhone' => $phoneRules,
-            'customerVat' => FieldValidationRules::vatOptional(),
-            'customerCr' => FieldValidationRules::crNumberOptional(),
-            'customerCountry' => ['nullable', 'string', 'size:2'],
-            'customerAddrBuilding' => ['nullable', 'string', 'max:120'],
-            'customerAddrStreet' => ['nullable', 'string', 'max:120'],
-            'customerAddrDistrict' => ['nullable', 'string', 'max:120'],
-            'customerAddrCity' => ['nullable', 'string', 'max:80'],
-            'customerAddrPostal' => ['nullable', 'string', 'max:20'],
-            'customerAddrAdditional' => ['nullable', 'string', 'max:160'],
-        ]));
+        $this->validate(array_merge($this->liveValidationRules(), $rules));
 
-        $vatDigits = preg_replace('/\D/', '', $this->customerVat) ?? '';
-        $country = strtoupper(trim($this->customerCountry !== '' ? $this->customerCountry : 'SA'));
-        $nationalAddress = [
-            'building' => trim($this->customerAddrBuilding) !== '' ? trim($this->customerAddrBuilding) : null,
-            'street' => trim($this->customerAddrStreet) !== '' ? trim($this->customerAddrStreet) : null,
-            'district' => trim($this->customerAddrDistrict) !== '' ? trim($this->customerAddrDistrict) : null,
-            'city' => trim($this->customerAddrCity) !== '' ? trim($this->customerAddrCity) : null,
-            'postal_code' => trim($this->customerAddrPostal) !== '' ? trim($this->customerAddrPostal) : null,
-            'additional' => trim($this->customerAddrAdditional) !== '' ? trim($this->customerAddrAdditional) : null,
-            'country' => $country,
-        ];
-
-        $profilePayload = [
-            'name_ar' => trim($this->customerNameAr) !== '' ? trim($this->customerNameAr) : null,
-            'cr_number' => trim($this->customerCr) !== '' ? trim($this->customerCr) : null,
-            'country' => $country,
-            'national_address' => $nationalAddress,
-        ];
+        $state = CustomerIdentityPersistence::stateFromHost($this, $fields);
 
         if ($this->editingCustomerId !== null) {
             $customer = Customer::query()->findOrFail($this->editingCustomerId);
-            $profile = is_array($customer->profile) ? $customer->profile : [];
-
-            $customer->forceFill([
-                'name' => trim($this->customerName),
-                'phone' => $this->customerPhone,
-                'email' => $this->customerEmail !== '' ? trim($this->customerEmail) : null,
-                'vat_number' => $vatDigits !== '' ? $vatDigits : null,
-                'profile' => array_replace_recursive($profile, $profilePayload),
-            ])->save();
+            CustomerIdentityPersistence::applyToCustomer($customer, $state);
+            $customer->save();
 
             $this->hydrateCustomerForm($customer->fresh());
             $this->toastSuccess(__('customers.updated'));
         } else {
-            $customer = Customer::query()->create([
-                'name' => trim($this->customerName),
-                'phone' => $this->customerPhone,
-                'email' => $this->customerEmail !== '' ? trim($this->customerEmail) : null,
-                'vat_number' => $vatDigits !== '' ? $vatDigits : null,
+            $customer = new Customer([
                 'referral_code' => '',
                 'points_balance' => 0,
-                'profile' => $profilePayload,
             ]);
+            CustomerIdentityPersistence::applyToCustomer($customer, $state);
+            $customer->save();
 
             $loyalty->ensureReferralCode($customer);
             $this->openCustomerModal($customer->id, 'details');
@@ -384,14 +352,21 @@ class CustomerHub extends Component
             $digits = preg_replace('/\D/', '', $term) ?? '';
             $query->where(function ($q) use ($like, $term, $digits): void {
                 $q->where('name', 'like', $like)
+                    ->orWhere('legal_name_ar', 'like', $like)
+                    ->orWhere('legal_name_en', 'like', $like)
                     ->orWhere('phone', 'like', $like)
                     ->orWhere('email', 'like', $like)
                     ->orWhere('vat_number', 'like', $like)
+                    ->orWhere('alt_id_number', 'like', $like)
+                    ->orWhere('street_name', 'like', $like)
+                    ->orWhere('city', 'like', $like)
                     ->orWhere('referral_code', 'like', strtoupper($term).'%');
                 if ($digits !== '') {
-                    $q->orWhere('vat_number', 'like', '%'.$digits.'%');
+                    $q->orWhere('vat_number', 'like', '%'.$digits.'%')
+                        ->orWhere('alt_id_number', 'like', '%'.$digits.'%');
                 }
                 $q->orWhere('profile->cr_number', 'like', $like)
+                    ->orWhere('profile->name_ar', 'like', $like)
                     ->orWhere('profile->national_address->city', 'like', $like);
             });
         }
@@ -407,8 +382,8 @@ class CustomerHub extends Component
             'phone' => $query->orderBy('phone', $dir),
             'email' => $query->orderBy('email', $dir),
             'vat_number' => $query->orderBy('vat_number', $dir),
-            'cr_number' => $query->orderBy('profile->cr_number', $dir),
-            'city' => $query->orderBy('profile->national_address->city', $dir),
+            'cr_number' => $query->orderBy('alt_id_number', $dir)->orderBy('profile->cr_number', $dir),
+            'city' => $query->orderBy('city', $dir)->orderBy('profile->national_address->city', $dir),
             default => $query->orderBy('name', $dir)->orderBy('id', $dir),
         };
     }
@@ -447,12 +422,14 @@ class CustomerHub extends Component
 
     private function resetCustomerFormFields(): void
     {
-        $this->customerName = '';
-        $this->customerNameAr = '';
+        $this->customerLegalNameAr = '';
+        $this->customerLegalNameEn = '';
+        $this->customerVatRegistered = false;
+        $this->customerVat = '';
+        $this->customerAltIdType = '';
+        $this->customerAltIdNumber = '';
         $this->customerPhone = '';
         $this->customerEmail = '';
-        $this->customerVat = '';
-        $this->customerCr = '';
         $this->customerCountry = 'SA';
         $this->customerAddrBuilding = '';
         $this->customerAddrStreet = '';
@@ -460,27 +437,25 @@ class CustomerHub extends Component
         $this->customerAddrCity = '';
         $this->customerAddrPostal = '';
         $this->customerAddrAdditional = '';
+        $this->customerShowMoreAddress = false;
     }
 
     private function hydrateCustomerForm(Customer $customer): void
     {
         $this->editingCustomerId = $customer->id;
+        CustomerIdentityPersistence::fillHostFromCustomer(
+            $this,
+            CustomerIdentityRules::hubFields(),
+            $customer,
+        );
+
         $profile = is_array($customer->profile) ? $customer->profile : [];
         $na = is_array($profile['national_address'] ?? null) ? $profile['national_address'] : [];
 
-        $this->customerName = $customer->name;
-        $this->customerNameAr = (string) ($profile['name_ar'] ?? '');
-        $this->customerPhone = (string) ($customer->phone ?? '');
-        $this->customerEmail = (string) ($customer->email ?? '');
-        $this->customerVat = (string) ($customer->vat_number ?? '');
-        $this->customerCr = (string) (CustomerProfileFields::crNumber($customer) ?? '');
-        $this->customerCountry = strtoupper((string) ($profile['country'] ?? ($na['country'] ?? 'SA')));
-        $this->customerAddrBuilding = (string) ($na['building'] ?? '');
-        $this->customerAddrStreet = (string) ($na['street'] ?? '');
-        $this->customerAddrDistrict = (string) ($na['district'] ?? '');
-        $this->customerAddrCity = (string) ($na['city'] ?? CustomerProfileFields::city($customer) ?? '');
-        $this->customerAddrPostal = (string) ($na['postal_code'] ?? '');
-        $this->customerAddrAdditional = (string) ($na['additional'] ?? '');
+        $this->customerShowMoreAddress = filled($na['building'] ?? null)
+            || filled($na['postal_code'] ?? null)
+            || filled($na['district'] ?? null)
+            || filled($na['additional'] ?? null);
     }
 
     /**
@@ -489,19 +464,6 @@ class CustomerHub extends Component
     protected function liveValidationRules(): array
     {
         return [
-            'customerName' => ['required', 'string', 'max:120'],
-            'customerNameAr' => ['nullable', 'string', 'max:160'],
-            'customerPhone' => FieldValidationRules::saudiMobileRequired(),
-            'customerEmail' => FieldValidationRules::emailOptional(),
-            'customerVat' => ['nullable', 'string', 'max:32'],
-            'customerCr' => ['nullable', 'string', 'max:32'],
-            'customerCountry' => ['nullable', 'string', 'max:2'],
-            'customerAddrBuilding' => ['nullable', 'string', 'max:120'],
-            'customerAddrStreet' => ['nullable', 'string', 'max:120'],
-            'customerAddrDistrict' => ['nullable', 'string', 'max:120'],
-            'customerAddrCity' => ['nullable', 'string', 'max:80'],
-            'customerAddrPostal' => ['nullable', 'string', 'max:20'],
-            'customerAddrAdditional' => ['nullable', 'string', 'max:160'],
             'adjustPoints' => ['nullable', 'integer', 'not_in:0'],
             'adjustNote' => ['nullable', 'string', 'max:200'],
         ];

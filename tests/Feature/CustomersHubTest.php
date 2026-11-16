@@ -64,7 +64,7 @@ it('shows details tab with editable address fields in customer modal', function 
         ->assertSet('showCustomerModal', true)
         ->assertSeeHtml('data-testid="customer-modal-tabs"')
         ->assertSee(__('customers.tab_details'), false)
-        ->assertSeeHtml('name="customerAddrCity"');
+        ->assertSeeHtml('data-testid="customer-identity-fields"');
 });
 
 it('adjusts points with audit row', function () {
@@ -90,7 +90,11 @@ it('creates customers with referral codes', function () {
     Livewire::actingAs($this->owner, 'staff')
         ->test(CustomerHub::class)
         ->call('startCustomer')
-        ->set('customerName', 'Walk-in VIP')
+        ->set('customerLegalNameEn', 'Walk-in VIP')
+        ->set('customerAltIdType', 'CRN')
+        ->set('customerAltIdNumber', '1010998899')
+        ->set('customerAddrStreet', 'King Fahd Rd')
+        ->set('customerAddrCity', 'Riyadh')
         ->set('customerPhone', '0509998877')
         ->call('saveCustomer')
         ->assertHasNoErrors();

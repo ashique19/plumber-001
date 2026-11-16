@@ -5,8 +5,8 @@
 ])
 
 @php
-    $showVatCr = in_array('vat_or_cr', $missingKeys, true);
-    $fieldNames = array_filter($missingKeys, fn (string $key): bool => $key !== 'vat_or_cr');
+    $showIdentity = in_array('buyer_identity', $missingKeys, true);
+    $fieldNames = array_filter($missingKeys, fn (string $key): bool => ! in_array($key, ['buyer_identity'], true));
 @endphp
 
 <x-modal
@@ -21,14 +21,17 @@
         </p>
 
         <div class="x-modal-form__fields x-modal-form__fields--2 mt-4">
-            @if ($showVatCr)
-                <x-field.input :label="__('business.fields.vat_number')" name="buyerVat" wire:model="buyerVat" :liveValidate="false" />
-                <x-field.input :label="__('business.fields.cr_number')" name="buyerCr" wire:model="buyerCr" :liveValidate="false" />
+            @if ($showIdentity)
+                <x-customers.identity-fields
+                    :fields="\App\Support\Customers\CustomerIdentityRules::buyerFields()"
+                    more-address-prop="standardBuyerShowMoreAddress"
+                    :sa-standard-buyer="true"
+                />
                 <p class="text-xs text-[var(--app-muted)] md:col-span-2">{{ __('invoices.buyer_id_hint') }}</p>
             @endif
 
             @if (in_array('buyerCountry', $missingKeys, true))
-                <x-field.input :label="__('invoices.buyer_country')" name="buyerCountry" wire:model="buyerCountry" :liveValidate="false" maxlength="2" required wrapper-class="md:col-span-2" />
+                <x-field.input :label="__('customers.fields.country_code')" name="buyerCountry" wire:model="buyerCountry" :liveValidate="false" maxlength="2" required wrapper-class="md:col-span-2" />
             @endif
 
             @if (in_array('addrBuilding', $missingKeys, true))

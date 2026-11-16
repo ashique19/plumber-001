@@ -74,38 +74,66 @@ final class ZHeartInvoicePayloadBuilder
      */
     private function buyerBlock(InvoiceSigningRequest $request, string $type): array
     {
-        $vat = preg_replace('/\D/', '', (string) ($request->invoicePayload['buyer_vat'] ?? '')) ?? '';
-        $cr = trim((string) ($request->invoicePayload['buyer_cr'] ?? ''));
-        $name = trim((string) ($request->invoicePayload['buyer_name'] ?? ''));
-        $address = (array) ($request->invoicePayload['buyer_national_address'] ?? []);
+        $payload = $request->invoicePayload;
+        $vatRegistered = (bool) ($payload['buyer_vat_registered'] ?? false);
+        $vat = preg_replace('/\D/', '', (string) ($payload['buyer_vat'] ?? '')) ?? '';
+        $altType = strtoupper(trim((string) ($payload['buyer_alt_id_type'] ?? '')));
+        $altNumber = trim((string) ($payload['buyer_alt_id_number'] ?? ''));
+        $cr = trim((string) ($payload['buyer_cr'] ?? ''));
+        if ($altType === 'CRN' && $altNumber !== '') {
+            $cr = $altNumber;
+        }
+
+        if (! $vatRegistered && $vat !== '') {
+            $vatRegistered = true;
+        }
+        if (! $vatRegistered && $altType === '' && $cr !== '') {
+            $altType = 'CRN';
+            $altNumber = $cr;
+        }
+
+        $nameEn = trim((string) ($payload['buyer_name_en'] ?? $payload['buyer_name'] ?? ''));
+        $nameAr = trim((string) ($payload['buyer_name_ar'] ?? ''));
+        $name = $nameEn !== '' ? $nameEn : $nameAr;
+        $address = (array) ($payload['buyer_national_address'] ?? []);
 
         if ($type === 'standard') {
-            if ($vat === '' && $cr === '') {
-                throw new \InvalidArgumentException(__('invoices.errors.buyer_id_required'));
-            }
-
-            if ($vat !== '') {
+            if ($vatRegistered) {
+                if ($vat === '') {
+                    throw new \InvalidArgumentException(__('invoices.errors.buyer_id_required'));
+                }
                 Validator::make(['vat' => $vat], ['vat' => [new SaudiVatNumber]])->validate();
+            } elseif ($altType === '' || $altNumber === '') {
+                throw new \InvalidArgumentException(__('invoices.errors.buyer_id_required'));
             }
         }
 
-        $email = trim((string) ($request->invoicePayload['buyer_email'] ?? ''));
-        $phone = trim((string) ($request->invoicePayload['buyer_phone'] ?? ''));
+        $email = trim((string) ($payload['buyer_email'] ?? ''));
+        $phone = trim((string) ($payload['buyer_phone'] ?? ''));
 
-        if ($name === '' && $vat === '' && $cr === '' && $address === [] && $email === '' && $phone === '') {
+        if ($name === '' && $vat === '' && $altNumber === '' && $address === [] && $email === '' && $phone === '') {
             return [];
         }
 
-        $country = strtoupper(trim((string) ($request->invoicePayload['buyer_country'] ?? 'SA'))) ?: 'SA';
+        $country = strtoupper(trim((string) ($payload['buyer_country'] ?? 'SA'))) ?: 'SA';
 
         $buyer = array_filter([
             'name' => $name !== '' ? $name : null,
-            'vat_number' => $vat !== '' ? $vat : null,
+            'name_en' => $nameEn !== '' ? $nameEn : null,
+            'name_ar' => $nameAr !== '' ? $nameAr : null,
+            'vat_number' => $vatRegistered && $vat !== '' ? $vat : null,
             'cr_number' => $cr !== '' ? $cr : null,
             'email' => $email !== '' ? $email : null,
             'phone' => $phone !== '' ? $phone : null,
             'country_code' => $country,
         ]);
+
+        if (! $vatRegistered && $altType !== '' && $altNumber !== '') {
+            $buyer['party_identification'] = [
+                'scheme_id' => $altType,
+                'id' => $altNumber,
+            ];
+        }
 
         $normalizedAddress = $this->normalizeAddress($address);
         if ($normalizedAddress !== []) {

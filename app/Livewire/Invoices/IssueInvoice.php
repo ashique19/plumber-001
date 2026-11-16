@@ -15,6 +15,7 @@ use App\Livewire\Concerns\ValidatesFieldsLive;
 use App\Models\ProductCategory;
 use App\Models\Product;
 use App\Services\InvoiceIssueService;
+use App\Support\Customers\CustomerIdentityRules;
 use App\Support\Invoicing\InvoiceDocumentTotals;
 use App\Support\Invoicing\IssueInvoicePrefill;
 use App\Support\Invoicing\SigningFailureSanitizer;
@@ -66,7 +67,15 @@ class IssueInvoice extends Component
 
     public string $buyerName = '';
 
+    public string $buyerNameAr = '';
+
+    public bool $buyerVatRegistered = false;
+
     public string $buyerVat = '';
+
+    public string $buyerAltIdType = '';
+
+    public string $buyerAltIdNumber = '';
 
     public string $buyerCr = '';
 
@@ -91,6 +100,13 @@ class IssueInvoice extends Component
     public string $supplyDate = '';
 
     public string $documentNotes = '';
+
+    public bool $standardBuyerShowMoreAddress = false;
+
+    public function updatedBuyerVatRegistered(mixed $value): void
+    {
+        $this->buyerVatRegistered = filter_var($value, FILTER_VALIDATE_BOOLEAN);
+    }
 
     public function mount(string $mode): void
     {
@@ -202,11 +218,23 @@ class IssueInvoice extends Component
 
         $payload = $draft->payload ?? [];
         if ($type === InvoiceDocumentType::Standard) {
-            $vat = preg_replace('/\D/', '', $this->buyerVat) ?? '';
+            $vatRegistered = $this->buyerVatRegistered;
+            $vat = $vatRegistered ? (preg_replace('/\D/', '', $this->buyerVat) ?? '') : '';
+            $altType = ! $vatRegistered ? strtoupper(trim($this->buyerAltIdType)) : '';
+            $altNumber = ! $vatRegistered ? trim($this->buyerAltIdNumber) : '';
+            $buyerCr = $altType === 'CRN' && $altNumber !== ''
+                ? $altNumber
+                : trim($this->buyerCr);
+
             $payload = array_merge($payload, [
                 'buyer_name' => trim($this->buyerName),
-                'buyer_vat' => $vat,
-                'buyer_cr' => trim($this->buyerCr),
+                'buyer_name_ar' => trim($this->buyerNameAr) !== '' ? trim($this->buyerNameAr) : null,
+                'buyer_name_en' => trim($this->buyerName) !== '' ? trim($this->buyerName) : null,
+                'buyer_vat_registered' => $vatRegistered,
+                'buyer_vat' => $vat !== '' ? $vat : null,
+                'buyer_alt_id_type' => $altType !== '' ? $altType : null,
+                'buyer_alt_id_number' => $altNumber !== '' ? $altNumber : null,
+                'buyer_cr' => $buyerCr !== '' ? $buyerCr : null,
                 'buyer_phone' => trim($this->buyerPhone),
                 'buyer_email' => trim($this->buyerEmail),
                 'buyer_country' => strtoupper(trim($this->buyerCountry)) ?: 'SA',
@@ -468,19 +496,13 @@ class IssueInvoice extends Component
             return $lineRules;
         }
 
-        return array_merge($lineRules, [
+        $buyerFields = CustomerIdentityRules::buyerFields();
+
+        return array_merge($lineRules, CustomerIdentityRules::forHost($this, $buyerFields, [
+            'sa_standard_buyer' => true,
+        ]), [
             'selectedCustomerId' => ['required', 'integer', 'exists:customers,id'],
-            'buyerName' => ['required', 'string', 'max:200'],
-            'buyerVat' => array_merge(FieldValidationRules::vatOptional(), ['required_without:buyerCr']),
-            'buyerCr' => array_merge(FieldValidationRules::crNumberOptional(), ['required_without:buyerVat']),
             'dueDate' => ['required', 'date'],
-            'buyerCountry' => ['required', 'string', 'size:2'],
-            'addrBuilding' => ['required', 'string', 'max:32'],
-            'addrStreet' => ['required', 'string', 'max:120'],
-            'addrDistrict' => ['nullable', 'string', 'max:120'],
-            'addrCity' => ['required', 'string', 'max:80'],
-            'addrPostal' => FieldValidationRules::postalCodeRequired(),
-            'addrAdditional' => ['nullable', 'string', 'max:32'],
         ]);
     }
 
@@ -506,8 +528,9 @@ class IssueInvoice extends Component
     protected function messages(): array
     {
         return [
-            'buyerVat.required_without' => __('invoices.errors.buyer_id_required'),
-            'buyerCr.required_without' => __('invoices.errors.buyer_id_required'),
+            'buyerVat.required_if' => __('invoices.errors.buyer_id_required'),
+            'buyerAltIdType.required_if' => __('invoices.errors.buyer_id_required'),
+            'buyerAltIdNumber.required_if' => __('invoices.errors.buyer_id_required'),
             'selectedCustomerId.required' => __('invoices.errors.customer_required'),
         ];
     }
@@ -518,9 +541,12 @@ class IssueInvoice extends Component
     protected function validationAttributes(): array
     {
         return array_merge(QuickModalValidationAttributes::map(), [
-            'buyerName' => __('invoices.buyer_name'),
+            'buyerName' => __('customers.fields.legal_name_en'),
+            'buyerNameAr' => __('customers.fields.legal_name_ar'),
             'buyerNameOptional' => __('invoices.buyer_optional'),
-            'buyerVat' => __('business.fields.vat_number'),
+            'buyerVat' => __('customers.fields.vat_number'),
+            'buyerAltIdType' => __('customers.fields.alt_id_type'),
+            'buyerAltIdNumber' => __('customers.fields.alt_id_number'),
             'buyerCr' => __('business.fields.cr_number'),
             'addrBuilding' => __('business.fields.building'),
             'addrStreet' => __('business.fields.street'),

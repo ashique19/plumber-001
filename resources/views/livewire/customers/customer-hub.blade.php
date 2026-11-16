@@ -77,7 +77,7 @@
                     <tbody>
                         @forelse ($customers as $row)
                             @php
-                                $displayName = $row->name ?: __('customers.guest_label');
+                                $displayName = \App\Support\Customers\CustomerDisplayName::for($row);
                                 $cr = \App\Support\Customers\CustomerProfileFields::crNumber($row);
                                 $city = \App\Support\Customers\CustomerProfileFields::city($row);
                                 $outstanding = $outstandingById[$row->id] ?? 0.0;
@@ -134,7 +134,7 @@
 
     @php
         $customerModalTitle = $editingCustomerId
-            ? (filled($customerName) ? $customerName : __('customers.edit_title'))
+            ? (($selected !== null ? \App\Support\Customers\CustomerDisplayName::for($selected) : null) ?: __('customers.edit_title'))
             : __('customers.add');
     @endphp
 

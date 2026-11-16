@@ -22,64 +22,9 @@
 @if (! $editingCustomerId || $customerModalTab === 'details')
     <form class="customer-hub-modal x-modal-form" wire:submit="saveCustomer" data-testid="customer-modal">
         <div class="x-modal-form__fields x-modal-form__fields--2">
-            <x-field.input
-                :label="__('customers.name')"
-                name="customerName"
-                wire:model.blur="customerName"
-                required
-                wrapper-class="md:col-span-2"
-            />
-            <x-field.input
-                :label="__('invoices.customer_name_ar')"
-                name="customerNameAr"
-                wire:model.blur="customerNameAr"
-                dir="rtl"
-                wrapper-class="md:col-span-2"
-            />
-            <x-field.input
-                :label="__('customers.phone')"
-                name="customerPhone"
-                wire:model.blur="customerPhone"
-                required
-                inputmode="tel"
-                icon="phone"
-            />
-            <x-field.input
-                type="email"
-                :label="__('customers.email_optional')"
-                name="customerEmail"
-                wire:model.blur="customerEmail"
-                icon="mail"
-            />
-            <x-field.input
-                :label="__('customers.col_vat')"
-                name="customerVat"
-                wire:model.blur="customerVat"
-                inputmode="numeric"
-            />
-            <x-field.input
-                :label="__('customers.col_cr')"
-                name="customerCr"
-                wire:model.blur="customerCr"
-                inputmode="numeric"
-            />
-            <x-field.input
-                :label="__('invoices.buyer_country')"
-                name="customerCountry"
-                wire:model.blur="customerCountry"
-                maxlength="2"
-                wrapper-class="md:col-span-2"
-            />
-            <x-field.input :label="__('business.fields.building')" name="customerAddrBuilding" wire:model.blur="customerAddrBuilding" />
-            <x-field.input :label="__('business.fields.street')" name="customerAddrStreet" wire:model.blur="customerAddrStreet" />
-            <x-field.input :label="__('business.fields.district')" name="customerAddrDistrict" wire:model.blur="customerAddrDistrict" />
-            <x-field.input :label="__('business.fields.city')" name="customerAddrCity" wire:model.blur="customerAddrCity" />
-            <x-field.input :label="__('business.fields.postal')" name="customerAddrPostal" wire:model.blur="customerAddrPostal" />
-            <x-field.input
-                :label="__('business.fields.additional')"
-                name="customerAddrAdditional"
-                wire:model.blur="customerAddrAdditional"
-                wrapper-class="md:col-span-2"
+            <x-customers.identity-fields
+                :fields="\App\Support\Customers\CustomerIdentityRules::hubFields()"
+                more-address-prop="customerShowMoreAddress"
             />
         </div>
 
