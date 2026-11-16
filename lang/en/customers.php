@@ -31,6 +31,7 @@ return [
     'tab_loyalty' => 'Loyalty',
     'confirm_delete' => 'Delete this customer? Loyalty history will be removed. Invoices keep their snapshot.',
     'name' => 'Name',
+    'email' => 'Email',
     'phone_optional' => 'Phone (optional)',
     'email_optional' => 'Email (optional)',
     'more_address_details' => 'More address details',

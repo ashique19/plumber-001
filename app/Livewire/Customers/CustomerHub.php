@@ -12,7 +12,7 @@ use App\Services\Invoicing\InvoiceDuesLedgerService;
 use App\Services\Loyalty\LoyaltyService;
 use App\Support\Customers\CustomerIdentityPersistence;
 use App\Support\Customers\CustomerIdentityRules;
-use App\Support\Customers\CustomerProfileFields;
+use App\Support\Customers\CustomerSchema;
 use App\Support\Loyalty\LoyaltyConfig;
 use App\Support\Validation\FieldValidationRules;
 use Illuminate\Database\Eloquent\Builder;
@@ -87,15 +87,19 @@ class CustomerHub extends Component
 
     public string $adjustNote = '';
 
-    private const SORTABLE = [
-        'name',
-        'phone',
-        'email',
-        'vat_number',
-        'cr_number',
-        'city',
-        'outstanding',
-    ];
+    /**
+     * @return list<string>
+     */
+    private function sortableColumns(): array
+    {
+        $columns = ['name', 'phone', 'email', 'vat_number', 'outstanding'];
+        if (CustomerSchema::hasIdentityColumns()) {
+            $columns[] = 'cr_number';
+            $columns[] = 'city';
+        }
+
+        return $columns;
+    }
 
     public function mount(): void
     {
@@ -103,7 +107,7 @@ class CustomerHub extends Component
         BusinessContext::set($this->business);
         app(PermissionRegistrar::class)->setPermissionsTeamId($this->business->id);
 
-        if (! in_array($this->sort, self::SORTABLE, true)) {
+        if (! in_array($this->sort, $this->sortableColumns(), true)) {
             $this->sort = 'name';
         }
         if (! in_array(strtolower($this->sortDir), ['asc', 'desc'], true)) {
@@ -143,7 +147,7 @@ class CustomerHub extends Component
 
     public function sortBy(string $column): void
     {
-        if (! in_array($column, self::SORTABLE, true)) {
+        if (! in_array($column, $this->sortableColumns(), true)) {
             return;
         }
 
@@ -350,21 +354,29 @@ class CustomerHub extends Component
         if ($term !== '') {
             $like = '%'.$term.'%';
             $digits = preg_replace('/\D/', '', $term) ?? '';
-            $query->where(function ($q) use ($like, $term, $digits): void {
+            $hasIdentity = CustomerSchema::hasIdentityColumns();
+            $query->where(function ($q) use ($like, $term, $digits, $hasIdentity): void {
                 $q->where('name', 'like', $like)
-                    ->orWhere('legal_name_ar', 'like', $like)
-                    ->orWhere('legal_name_en', 'like', $like)
                     ->orWhere('phone', 'like', $like)
                     ->orWhere('email', 'like', $like)
                     ->orWhere('vat_number', 'like', $like)
-                    ->orWhere('alt_id_number', 'like', $like)
-                    ->orWhere('street_name', 'like', $like)
-                    ->orWhere('city', 'like', $like)
                     ->orWhere('referral_code', 'like', strtoupper($term).'%');
-                if ($digits !== '') {
-                    $q->orWhere('vat_number', 'like', '%'.$digits.'%')
-                        ->orWhere('alt_id_number', 'like', '%'.$digits.'%');
+
+                if ($hasIdentity) {
+                    $q->orWhere('legal_name_ar', 'like', $like)
+                        ->orWhere('legal_name_en', 'like', $like)
+                        ->orWhere('alt_id_number', 'like', $like)
+                        ->orWhere('street_name', 'like', $like)
+                        ->orWhere('city', 'like', $like);
                 }
+
+                if ($digits !== '') {
+                    $q->orWhere('vat_number', 'like', '%'.$digits.'%');
+                    if ($hasIdentity) {
+                        $q->orWhere('alt_id_number', 'like', '%'.$digits.'%');
+                    }
+                }
+
                 $q->orWhere('profile->cr_number', 'like', $like)
                     ->orWhere('profile->name_ar', 'like', $like)
                     ->orWhere('profile->national_address->city', 'like', $like);
@@ -378,12 +390,18 @@ class CustomerHub extends Component
     {
         $dir = strtolower($this->sortDir) === 'desc' ? 'desc' : 'asc';
 
+        $hasIdentity = CustomerSchema::hasIdentityColumns();
+
         match ($this->sort) {
             'phone' => $query->orderBy('phone', $dir),
             'email' => $query->orderBy('email', $dir),
             'vat_number' => $query->orderBy('vat_number', $dir),
-            'cr_number' => $query->orderBy('alt_id_number', $dir)->orderBy('profile->cr_number', $dir),
-            'city' => $query->orderBy('city', $dir)->orderBy('profile->national_address->city', $dir),
+            'cr_number' => $hasIdentity
+                ? $query->orderBy('alt_id_number', $dir)->orderBy('profile->cr_number', $dir)
+                : $query->orderBy('profile->cr_number', $dir),
+            'city' => $hasIdentity
+                ? $query->orderBy('city', $dir)->orderBy('profile->national_address->city', $dir)
+                : $query->orderBy('profile->national_address->city', $dir),
             default => $query->orderBy('name', $dir)->orderBy('id', $dir),
         };
     }

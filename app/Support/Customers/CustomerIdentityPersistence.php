@@ -11,6 +11,7 @@ final class CustomerIdentityPersistence
      */
     public static function applyToCustomer(Customer $customer, array $state): void
     {
+        $hasIdentityColumns = CustomerSchema::hasIdentityColumns();
         $vatRegistered = (bool) ($state['vat_registered'] ?? false);
         $vatDigits = preg_replace('/\D/', '', (string) ($state['vat_number'] ?? '')) ?? '';
         $country = strtoupper(trim((string) ($state['country_code'] ?? 'SA'))) ?: 'SA';
@@ -25,34 +26,43 @@ final class CustomerIdentityPersistence
         $altType = $vatRegistered ? null : strtoupper(trim((string) ($state['alt_id_type'] ?? '')));
         $altNumber = $vatRegistered ? null : trim((string) ($state['alt_id_number'] ?? ''));
 
-        $customer->forceFill([
-            'name' => $display,
-            'legal_name_ar' => $legalAr !== '' ? $legalAr : null,
-            'legal_name_en' => $legalEn !== '' ? $legalEn : null,
-            'vat_registered' => $vatRegistered,
-            'vat_number' => $vatRegistered && $vatDigits !== '' ? $vatDigits : null,
-            'alt_id_type' => $altType !== '' && $altType !== null ? $altType : null,
-            'alt_id_number' => $altNumber !== '' ? $altNumber : null,
-            'country_code' => $country,
-            'street_name' => trim((string) ($state['street_name'] ?? '')) ?: null,
-            'city' => trim((string) ($state['city'] ?? '')) ?: null,
-            'phone' => filled($state['phone'] ?? null) ? trim((string) $state['phone']) : null,
-            'email' => filled($state['email'] ?? null) ? trim((string) $state['email']) : null,
-            'profile' => array_merge($profile, [
-                'name_ar' => $legalAr !== '' ? $legalAr : null,
-                'cr_number' => $altType === 'CRN' && $altNumber !== '' ? $altNumber : data_get($profile, 'cr_number'),
+        $profilePayload = array_merge($profile, [
+            'name_ar' => $legalAr !== '' ? $legalAr : null,
+            'cr_number' => $altType === 'CRN' && $altNumber !== '' ? $altNumber : data_get($profile, 'cr_number'),
+            'country' => $country,
+            'national_address' => array_merge($na, [
+                'building' => trim((string) ($state['addr_building'] ?? '')) ?: null,
+                'street' => trim((string) ($state['street_name'] ?? '')) ?: null,
+                'district' => trim((string) ($state['addr_district'] ?? '')) ?: null,
+                'city' => trim((string) ($state['city'] ?? '')) ?: null,
+                'postal_code' => trim((string) ($state['addr_postal'] ?? '')) ?: null,
+                'additional' => trim((string) ($state['addr_additional'] ?? '')) ?: null,
                 'country' => $country,
-                'national_address' => array_merge($na, [
-                    'building' => trim((string) ($state['addr_building'] ?? '')) ?: null,
-                    'street' => trim((string) ($state['street_name'] ?? '')) ?: null,
-                    'district' => trim((string) ($state['addr_district'] ?? '')) ?: null,
-                    'city' => trim((string) ($state['city'] ?? '')) ?: null,
-                    'postal_code' => trim((string) ($state['addr_postal'] ?? '')) ?: null,
-                    'additional' => trim((string) ($state['addr_additional'] ?? '')) ?: null,
-                    'country' => $country,
-                ]),
             ]),
         ]);
+
+        $attributes = [
+            'name' => $display,
+            'phone' => filled($state['phone'] ?? null) ? trim((string) $state['phone']) : null,
+            'email' => filled($state['email'] ?? null) ? trim((string) $state['email']) : null,
+            'vat_number' => $vatRegistered && $vatDigits !== '' ? $vatDigits : null,
+            'profile' => $profilePayload,
+        ];
+
+        if ($hasIdentityColumns) {
+            $attributes = array_merge($attributes, [
+                'legal_name_ar' => $legalAr !== '' ? $legalAr : null,
+                'legal_name_en' => $legalEn !== '' ? $legalEn : null,
+                'vat_registered' => $vatRegistered,
+                'alt_id_type' => $altType !== '' && $altType !== null ? $altType : null,
+                'alt_id_number' => $altNumber !== '' ? $altNumber : null,
+                'country_code' => $country,
+                'street_name' => trim((string) ($state['street_name'] ?? '')) ?: null,
+                'city' => trim((string) ($state['city'] ?? '')) ?: null,
+            ]);
+        }
+
+        $customer->forceFill($attributes);
     }
 
     /**

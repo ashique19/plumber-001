@@ -49,6 +49,20 @@ it('sorts customers by name when header is clicked', function () {
         ->assertSet('sortDir', 'desc');
 });
 
+it('handles sort search and startEdit without errors', function () {
+    $customer = Customer::query()->where('phone', '0501000001')->firstOrFail();
+
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(CustomerHub::class)
+        ->call('sortBy', 'email')
+        ->assertHasNoErrors()
+        ->set('search', '0501000')
+        ->assertHasNoErrors()
+        ->call('startEdit', $customer->id)
+        ->assertSet('showCustomerModal', true)
+        ->assertHasNoErrors();
+});
+
 it('denies cashier access', function () {
     expect($this->cashier->can('reports.view'))->toBeFalse();
 });
