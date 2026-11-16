@@ -16,23 +16,17 @@
     </header>
 
     <section class="app-card app-filter-fields mb-4 grid grid-cols-1 items-end gap-3 p-4 md:grid-cols-2">
-        <x-field.input
+        <x-field.search
             :label="__('quotations.search')"
             name="search"
             wire:model.live.debounce.300ms="search"
             :placeholder="__('quotations.search_hint')"
-            :hint="null"
-            :liveValidate="false"
-            autocomplete="off"
-            wrapperClass="min-w-0 md:col-span-2"
+            wrapper-class="min-w-0 md:col-span-2"
         />
         <x-field.input type="date" :label="__('quotations.date_from')" name="dateFrom" wire:model.live="dateFrom" :liveValidate="false" />
         <x-field.input type="date" :label="__('quotations.date_to')" name="dateTo" wire:model.live="dateTo" :liveValidate="false" />
     </section>
 
-    @if ($quotations->isEmpty())
-        <p class="app-card p-6 text-center text-sm text-[var(--app-muted)]">{{ __('quotations.empty') }}</p>
-    @else
         <x-hub.document-table-shell :aria-label="__('quotations.table_caption')">
             <thead>
                 <tr>
@@ -62,7 +56,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($quotations as $row)
+                @forelse ($quotations as $row)
                     @php
                         $quotation = $row['quotation'];
                         $urls = $row['print_urls'];
@@ -106,10 +100,13 @@
                             </div>
                         </td>
                     </tr>
-                @endforeach
+                @empty
+                    <tr>
+                        <td colspan="7" class="p-6 text-center text-sm text-[var(--app-muted)]">{{ __('quotations.empty') }}</td>
+                    </tr>
+                @endforelse
             </tbody>
         </x-hub.document-table-shell>
-    @endif
 
     <div class="mt-4">
         {{ $quotations->links() }}

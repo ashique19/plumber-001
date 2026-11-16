@@ -34,15 +34,12 @@
     @endif
 
     <section class="app-card app-filter-fields mb-4 grid grid-cols-1 items-end gap-3 p-4 md:grid-cols-2 xl:grid-cols-3">
-        <x-field.input
+        <x-field.search
             :label="__('invoices.search')"
             name="search"
             wire:model.live.debounce.300ms="search"
             :placeholder="__('invoices.search_hint')"
-            :hint="null"
-            :liveValidate="false"
-            autocomplete="off"
-            wrapperClass="min-w-0 md:col-span-2 xl:col-span-3"
+            wrapper-class="min-w-0 md:col-span-2 xl:col-span-3"
         />
         <x-field.input type="date" :label="__('invoices.date_from')" name="dateFrom" wire:model.live="dateFrom" :liveValidate="false" />
         <x-field.input type="date" :label="__('invoices.date_to')" name="dateTo" wire:model.live="dateTo" :liveValidate="false" />
@@ -86,9 +83,6 @@
         @endif
     </div>
 
-    @if ($invoices->isEmpty())
-        <p class="app-card p-6 text-center text-sm text-[var(--app-muted)]">{{ __('invoices.empty') }}</p>
-    @else
         <x-hub.document-table-shell :aria-label="__('invoices.table_caption')">
             <thead>
                 <tr>
@@ -116,7 +110,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($invoices as $row)
+                @forelse ($invoices as $row)
                     @php
                         $invoice = $row['invoice'];
                         $urls = $row['print_urls'];
@@ -185,10 +179,13 @@
                             </div>
                         </td>
                     </tr>
-                @endforeach
+                @empty
+                    <tr>
+                        <td colspan="9" class="p-6 text-center text-sm text-[var(--app-muted)]">{{ __('invoices.empty') }}</td>
+                    </tr>
+                @endforelse
             </tbody>
         </x-hub.document-table-shell>
-    @endif
 
     <div class="mt-4">{{ $invoices->links() }}</div>
 </div>
