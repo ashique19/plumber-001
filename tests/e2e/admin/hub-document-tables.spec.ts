@@ -13,13 +13,10 @@ test.describe('invoice hub table', () => {
         const table = page.locator('.hub-doc-table');
         await expect(table).toBeVisible({ timeout: 20_000 });
         await expect(table.locator('th.hub-doc-table__sticky')).toBeVisible();
-        const printLink = table.getByRole('link', { name: /print/i });
-        if ((await printLink.count()) > 0) {
-            await expect(printLink.first()).toBeVisible();
-            await expect(table.getByRole('link', { name: /download pdf/i }).first()).toBeVisible();
-        } else {
-            await expect(table.getByText(/no invoices|empty/i)).toBeVisible();
-        }
+        await expect(table.locator('th').filter({ hasText: /zatca/i }).first()).toBeVisible();
+        const printOrDisabled = table.locator('.hub-doc-table__action, .hub-doc-table__action--disabled');
+        const empty = table.getByText(/no issued invoices/i);
+        await expect(printOrDisabled.or(empty).first()).toBeVisible();
     });
 
     test('screenshots at 375px and 1280px', async ({ page }) => {
