@@ -5,6 +5,7 @@ return [
     'subtitle' => 'আজকের বিক্রয়, ইনভয়েস এবং জমার অবস্থা।',
     'nav' => 'ড্যাশবোর্ড',
     'quick_actions' => 'দ্রুত কাজ',
+    'overview' => 'সংক্ষিপ্ত বিবরণ',
     'make_invoice' => 'ইনভয়েস',
     'add_products' => 'পণ্য',
     'tiles' => [

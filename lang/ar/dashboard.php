@@ -5,6 +5,7 @@ return [
     'subtitle' => 'مبيعات اليوم والفواتير وحالة الإرسال لنشاطك.',
     'nav' => 'لوحة التحكم',
     'quick_actions' => 'إجراءات سريعة',
+    'overview' => 'نظرة عامة',
     'make_invoice' => 'فاتورة',
     'add_products' => 'المنتجات',
     'tiles' => [
