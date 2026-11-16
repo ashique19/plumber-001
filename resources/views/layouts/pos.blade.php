@@ -37,6 +37,18 @@
     app(\Spatie\Permission\PermissionRegistrar::class)->setPermissionsTeamId($business?->id ?? 1);
     $localeSwitchClass = 'shrink-0';
     $contentUsesNoTabbar = ! $adminSidebar;
+    $documentTitle = $pageTitle ?? __('pos.title');
+    $topbarTitle = $documentTitle;
+    if ($adminSidebar && $adminMenu) {
+        $activeNavItem = collect($adminMenu['groups'])
+            ->flatMap(fn (array $group) => $group['items'] ?? [])
+            ->first(fn (array $item) => (bool) ($item['active'] ?? false));
+        if (filled($pageTitle ?? null)) {
+            $topbarTitle = $pageTitle;
+        } elseif ($activeNavItem !== null) {
+            $topbarTitle = $activeNavItem['label'];
+        }
+    }
 @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', $locale) }}" dir="{{ $dir }}" class="scroll-smooth admin-app"
@@ -55,9 +67,6 @@
     <meta name="color-scheme" content="light dark">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="robots" content="noindex, nofollow">
-    @php
-        $documentTitle = $pageTitle ?? __('pos.title');
-    @endphp
     <title>{{ $documentTitle }} — {{ $displayName }}</title>
     @if ($adminSidebar)
         <link
@@ -133,15 +142,19 @@
                             <x-app.icon name="menu" class="h-6 w-6" />
                         </button>
                     @endif
-                    <a href="{{ $brandHomeUrl }}" class="app-topbar__brand app-brand-home min-w-0 flex-1">
-                        @if ($logoUrl)
-                            <img src="{{ asset($logoUrl) }}" alt="{{ __($logoAltKey, ['name' => $displayName]) }}" class="app-topbar__logo shrink-0 rounded-lg object-contain" width="32" height="32">
-                        @else
-                            <x-plumber.logo-mark class="app-topbar__logo shrink-0 text-[var(--app-accent)]" :name="$displayName" />
-                        @endif
-                        <div class="app-topbar__brand-text min-w-0">
-                            <p class="app-topbar__brand-name">{{ $displayName }}</p>
-                            @if ($adminSidebar)
+                    @if ($adminSidebar && $adminMenu)
+                        <p class="app-topbar__page-title min-w-0 flex-1 truncate text-start text-sm font-semibold leading-snug text-[var(--app-text)] sm:text-base" dir="auto">
+                            {{ $topbarTitle }}
+                        </p>
+                    @else
+                        <a href="{{ $brandHomeUrl }}" class="app-topbar__brand app-brand-home min-w-0 flex-1">
+                            @if ($logoUrl)
+                                <img src="{{ asset($logoUrl) }}" alt="{{ __($logoAltKey, ['name' => $displayName]) }}" class="app-topbar__logo shrink-0 rounded-lg object-contain" width="32" height="32">
+                            @else
+                                <x-plumber.logo-mark class="app-topbar__logo shrink-0 text-[var(--app-accent)]" :name="$displayName" />
+                            @endif
+                            <div class="app-topbar__brand-text min-w-0">
+                                <p class="app-topbar__brand-name">{{ $displayName }}</p>
                                 @if($branch)
                                     <p class="app-topbar__brand-subtitle">{{ $branch->name }}</p>
                                 @elseif($branchParam && ! $showBranchSwitcher)
@@ -158,9 +171,9 @@
                                         </ul>
                                     </details>
                                 @endif
-                            @endif
-                        </div>
-                    </a>
+                            </div>
+                        </a>
+                    @endif
                     <x-app.locale-switch :current="$locale" :class="$localeSwitchClass" responsive />
                     @if ($adminSidebar)
                         <button

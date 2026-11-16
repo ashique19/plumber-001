@@ -10,7 +10,7 @@ export async function expectNoHorizontalScroll(page: Page): Promise<void> {
 }
 
 export async function expectBrandLineClamp(page: Page): Promise<void> {
-    const clamp = await page.locator('.app-topbar__brand-name').evaluate((el) => {
+    const clamp = await page.locator('.admin-sidebar-nav__brand-name').first().evaluate((el) => {
         const style = window.getComputedStyle(el);
 
         return style.getPropertyValue('-webkit-line-clamp') || style.webkitLineClamp;

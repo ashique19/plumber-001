@@ -59,4 +59,12 @@
     .app-topbar__menu-btn:hover {
         background: rgb(212 165 116 / 0.15);
     }
+
+    .app-topbar__page-title {
+        overflow-wrap: anywhere;
+    }
+
+    html[dir='rtl'] .app-topbar__inner {
+        direction: rtl;
+    }
 }
