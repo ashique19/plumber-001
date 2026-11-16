@@ -23,11 +23,30 @@ beforeEach(function () {
     \App\Business\BusinessContext::set($this->tenant);
 });
 
-it('lists seeded customers for owner', function () {
+it('lists seeded customers in a sortable table', function () {
     Livewire::actingAs($this->owner, 'staff')
         ->test(CustomerHub::class)
+        ->assertSeeHtml('data-testid="customers-table"')
+        ->assertSee(__('customers.col_vat'), false)
+        ->assertSee(__('customers.col_cr'), false)
         ->assertSee('Regular Customer', false)
-        ->assertSee('PLUMB100', false);
+        ->assertSee('0501000001', false);
+});
+
+it('opens add customer modal from create query', function () {
+    Livewire::actingAs($this->owner, 'staff')
+        ->withQueryParams(['create' => 'customer'])
+        ->test(CustomerHub::class)
+        ->assertSet('showCustomerForm', true)
+        ->assertSee(__('customers.add'), false);
+});
+
+it('sorts customers by name when header is clicked', function () {
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(CustomerHub::class)
+        ->call('sortBy', 'name')
+        ->assertSet('sort', 'name')
+        ->assertSet('sortDir', 'desc');
 });
 
 it('denies cashier access', function () {

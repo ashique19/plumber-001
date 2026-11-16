@@ -263,6 +263,44 @@ class InvoiceDuesLedgerService
         ];
     }
 
+    /**
+     * @param  list<int>  $customerIds
+     * @return array<int, float>
+     */
+    public function totalOutstandingForCustomerIds(array $customerIds): array
+    {
+        if ($customerIds === []) {
+            return [];
+        }
+
+        $lookup = array_fill_keys($customerIds, 0.0);
+
+        $invoices = Invoice::query()
+            ->where('status', InvoiceStatus::Issued)
+            ->whereIn('document_type', [
+                InvoiceDocumentType::Standard,
+                InvoiceDocumentType::Simplified,
+            ])
+            ->whereIn('customer_id', $customerIds)
+            ->with(['payments'])
+            ->get(['id', 'customer_id', 'status', 'document_type', 'source_type', 'source_id', 'payload']);
+
+        foreach ($invoices as $invoice) {
+            $customerId = $invoice->customer_id;
+            if ($customerId === null || ! array_key_exists($customerId, $lookup)) {
+                continue;
+            }
+
+            $balance = $this->balanceFor($invoice);
+            $due = $balance['principal_outstanding'] + $balance['retention_outstanding'];
+            if ($due > 0) {
+                $lookup[$customerId] = round($lookup[$customerId] + $due, 2);
+            }
+        }
+
+        return $lookup;
+    }
+
     public function totalOutstandingPrincipal(): float
     {
         $total = 0.0;

@@ -1,4 +1,4 @@
-<div class="customer-hub pb-24 lg:pb-8">
+<div class="customer-hub pb-24 lg:pb-8" data-testid="customers-hub">
     <header class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
             <h1 class="app-page-title">{{ __('customers.title') }}</h1>
@@ -25,32 +25,107 @@
                 :clearable="trim($search) !== ''"
                 clear-action="$set('search', '')"
             />
-            <ul class="admin-hub-list" role="list">
-                @forelse ($customers as $row)
-                    <li wire:key="cust-{{ $row->id }}">
-                        <button
-                            type="button"
-                            wire:click="selectCustomer({{ $row->id }})"
-                            @class([
-                                'h-full w-full rounded-xl border p-3 text-start transition',
-                                'border-[var(--plumber-safety)] bg-[var(--plumber-safety)]/10' => $selected?->id === $row->id,
-                                'border-[var(--app-border)] hover:border-[var(--plumber-safety)]/50' => $selected?->id !== $row->id,
-                            ])
-                        >
-                            <p class="font-medium">{{ $row->name ?: __('customers.guest_label') }}</p>
-                            <p class="text-xs text-[var(--app-muted)]">{{ $row->phone }} @if($row->email)· {{ $row->email }}@endif</p>
-                            <p class="mt-2 flex flex-wrap gap-2 text-xs">
-                                <span class="pos-status-pill pos-status-pill--paid">{{ __('customers.points', ['count' => $row->points_balance]) }}</span>
-                                @if ($row->referral_code)
-                                    <span class="pos-status-pill">{{ __('customers.referral_code') }} {{ $row->referral_code }}</span>
-                                @endif
-                            </p>
-                        </button>
-                    </li>
-                @empty
-                    <li class="col-span-full text-sm text-[var(--app-muted)]">{{ __('customers.empty_list') }}</li>
-                @endforelse
-            </ul>
+
+            <div class="admin-data-table-scroll -mx-4 px-4">
+                <table class="admin-data-table text-start text-sm" data-testid="customers-table">
+                    <thead>
+                        <tr class="border-b border-[var(--app-border)] bg-[var(--app-surface-muted)]/60 text-xs uppercase text-[var(--app-muted)]">
+                            @php
+                                $columns = [
+                                    'name' => __('customers.name'),
+                                    'phone' => __('customers.phone'),
+                                    'email' => __('customers.email'),
+                                    'vat_number' => __('customers.col_vat'),
+                                    'cr_number' => __('customers.col_cr'),
+                                    'city' => __('customers.col_city'),
+                                    'outstanding' => __('customers.col_outstanding'),
+                                ];
+                            @endphp
+                            @foreach ($columns as $sortKey => $label)
+                                <th
+                                    @class([
+                                        'admin-data-table__sticky px-3 py-3 font-medium' => $sortKey === 'name',
+                                        'px-3 py-3 font-medium whitespace-nowrap' => $sortKey !== 'name',
+                                        'text-end tabular-nums' => $sortKey === 'outstanding',
+                                    ])
+                                    scope="col"
+                                    aria-sort="{{ $sort === $sortKey ? ($sortDir === 'asc' ? 'ascending' : 'descending') : 'none' }}"
+                                >
+                                    @if ($sortKey === 'outstanding' || array_key_exists($sortKey, $columns))
+                                        <button
+                                            type="button"
+                                            class="inline-flex max-w-full items-center gap-1 text-start hover:text-[var(--app-text)]"
+                                            wire:click="sortBy('{{ $sortKey }}')"
+                                        >
+                                            <span class="truncate">{{ $label }}</span>
+                                            @if ($sort === $sortKey)
+                                                <x-app.icon
+                                                    name="chevron"
+                                                    @class([
+                                                        'h-3.5 w-3.5 shrink-0 opacity-70 -rotate-90' => $sortDir === 'asc',
+                                                        'h-3.5 w-3.5 shrink-0 opacity-70 rotate-90' => $sortDir === 'desc',
+                                                    ])
+                                                />
+                                            @endif
+                                        </button>
+                                    @endif
+                                </th>
+                            @endforeach
+                            <th class="px-3 py-3 text-end font-medium" scope="col">{{ __('customers.col_actions') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($customers as $row)
+                            @php
+                                $displayName = $row->name ?: __('customers.guest_label');
+                                $cr = \App\Support\Customers\CustomerProfileFields::crNumber($row);
+                                $city = \App\Support\Customers\CustomerProfileFields::city($row);
+                                $outstanding = $outstandingById[$row->id] ?? 0.0;
+                            @endphp
+                            <tr class="border-b border-[var(--app-border)] last:border-0 hover:bg-[var(--app-surface-muted)]/40" wire:key="cust-{{ $row->id }}">
+                                <td class="admin-data-table__sticky max-w-[11rem] px-3 py-2.5 font-medium">
+                                    <span class="line-clamp-2" dir="auto">{{ $displayName }}</span>
+                                </td>
+                                <td class="px-3 py-2.5 whitespace-nowrap tabular-nums" dir="ltr">{{ $row->phone ?: '—' }}</td>
+                                <td class="max-w-[12rem] px-3 py-2.5 truncate" dir="auto">{{ $row->email ?: '—' }}</td>
+                                <td class="px-3 py-2.5 whitespace-nowrap tabular-nums" dir="ltr">{{ $row->vat_number ?: '—' }}</td>
+                                <td class="px-3 py-2.5 whitespace-nowrap tabular-nums" dir="ltr">{{ $cr ?: '—' }}</td>
+                                <td class="max-w-[8rem] px-3 py-2.5 truncate" dir="auto">{{ $city ?: '—' }}</td>
+                                <td class="px-3 py-2.5 text-end tabular-nums whitespace-nowrap">
+                                    @if ($outstanding > 0)
+                                        {{ number_format($outstanding, 2) }}
+                                    @else
+                                        <span class="text-[var(--app-muted)]">—</span>
+                                    @endif
+                                </td>
+                                <td class="px-3 py-2.5 text-end">
+                                    <div class="inline-flex flex-wrap items-center justify-end gap-1">
+                                        <button type="button" class="tap-action-muted min-h-9 px-2 text-xs" wire:click="selectCustomer({{ $row->id }})">
+                                            {{ __('customers.action_view') }}
+                                        </button>
+                                        <button type="button" class="tap-action-muted min-h-9 px-2 text-xs" wire:click="startEdit({{ $row->id }})">
+                                            {{ __('customers.action_edit') }}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            class="tap-action-muted min-h-9 px-2 text-xs text-red-700"
+                                            wire:click="deleteCustomer({{ $row->id }})"
+                                            wire:confirm="{{ __('customers.confirm_delete') }}"
+                                        >
+                                            {{ __('customers.action_delete') }}
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="8" class="px-3 py-8 text-center text-[var(--app-muted)]">{{ __('customers.search_empty') }}</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
             <div>{{ $customers->links() }}</div>
         </section>
     @endif
@@ -121,18 +196,25 @@
     </x-admin.hub-sheet>
 
     @if ($showCustomerForm)
-        <x-admin.hub-sheet :show="true" :title="__('customers.add')" close-wire="$set('showCustomerForm', false)">
+        <x-admin.hub-sheet
+            :show="true"
+            :title="$editingCustomerId ? __('customers.edit_title') : __('customers.add')"
+            close-wire="$set('showCustomerForm', false)"
+        >
             <form class="x-modal-form" wire:submit="saveCustomer">
                 <div class="x-modal-form__fields">
                     <x-field.input :label="__('customers.name')" name="customerName" wire:model.blur="customerName" required />
                     <x-field.input :label="__('customers.phone')" name="customerPhone" wire:model.blur="customerPhone" required inputmode="tel" icon="phone" />
                     <x-field.input type="email" :label="__('customers.email_optional')" name="customerEmail" wire:model.blur="customerEmail" icon="mail" />
+                    <x-field.input :label="__('customers.col_vat')" name="customerVat" wire:model.blur="customerVat" inputmode="numeric" />
+                    <x-field.input :label="__('customers.col_cr')" name="customerCr" wire:model.blur="customerCr" inputmode="numeric" />
+                    <x-field.input :label="__('customers.col_city')" name="customerCity" wire:model.blur="customerCity" />
                 </div>
                 <div class="x-modal__footer x-modal__footer--in-form">
                     <x-modal.footer
                         cancel-wire="$set('showCustomerForm', false)"
                         submit-target="saveCustomer"
-                        :submit-label="__('customers.save')"
+                        :submit-label="$editingCustomerId ? __('customers.save_changes') : __('customers.save')"
                     />
                 </div>
             </form>
