@@ -31,6 +31,12 @@ function completeStandardCustomer(array $overrides = []): Customer
         'vat_number' => null,
         'referral_code' => '',
         'points_balance' => 0,
+        'legal_name_en' => 'Standard Buyer',
+        'alt_id_type' => 'CRN',
+        'alt_id_number' => '1010998899',
+        'country_code' => 'SA',
+        'street_name' => 'King Fahd Rd',
+        'city' => 'Riyadh',
         'profile' => [
             'cr_number' => '1010998899',
             'country' => 'SA',
@@ -53,9 +59,12 @@ function issueStandardViaLivewire(Customer $customer, bool $viaBuyerModalResume)
     if ($viaBuyerModalResume) {
         $test->set('showStandardBuyerCompletionModal', false)
             ->call('addLineFromProduct', test()->product->id)
-            ->set('buyerCr', '1010998899')
+            ->set('buyerVatRegistered', false)
+            ->set('buyerAltIdType', 'CRN')
+            ->set('buyerAltIdNumber', '1010998899')
             ->set('addrBuilding', '12')
             ->set('addrStreet', 'King Fahd Rd')
+            ->set('addrCity', 'Riyadh')
             ->set('addrPostal', '11564')
             ->set('standardBuyerPersistToCustomer', false)
             ->set('resumeIssueAfterBuyerCompletion', true)

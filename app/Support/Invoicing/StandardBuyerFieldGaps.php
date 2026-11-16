@@ -5,21 +5,14 @@ namespace App\Support\Invoicing;
 final class StandardBuyerFieldGaps
 {
     /**
-     * @param  object{
-     *     buyerVat?: string,
-     *     buyerCr?: string,
-     *     addrBuilding?: string,
-     *     addrStreet?: string,
-     *     addrCity?: string,
-     *     addrPostal?: string,
-     * }  $host
+     * @param  object  $host
      * @return list<string>
      */
     public static function labelsFor(object $host): array
     {
         $gaps = [];
 
-        if (trim((string) ($host->buyerVat ?? '')) === '' && trim((string) ($host->buyerCr ?? '')) === '') {
+        if (self::missingBuyerIdentity($host)) {
             $gaps[] = __('invoices.gap_buyer_vat_or_cr');
         }
 
@@ -40,14 +33,7 @@ final class StandardBuyerFieldGaps
     }
 
     /**
-     * @param  object{
-     *     buyerVat?: string,
-     *     buyerCr?: string,
-     *     addrBuilding?: string,
-     *     addrStreet?: string,
-     *     addrCity?: string,
-     *     addrPostal?: string,
-     * }  $host
+     * @param  object  $host
      */
     public static function hasGaps(object $host): bool
     {
@@ -55,24 +41,15 @@ final class StandardBuyerFieldGaps
     }
 
     /**
-     * @param  object{
-     *     buyerVat?: string,
-     *     buyerCr?: string,
-     *     buyerCountry?: string,
-     *     addrBuilding?: string,
-     *     addrStreet?: string,
-     *     addrDistrict?: string,
-     *     addrCity?: string,
-     *     addrPostal?: string,
-     * }  $host
+     * @param  object  $host
      * @return list<string>
      */
     public static function missingKeys(object $host): array
     {
         $missing = [];
 
-        if (trim((string) ($host->buyerVat ?? '')) === '' && trim((string) ($host->buyerCr ?? '')) === '') {
-            $missing[] = 'vat_or_cr';
+        if (self::missingBuyerIdentity($host)) {
+            $missing[] = 'buyer_identity';
         }
 
         if (trim((string) ($host->addrBuilding ?? '')) === '') {
@@ -94,5 +71,30 @@ final class StandardBuyerFieldGaps
         }
 
         return $missing;
+    }
+
+    private static function missingBuyerIdentity(object $host): bool
+    {
+        $vatRegistered = self::buyerVatRegistered($host);
+
+        if ($vatRegistered) {
+            $vat = preg_replace('/\D/', '', (string) ($host->buyerVat ?? '')) ?? '';
+
+            return $vat === '';
+        }
+
+        $type = strtoupper(trim((string) ($host->buyerAltIdType ?? '')));
+        $number = trim((string) ($host->buyerAltIdNumber ?? ''));
+
+        return $type === '' || $number === '';
+    }
+
+    private static function buyerVatRegistered(object $host): bool
+    {
+        if (property_exists($host, 'buyerVatRegistered')) {
+            return filter_var($host->buyerVatRegistered, FILTER_VALIDATE_BOOLEAN);
+        }
+
+        return filled($host->buyerVat ?? null);
     }
 }

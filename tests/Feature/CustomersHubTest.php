@@ -23,15 +23,48 @@ beforeEach(function () {
     \App\Business\BusinessContext::set($this->tenant);
 });
 
-it('lists seeded customers for owner', function () {
+it('lists seeded customers in a sortable table', function () {
     Livewire::actingAs($this->owner, 'staff')
         ->test(CustomerHub::class)
+        ->assertSeeHtml('data-testid="customers-table"')
+        ->assertSee(__('customers.col_vat'), false)
+        ->assertSee(__('customers.col_cr'), false)
         ->assertSee('Regular Customer', false)
-        ->assertSee('PLUMB100', false);
+        ->assertSee('0501000001', false);
+});
+
+it('opens add customer modal from create query', function () {
+    Livewire::actingAs($this->owner, 'staff')
+        ->withQueryParams(['create' => 'customer'])
+        ->test(CustomerHub::class)
+        ->assertSet('showCustomerModal', true)
+        ->assertSee(__('customers.add'), false);
+});
+
+it('sorts customers by name when header is clicked', function () {
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(CustomerHub::class)
+        ->call('sortBy', 'name')
+        ->assertSet('sort', 'name')
+        ->assertSet('sortDir', 'desc');
 });
 
 it('denies cashier access', function () {
     expect($this->cashier->can('reports.view'))->toBeFalse();
+});
+
+it('shows details tab with editable address fields in customer modal', function () {
+    $customer = Customer::query()
+        ->where('phone', '0501000001')
+        ->firstOrFail();
+
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(CustomerHub::class)
+        ->call('selectCustomer', $customer->id)
+        ->assertSet('showCustomerModal', true)
+        ->assertSeeHtml('data-testid="customer-modal-tabs"')
+        ->assertSee(__('customers.tab_details'), false)
+        ->assertSeeHtml('data-testid="customer-identity-fields"');
 });
 
 it('adjusts points with audit row', function () {
@@ -42,6 +75,7 @@ it('adjusts points with audit row', function () {
     Livewire::actingAs($this->owner, 'staff')
         ->test(CustomerHub::class)
         ->call('selectCustomer', $customer->id)
+        ->call('setCustomerModalTab', 'loyalty')
         ->set('adjustPoints', '10')
         ->set('adjustNote', 'Manager courtesy top-up')
         ->call('saveAdjust')
@@ -56,7 +90,11 @@ it('creates customers with referral codes', function () {
     Livewire::actingAs($this->owner, 'staff')
         ->test(CustomerHub::class)
         ->call('startCustomer')
-        ->set('customerName', 'Walk-in VIP')
+        ->set('customerLegalNameEn', 'Walk-in VIP')
+        ->set('customerAltIdType', 'CRN')
+        ->set('customerAltIdNumber', '1010998899')
+        ->set('customerAddrStreet', 'King Fahd Rd')
+        ->set('customerAddrCity', 'Riyadh')
         ->set('customerPhone', '0509998877')
         ->call('saveCustomer')
         ->assertHasNoErrors();

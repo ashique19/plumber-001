@@ -26,6 +26,8 @@ it('includes buyer address, vat, and cr for standard invoices', function () {
         lines: [new InvoiceLineData('Service', 1, 100, 15)],
         invoicePayload: [
             'buyer_name' => 'Acme LLC',
+            'buyer_name_en' => 'Acme LLC',
+            'buyer_vat_registered' => true,
             'buyer_vat' => '300000000000003',
             'buyer_cr' => '1234567890',
             'buyer_national_address' => [
@@ -63,6 +65,9 @@ it('builds standard invoices with buyer cr only', function () {
         lines: [new InvoiceLineData('Service', 1, 100, 15)],
         invoicePayload: [
             'buyer_name' => 'Acme LLC',
+            'buyer_vat_registered' => false,
+            'buyer_alt_id_type' => 'CRN',
+            'buyer_alt_id_number' => '1234567890',
             'buyer_cr' => '1234567890',
         ],
         issueDateTimeUtc: Carbon::now('UTC'),
@@ -75,6 +80,7 @@ it('builds standard invoices with buyer cr only', function () {
     $payload = app(ZHeartInvoicePayloadBuilder::class)->build($request);
 
     expect($payload['buyer']['cr_number'])->toBe('1234567890')
+        ->and($payload['buyer']['party_identification']['scheme_id'])->toBe('CRN')
         ->and($payload['buyer'])->not->toHaveKey('vat_number');
 });
 

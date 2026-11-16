@@ -1,21 +1,7 @@
 @props(['show' => false, 'standardBuyer' => false, 'editMode' => false])
 
 @php
-    $quickCustomerFields = [
-        'customerQuickName',
-        'customerQuickNameAr',
-        'customerQuickPhone',
-        'customerQuickEmail',
-        'customerQuickVat',
-        'customerQuickCr',
-        'customerQuickCountry',
-        'customerQuickAddrBuilding',
-        'customerQuickAddrStreet',
-        'customerQuickAddrDistrict',
-        'customerQuickAddrCity',
-        'customerQuickAddrPostal',
-        'customerQuickAddrAdditional',
-    ];
+    $quickCustomerFields = array_values(\App\Support\Customers\CustomerIdentityRules::quickFields());
 @endphp
 
 <x-modal
@@ -28,22 +14,14 @@
         <x-modal.validation-summary :fields="$quickCustomerFields" />
 
         <div class="x-modal-form__fields x-modal-form__fields--2">
-            <x-field.input :label="__('customers.name')" name="customerQuickName" wire:model="customerQuickName" :liveValidate="false" required wrapper-class="md:col-span-2" />
-            <x-field.input :label="__('invoices.customer_name_ar')" name="customerQuickNameAr" wire:model="customerQuickNameAr" :liveValidate="false" dir="rtl" wrapper-class="md:col-span-2" />
-            <x-field.input :label="__('customers.phone')" name="customerQuickPhone" wire:model="customerQuickPhone" :liveValidate="false" required inputmode="tel" icon="phone" />
-            <x-field.input type="email" :label="__('customers.email_optional')" name="customerQuickEmail" wire:model="customerQuickEmail" :liveValidate="false" icon="mail" />
-            <x-field.input :label="__('business.fields.vat_number')" name="customerQuickVat" wire:model="customerQuickVat" :liveValidate="false" :required="$standardBuyer" />
-            <x-field.input :label="__('business.fields.cr_number')" name="customerQuickCr" wire:model="customerQuickCr" :liveValidate="false" :required="$standardBuyer" />
+            <x-customers.identity-fields
+                :fields="\App\Support\Customers\CustomerIdentityRules::quickFields()"
+                more-address-prop="customerQuickShowMoreAddress"
+                :sa-standard-buyer="$standardBuyer"
+            />
             @if ($standardBuyer)
                 <p class="text-xs text-[var(--app-muted)] md:col-span-2">{{ __('invoices.standard_customer_modal_hint') }}</p>
             @endif
-            <x-field.input :label="__('invoices.buyer_country')" name="customerQuickCountry" wire:model="customerQuickCountry" :liveValidate="false" maxlength="2" :required="$standardBuyer" wrapper-class="md:col-span-2" />
-            <x-field.input :label="__('business.fields.building')" name="customerQuickAddrBuilding" wire:model="customerQuickAddrBuilding" :liveValidate="false" :required="$standardBuyer" />
-            <x-field.input :label="__('business.fields.street')" name="customerQuickAddrStreet" wire:model="customerQuickAddrStreet" :liveValidate="false" :required="$standardBuyer" />
-            <x-field.input :label="__('business.fields.district')" name="customerQuickAddrDistrict" wire:model="customerQuickAddrDistrict" :liveValidate="false" />
-            <x-field.input :label="__('business.fields.city')" name="customerQuickAddrCity" wire:model="customerQuickAddrCity" :liveValidate="false" :required="$standardBuyer" />
-            <x-field.input :label="__('business.fields.postal')" name="customerQuickAddrPostal" wire:model="customerQuickAddrPostal" :liveValidate="false" :required="$standardBuyer" />
-            <x-field.input :label="__('business.fields.additional')" name="customerQuickAddrAdditional" wire:model="customerQuickAddrAdditional" :liveValidate="false" wrapper-class="md:col-span-2" />
         </div>
 
         <div class="x-modal__footer x-modal__footer--in-form">

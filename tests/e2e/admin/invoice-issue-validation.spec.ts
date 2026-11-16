@@ -29,6 +29,8 @@ test.describe('standard invoice buyer completion modal', () => {
         await expect(createModal).toBeVisible({ timeout: 15_000 });
         await createModal.locator('input#customerQuickName').fill(customerName);
         await createModal.locator('input#customerQuickPhone').fill(saudiMobile());
+        await createModal.locator('label.admin-segmented__option', { hasText: /registered|নিবন্ধিত|مسجل/i }).first().click();
+        await createModal.locator('input#customerQuickVat').fill('300000000000003');
         await saveModal(page);
 
         await page.goto(adminPath('/admin/invoices/issue/standard', 'bn'));
@@ -38,9 +40,8 @@ test.describe('standard invoice buyer completion modal', () => {
 
         const completionModal = page.locator('.x-modal-backdrop');
         await expect(completionModal).toBeVisible({ timeout: 15_000 });
-        await expect(completionModal.locator('#buyerVat')).toBeVisible();
-        await expect(completionModal.locator('#buyerCr')).toBeVisible();
         await expect(completionModal.locator('#addrBuilding')).toBeVisible();
+        await expect(completionModal.locator('#addrStreet')).toBeVisible();
     });
 
     test('shows validation summary when issuing without lines (ar RTL)', async ({ page }) => {

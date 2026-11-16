@@ -1,0 +1,47 @@
+@layer components {
+    .admin-data-table-scroll {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .admin-data-table {
+        width: 100%;
+        min-width: 54rem;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .admin-data-table th,
+    .admin-data-table td {
+        vertical-align: middle;
+    }
+
+    .admin-data-table__sticky {
+        position: sticky;
+        inset-inline-start: 0;
+        z-index: 2;
+        background: var(--app-surface);
+        box-shadow: 1px 0 0 var(--app-border);
+    }
+
+  [dir='rtl'] .admin-data-table__sticky {
+        box-shadow: -1px 0 0 var(--app-border);
+    }
+
+    .admin-data-table thead .admin-data-table__sticky {
+        z-index: 3;
+        background: color-mix(in srgb, var(--app-surface-muted) 60%, var(--app-surface));
+    }
+
+    html.admin-app .customer-hub-modal-shell.x-modal {
+        max-height: min(94dvh, 42rem);
+    }
+
+    html.admin-app .customer-hub-modal-shell .x-modal__close {
+        @apply min-h-9 min-w-9 rounded-lg;
+    }
+
+    html.admin-app .customer-hub-modal-shell .x-modal__body {
+        @apply flex min-h-0 flex-1 flex-col overflow-hidden;
+    }
+}

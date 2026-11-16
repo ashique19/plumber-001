@@ -3,6 +3,9 @@
 namespace App\Support\Invoicing;
 
 use App\Models\Customer;
+use App\Support\Customers\CustomerIdentityPersistence;
+use App\Support\Customers\CustomerIdentityRules;
+use App\Support\Customers\CustomerProfileFields;
 use Illuminate\Support\Collection;
 
 final class InvoicingCustomerLookup
@@ -26,12 +29,16 @@ final class InvoicingCustomerLookup
         return Customer::query()
             ->where(function ($q) use ($like, $digits): void {
                 $q->where('name', 'like', $like)
+                    ->orWhere('legal_name_ar', 'like', $like)
+                    ->orWhere('legal_name_en', 'like', $like)
                     ->orWhere('phone', 'like', $like)
                     ->orWhere('email', 'like', $like)
+                    ->orWhere('alt_id_number', 'like', $like)
                     ->orWhere('profile->name_ar', 'like', $like);
 
                 if ($digits !== '') {
                     $q->orWhere('vat_number', 'like', '%'.$digits.'%')
+                        ->orWhere('alt_id_number', 'like', '%'.$digits.'%')
                         ->orWhere('profile->cr_number', 'like', '%'.$digits.'%');
                 }
             })
@@ -40,43 +47,22 @@ final class InvoicingCustomerLookup
             ->get();
     }
 
-    /**
-     * @param  object{
-     *     buyerName: string,
-     *     buyerPhone: string,
-     *     buyerEmail: string,
-     *     buyerVat: string,
-     *     buyerCr: string,
-     *     buyerNameOptional: string|null,
-     *     buyerCountry: string,
-     *     addrBuilding: string,
-     *     addrStreet: string,
-     *     addrDistrict: string,
-     *     addrCity: string,
-     *     addrPostal: string,
-     *     addrAdditional: string,
-     *     selectedCustomerId?: int|null,
-     * }  $host
-     */
+  /**
+   * @param  object  $host  Livewire host with buyer identity properties
+   */
     public static function applyCustomerToBuyer(object $host, Customer $customer): void
     {
-        $profile = is_array($customer->profile) ? $customer->profile : [];
-        $na = (array) data_get($profile, 'national_address', []);
-        $vat = trim((string) ($customer->vat_number ?? data_get($profile, 'vat_number', '')));
+        CustomerIdentityPersistence::fillHostFromCustomer(
+            $host,
+            CustomerIdentityRules::buyerFields(),
+            $customer,
+        );
 
-        $host->buyerName = $customer->name;
-        $host->buyerPhone = (string) ($customer->phone ?? '');
-        $host->buyerEmail = (string) ($customer->email ?? '');
-        $host->buyerVat = $vat;
-        $host->buyerCr = (string) data_get($profile, 'cr_number', '');
-        $host->buyerNameOptional = $customer->name;
-        $host->buyerCountry = strtoupper((string) data_get($profile, 'country', 'SA')) ?: 'SA';
-        $host->addrBuilding = (string) ($na['building'] ?? '');
-        $host->addrStreet = (string) ($na['street'] ?? '');
-        $host->addrDistrict = (string) ($na['district'] ?? '');
-        $host->addrCity = (string) ($na['city'] ?? 'Riyadh');
-        $host->addrPostal = (string) ($na['postal_code'] ?? $na['postal'] ?? '');
-        $host->addrAdditional = (string) ($na['additional'] ?? '');
+        $state = CustomerIdentityPersistence::stateFromCustomer($customer);
+        if (property_exists($host, 'buyerCr')) {
+            $cr = $state['alt_id_type'] === 'CRN' ? (string) $state['alt_id_number'] : CustomerProfileFields::crNumber($customer);
+            $host->buyerCr = (string) ($cr ?? '');
+        }
 
         if (property_exists($host, 'selectedCustomerId')) {
             $host->selectedCustomerId = $customer->id;
@@ -96,8 +82,8 @@ final class InvoicingCustomerLookup
             $segments[] = __('invoices.customer_meta_vat', ['value' => $vat]);
         }
 
-        $cr = trim((string) data_get($customer->profile, 'cr_number', ''));
-        if ($cr !== '') {
+        $cr = CustomerProfileFields::crNumber($customer);
+        if ($cr !== null) {
             $segments[] = __('invoices.customer_meta_cr', ['value' => $cr]);
         }
 

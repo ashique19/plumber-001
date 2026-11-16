@@ -4,8 +4,10 @@ namespace App\Livewire\Concerns;
 
 use App\Models\Customer;
 use App\Services\Loyalty\LoyaltyService;
+use App\Support\Customers\CustomerIdentityPersistence;
+use App\Support\Customers\CustomerIdentityRules;
+use App\Support\Invoicing\InvoicingCustomerLookup;
 use App\Support\Invoicing\StandardBuyerFieldGaps;
-use App\Support\Validation\FieldValidationRules;
 
 trait ManagesStandardBuyerCompletion
 {
@@ -17,6 +19,16 @@ trait ManagesStandardBuyerCompletion
 
     /** @var list<string> */
     public array $standardBuyerCompletionFieldKeys = [];
+
+    public bool $standardBuyerShowMoreAddress = false;
+
+    /**
+     * @return list<string>
+     */
+    public function standardBuyerMissingKeys(): array
+    {
+        return $this->standardBuyerCompletionMissingKeys();
+    }
 
     /**
      * @return list<string>
@@ -32,6 +44,13 @@ trait ManagesStandardBuyerCompletion
         }
 
         return StandardBuyerFieldGaps::missingKeys($this);
+    }
+
+    public function updatedBuyerVatRegistered(mixed $value): void
+    {
+        if (property_exists($this, 'buyerVatRegistered')) {
+            $this->buyerVatRegistered = filter_var($value, FILTER_VALIDATE_BOOLEAN);
+        }
     }
 
     protected function promptStandardBuyerCompletionIfNeeded(bool $resumeIssue = false): bool
@@ -83,6 +102,13 @@ trait ManagesStandardBuyerCompletion
 
         if ($this->standardBuyerPersistToCustomer) {
             $this->persistStandardBuyerFieldsToCustomer($loyalty);
+        } else {
+            $cr = strtoupper(trim($this->buyerAltIdType ?? '')) === 'CRN'
+                ? trim($this->buyerAltIdNumber ?? '')
+                : '';
+            if (property_exists($this, 'buyerCr') && $cr !== '') {
+                $this->buyerCr = $cr;
+            }
         }
 
         $this->closeStandardBuyerCompletionAndResume();
@@ -111,14 +137,25 @@ trait ManagesStandardBuyerCompletion
     protected function standardBuyerCompletionRules(array $missing): array
     {
         $rules = [];
+        $buyerFields = CustomerIdentityRules::buyerFields();
 
-        if (in_array('vat_or_cr', $missing, true)) {
-            $rules['buyerVat'] = array_merge(FieldValidationRules::vatOptional(), ['required_without:buyerCr']);
-            $rules['buyerCr'] = array_merge(FieldValidationRules::crNumberOptional(), ['required_without:buyerVat']);
+        if (in_array('buyer_identity', $missing, true)) {
+            $identityRules = CustomerIdentityRules::forHost($this, $buyerFields, [
+                'sa_standard_buyer' => true,
+            ]);
+            $rules = array_merge($rules, array_intersect_key(
+                $identityRules,
+                array_flip([
+                    $buyerFields['vat_registered'],
+                    $buyerFields['vat_number'],
+                    $buyerFields['alt_id_type'],
+                    $buyerFields['alt_id_number'],
+                ])
+            ));
         }
 
         if (in_array('addrBuilding', $missing, true)) {
-            $rules['addrBuilding'] = ['required', 'string', 'max:32'];
+            $rules['addrBuilding'] = ['required', 'string', 'max:120'];
         }
         if (in_array('addrStreet', $missing, true)) {
             $rules['addrStreet'] = ['required', 'string', 'max:120'];
@@ -127,7 +164,7 @@ trait ManagesStandardBuyerCompletion
             $rules['addrCity'] = ['required', 'string', 'max:80'];
         }
         if (in_array('addrPostal', $missing, true)) {
-            $rules['addrPostal'] = FieldValidationRules::postalCodeRequired();
+            $rules['addrPostal'] = \App\Support\Validation\FieldValidationRules::postalCodeRequired();
         }
 
         if (in_array('addrDistrict', $missing, true)) {
@@ -152,27 +189,13 @@ trait ManagesStandardBuyerCompletion
             return;
         }
 
-        $vatDigits = preg_replace('/\D/', '', $this->buyerVat) ?? '';
-        $profile = is_array($customer->profile) ? $customer->profile : [];
-        $na = (array) data_get($profile, 'national_address', []);
-
-        $customer->forceFill([
-            'vat_number' => $vatDigits !== '' ? $vatDigits : $customer->vat_number,
-            'profile' => array_merge($profile, [
-                'cr_number' => trim($this->buyerCr) !== '' ? trim($this->buyerCr) : (string) data_get($profile, 'cr_number', ''),
-                'country' => strtoupper(trim($this->buyerCountry)) ?: 'SA',
-                'national_address' => array_merge($na, [
-                    'building' => trim($this->addrBuilding) !== '' ? trim($this->addrBuilding) : ($na['building'] ?? ''),
-                    'street' => trim($this->addrStreet) !== '' ? trim($this->addrStreet) : ($na['street'] ?? ''),
-                    'district' => trim($this->addrDistrict) !== '' ? trim($this->addrDistrict) : ($na['district'] ?? ''),
-                    'city' => trim($this->addrCity) !== '' ? trim($this->addrCity) : ($na['city'] ?? 'Riyadh'),
-                    'postal_code' => trim($this->addrPostal) !== '' ? trim($this->addrPostal) : ($na['postal_code'] ?? $na['postal'] ?? ''),
-                    'additional' => trim($this->addrAdditional) !== '' ? trim($this->addrAdditional) : ($na['additional'] ?? ''),
-                    'country' => strtoupper(trim($this->buyerCountry)) ?: 'SA',
-                ]),
-            ]),
-        ])->save();
+        CustomerIdentityPersistence::applyToCustomer(
+            $customer,
+            CustomerIdentityPersistence::stateFromHost($this, CustomerIdentityRules::buyerFields()),
+        );
+        $customer->save();
 
         $loyalty->ensureReferralCode($customer);
+        InvoicingCustomerLookup::applyCustomerToBuyer($this, $customer->fresh());
     }
 }
