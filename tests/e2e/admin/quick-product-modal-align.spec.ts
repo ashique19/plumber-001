@@ -8,8 +8,10 @@ const PATHS = [
 ] as const;
 
 async function openQuickProductModal(page: import('playwright/test').Page): Promise<void> {
-    await page.locator('.invoice-add-line-search .admin-typeahead__add, .admin-typeahead__add').first().click();
-    await expect(page.locator('.x-modal-backdrop')).toBeVisible();
+    const add = page.locator('.invoice-add-line-search .admin-typeahead__add');
+    await expect(add).toBeVisible();
+    await add.click();
+    await expect(page.locator('.x-modal-backdrop input#quickProductNameEn')).toBeVisible({ timeout: 15_000 });
 }
 
 async function expectNameInputsAligned(page: import('playwright/test').Page): Promise<void> {
@@ -47,8 +49,9 @@ test.describe('quick product modal name fields @ 1280', () => {
             await openQuickProductModal(page);
             await expectNameInputsAligned(page);
 
-            await page.locator('.x-modal-backdrop button.tap-action-primary').click();
-            await expect(page.locator('.quick-product-modal__name-field--ar .form-field__error, .x-modal-backdrop .form-field__error').first()).toBeVisible({
+            const modal = page.locator('.x-modal-backdrop');
+            await modal.locator('button.tap-action-primary').click();
+            await expect(modal.locator('input#quickProductNameAr').locator('xpath=ancestor::label[1]//span[contains(@class,"form-field__error")]')).toBeVisible({
                 timeout: 15_000,
             });
             await expectNameInputsAligned(page);
