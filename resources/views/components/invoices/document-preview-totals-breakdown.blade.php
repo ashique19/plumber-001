@@ -11,11 +11,11 @@
     <dl class="invoice-issue-preview-totals__breakdown mt-3 text-sm">
         <div class="invoice-issue-preview-totals__row">
             <dt class="text-[var(--app-muted)]">{{ __('invoices.subtotal_ex_vat') }}</dt>
-            <dd class="font-semibold tabular-nums">{{ number_format($previewTotals['subtotal_ex_vat'], 2) }}</dd>
+            <dd class="font-semibold tabular-nums">{{ number_format((float) ($previewTotals['subtotal_ex_vat'] ?? 0), 2) }}</dd>
         </div>
         <div class="invoice-issue-preview-totals__row">
             <dt class="text-[var(--app-muted)]">{{ __('invoices.total_vat') }}</dt>
-            <dd class="font-semibold tabular-nums">{{ number_format($previewTotals['total_vat'], 2) }}</dd>
+            <dd class="font-semibold tabular-nums">{{ number_format((float) ($previewTotals['total_vat'] ?? 0), 2) }}</dd>
         </div>
         @if (($previewTotals['retention_amount'] ?? 0) > 0)
             <div class="invoice-issue-preview-totals__row">

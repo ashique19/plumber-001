@@ -24,7 +24,7 @@ it('requires a linked customer for standard issue', function () {
         ->assertHasErrors(['selectedCustomerId']);
 });
 
-it('requires vat or cr on the linked customer for standard b2b issue', function () {
+it('prompts buyer completion when vat or cr is missing on the customer', function () {
     $customer = Customer::query()->create([
         'name' => 'Buyer LLC',
         'phone' => '0511111111',
@@ -46,9 +46,11 @@ it('requires vat or cr on the linked customer for standard b2b issue', function 
     Livewire::actingAs($this->owner, 'staff')
         ->test(IssueInvoice::class, ['mode' => 'standard'])
         ->call('selectDocumentCustomer', $customer->id)
+        ->assertSet('showStandardBuyerCompletionModal', true)
+        ->set('showStandardBuyerCompletionModal', false)
         ->call('addLineFromProduct', $this->product->id)
         ->call('issue')
-        ->assertHasErrors(['buyerVat', 'buyerCr']);
+        ->assertSet('showStandardBuyerCompletionModal', true);
 });
 
 it('passes buyer validation when cr is provided on the customer', function () {

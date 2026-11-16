@@ -9,6 +9,7 @@ use App\Exceptions\InvoiceSigningException;
 use App\Livewire\Concerns\DispatchesToasts;
 use App\Livewire\Concerns\ManagesInvoicingCatalogPicker;
 use App\Livewire\Concerns\ManagesInvoicingCustomerPicker;
+use App\Livewire\Concerns\ManagesStandardBuyerCompletion;
 use App\Livewire\Concerns\ResolvesBusinessContext;
 use App\Livewire\Concerns\ValidatesFieldsLive;
 use App\Models\ProductCategory;
@@ -32,6 +33,7 @@ class IssueInvoice extends Component
     use DispatchesToasts;
     use ManagesInvoicingCatalogPicker;
     use ManagesInvoicingCustomerPicker;
+    use ManagesStandardBuyerCompletion;
     use ResolvesBusinessContext;
     use ValidatesFieldsLive;
 
@@ -126,7 +128,25 @@ class IssueInvoice extends Component
     {
         $this->pruneEmptyDocumentLines();
         $this->hydrateCatalogLineNames();
-        $this->validate($this->rulesForMode());
+
+        if ($this->lines === []) {
+            $this->addError('document', __('invoices.errors.lines_required'));
+            $this->dispatch('document-validation-failed');
+
+            return;
+        }
+
+        if (! $this->promptStandardBuyerCompletionIfNeeded(resumeIssue: true)) {
+            return;
+        }
+
+        try {
+            $this->validate($this->rulesForMode());
+        } catch (\Illuminate\Validation\ValidationException $exception) {
+            $this->dispatch('document-validation-failed');
+
+            throw $exception;
+        }
 
         $branch = StaffBranchContext::resolve();
         if ($branch === null) {
@@ -256,6 +276,11 @@ class IssueInvoice extends Component
         return SigningFailureSanitizer::userMessage(__('invoices.errors.signing_failed'), $exception);
     }
 
+    protected function afterStandardBuyerCompletionConfirmed(): void
+    {
+        $this->issue(app(InvoiceIssueService::class));
+    }
+
     public function render(): View
     {
         $isStandard = $this->mode === 'standard';
@@ -265,6 +290,7 @@ class IssueInvoice extends Component
                 ? __('invoices.issue_standard_title')
                 : __('invoices.issue_simplified_title'),
             'isStandard' => $isStandard,
+            'standardBuyerMissingKeys' => $isStandard ? $this->standardBuyerCompletionMissingKeys() : [],
             'customerSearchResults' => $this->customerSearchResults(),
             'addLineProductSearchResults' => $this->addLineProductSearchResults(),
             'canCreateCustomers' => $this->canCreateCustomersFromDocument(),

@@ -1,4 +1,4 @@
-@props(['show' => false, 'standardBuyer' => false])
+@props(['show' => false, 'standardBuyer' => false, 'editMode' => false])
 
 @php
     $quickCustomerFields = [
@@ -20,7 +20,7 @@
 
 <x-modal
     :show="$show"
-    :title="__('invoices.add_customer')"
+    :title="$editMode ? __('invoices.edit_customer') : __('invoices.add_customer')"
     close-wire="$set('showQuickCustomerModal', false)"
     size="lg"
 >
@@ -50,7 +50,7 @@
             <x-modal.footer
                 cancel-wire="$set('showQuickCustomerModal', false)"
                 submit-wire="saveQuickCustomer"
-                :submit-label="__('catalog.save_and_select')"
+                :submit-label="$editMode ? __('invoices.save_customer_profile') : __('catalog.save_and_select')"
             />
         </div>
     </form>
