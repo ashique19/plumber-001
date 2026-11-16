@@ -71,59 +71,14 @@
     @endif
 
     @if ($tab === 'products')
-        <section class="mt-4">
-            @if($canWrite)
-                <x-app.add-button type="button" variant="primary" data-admin-livewire-call="startProduct">{{ __('catalog.add_product') }}</x-app.add-button>
+        <section>
+            @include('livewire.catalog.partials.product-gallery-toolbar', ['categories' => $categories])
+
+            @if ($productsView === 'list')
+                @include('livewire.catalog.partials.product-list-legacy')
+            @else
+                @include('livewire.catalog.partials.product-gallery-grid')
             @endif
-            <ul class="grid grid-cols-1 gap-3 lg:grid-cols-2">
-                @forelse($products as $product)
-                    <li class="app-card overflow-hidden p-0">
-                        <div class="flex gap-3 p-3">
-                            @if($product->image_url)
-                                <img src="{{ asset($product->image_url) }}" alt="" class="h-16 w-16 rounded-lg object-cover" loading="lazy">
-                            @else
-                                <div class="flex h-16 w-16 items-center justify-center rounded-lg bg-[var(--plumber-sky)] text-xs text-[var(--app-muted)]">—</div>
-                            @endif
-                            <div class="min-w-0 flex-1">
-                                <p class="truncate font-semibold">{{ $product->displayName() }}</p>
-                                <p class="text-xs text-[var(--app-muted)]">{{ $product->category?->displayName() }}</p>
-                                <p class="mt-1 text-sm font-medium tabular-nums">
-                                    {{ number_format(\App\Support\VatPricing::incFromEx((float) $product->price_ex_vat, (float) $product->vat_rate), 2) }} {{ __('dashboard.sar') }}
-                                </p>
-                                @if($storefrontVisibilityReady ?? false)
-                                    <p class="mt-2 flex flex-wrap gap-1.5 text-[0.65rem] font-semibold uppercase tracking-wide text-[var(--app-muted)]">
-                                        @if($product->show_on_homepage)
-                                            <span class="pos-status-pill pos-status-pill--paid">{{ __('catalog.show_on_homepage_short') }}</span>
-                                        @endif
-                                        @if($product->show_on_menu)
-                                            <span class="pos-status-pill pos-status-pill--paid">{{ __('catalog.show_on_menu_short') }}</span>
-                                        @endif
-                                    </p>
-                                @endif
-                            </div>
-                        </div>
-                        @if($canWrite)
-                            <div class="flex flex-wrap items-center gap-2 border-t px-3 py-2 text-xs" style="border-color: var(--app-border)">
-                                @if($storefrontVisibilityReady ?? false)
-                                    <button type="button" class="tap-action-muted min-h-9 px-2" wire:click="toggleProductShowOnHomepage({{ $product->id }})" wire:loading.attr="disabled" wire:target="toggleProductShowOnHomepage({{ $product->id }})">
-                                        {{ $product->show_on_homepage ? __('catalog.hide_on_homepage') : __('catalog.show_on_homepage') }}
-                                    </button>
-                                    <button type="button" class="tap-action-muted min-h-9 px-2" wire:click="toggleProductShowOnMenu({{ $product->id }})" wire:loading.attr="disabled" wire:target="toggleProductShowOnMenu({{ $product->id }})">
-                                        {{ $product->show_on_menu ? __('catalog.hide_on_menu') : __('catalog.show_on_menu') }}
-                                    </button>
-                                @endif
-                                @if($inventoryReady ?? false)
-                                    <button type="button" class="tap-action-muted" wire:click="openProductIngredients({{ $product->id }})">{{ __('inventory.ingredients_button') }}</button>
-                                @endif
-                                <button type="button" class="tap-action-muted ms-auto" wire:click="startProduct({{ $product->id }})">{{ __('catalog.edit') }}</button>
-                                <x-ui.livewire-action wire:click="deleteProduct({{ $product->id }})" :target="'deleteProduct('.$product->id.')'" loading="saving" variant="muted" class="tap-action-muted ms-auto text-rose-600">{{ __('catalog.delete') }}</x-ui.livewire-action>
-                            </div>
-                        @endif
-                    </li>
-                @empty
-                    <li class="app-empty lg:col-span-2"><p class="text-sm text-[var(--app-muted)]">{{ __('catalog.empty_products') }}</p></li>
-                @endforelse
-            </ul>
         </section>
     @endif
 
@@ -382,4 +337,6 @@
             </form>
         </x-modal>
     @endif
+
+    @include('livewire.catalog.partials.product-action-modal')
 </div>

@@ -23,6 +23,7 @@ use App\Support\Catalog\CatalogUnitsSizesSchema;
 use App\Support\Catalog\ProductReferenceGuard;
 use App\Support\Catalog\ProductSkuGenerator;
 use App\Support\Catalog\ProductCategorySchema;
+use App\Support\Catalog\ProductGallery;
 use App\Support\Catalog\ProductStorefrontVisibility;
 use App\Support\Inventory\IngredientInventorySchema;
 use App\Support\Inventory\ProductStockSchema;
@@ -33,8 +34,10 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use Livewire\WithPagination;
 use Spatie\Permission\PermissionRegistrar;
 
 #[Layout('layouts.pos')]
@@ -46,8 +49,27 @@ class MenuManager extends Component
     use ValidatesFieldsLive;
     use ManagesCatalogUnitsAndSizes;
     use WithFileUploads;
+    use WithPagination;
 
     public string $tab = 'products';
+
+    #[Url(as: 'category')]
+    public ?int $productCategoryFilter = null;
+
+    public string $productSearch = '';
+
+  /** @var 'name_asc'|'name_desc'|'price_asc'|'price_desc'|'newest' */
+    public string $productSort = 'name_asc';
+
+  /** @var 'all'|'item'|'service'|'part' */
+    public string $productKind = 'all';
+
+  /** @var 'gallery'|'list' */
+    public string $productsView = 'gallery';
+
+    public ?int $productActionId = null;
+
+    public bool $showProductActionModal = false;
 
     /** @var 'ex'|'inc' */
     public string $priceMode = 'ex';
@@ -175,6 +197,95 @@ class MenuManager extends Component
         }
     }
 
+    public function updatingProductSearch(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingProductCategoryFilter(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingProductSort(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingProductKind(): void
+    {
+        $this->resetPage();
+    }
+
+    public function setProductsView(string $view): void
+    {
+        if (! in_array($view, ['gallery', 'list'], true)) {
+            return;
+        }
+
+        $this->productsView = $view;
+    }
+
+    public function openProductActions(int $productId): void
+    {
+        if (! $this->productQuery()->whereKey($productId)->exists()) {
+            return;
+        }
+
+        $this->productActionId = $productId;
+        $this->showProductActionModal = true;
+    }
+
+    public function closeProductActions(): void
+    {
+        $this->showProductActionModal = false;
+        $this->productActionId = null;
+    }
+
+    public function duplicateProduct(int $id): void
+    {
+        $this->authorizeCatalogWrite();
+
+        $source = $this->productQuery()->with('modifiers')->findOrFail($id);
+
+        $copy = $this->productQuery()->create(array_merge(ProductStorefrontVisibility::defaultsForNewProduct(), [
+            'product_category_id' => $source->product_category_id,
+            'sku' => $this->duplicateSku($source->sku),
+            'item_type' => $source->item_type,
+            'name_en' => $source->name_en.' (copy)',
+            'name_ar' => (string) $source->name_ar,
+            'name_bn' => $source->name_bn,
+            'description_en' => $source->description_en,
+            'description_ar' => $source->description_ar,
+            'description_bn' => $source->description_bn,
+            'image_url' => $source->image_url,
+            'price_ex_vat' => $source->price_ex_vat,
+            'vat_rate' => $source->vat_rate,
+            'is_active' => true,
+            'show_on_homepage' => $source->show_on_homepage,
+            'show_on_menu' => $source->show_on_menu,
+            'track_stock' => $source->track_stock,
+            'stock_quantity' => $source->stock_quantity,
+            'low_stock_threshold' => $source->low_stock_threshold,
+            'sort_order' => $source->sort_order + 1,
+        ]));
+
+        $copy->modifiers()->sync($source->modifiers->pluck('id')->all());
+
+        $this->closeProductActions();
+        $this->toastSuccess(__('catalog.duplicated_product'));
+        $this->resetPage();
+    }
+
+    public function archiveProduct(int $id): void
+    {
+        $this->authorizeCatalogWrite();
+        $product = $this->productQuery()->findOrFail($id);
+        $product->update(['is_active' => false]);
+        $this->closeProductActions();
+        $this->toastSuccess(__('catalog.archived_product'));
+    }
+
     public function setTab(string $tab): void
     {
         if (in_array($tab, ['categories', 'products', 'modifiers', 'units', 'sizes'], true)) {
@@ -274,6 +385,9 @@ class MenuManager extends Component
     public function startProduct(?int $id = null): void
     {
         $this->authorizeCatalogWrite();
+        if ($this->showProductActionModal) {
+            $this->closeProductActions();
+        }
         $this->resetProductForm();
         $this->showProductForm = true;
         if ($id !== null) {
@@ -517,6 +631,10 @@ class MenuManager extends Component
             $product->delete();
             $this->toastSuccess(__('catalog.deleted_product'));
         }
+
+        if ($this->productActionId === $id) {
+            $this->closeProductActions();
+        }
     }
 
     public function toggleProductShowOnHomepage(int $id): void
@@ -693,13 +811,17 @@ class MenuManager extends Component
     {
         $nameCol = ProductCategorySchema::nameOrderColumn();
         $categories = $this->categoryQuery()->orderBy('sort_order')->orderBy($nameCol)->get();
-        $products = $this->productQuery()->with('category')->orderBy('sort_order')->orderBy('name_en')->get();
+        $products = $this->paginatedProducts();
         $modifiers = $this->modifierQuery()->orderBy('name_en')->get();
+        $productAction = $this->productActionId !== null
+            ? $this->productQuery()->with('category')->find($this->productActionId)
+            : null;
 
         return view('livewire.catalog.menu-manager', [
             'categories' => $categories,
             'products' => $products,
             'modifiers' => $modifiers,
+            'productAction' => $productAction,
             'canWrite' => $this->staffCanManageCatalog(),
             'storefrontVisibilityReady' => ProductStorefrontVisibility::columnsExist()
                 && ProductStorefrontVisibility::catalogUiEnabled(),
