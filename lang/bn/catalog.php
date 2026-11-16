@@ -143,4 +143,10 @@ return [
     'created_unit' => 'ইউনিট যোগ হয়েছে।',
     'saved_size' => 'সাইজ আপডেট হয়েছে।',
     'created_size' => 'সাইজ যোগ হয়েছে।',
+    'product_tab_basic' => 'মৌলিক',
+    'product_tab_pricing' => 'মূল্য ও VAT',
+    'product_tab_stock' => 'স্টক',
+    'product_form_tabs_label' => 'পণ্য ফর্মের ট্যাব',
+    'selling_price' => 'বিক্রয় মূল্য',
+    'product_stock_unavailable' => 'এই ডাটাবেজে স্টক ট্র্যাকিং চালু নেই।',
 ];

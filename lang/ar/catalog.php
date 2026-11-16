@@ -143,4 +143,10 @@ return [
     'created_unit' => 'تمت إضافة الوحدة.',
     'saved_size' => 'تم تحديث المقاس.',
     'created_size' => 'تمت إضافة المقاس.',
+    'product_tab_basic' => 'أساسي',
+    'product_tab_pricing' => 'التسعير والضريبة',
+    'product_tab_stock' => 'المخزون',
+    'product_form_tabs_label' => 'أقسام نموذج المنتج',
+    'selling_price' => 'سعر البيع',
+    'product_stock_unavailable' => 'تتبع المخزون غير مفعّل في قاعدة البيانات.',
 ];

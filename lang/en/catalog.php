@@ -144,4 +144,10 @@ return [
     'saved_size' => 'Size updated.',
     'created_size' => 'Size added.',
     'i18n_review_flag' => 'Review translation',
+    'product_tab_basic' => 'Basic',
+    'product_tab_pricing' => 'Pricing & VAT',
+    'product_tab_stock' => 'Stock',
+    'product_form_tabs_label' => 'Product form sections',
+    'selling_price' => 'Selling price',
+    'product_stock_unavailable' => 'Stock tracking is not enabled for this database.',
 ];

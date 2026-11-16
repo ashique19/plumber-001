@@ -31,6 +31,7 @@ use App\Support\VatPricing;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -121,6 +122,9 @@ class MenuManager extends Component
 
     public string $productVatZatcaCategory = 'S';
 
+    /** @var 'basic'|'pricing'|'stock' */
+    public string $productFormTab = 'basic';
+
     /** @var 'item'|'service'|'part' */
     public string $productItemType = 'item';
 
@@ -180,6 +184,30 @@ class MenuManager extends Component
     {
         $category = VatZatcaCategory::tryFrom($value) ?? VatZatcaCategory::Standard;
         $this->productVatRate = $category->vatRateDefault();
+    }
+
+    public function setProductFormTab(string $tab): void
+    {
+        if (in_array($tab, ['basic', 'pricing', 'stock'], true)) {
+            $this->productFormTab = $tab;
+        }
+    }
+
+    /**
+     * @return array{basic: int, pricing: int, stock: int}
+     */
+    public function productFormTabErrorCounts(): array
+    {
+        $counts = ['basic' => 0, 'pricing' => 0, 'stock' => 0];
+
+        foreach ($this->getErrorBag()->getMessages() as $field => $messages) {
+            $tab = $this->productFormTabForField((string) $field);
+            if ($tab !== null) {
+                $counts[$tab] += count($messages);
+            }
+        }
+
+        return $counts;
     }
 
     public function startCategory(?int $id = null): void
@@ -373,7 +401,13 @@ class MenuManager extends Component
         if ($this->productImageUpload !== null) {
             $rules['productImageUpload'] = ProductImageConstraints::componentRules();
         }
-        $validated = $this->validate($rules, ProductImageConstraints::validationMessages());
+
+        try {
+            $validated = $this->validate($rules, ProductImageConstraints::validationMessages());
+        } catch (ValidationException $e) {
+            $this->focusProductFormTabForErrors(array_keys($e->validator->errors()->messages()));
+            throw $e;
+        }
 
         $priceEx = $this->priceMode === 'inc'
             ? VatPricing::exFromInc((float) $validated['productPriceInput'], (float) $validated['productVatRate'])
@@ -389,6 +423,7 @@ class MenuManager extends Component
                 $imageUrl = $images->store($this->business, $this->productImageUpload, $previousImage ?: $this->productExistingImage);
             } catch (\InvalidArgumentException $e) {
                 $this->addError('productImageUpload', $e->getMessage());
+                $this->productFormTab = 'basic';
                 $this->toastError($e->getMessage(), persistent: true);
 
                 return;
@@ -687,6 +722,7 @@ class MenuManager extends Component
                 ? ProductSize::query()->where('is_active', true)->orderBy('name')->get()
                 : collect(),
             'vatZatcaCategoryOptions' => VatZatcaCategory::cases(),
+            'productFormTabErrorCounts' => $this->productFormTabErrorCounts(),
         ]);
     }
 
@@ -818,6 +854,50 @@ class MenuManager extends Component
         $this->productUnitId = CatalogUnitsSizesSchema::ready() ? $this->defaultProductUnitId() : null;
         $this->productSizeId = null;
         $this->productVatZatcaCategory = VatZatcaCategory::Standard->value;
+        $this->productFormTab = 'basic';
+    }
+
+    /**
+     * @param  list<string>  $errorKeys
+     */
+    private function focusProductFormTabForErrors(array $errorKeys): void
+    {
+        foreach (['basic', 'pricing', 'stock'] as $tab) {
+            foreach ($errorKeys as $key) {
+                if ($this->productFormTabForField($key) === $tab) {
+                    $this->productFormTab = $tab;
+
+                    return;
+                }
+            }
+        }
+    }
+
+    private function productFormTabForField(string $field): ?string
+    {
+        $field = explode('.', $field)[0];
+
+        $basic = [
+            'productNameEn', 'productNameAr', 'productNameBn',
+            'productDescriptionEn', 'productDescriptionAr', 'productDescriptionBn',
+            'productCategoryId', 'productUnitId', 'productSizeId', 'productSku',
+            'productImageUpload', 'productItemType', 'productModifierIds',
+            'productActive', 'productShowOnHomepage', 'productShowOnMenu',
+        ];
+        $pricing = ['productCostInput', 'productPriceInput', 'productVatRate', 'productVatZatcaCategory'];
+        $stock = ['productTrackStock', 'productOpeningStock', 'productLowStockThreshold'];
+
+        if (in_array($field, $basic, true)) {
+            return 'basic';
+        }
+        if (in_array($field, $pricing, true)) {
+            return 'pricing';
+        }
+        if (in_array($field, $stock, true)) {
+            return 'stock';
+        }
+
+        return null;
     }
 
     private function defaultProductUnitId(): ?int
