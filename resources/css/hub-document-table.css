@@ -1,0 +1,213 @@
+.hub-doc-table-wrap {
+    border: 1px solid var(--app-border);
+    border-radius: var(--app-radius, 0.75rem);
+    background: var(--app-surface, #fff);
+    overflow: hidden;
+}
+
+.hub-doc-table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.hub-doc-table {
+    border-collapse: collapse;
+    min-width: 52rem;
+}
+
+.hub-doc-table thead th {
+    background: color-mix(in srgb, var(--app-border) 35%, transparent);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: start;
+    padding: 0.65rem 0.75rem;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--app-border);
+}
+
+.hub-doc-table tbody td {
+    padding: 0.65rem 0.75rem;
+    vertical-align: middle;
+    border-bottom: 1px solid color-mix(in srgb, var(--app-border) 55%, transparent);
+}
+
+.hub-doc-table__sticky {
+    position: sticky;
+    inset-inline-start: 0;
+    z-index: 2;
+    background: var(--app-surface, #fff);
+    box-shadow: 1px 0 0 var(--app-border);
+}
+
+.hub-doc-table thead .hub-doc-table__sticky {
+    z-index: 3;
+    background: color-mix(in srgb, var(--app-border) 35%, transparent);
+}
+
+.hub-doc-table__sort {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    cursor: pointer;
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: 0;
+    padding: 0;
+}
+
+.hub-doc-table__sort[aria-sort='ascending']::after,
+.hub-doc-table__sort[aria-sort='descending']::after {
+    font-size: 0.65rem;
+    opacity: 0.7;
+}
+
+.hub-doc-table__sort[aria-sort='ascending']::after {
+    content: '▲';
+}
+
+.hub-doc-table__sort[aria-sort='descending']::after {
+    content: '▼';
+}
+
+.hub-doc-table__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    justify-content: flex-end;
+    min-width: 11rem;
+}
+
+.hub-doc-table__action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    min-height: 2.25rem;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    border: 1px solid var(--app-border);
+    background: var(--app-surface-2, #f8fafc);
+    white-space: nowrap;
+}
+
+.hub-doc-table__action svg {
+    width: 0.95rem;
+    height: 0.95rem;
+    flex-shrink: 0;
+}
+
+.hub-doc-table__amount {
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+html[dir='rtl'] .hub-doc-table__sticky {
+    box-shadow: -1px 0 0 var(--app-border);
+}
+
+html[dir='rtl'] .hub-doc-table__actions {
+    justify-content: flex-start;
+}
+
+.hub-doc-table__tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    align-items: center;
+}
+
+.hub-doc-table__tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-height: 2.5rem;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border-radius: 999px;
+    border: 1px solid var(--app-border);
+    background: var(--app-surface-2, #f8fafc);
+    color: inherit;
+    cursor: pointer;
+}
+
+.hub-doc-table__tab--active {
+    border-color: var(--app-accent);
+    background: color-mix(in srgb, var(--app-accent) 12%, transparent);
+    color: var(--app-accent);
+}
+
+.hub-doc-table__tab-badge {
+    display: inline-flex;
+    min-width: 1.25rem;
+    justify-content: center;
+    padding: 0.1rem 0.35rem;
+    border-radius: 999px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    background: var(--app-accent);
+    color: #fff;
+}
+
+.hub-doc-table__tab-badge--muted {
+    background: color-mix(in srgb, var(--app-border) 55%, var(--app-muted));
+    color: var(--app-surface, #fff);
+}
+
+.hub-doc-table__action--accent {
+    border-color: color-mix(in srgb, var(--app-accent) 55%, var(--app-border));
+    color: var(--app-accent);
+}
+
+.hub-doc-table__action--disabled {
+    opacity: 0.45;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+.hub-doc-table__more summary {
+    list-style: none;
+    cursor: pointer;
+}
+
+.hub-doc-table__more summary::-webkit-details-marker {
+    display: none;
+}
+
+.hub-doc-table__more-panel {
+    position: absolute;
+    inset-inline-end: 0;
+    z-index: 10;
+    margin-top: 0.25rem;
+    min-width: 11rem;
+    padding: 0.35rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--app-border);
+    background: var(--app-surface, #fff);
+    box-shadow: 0 8px 24px color-mix(in srgb, #000 12%, transparent);
+}
+
+.hub-doc-table__more-item {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.45rem 0.55rem;
+    border-radius: 0.35rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: start;
+    color: inherit;
+    background: none;
+    border: 0;
+}
+
+.hub-doc-table__more-item:hover {
+    background: color-mix(in srgb, var(--app-border) 40%, transparent);
+}
+
+.hub-doc-table {
+    min-width: 62rem;
+}

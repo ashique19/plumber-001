@@ -56,9 +56,16 @@ function receiptRoot() {
     return document.querySelector('[data-receipt-root]');
 }
 
+function invoicePrintRoot() {
+    return document.querySelector('[data-invoice-print]');
+}
+
 function maybeAutoPrint() {
-    const root = receiptRoot();
-    if (root?.dataset.autoPrint !== '1') {
+    const receipt = receiptRoot();
+    const invoice = invoicePrintRoot();
+    const shouldPrint =
+        receipt?.dataset.autoPrint === '1' || invoice?.dataset.autoPrint === '1';
+    if (! shouldPrint) {
         return;
     }
 

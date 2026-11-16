@@ -11,6 +11,7 @@ export default defineConfig({
                 'resources/js/app.js',
                 'resources/css/receipt.css',
                 'resources/css/invoice-print.css',
+                'resources/css/hub-document-table.css',
                 'resources/js/receipt.js',
                 'resources/css/analytics-dashboard.css',
                 'resources/css/reports-print.css',

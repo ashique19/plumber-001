@@ -36,7 +36,7 @@ for (const profile of VIEW_PROFILES) {
         await expect(page.getByText(/regular guest|ضيف/i).first()).toBeVisible();
 
         await page.goto(tenantPath('/invoices', profile.locale));
-        await expect(page.locator('article, .app-card').filter({ hasText: /POS-|simplified|مبسطة/i }).first()).toBeVisible({ timeout: 15_000 });
+        await expect(page.locator('.hub-doc-table, .app-card').filter({ hasText: /POS-|simplified|مبسطة|print|طباعة/i }).first()).toBeVisible({ timeout: 15_000 });
 
         await page.goto(tenantPath('/pos/branches/1/eod', profile.locale));
         await expect(page.getByRole('heading', { name: /end of day|إغلاق اليوم/i })).toBeVisible();

@@ -305,4 +305,23 @@
         font-size: 8pt;
         font-weight: 600;
     }
+
+    .invoice-print-watermark.print-only {
+        display: block;
+        position: fixed;
+        inset: 35% 12% auto;
+        transform: rotate(-18deg);
+        font-size: 36pt;
+        font-weight: 800;
+        text-align: center;
+        color: color-mix(in srgb, #b45309 45%, transparent);
+        pointer-events: none;
+        z-index: 5;
+    }
+}
+
+@media screen {
+    .invoice-print-watermark.print-only {
+        display: none;
+    }
 }

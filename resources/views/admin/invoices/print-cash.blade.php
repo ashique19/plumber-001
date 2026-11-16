@@ -4,7 +4,7 @@
         @vite(['resources/css/invoice-print.css', 'resources/js/receipt.js'])
     @endpush
 
-    <div class="invoice-print-root invoice-print-sheet invoice-print-sheet--cash" data-invoice-print data-document-number="{{ $t['document_number'] }}">
+    <div class="invoice-print-root invoice-print-sheet invoice-print-sheet--cash" data-invoice-print data-auto-print="{{ request()->boolean('autoprint') ? '1' : '0' }}" data-document-number="{{ $t['document_number'] }}">
         <header class="invoice-print-toolbar no-print flex flex-wrap gap-2 p-2">
             <button type="button" class="tap-action-primary min-h-11" onclick="window.print()">{{ __('pos.print') }}</button>
             @if ($receiptUrl ?? null)
@@ -14,6 +14,8 @@
                 <a class="tap-action-muted min-h-11" href="{{ $a4Url }}">{{ __('invoices.layout_a4') }}</a>
             @endif
         </header>
+
+        @include('print.partials.not-cleared-watermark')
 
         @if ($zatcaNotSent ?? false)
             <p class="invoice-zatca-notice no-print m-2 rounded-xl border border-amber-300/80 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-950" role="status">

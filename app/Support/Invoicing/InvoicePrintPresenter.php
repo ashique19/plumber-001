@@ -119,20 +119,34 @@ final class InvoicePrintPresenter
 
         $qrSigned = filled($invoice->qr_tlv_base64) ? (string) $invoice->qr_tlv_base64 : null;
         $qrFallback = false;
-        $qr = $qrSigned;
-        if ($qr === null) {
-            $timestamp = $issueAt
-                ? $issueAt->copy()->timezone('Asia/Riyadh')->format('Y-m-d\TH:i:sP')
-                : now('Asia/Riyadh')->format('Y-m-d\TH:i:sP');
-            $sellerForQr = (string) ($legal['name_ar'] ?? $legal['name_en'] ?? $business->name);
-            $qr = ZatcaPhase1QrEncoder::encodeBase64(
-                sellerName: $sellerForQr,
-                vatNumber: (string) ($trn ?? ''),
-                timestampIso8601: $timestamp,
-                invoiceTotalIncVat: number_format($totals['total_inc_vat'], 2, '.', ''),
-                vatTotal: number_format($totals['total_vat'], 2, '.', ''),
-            );
-            $qrFallback = true;
+        $cleared = InvoicePrintClearance::isZatcaCleared($invoice);
+        $printWatermark = false;
+        $officialPrintBlocked = false;
+
+        if ($isSimplified) {
+            $qr = $qrSigned;
+            if ($qr === null) {
+                $timestamp = $issueAt
+                    ? $issueAt->copy()->timezone('Asia/Riyadh')->format('Y-m-d\TH:i:sP')
+                    : now('Asia/Riyadh')->format('Y-m-d\TH:i:sP');
+                $sellerForQr = (string) ($legal['name_ar'] ?? $legal['name_en'] ?? $business->name);
+                $qr = ZatcaPhase1QrEncoder::encodeBase64(
+                    sellerName: $sellerForQr,
+                    vatNumber: (string) ($trn ?? ''),
+                    timestampIso8601: $timestamp,
+                    invoiceTotalIncVat: number_format($totals['total_inc_vat'], 2, '.', ''),
+                    vatTotal: number_format($totals['total_vat'], 2, '.', ''),
+                );
+                $qrFallback = true;
+            }
+        } else {
+            if ($cleared && $qrSigned !== null) {
+                $qr = $qrSigned;
+            } else {
+                $qr = null;
+                $printWatermark = true;
+                $officialPrintBlocked = true;
+            }
         }
 
         return [
@@ -175,6 +189,8 @@ final class InvoicePrintPresenter
             'payment_display_ar' => $paymentLabels['ar'],
             'qr_tlv_base64' => $qr,
             'qr_phase1_fallback' => $qrFallback,
+            'print_watermark' => $printWatermark,
+            'official_print_blocked' => $officialPrintBlocked,
             'receipt_number' => $meta['receipt_number'],
             'branch' => $meta['branch'],
         ];

@@ -37,8 +37,9 @@ it('renders a4 with bilingual labels buyer vat cr and phase1 qr', function () {
     $presented = InvoicePrintPresenter::fromInvoice(BusinessSetting::singleton(), $invoice);
     expect($presented['customer']['vat_number'] ?? null)->toBe('300000000000003')
         ->and($presented['customer']['cr_number'] ?? null)->toBe('1010000000')
-        ->and($presented['qr_tlv_base64'])->not->toBeEmpty()
-        ->and($presented['qr_phase1_fallback'])->toBeTrue();
+        ->and($presented['qr_tlv_base64'])->toBeNull()
+        ->and($presented['qr_phase1_fallback'])->toBeFalse()
+        ->and($presented['print_watermark'])->toBeTrue();
 
     app()->setLocale('bn');
 
@@ -50,7 +51,8 @@ it('renders a4 with bilingual labels buyer vat cr and phase1 qr', function () {
         ->assertSee('VAT No.', false)
         ->assertSee('الرقم الضريبي', false)
         ->assertSee('1010000000', false)
-        ->assertSee('receipt-qr', false)
+        ->assertSee(__('invoices.print_not_cleared'), false)
+        ->assertDontSee('receipt-qr', false)
         ->assertSee('sar-riyal-symbol.svg', false)
         ->assertDontSee('একীভূত', false);
 });

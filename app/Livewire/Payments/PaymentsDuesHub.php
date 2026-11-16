@@ -27,6 +27,7 @@ class PaymentsDuesHub extends Component
     #[Url]
     public string $invoiceSearch = '';
 
+    #[Url]
     public ?int $selectedInvoiceId = null;
 
     public string $paidOn = '';
