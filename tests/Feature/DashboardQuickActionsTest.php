@@ -12,6 +12,7 @@ use Livewire\Livewire;
 
 beforeEach(function () {
     $this->withoutVite();
+    $this->startSession();
     (new DemoStaffSeeder)->run();
     $this->business = BusinessSetting::singleton();
     $this->owner = StaffUser::query()->where('email', 'owner@example.test')->firstOrFail();
@@ -19,7 +20,10 @@ beforeEach(function () {
 });
 
 it('redirects staff login to the dashboard when reports access is granted', function () {
+    $this->get('/');
+
     $response = $this->post('/login', [
+        '_token' => csrf_token(),
         'email' => $this->owner->email,
         'password' => 'TestPassword!2026',
     ]);
@@ -39,11 +43,10 @@ it('shows eight dashboard action tiles for the owner in grid order', function ()
         ->assertSee(__('dashboard.tiles.add_customer'), false)
         ->assertSee(__('dashboard.tiles.check_inventory'), false)
         ->assertSee(__('dashboard.tiles.record_purchase'), false)
-        ->assertSee(__('dashboard.tiles.payments_dues'), false)
+        ->assertSeeHtml(e(__('dashboard.tiles.payments_dues')))
         ->assertSee(__('dashboard.tiles.view_reports'), false)
-        ->assertSeeHtml('dashboard-action-board')
-        ->assertSeeHtml('dashboard-action-board__grid')
-        ->assertSee(__('dashboard.overview'), false)
+        ->assertSeeHtml('data-testid="admin-dashboard"')
+        ->assertSeeHtml('dashboard-action-grid')
         ->assertSeeHtml('href="'.route('admin.invoices.issue', ['mode' => $defaultMode]).'"')
         ->assertSeeHtml('create=product')
         ->assertSeeHtml('create=customer')
@@ -81,7 +84,10 @@ it('sends cashiers without dashboard access to pos after login', function () {
     Branch::query()->update(['is_active' => true]);
     $this->cashier->forceFill(['branch_id' => null])->save();
 
+    $this->get('/');
+
     $response = $this->post('/login', [
+        '_token' => csrf_token(),
         'email' => $this->cashier->email,
         'password' => 'TestPassword!2026',
     ]);

@@ -52,7 +52,7 @@ it('uses the mobile nav drawer instead of the legacy tab bar', function () {
         ->and($html)->not->toContain(__('pos.nav_more'))
         ->and($html)->toContain('data-mobile-tabbar="0"')
         ->and($html)->toContain('app-nav-drawer')
-        ->and($html)->toContain('dashboard-action-board');
+        ->and($html)->toContain('dashboard-action-grid');
 });
 
 it('renders compact top bar controls on a 360px-class layout', function () {
