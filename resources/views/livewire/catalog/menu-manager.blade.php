@@ -147,7 +147,7 @@
 </div>
 
     @if($showCategoryForm && $canWrite)
-        <div class="app-sheet-backdrop" wire:click="$set('showCategoryForm', false)"></div>
+        <x-ui.teleported-sheet :show="true" close-wire='$set("showCategoryForm", false)'>
         <x-ui.admin-sheet
             :title="$editingCategoryId ? __('catalog.edit_category') : __('catalog.add_category')"
             close-wire='$set("showCategoryForm", false)'
@@ -169,18 +169,19 @@
                 <x-field.toggle wire:model="categoryActive" name="categoryActive" :label="__('catalog.active')" />
             </form>
         </x-ui.admin-sheet>
+        </x-ui.teleported-sheet>
     @endif
 
     @if($showProductForm && $canWrite)
-        <div class="app-sheet-backdrop" wire:click="$set('showProductForm', false)"></div>
-        <x-ui.admin-sheet
+        <x-modal
+            :show="true"
             :title="$editingProductId ? __('catalog.edit_product') : __('catalog.add_product')"
             close-wire='$set("showProductForm", false)'
-            form-id="catalog-product-form"
-            submit-target="saveProduct"
-            wide
+            size="lg"
+            data-testid="catalog-product-modal"
         >
-            <form id="catalog-product-form" class="app-admin-form" wire:submit="saveProduct">
+            <form id="catalog-product-form" class="x-modal-form" wire:submit="saveProduct">
+                <div class="x-modal-form__fields x-modal-form__fields--2 app-admin-form">
                 <x-field.input
                     :label="__('catalog.name_en')"
                     name="productNameEn"
@@ -240,12 +241,20 @@
                     <x-field.toggle wire:model="productTrackStock" name="productTrackStock" :label="__('stock.track_stock')" />
                     <x-field.input type="number" :label="__('stock.low_stock_threshold')" name="productLowStockThreshold" wire:model="productLowStockThreshold" inputmode="decimal" />
                 @endif
+                </div>
+                <div class="x-modal__footer x-modal__footer--in-form">
+                    <x-modal.footer
+                        cancel-wire='$set("showProductForm", false)'
+                        submit-target="saveProduct"
+                        :submit-label="__('catalog.save')"
+                    />
+                </div>
             </form>
-        </x-ui.admin-sheet>
+        </x-modal>
     @endif
 
     @if($showIngredientsModal && $canWrite)
-        <div class="app-sheet-backdrop" wire:click="$set('showIngredientsModal', false)"></div>
+        <x-ui.teleported-sheet :show="true" close-wire='$set("showIngredientsModal", false)'>
         <x-ui.admin-sheet
             :title="__('inventory.ingredients_modal_title')"
             close-wire='$set("showIngredientsModal", false)'
@@ -283,10 +292,11 @@
                 </form>
             </div>
         </x-ui.admin-sheet>
+        </x-ui.teleported-sheet>
     @endif
 
     @if($showModifierForm && $canWrite)
-        <div class="app-sheet-backdrop" wire:click="$set('showModifierForm', false)"></div>
+        <x-ui.teleported-sheet :show="true" close-wire='$set("showModifierForm", false)'>
         <x-ui.admin-sheet
             :title="$editingModifierId ? __('catalog.edit_modifier') : __('catalog.add_modifier')"
             close-wire='$set("showModifierForm", false)'
@@ -303,5 +313,6 @@
                 <x-field.toggle wire:model="modifierActive" name="modifierActive" :label="__('catalog.active')" />
             </form>
         </x-ui.admin-sheet>
+        </x-ui.teleported-sheet>
     @endif
 </div>
