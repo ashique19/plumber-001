@@ -108,9 +108,17 @@ CREATE UNIQUE INDEX "staff_users_email_unique" on "staff_users"("email");
 CREATE TABLE IF NOT EXISTS "customers"(
   "id" integer primary key autoincrement not null,
   "name" varchar not null,
+  "legal_name_ar" varchar,
+  "legal_name_en" varchar,
   "phone" varchar,
   "email" varchar,
   "vat_number" varchar,
+  "vat_registered" tinyint(1) not null default '0',
+  "alt_id_type" varchar,
+  "alt_id_number" varchar,
+  "country_code" varchar not null default 'SA',
+  "street_name" varchar,
+  "city" varchar,
   "referral_code" varchar,
   "referred_by_customer_id" integer,
   "points_balance" integer not null default '0',
@@ -143,33 +151,60 @@ CREATE INDEX "product_categories_branch_id_is_active_index" on "product_categori
   "branch_id",
   "is_active"
 );
+CREATE TABLE IF NOT EXISTS "product_units"(
+  "id" integer primary key autoincrement not null,
+  "name_en" varchar not null,
+  "name_ar" varchar not null,
+  "name_bn" varchar not null,
+  "code" varchar not null,
+  "ubl_unit_code" varchar not null,
+  "is_active" tinyint(1) not null default '1',
+  "created_at" datetime,
+  "updated_at" datetime
+);
+CREATE UNIQUE INDEX "product_units_code_unique" on "product_units"("code");
+CREATE TABLE IF NOT EXISTS "product_sizes"(
+  "id" integer primary key autoincrement not null,
+  "name" varchar not null,
+  "measurement_type" varchar,
+  "is_active" tinyint(1) not null default '1',
+  "created_at" datetime,
+  "updated_at" datetime
+);
 CREATE TABLE IF NOT EXISTS "products"(
   "id" integer primary key autoincrement not null,
   "branch_id" integer,
   "product_category_id" integer,
+  "product_unit_id" integer,
+  "product_size_id" integer,
   "sku" varchar,
   "item_type" varchar not null default 'item',
   "name_en" varchar not null,
   "name_ar" varchar,
   "name_bn" varchar,
+  "name_i18n_review" tinyint(1) not null default '0',
   "image_url" varchar,
   "description_en" text,
   "description_ar" text,
   "description_bn" text,
   "price_ex_vat" numeric not null,
   "vat_rate" numeric not null default '15',
+  "vat_zatca_category" varchar not null default 'S',
   "sort_order" integer not null default '0',
   "is_active" tinyint(1) not null default '1',
   "show_on_homepage" tinyint(1) not null default '0',
   "show_on_menu" tinyint(1) not null default '1',
   "created_at" datetime,
   "updated_at" datetime,
+  "archived_at" datetime,
   "track_stock" tinyint(1) not null default '0',
   "stock_quantity" numeric not null default '0',
   "low_stock_threshold" numeric not null default '0',
   "cost_ex_vat" numeric not null default '0',
   foreign key("branch_id") references "branches"("id") on delete set null,
-  foreign key("product_category_id") references "product_categories"("id") on delete set null
+  foreign key("product_category_id") references "product_categories"("id") on delete set null,
+  foreign key("product_unit_id") references "product_units"("id") on delete set null,
+  foreign key("product_size_id") references "product_sizes"("id") on delete set null
 );
 CREATE INDEX "products_branch_id_is_active_index" on "products"(
   "branch_id",
@@ -182,6 +217,11 @@ CREATE INDEX "products_show_on_homepage_is_active_index" on "products"(
 CREATE INDEX "products_show_on_menu_is_active_index" on "products"(
   "show_on_menu",
   "is_active"
+);
+CREATE TABLE IF NOT EXISTS "product_sku_counters"(
+  "key" varchar not null,
+  "last_value" integer not null default '0',
+  primary key("key")
 );
 CREATE TABLE IF NOT EXISTS "product_modifiers"(
   "id" integer primary key autoincrement not null,
@@ -438,8 +478,16 @@ CREATE TABLE IF NOT EXISTS "suppliers"(
   "id" integer primary key autoincrement not null,
   "branch_id" integer,
   "name" varchar not null,
-  "vat_number" varchar,
+  "name_ar" varchar,
+  "contact_person" varchar,
   "phone" varchar,
+  "email" varchar,
+  "vat_number" varchar,
+  "cr_number" varchar,
+  "address" text,
+  "city" varchar,
+  "notes" text,
+  "is_active" tinyint(1) not null default '1',
   "created_at" datetime,
   "updated_at" datetime,
   foreign key("branch_id") references "branches"("id") on delete set null
@@ -580,3 +628,6 @@ INSERT INTO migrations VALUES(6,'2026_11_15_130000_product_stock_and_purchases',
 INSERT INTO migrations VALUES(7,'2026_11_15_120000_invoice_payments',3);
 INSERT INTO migrations VALUES(8,'2026_11_15_120000_quotations',4);
 INSERT INTO migrations VALUES(9,'2026_11_15_130000_business_expenses',5);
+INSERT INTO migrations VALUES(10,'2026_11_16_120000_suppliers_basic_info',6);
+INSERT INTO migrations VALUES(11,'2026_11_16_141500_customer_zatca_identity',7);
+INSERT INTO migrations VALUES(12,'2026_11_16_170000_product_units_and_sizes',8);

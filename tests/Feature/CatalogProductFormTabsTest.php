@@ -1,0 +1,130 @@
+<?php
+
+use App\Livewire\Catalog\MenuManager;
+use App\Models\BusinessSetting;
+use App\Models\Product;
+use App\Models\ProductCategory;
+use App\Models\ProductStockMovement;
+use App\Models\ProductUnit;
+use App\Models\StaffUser;
+use Database\Seeders\DemoStaffSeeder;
+use Livewire\Livewire;
+
+beforeEach(function () {
+    $this->withoutVite();
+    (new DemoStaffSeeder)->run();
+    $this->tenant = BusinessSetting::singleton();
+    $this->owner = StaffUser::query()
+        ->where('email', 'owner@example.test')->firstOrFail();
+    \App\Business\BusinessContext::set($this->tenant);
+});
+
+it('switches to the basic tab when required name fields fail validation', function () {
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(MenuManager::class)
+        ->call('startProduct')
+        ->set('productFormTab', 'stock')
+        ->call('saveProduct')
+        ->assertHasErrors(['productNameEn'])
+        ->assertSet('productFormTab', 'basic');
+});
+
+it('renders product form section tabs in the product sheet', function () {
+    $html = Livewire::actingAs($this->owner, 'staff')
+        ->test(MenuManager::class)
+        ->call('startProduct')
+        ->html();
+
+    expect($html)->toContain('catalog-product-form-tabs')
+        ->and($html)->toContain(__('catalog.product_tab_basic'))
+        ->and($html)->toContain("setProductFormTab('pricing')")
+        ->and($html)->toContain(__('catalog.product_tab_stock'));
+
+    $imagePos = strpos($html, 'form-product-image-upload');
+    $namePos = strpos($html, 'productNameEn');
+    expect($imagePos)->toBeInt()->and($namePos)->toBeInt()->and($imagePos)->toBeLessThan($namePos);
+});
+
+it('requires opening stock when tracking inventory and records an opening movement', function () {
+    $category = ProductCategory::query()->firstOrFail();
+    $unitId = ProductUnit::query()->where('code', 'PCS')->value('id');
+
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(MenuManager::class)
+        ->call('startProduct')
+        ->set('productNameEn', 'Tracked Elbow')
+        ->set('productNameAr', 'كوع مخزون')
+        ->set('productNameBn', 'ট্র্যাকড এলবো')
+        ->set('productCategoryId', $category->id)
+        ->set('productUnitId', $unitId)
+        ->set('productCostInput', '12')
+        ->set('productPriceInput', '20')
+        ->set('productTrackStock', true)
+        ->call('saveProduct')
+        ->assertHasErrors(['productOpeningStock'])
+        ->assertSet('productFormTab', 'stock');
+
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(MenuManager::class)
+        ->call('startProduct')
+        ->set('productNameEn', 'Tracked Elbow')
+        ->set('productNameAr', 'كوع مخزون')
+        ->set('productNameBn', 'ট্র্যাকড এলবো')
+        ->set('productCategoryId', $category->id)
+        ->set('productUnitId', $unitId)
+        ->set('productCostInput', '12')
+        ->set('productPriceInput', '20')
+        ->set('productTrackStock', true)
+        ->set('productOpeningStock', '8')
+        ->set('productLowStockThreshold', '3')
+        ->call('saveProduct')
+        ->assertHasNoErrors();
+
+    $product = Product::query()->where('name_en', 'Tracked Elbow')->first();
+    expect($product)->not->toBeNull()
+        ->and((bool) $product->track_stock)->toBeTrue()
+        ->and((float) $product->stock_quantity)->toBe(8.0)
+        ->and((float) $product->low_stock_threshold)->toBe(3.0);
+
+    expect(ProductStockMovement::query()->where('product_id', $product->id)->where('type', 'opening')->count())->toBe(1);
+});
+
+it('shows current stock read-only on edit and ignores quantity changes from the product form', function () {
+    $product = Product::query()->create([
+        'track_stock' => true,
+        'stock_quantity' => 11,
+        'low_stock_threshold' => 2,
+        'cost_ex_vat' => 5,
+        'price_ex_vat' => 15,
+        'vat_rate' => 15,
+        'name_en' => 'Existing Valve',
+        'name_ar' => 'صمام موجود',
+        'name_bn' => 'বিদ্যমান ভালভ',
+        'product_category_id' => ProductCategory::query()->value('id'),
+        'product_unit_id' => ProductUnit::query()->where('code', 'PCS')->value('id'),
+        'sku' => 'PRD-888',
+    ]);
+
+    $html = Livewire::actingAs($this->owner, 'staff')
+        ->test(MenuManager::class)
+        ->call('startProduct', $product->id)
+        ->set('productFormTab', 'stock')
+        ->assertSet('productCurrentStock', '11.000')
+        ->html();
+
+    expect($html)->toContain(__('catalog.current_stock'))
+        ->and($html)->toContain(__('catalog.min_stock_level'))
+        ->and($html)->not->toContain('name="productOpeningStock"');
+
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(MenuManager::class)
+        ->call('startProduct', $product->id)
+        ->set('productCurrentStock', '99')
+        ->set('productLowStockThreshold', '4')
+        ->call('saveProduct')
+        ->assertHasNoErrors();
+
+    $product->refresh();
+    expect((float) $product->stock_quantity)->toBe(11.0)
+        ->and((float) $product->low_stock_threshold)->toBe(4.0);
+});

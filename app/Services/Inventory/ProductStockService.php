@@ -139,6 +139,40 @@ class ProductStockService
         return $out;
     }
 
+    public function recordOpeningStock(Product $product, float $quantity, float $unitCostExVat, ?int $branchId = null, ?int $userId = null): void
+    {
+        if (! $this->schemaReady() || ! $product->track_stock || $quantity <= 0) {
+            return;
+        }
+
+        if (ProductStockMovement::query()->where('product_id', $product->id)->where('type', 'opening')->exists()) {
+            return;
+        }
+
+        DB::transaction(function () use ($product, $quantity, $unitCostExVat, $branchId, $userId): void {
+            $locked = Product::query()->lockForUpdate()->find($product->id);
+            if ($locked === null) {
+                return;
+            }
+
+            $locked->stock_quantity = round((float) $locked->stock_quantity + $quantity, 3);
+            if ($unitCostExVat > 0) {
+                $locked->cost_ex_vat = round($unitCostExVat, 2);
+            }
+            $locked->save();
+
+            ProductStockMovement::query()->create([
+                'branch_id' => $branchId,
+                'product_id' => $locked->id,
+                'type' => 'opening',
+                'quantity_delta' => round($quantity, 3),
+                'unit_cost_ex_vat' => round($unitCostExVat, 2),
+                'user_id' => $userId,
+                'reason' => 'opening',
+            ]);
+        });
+    }
+
     public function isLowStock(Product $product): bool
     {
         if (! $product->track_stock) {

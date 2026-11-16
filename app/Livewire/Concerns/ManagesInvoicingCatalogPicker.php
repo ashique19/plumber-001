@@ -5,6 +5,9 @@ namespace App\Livewire\Concerns;
 use App\Enums\ProductItemType;
 use App\Models\Product;
 use App\Models\ProductCategory;
+use App\Models\ProductUnit;
+use App\Support\Catalog\CatalogUnitsSizesSchema;
+use App\Support\Catalog\ProductSkuGenerator;
 use App\Support\Invoicing\InvoicingCatalogLookup;
 use App\Support\Inventory\ProductStockSchema;
 use Illuminate\Support\Collection;
@@ -67,7 +70,7 @@ trait ManagesInvoicingCatalogPicker
 
     public function addLineFromProduct(int $productId): void
     {
-        $product = Product::query()->where('is_active', true)->find($productId);
+        $product = Product::query()->visibleInCatalog()->with('unit')->find($productId);
         if ($product === null) {
             return;
         }
@@ -113,17 +116,26 @@ trait ManagesInvoicingCatalogPicker
 
         $this->validate($rules);
 
-        $product = Product::query()->create([
+        $attrs = [
             'name_en' => trim($this->quickProductNameEn),
             'name_ar' => trim($this->quickProductNameAr),
             'price_ex_vat' => round((float) $this->quickProductPrice, 2),
+            'cost_ex_vat' => round((float) $this->quickProductPrice, 2),
             'vat_rate' => round((float) $this->quickProductVat, 2),
             'product_category_id' => $this->quickProductCategoryId,
             'item_type' => $this->quickProductItemType,
             'is_active' => true,
             'show_on_menu' => true,
             'track_stock' => ProductStockSchema::ready() ? $this->quickProductTrackStock : false,
-        ]);
+        ];
+
+        if (CatalogUnitsSizesSchema::ready()) {
+            $attrs['sku'] = ProductSkuGenerator::next();
+            $attrs['vat_zatca_category'] = 'S';
+            $attrs['product_unit_id'] = ProductUnit::query()->where('code', 'PCS')->value('id');
+        }
+
+        $product = Product::query()->create($attrs);
 
         $this->lines[] = $this->emptyLine();
         $lineIndex = count($this->lines) - 1;
@@ -154,7 +166,9 @@ trait ManagesInvoicingCatalogPicker
             'unit_price' => (string) $product->price_ex_vat,
             'vat_rate' => (string) $product->vat_rate,
             'product_id' => $product->id,
-            'unit_label' => $product->itemType()->label(),
+            'unit_label' => $product->unitPickerLabel(),
+            'unit_code' => $product->ublUnitCode(),
+            'vat_zatca_category' => $product->vatZatcaCategory()->value,
         ]);
     }
 

@@ -665,6 +665,32 @@
         overscroll-behavior-x: contain;
     }
 
+    .catalog-product-form-tabs__chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        flex-shrink: 0;
+    }
+
+    .catalog-product-form-tabs__chip--error:not(.app-chip--active) {
+        border-color: color-mix(in srgb, var(--app-danger, #e11d48) 55%, var(--app-border));
+    }
+
+    .catalog-product-form-tabs__badge {
+        display: inline-flex;
+        min-width: 1.125rem;
+        height: 1.125rem;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9999px;
+        padding: 0 0.25rem;
+        font-size: 0.65rem;
+        font-weight: 700;
+        line-height: 1;
+        background: var(--app-danger, #e11d48);
+        color: #fff;
+    }
+
     .app-toolbar-select {
         min-height: 2.75rem;
         @apply rounded-xl border bg-[var(--app-surface)] px-3 text-sm font-medium;

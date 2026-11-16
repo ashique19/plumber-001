@@ -3,7 +3,10 @@
 namespace App\Models;
 
 use App\Enums\ProductItemType;
+use App\Enums\VatZatcaCategory;
 use App\Support\Catalog\CatalogI18n;
+use App\Support\Catalog\CatalogUnitsSizesSchema;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -13,6 +16,8 @@ class Product extends Model
 {
     protected $fillable = ['branch_id',
         'product_category_id',
+        'product_unit_id',
+        'product_size_id',
         'sku',
         'item_type',
         'name_en',
@@ -24,6 +29,7 @@ class Product extends Model
         'image_url',
         'price_ex_vat',
         'vat_rate',
+        'vat_zatca_category',
         'sort_order',
         'is_active',
         'show_on_homepage',
@@ -32,6 +38,8 @@ class Product extends Model
         'stock_quantity',
         'low_stock_threshold',
         'cost_ex_vat',
+        'archived_at',
+        'name_i18n_review',
     ];
 
     protected function casts(): array
@@ -47,7 +55,55 @@ class Product extends Model
             'low_stock_threshold' => 'decimal:3',
             'cost_ex_vat' => 'decimal:2',
             'item_type' => ProductItemType::class,
+            'archived_at' => 'datetime',
+            'name_i18n_review' => 'boolean',
         ];
+    }
+
+    public function scopeVisibleInCatalog(Builder $query): Builder
+    {
+        return $query
+            ->where('is_active', true)
+            ->when(
+                CatalogUnitsSizesSchema::ready(),
+                fn (Builder $q) => $q->whereNull('archived_at'),
+            );
+    }
+
+    public function isArchived(): bool
+    {
+        return $this->archived_at !== null;
+    }
+
+    public function unit(): BelongsTo
+    {
+        return $this->belongsTo(ProductUnit::class, 'product_unit_id');
+    }
+
+    public function size(): BelongsTo
+    {
+        return $this->belongsTo(ProductSize::class, 'product_size_id');
+    }
+
+    public function vatZatcaCategory(): VatZatcaCategory
+    {
+        $raw = strtoupper((string) ($this->vat_zatca_category ?? 'S'));
+
+        return VatZatcaCategory::tryFrom($raw) ?? VatZatcaCategory::Standard;
+    }
+
+    public function ublUnitCode(): string
+    {
+        return $this->unit?->ubl_unit_code ?? 'PCE';
+    }
+
+    public function unitPickerLabel(?string $locale = null): string
+    {
+        if ($this->unit !== null) {
+            return $this->unit->displayName($locale);
+        }
+
+        return $this->itemType()->label();
     }
 
     public function itemType(): ProductItemType

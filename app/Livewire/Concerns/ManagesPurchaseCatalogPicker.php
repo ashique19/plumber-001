@@ -5,6 +5,9 @@ namespace App\Livewire\Concerns;
 use App\Enums\ProductItemType;
 use App\Models\Product;
 use App\Models\ProductCategory;
+use App\Models\ProductUnit;
+use App\Support\Catalog\CatalogUnitsSizesSchema;
+use App\Support\Catalog\ProductSkuGenerator;
 use App\Support\Invoicing\InvoicingCatalogLookup;
 use App\Support\Inventory\ProductStockSchema;
 use Illuminate\Support\Collection;
@@ -125,7 +128,7 @@ trait ManagesPurchaseCatalogPicker
 
         $trackStock = ProductStockSchema::ready() ? $this->quickProductTrackStock : true;
 
-        $product = Product::query()->create([
+        $attrs = [
             'name_en' => trim($this->quickProductNameEn),
             'name_ar' => trim($this->quickProductNameAr),
             'price_ex_vat' => round((float) $this->quickProductPrice, 2),
@@ -136,7 +139,15 @@ trait ManagesPurchaseCatalogPicker
             'is_active' => true,
             'show_on_menu' => true,
             'track_stock' => $trackStock,
-        ]);
+        ];
+
+        if (CatalogUnitsSizesSchema::ready()) {
+            $attrs['sku'] = ProductSkuGenerator::next();
+            $attrs['vat_zatca_category'] = 'S';
+            $attrs['product_unit_id'] = ProductUnit::query()->where('code', 'PCS')->value('id');
+        }
+
+        $product = Product::query()->create($attrs);
 
         $this->showQuickProductModal = false;
         $this->resetQuickProductForm();

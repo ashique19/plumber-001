@@ -15,6 +15,8 @@ use App\Models\BusinessSetting;
 use App\Models\Customer;
 use App\Models\Invoice;
 use App\Models\Product;
+use App\Models\ProductCategory;
+use App\Models\ProductUnit;
 use App\Models\StaffUser;
 use App\Services\Pos\PosCheckoutService;
 use App\Services\Pos\PosOrderService;
@@ -104,6 +106,10 @@ it('creates catalog products and categories on install.sql schema', function () 
         ->call('startProduct')
         ->set('productNameEn', 'Install SQL Service')
         ->set('productNameAr', 'خدمة اختبار SQL')
+        ->set('productNameBn', 'ইনস্টল SQL সার্ভিস')
+        ->set('productCategoryId', ProductCategory::query()->where('name_en', 'Install SQL Cat')->value('id'))
+        ->set('productUnitId', ProductUnit::query()->where('code', 'PCS')->value('id'))
+        ->set('productCostInput', '50')
         ->set('productPriceInput', '115.00')
         ->set('productVatRate', 15)
         ->call('saveProduct')

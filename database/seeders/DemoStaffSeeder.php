@@ -61,6 +61,7 @@ class DemoStaffSeeder extends Seeder
         )->assignRole('cashier');
 
         $this->call(PlumberCatalogSeeder::class);
+        $this->call(CatalogUnitsSizesSeeder::class);
 
         Customer::query()->firstOrCreate(
             ['phone' => '0501000001'],

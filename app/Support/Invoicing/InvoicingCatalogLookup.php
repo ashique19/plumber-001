@@ -13,7 +13,7 @@ final class InvoicingCatalogLookup
     public static function pickerRows(string $search = '', int $limit = 40): array
     {
         $query = Product::query()
-            ->where('is_active', true)
+            ->visibleInCatalog()
             ->orderBy('sort_order')
             ->orderBy('name_en');
 
@@ -28,7 +28,7 @@ final class InvoicingCatalogLookup
             });
         }
 
-        return $query->limit($limit)
+        return $query->with(['unit', 'size'])->limit($limit)
             ->get()
             ->map(function (Product $product): array {
                 $label = $product->displayName(app()->getLocale());
@@ -43,7 +43,7 @@ final class InvoicingCatalogLookup
                     'id' => $product->id,
                     'label' => $label,
                     'meta' => __('invoices.catalog_product_meta', [
-                        'type' => $product->itemType()->label(),
+                        'type' => $product->unitPickerLabel(app()->getLocale()),
                         'price' => number_format((float) $product->price_ex_vat, 2),
                         'vat' => number_format((float) $product->vat_rate, 0),
                     ]),
@@ -59,7 +59,7 @@ final class InvoicingCatalogLookup
      */
     public static function productsForAddLine(string $search, int $limit = 15): Collection
     {
-        $query = Product::query()->where('is_active', true);
+        $query = Product::query()->visibleInCatalog();
 
         $term = trim($search);
         if ($term !== '') {

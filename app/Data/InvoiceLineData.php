@@ -13,6 +13,8 @@ readonly class InvoiceLineData
     public float $vatRate,
     public float $discountExVat = 0.0,
     public ?string $nameAr = null,
+    public ?string $unitCode = null,
+    public ?string $vatZatcaCategory = null,
   ) {}
 
   public function netExVat(): float

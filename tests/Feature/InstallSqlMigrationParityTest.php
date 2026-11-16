@@ -23,6 +23,14 @@ it('documents invoice payments sql for live drift', function () {
     expect(base_path('docs/sql/2026-11-15-invoice-payments.sql'))->toBeReadableFile();
 });
 
+it('documents product units sizes sql for live drift', function () {
+    expect(base_path('docs/sql/2026-11-16-product-units-sizes.sql'))->toBeReadableFile();
+    $sql = file_get_contents(base_path('docs/sql/2026-11-16-product-units-sizes.sql'));
+    expect($sql)->toContain('product_units')
+        ->and($sql)->toContain('product_sizes')
+        ->and($sql)->toContain('product_sku_counters');
+});
+
 it('documents combined plumber modules sql for live drift', function () {
     expect(base_path('docs/sql/2026-11-15-plumber-modules-combined.sql'))->toBeReadableFile();
     $combined = file_get_contents(base_path('docs/sql/2026-11-15-plumber-modules-combined.sql'));
