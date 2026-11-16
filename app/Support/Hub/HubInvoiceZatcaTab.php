@@ -106,7 +106,21 @@ final class HubInvoiceZatcaTab
 
     public static function canResend(Invoice $invoice): bool
     {
-        return self::isFailed($invoice) && ZatcaSubmissionStatus::canSubmitToZatca();
+        if (! $invoice->isIssued() || ! ZatcaSubmissionStatus::canSubmitToZatca()) {
+            return false;
+        }
+
+        if (self::isSuccess($invoice)) {
+            return false;
+        }
+
+        $badge = HubInvoiceZatcaBadge::badgeKey($invoice);
+
+        if (in_array($badge, [HubInvoiceZatcaBadge::Rejected, HubInvoiceZatcaBadge::NotSubmitted], true)) {
+            return true;
+        }
+
+        return self::isFailed($invoice) && $badge !== HubInvoiceZatcaBadge::Pending;
     }
 
     public static function applyTabScope(Builder $query, string $tab): void

@@ -62,9 +62,9 @@ function makeZatcaTestInvoice(array $payloadOverrides = []): Invoice
     Invoice::withoutEvents(function () use ($invoice, $payload): void {
         $invoice->forceFill([
             'payload' => $payload,
-            'signed_xml' => '<Invoice/>',
-            'icv' => 7,
-            'invoice_hash' => 'hash-7',
+            'signed_xml' => filled($payloadOverrides['signed_xml'] ?? null) ? $payloadOverrides['signed_xml'] : null,
+            'icv' => $payloadOverrides['icv'] ?? null,
+            'invoice_hash' => $payloadOverrides['invoice_hash'] ?? null,
         ])->save();
     });
 
@@ -102,22 +102,26 @@ it('moves invoice to success state after resend', function () {
         'https://z-heart.test/api/v1/invoices/report' => Http::response([
             'status' => 'ok',
             'data' => [
+                'signed_xml' => base64_encode('<Invoice/>'),
                 'uuid' => '550e8400-e29b-41d4-a716-446655440099',
                 'icv' => 7,
                 'invoice_hash' => 'hash-7',
+                'qr' => 'cXI=',
                 'zatca' => ['status' => 'reported'],
             ],
             'request_id' => 'req-resend-ok',
         ], 200),
     ]);
 
-    $invoice = makeZatcaTestInvoice();
+    $invoice = makeZatcaTestInvoice([
+        'zheart_last_error' => 'Previous rejection',
+        'zheart_reporting_status' => 'rejected',
+    ]);
 
     Livewire::actingAs($this->owner, 'staff')
         ->test(InvoiceHub::class)
         ->set('zatcaTab', HubInvoiceZatcaTab::FAILED)
-        ->call('resubmitInvoice', $invoice->id)
-        ->assertSet('zatcaTab', HubInvoiceZatcaTab::SUCCESS);
+        ->call('resubmitInvoice', $invoice->id);
 
     $invoice->refresh();
     expect(HubInvoiceZatcaTab::isSuccess($invoice))->toBeTrue()

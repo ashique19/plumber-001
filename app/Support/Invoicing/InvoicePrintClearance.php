@@ -19,6 +19,11 @@ final class InvoicePrintClearance
 
     public static function allowsOfficialPrint(Invoice $invoice): bool
     {
+        return self::hasValidGeneratedDocument($invoice);
+    }
+
+    public static function hasValidGeneratedDocument(Invoice $invoice): bool
+    {
         if (! $invoice->isIssued()) {
             return false;
         }

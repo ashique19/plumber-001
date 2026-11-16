@@ -8,6 +8,7 @@ use App\Models\Invoice;
 use App\Services\InvoiceAuditService;
 use App\Services\Invoicing\Signing\InvoiceSigningRequestFactory;
 use App\Services\Invoicing\Signing\ZHeartInvoiceSigningGateway;
+use App\Support\Hub\HubInvoiceRowActions;
 use App\Support\Hub\HubInvoiceZatcaTab;
 use App\Support\Invoicing\SigningFailureSanitizer;
 use App\Support\Invoicing\ZatcaSubmissionStatus;
@@ -28,6 +29,10 @@ final class InvoiceZatcaResubmitService
         }
 
         if (! $invoice->isIssued()) {
+            return InvoiceZatcaResubmitResult::notEligible();
+        }
+
+        if (! HubInvoiceRowActions::canResendZatca($invoice)) {
             return InvoiceZatcaResubmitResult::notEligible();
         }
 

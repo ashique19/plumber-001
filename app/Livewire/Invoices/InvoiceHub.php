@@ -7,8 +7,10 @@ use App\Livewire\Concerns\ResolvesBusinessContext;
 use App\Livewire\Concerns\ValidatesFieldsLive;
 use App\Models\Invoice;
 use App\Services\Invoicing\InvoiceZatcaResubmitService;
+use App\Support\Hub\HubInvoiceRowActions;
 use App\Support\Hub\HubInvoiceTableRow;
 use App\Support\Hub\HubInvoiceZatcaTab;
+use App\Enums\InvoiceStatus;
 use App\Services\Invoicing\InvoiceDuesLedgerService;
 use App\Support\Invoicing\ZatcaSubmissionStatus;
 use App\Business\BusinessContext;
@@ -110,12 +112,15 @@ class InvoiceHub extends Component
 
         try {
             $invoice = Invoice::query()->whereKey($invoiceId)->firstOrFail();
+            abort_unless(HubInvoiceRowActions::canResendZatca($invoice), 403);
+
             $result = $service->resubmit($invoice);
 
             if ($result->ok && $result->invoice) {
-                $this->toastSuccess(__('invoices.zatca_resubmit_success', ['number' => $result->invoice->document_number]));
+                $fresh = $result->invoice->fresh();
+                $this->toastSuccess(__('invoices.zatca_resubmit_success', ['number' => $fresh->document_number]));
 
-                if ($this->zatcaTab === HubInvoiceZatcaTab::FAILED && HubInvoiceZatcaTab::isSuccess($result->invoice)) {
+                if ($this->zatcaTab === HubInvoiceZatcaTab::FAILED && HubInvoiceZatcaTab::isSuccess($fresh)) {
                     $this->zatcaTab = HubInvoiceZatcaTab::SUCCESS;
                 }
 
@@ -133,6 +138,19 @@ class InvoiceHub extends Component
         } finally {
             unset($this->resubmitting[$invoiceId]);
         }
+    }
+
+    public function deleteDraft(int $invoiceId): void
+    {
+        abort_unless(auth('staff')->user()?->can('invoices.issue'), 403);
+
+        $invoice = Invoice::query()->whereKey($invoiceId)->firstOrFail();
+        abort_unless(HubInvoiceRowActions::canDeleteDraft($invoice), 403);
+
+        $number = $invoice->document_number;
+        $invoice->delete();
+
+        $this->toastSuccess(__('invoices.draft_deleted', ['number' => $number]));
     }
 
     public function resubmitAllFailed(InvoiceZatcaResubmitService $service): void

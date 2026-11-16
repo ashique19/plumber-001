@@ -3,8 +3,10 @@
 namespace App\Support\Invoicing;
 
 use App\Livewire\Invoices\IssueInvoice;
+use App\Enums\InvoiceStatus;
 use App\Models\Invoice;
 use App\Models\Quotation;
+use App\Support\Hub\HubInvoiceRowActions;
 use Illuminate\Http\Request;
 
 final class IssueInvoicePrefill
@@ -128,6 +130,32 @@ final class IssueInvoicePrefill
         session()->forget(self::SESSION_KEY);
     }
 
+    public static function applyDraftToComponent(IssueInvoice $component, Invoice $draft): void
+    {
+        $prefill = self::fromInvoice($draft);
+        $component->lines = $prefill['lines'] ?? $component->lines;
+        $component->invoiceDiscountExVat = $prefill['invoiceDiscountExVat'] ?? $component->invoiceDiscountExVat;
+        $component->retentionPercent = $prefill['retentionPercent'] ?? $component->retentionPercent;
+        $component->retentionFixed = $prefill['retentionFixed'] ?? $component->retentionFixed;
+        $component->buyerPhone = $prefill['buyerPhone'] ?? $component->buyerPhone;
+        $component->buyerEmail = $prefill['buyerEmail'] ?? $component->buyerEmail;
+        $component->buyerName = $prefill['buyerName'] ?? $component->buyerName;
+        $component->buyerVat = $prefill['buyerVat'] ?? $component->buyerVat;
+        $component->buyerCr = $prefill['buyerCr'] ?? $component->buyerCr;
+        $component->buyerNameOptional = $prefill['buyerNameOptional'] ?? $component->buyerNameOptional;
+        $component->buyerCountry = $prefill['buyerCountry'] ?? $component->buyerCountry;
+        if (filled($prefill['dueDate'] ?? null)) {
+            $component->dueDate = (string) $prefill['dueDate'];
+        }
+        $component->addrBuilding = $prefill['addrBuilding'] ?? $component->addrBuilding;
+        $component->addrStreet = $prefill['addrStreet'] ?? $component->addrStreet;
+        $component->addrDistrict = $prefill['addrDistrict'] ?? $component->addrDistrict;
+        $component->addrCity = $prefill['addrCity'] ?? $component->addrCity;
+        $component->addrPostal = $prefill['addrPostal'] ?? $component->addrPostal;
+        $component->addrPostBox = $prefill['addrPostBox'] ?? $component->addrPostBox;
+        $component->addrAdditional = $prefill['addrAdditional'] ?? $component->addrAdditional;
+    }
+
     public static function applyIfPresent(IssueInvoice $component, string $mode, ?Request $request = null): void
     {
         $prefill = session(self::SESSION_KEY);
@@ -145,9 +173,22 @@ final class IssueInvoicePrefill
             $duplicateFrom = $request->query('duplicate_from');
             if ($duplicateFrom !== null && $prefill === null) {
                 $source = Invoice::query()->find((int) $duplicateFrom);
-                if ($source !== null) {
+                if ($source !== null && $source->isIssued()) {
                     $prefill = self::fromInvoice($source);
                     session([self::SESSION_KEY => $prefill]);
+                }
+            }
+
+            $draftId = $request->query('draft');
+            if ($draftId !== null) {
+                $draft = Invoice::query()
+                    ->whereKey((int) $draftId)
+                    ->where('status', InvoiceStatus::Draft)
+                    ->first();
+                if ($draft !== null && HubInvoiceRowActions::canEdit($draft)) {
+                    self::applyDraftToComponent($component, $draft);
+
+                    return;
                 }
             }
         }

@@ -155,13 +155,16 @@
                                 @if ($row['zatca_error']) title="{{ $row['zatca_error'] }}" @endif
                             >{{ __('invoices.zatca_badge.'.$row['zatca_badge']) }}</span>
                         </td>
+                        @php $a = $row['actions']; @endphp
                         <td>
                             <div class="hub-doc-table__actions">
-                                <a class="hub-doc-table__action" href="{{ $urls['view'] }}" @if (! $row['official_print']) title="{{ __('invoices.print_not_cleared') }}" @endif>
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                                    {{ __('invoices.action_view') }}
-                                </a>
-                                @if ($row['official_print'])
+                                @if ($a['view'] ?? false)
+                                    <a class="hub-doc-table__action" href="{{ $row['view_url'] }}">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                        {{ __('invoices.action_view') }}
+                                    </a>
+                                @endif
+                                @if ($a['download'] ?? false)
                                     <a class="hub-doc-table__action" href="{{ $urls['download'] }}" target="_blank" rel="noopener">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
                                         {{ __('invoices.action_download_pdf') }}
@@ -170,14 +173,13 @@
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
                                         {{ __('invoices.action_print') }}
                                     </a>
-                                @else
-                                    <span class="hub-doc-table__action hub-doc-table__action--disabled" title="{{ __('invoices.print_not_cleared') }}">{{ __('invoices.action_download_pdf') }}</span>
-                                    <span class="hub-doc-table__action hub-doc-table__action--disabled" title="{{ __('invoices.print_not_cleared') }}">{{ __('invoices.action_print') }}</span>
+                                @elseif ($a['awaiting_clearance'] ?? false)
+                                    <span class="hub-doc-table__action hub-doc-table__action--disabled" title="{{ __('invoices.awaiting_zatca_clearance') }}">{{ __('invoices.action_download_pdf') }}</span>
+                                    <span class="hub-doc-table__action hub-doc-table__action--disabled" title="{{ __('invoices.awaiting_zatca_clearance') }}">{{ __('invoices.action_print') }}</span>
                                 @endif
                                 <x-hub.invoice-more-menu
                                     :invoice-id="$invoice->id"
-                                    :can-resend="($canResubmitZatca ?? false) && $row['can_resend']"
-                                    :can-record="($canRecordPayment ?? false) && $invoice->isIssued()"
+                                    :actions="$a"
                                     :more="$row['more']"
                                 />
                             </div>
