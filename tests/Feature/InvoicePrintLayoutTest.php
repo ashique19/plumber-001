@@ -13,14 +13,14 @@ beforeEach(function () {
     seedDemoPaidPosOrder();
 });
 
-it('renders a4 tax invoice blocks', function () {
+it('renders a4 layout with document type title for pos-derived invoices', function () {
     $invoice = Invoice::query()->firstOrFail();
 
     $this->actingAs($this->owner, 'staff')
         ->get(route('admin.invoices.print', ['invoice' => $invoice, 'layout' => 'a4']))
         ->assertOk()
-        ->assertSee('Tax Invoice', false)
-        ->assertSee('فاتورة ضريبية', false);
+        ->assertSee(__('pos.receipt_title_simplified_en'), false)
+        ->assertSee(__('pos.receipt_title_simplified_ar'), false);
 });
 
 it('accepts transfer payment method on pos', function () {

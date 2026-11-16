@@ -1,6 +1,6 @@
 <x-layouts.print>
     @push('head')
-        <title>Simplified Tax Invoice {{ $t['document_number'] }}</title>
+        <title>{{ ($t['is_simplified'] ?? false) ? 'Simplified Tax Invoice' : 'Tax Invoice' }} {{ $t['document_number'] }}</title>
         @vite(['resources/css/invoice-print.css', 'resources/js/receipt.js'])
     @endpush
 
@@ -21,10 +21,7 @@
             </p>
         @endif
 
-        <h1 class="invoice-a4__title">
-            Simplified Tax Invoice
-            <span class="invoice-a4__title-ar block">فاتورة ضريبية مبسطة</span>
-        </h1>
+        <x-invoices.print-document-title :t="$t" />
 
         <section class="invoice-cash__seller">
             <strong>{{ $t['seller_en'] }}</strong>
@@ -61,6 +58,9 @@
                 @endif
                 @if (! empty($t['customer']['vat_number']))
                     <div><x-invoices.print-label en="VAT No." ar="الرقم الضريبي" />: {{ $t['customer']['vat_number'] }}</div>
+                @endif
+                @if (! empty($t['customer']['cr_number']))
+                    <div><x-invoices.print-label en="CR No." ar="السجل التجاري" />: {{ $t['customer']['cr_number'] }}</div>
                 @endif
                 @if (! empty($t['customer']['address']))<div>{{ $t['customer']['address'] }}</div>@endif
             </div>

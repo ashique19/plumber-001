@@ -3,7 +3,7 @@
 @endphp
 <x-layouts.print>
     @push('head')
-        <title>Tax Invoice {{ $t['document_number'] }}</title>
+        <title>{{ ($t['is_simplified'] ?? false) ? 'Simplified Tax Invoice' : 'Tax Invoice' }} {{ $t['document_number'] }}</title>
         @vite(['resources/css/invoice-print.css', 'resources/js/receipt.js'])
     @endpush
 
@@ -53,10 +53,7 @@
             </div>
         </section>
 
-        <h1 class="invoice-a4__title">
-            Tax Invoice
-            <span class="invoice-a4__title-ar block">فاتورة ضريبية</span>
-        </h1>
+        <x-invoices.print-document-title :t="$t" />
 
         <div class="invoice-a4__customer">
             @foreach ([

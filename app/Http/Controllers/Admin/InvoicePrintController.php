@@ -24,9 +24,14 @@ class InvoicePrintController extends Controller
         $locale = EnabledLocales::resolve($request->query('locale', app()->getLocale()));
         app()->setLocale($locale);
 
+        $isStandardDocument = $invoice->document_type === InvoiceDocumentType::Standard;
+
         $layout = (string) $request->query('layout', '');
         if ($layout === '') {
-            $layout = $invoice->document_type === InvoiceDocumentType::Standard ? 'a4' : 'cash';
+            $layout = $isStandardDocument ? 'a4' : 'cash';
+        }
+        if (! in_array($layout, ['a4', 'cash', 'receipt'], true)) {
+            $layout = $isStandardDocument ? 'a4' : 'cash';
         }
 
         $branch = $invoice->branch;

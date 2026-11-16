@@ -25,6 +25,7 @@ use App\Support\Validation\QuickModalValidationAttributes;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 
 #[Layout('layouts.pos')]
@@ -37,6 +38,7 @@ class IssueInvoice extends Component
     use ResolvesBusinessContext;
     use ValidatesFieldsLive;
 
+    #[Locked]
     public string $mode;
 
     /**
@@ -121,7 +123,23 @@ class IssueInvoice extends Component
 
     protected function documentStandardBuyerRequired(): bool
     {
-        return $this->mode === 'standard';
+        return $this->resolvedIssueMode() === 'standard';
+    }
+
+    protected function resolvedIssueMode(): string
+    {
+        if (in_array($this->mode, ['standard', 'simplified'], true)) {
+            return $this->mode;
+        }
+
+        $routeMode = request()->route('mode');
+        if (is_string($routeMode) && in_array($routeMode, ['standard', 'simplified'], true)) {
+            $this->mode = $routeMode;
+
+            return $routeMode;
+        }
+
+        throw new \RuntimeException('Invoice issue mode is missing or invalid.');
     }
 
     public function issue(InvoiceIssueService $issuer): void
@@ -140,6 +158,8 @@ class IssueInvoice extends Component
             return;
         }
 
+        $issueMode = $this->resolvedIssueMode();
+
         try {
             $this->validate($this->rulesForMode());
         } catch (\Illuminate\Validation\ValidationException $exception) {
@@ -155,8 +175,8 @@ class IssueInvoice extends Component
             return;
         }
         StaffBranchContext::remember($branch);
-        $type = $this->mode === 'standard' ? InvoiceDocumentType::Standard : InvoiceDocumentType::Simplified;
-        $documentNumber = strtoupper($this->mode === 'standard' ? 'STD' : 'SIMP')
+        $type = $issueMode === 'standard' ? InvoiceDocumentType::Standard : InvoiceDocumentType::Simplified;
+        $documentNumber = strtoupper($issueMode === 'standard' ? 'STD' : 'SIMP')
             .'-'.now('Asia/Riyadh')->format('Ymd-His');
 
         $lineItems = array_map(function (array $row): array {
