@@ -45,8 +45,12 @@ test.describe('catalog create deep links and add buttons', () => {
     test('customers hub opens add sheet from ?create=customer', async ({ page }) => {
         await page.goto(adminPath('/admin/customers?create=customer', 'en'));
         await page.waitForLoadState('networkidle');
+<<<<<<< HEAD
         await expect(page.locator('[data-testid="customer-identity-fields"]')).toBeVisible({ timeout: 15_000 });
         await expect(page.locator('input#customerLegalNameEn')).toBeVisible();
+=======
+        await expect(page.locator('input[name="customerName"]')).toBeVisible({ timeout: 15_000 });
+>>>>>>> origin/main
         await expect(page.locator('.x-modal-backdrop')).toBeVisible();
     });
 
@@ -55,7 +59,11 @@ test.describe('catalog create deep links and add buttons', () => {
         await page.waitForLoadState('networkidle');
 
         await page.getByRole('button', { name: /add customer/i }).click({ delay: 30 });
+<<<<<<< HEAD
         await expect(page.locator('[data-testid="customer-identity-fields"]')).toBeVisible({ timeout: 15_000 });
         await expect(page.locator('input#customerLegalNameEn')).toBeVisible();
+=======
+        await expect(page.locator('input[name="customerName"]')).toBeVisible({ timeout: 15_000 });
+>>>>>>> origin/main
     });
 });

@@ -103,7 +103,7 @@ export function wireAdminQuickAddDelegation() {
                 return;
             }
 
-            const button = target.closest('button[data-admin-quick-add]');
+            const button = target.closest('button[data-admin-quick-add], button[data-admin-livewire-call]');
             if (! button) {
                 return;
             }
@@ -112,11 +112,76 @@ export function wireAdminQuickAddDelegation() {
             event.stopPropagation();
             event.stopImmediatePropagation();
 
-            const action = button.getAttribute('data-admin-quick-add');
+            const action = button.getAttribute('data-admin-quick-add')
+                ?? button.getAttribute('data-admin-livewire-call');
             scheduleQuickAddRetries(action, button);
         },
         true,
     );
+}
+
+const createQueryDeepLinks = [
+    {
+        matchPath: (path) => path.includes('/admin/catalog'),
+        create: 'product',
+        livewireCall: 'startProduct',
+        modalReadySelector: '#catalog-product-form',
+        pageRootSelector: '.catalog-admin-page',
+    },
+    {
+        matchPath: (path) => path.includes('/admin/customers'),
+        create: 'customer',
+        livewireCall: 'startCustomer',
+        modalReadySelector: 'input[name="customerName"]',
+        pageRootSelector: '.customer-hub',
+    },
+];
+
+function wireRootForPage(rootSelector) {
+    const root = document.querySelector(rootSelector);
+
+    return root?.closest('[wire\\:id]') ?? null;
+}
+
+function tryOpenCreateDeepLink() {
+    if (typeof Livewire === 'undefined') {
+        return;
+    }
+
+    const url = new URL(window.location.href);
+    const path = url.pathname;
+
+    for (const link of createQueryDeepLinks) {
+        if (! link.matchPath(path)) {
+            continue;
+        }
+
+        if (url.searchParams.get('create') !== link.create) {
+            continue;
+        }
+
+        if (document.querySelector(link.modalReadySelector)) {
+            continue;
+        }
+
+        const host = wireRootForPage(link.pageRootSelector);
+        if (! host) {
+            continue;
+        }
+
+        scheduleQuickAddRetries(link.livewireCall, host);
+    }
+}
+
+/** Ensure ?create= deep links open after Livewire hydration when mount could not. */
+export function wireAdminCreateQueryDeepLinks() {
+    const run = () => {
+        requestAnimationFrame(() => tryOpenCreateDeepLink());
+        window.setTimeout(() => tryOpenCreateDeepLink(), 48);
+    };
+
+    document.addEventListener('livewire:initialized', run, { once: true });
+    document.addEventListener('livewire:navigated', run);
 }
 
 export function registerAdminTypeaheadControl(Alpine) {

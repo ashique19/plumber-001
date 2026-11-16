@@ -11,7 +11,7 @@
     </span>
     <p class="text-base font-semibold text-[var(--app-text)]">{{ $title }}</p>
     @if($actionLabel && $actionWire)
-        <button type="button" class="tap-action-primary mt-6 min-h-12 px-6 text-sm font-semibold" wire:click="{{ $actionWire }}">
+        <button type="button" class="tap-action-primary mt-6 min-h-12 px-6 text-sm font-semibold" data-admin-livewire-call="{{ $actionWire }}" wire:click="{{ $actionWire }}">
             {{ $actionLabel }}
         </button>
     @endif

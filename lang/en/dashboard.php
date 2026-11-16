@@ -5,6 +5,7 @@ return [
     'subtitle' => 'Today’s sales, invoices, and submission status for your business.',
     'nav' => 'Dashboard',
     'quick_actions' => 'Quick actions',
+    'overview' => 'Overview',
     'make_invoice' => 'Invoice',
     'add_products' => 'Products',
     'tiles' => [
