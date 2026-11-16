@@ -15,6 +15,7 @@ use App\Services\Inventory\SupplierService;
 use App\Support\Inventory\ProductStockSchema;
 use App\Support\StaffBranchContext;
 use App\Support\Validation\FieldValidationRules;
+use App\Support\Validation\QuickModalValidationAttributes;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -204,6 +205,14 @@ class CreatePurchase extends Component
 
         $this->toastSuccess(__('purchases.recorded', ['number' => $purchase->purchase_number]));
         $this->redirect(route('admin.stock.search'), navigate: true);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function validationAttributes(): array
+    {
+        return QuickModalValidationAttributes::map();
     }
 
     public function render(): View

@@ -20,6 +20,7 @@ use App\Support\Invoicing\SigningFailureSanitizer;
 use App\Support\Invoicing\ZatcaSubmissionStatus;
 use App\Support\StaffBranchContext;
 use App\Support\Validation\FieldValidationRules;
+use App\Support\Validation\QuickModalValidationAttributes;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
@@ -470,7 +471,7 @@ class IssueInvoice extends Component
      */
     protected function validationAttributes(): array
     {
-        return [
+        return array_merge(QuickModalValidationAttributes::map(), [
             'buyerName' => __('invoices.buyer_name'),
             'buyerNameOptional' => __('invoices.buyer_optional'),
             'buyerVat' => __('business.fields.vat_number'),
@@ -487,6 +488,6 @@ class IssueInvoice extends Component
             'lines.*.quantity' => __('invoices.line_qty'),
             'lines.*.unit_price' => __('invoices.line_price_ex_vat'),
             'lines.*.vat_rate' => __('invoices.line_vat'),
-        ];
+        ]);
     }
 }

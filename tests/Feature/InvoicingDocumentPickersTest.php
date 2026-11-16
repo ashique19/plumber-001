@@ -45,6 +45,35 @@ it('selects a customer into standard invoice buyer fields', function () {
         ->assertSet('addrCity', 'Riyadh');
 });
 
+it('requires Arabic product name on quick create with localized attribute label', function () {
+    app()->setLocale('bn');
+
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(IssueInvoice::class, ['mode' => 'simplified'])
+        ->set('quickProductNameEn', 'English Only Widget')
+        ->set('quickProductPrice', '50')
+        ->call('saveQuickProduct')
+        ->assertHasErrors(['quickProductNameAr' => 'required']);
+
+    $message = __('validation.required', [
+        'attribute' => __('validation.quick_attributes.product_name_ar', locale: 'bn'),
+    ], locale: 'bn');
+
+    expect($message)->toContain(__('validation.quick_attributes.product_name_ar', locale: 'bn'));
+});
+
+it('creates a quick product when Arabic name is provided', function () {
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(IssueInvoice::class, ['mode' => 'simplified'])
+        ->set('quickProductNameEn', 'English Only Widget')
+        ->set('quickProductNameAr', 'منتج')
+        ->set('quickProductPrice', '50')
+        ->call('saveQuickProduct')
+        ->assertHasNoErrors()
+        ->assertSet('lines.0.name', 'English Only Widget')
+        ->assertSet('lines.0.name_ar', 'منتج');
+});
+
 it('creates a customer from the invoice modal and keeps line state', function () {
     Livewire::actingAs($this->owner, 'staff')
         ->test(IssueInvoice::class, ['mode' => 'simplified'])

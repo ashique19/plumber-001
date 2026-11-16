@@ -33,6 +33,9 @@
                 placeholder="{{ $placeholder !== '' ? $placeholder : ' ' }}"
                 data-admin-search-input="1"
                 @keydown.enter.prevent
+                x-on:input="panelOpen = true"
+                x-on:paste="panelOpen = true"
+                x-on:change="panelOpen = true"
                 {{ $attributes->merge(['class' => 'form-field__control admin-typeahead__input']) }}
             />
             @if ($clearable && $clearAction)

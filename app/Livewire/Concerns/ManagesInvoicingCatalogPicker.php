@@ -142,9 +142,14 @@ trait ManagesInvoicingCatalogPicker
             $nameEn = $product->displayName('en');
         }
 
+        $nameAr = trim((string) ($product->name_ar ?? ''));
+        if ($nameAr === '') {
+            $nameAr = $nameEn;
+        }
+
         $this->lines[$lineIndex] = array_merge($this->lines[$lineIndex], [
             'name' => $nameEn,
-            'name_ar' => trim((string) ($product->name_ar ?? '')),
+            'name_ar' => $nameAr,
             'quantity' => $this->lines[$lineIndex]['quantity'] !== '' ? $this->lines[$lineIndex]['quantity'] : '1',
             'unit_price' => (string) $product->price_ex_vat,
             'vat_rate' => (string) $product->vat_rate,
