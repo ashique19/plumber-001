@@ -123,6 +123,11 @@ class CreatePurchase extends Component
         $this->supplierSearch = '';
     }
 
+    public function openQuickSupplierModal(): void
+    {
+        $this->showQuickSupplierModal = true;
+    }
+
     public function saveQuickSupplier(SupplierService $suppliers): void
     {
         $branch = StaffBranchContext::resolve();

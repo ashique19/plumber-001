@@ -16,9 +16,9 @@
 
 <div
     class="admin-typeahead"
-    x-data="{ panelOpen: @js($resultsOpen) }"
-    x-on:focusin="if ($el.contains($event.target)) { panelOpen = true }"
-    x-on:click.outside="panelOpen = false"
+    x-data="adminTypeaheadControl({ resultsOpen: @js($resultsOpen), addAction: @js($hasAdd ? $addAction : null) })"
+    x-on:focusin="if ($el.contains($event.target)) { openPanel() }"
+    x-on:click.outside="closePanel()"
 >
     <span class="form-field__label type-label">{{ $label }}</span>
     <div @class(['admin-typeahead__control', 'admin-typeahead__control--with-add' => $hasAdd])>
@@ -33,9 +33,9 @@
                 placeholder="{{ $placeholder !== '' ? $placeholder : ' ' }}"
                 data-admin-search-input="1"
                 @keydown.enter.prevent
-                x-on:input="panelOpen = true"
-                x-on:paste="panelOpen = true"
-                x-on:change="panelOpen = true"
+                x-on:input="openPanel()"
+                x-on:paste="openPanel()"
+                x-on:change="openPanel()"
                 {{ $attributes->merge(['class' => 'form-field__control admin-typeahead__input']) }}
             />
             @if ($clearable && $clearAction)
@@ -48,7 +48,8 @@
             <button
                 type="button"
                 class="admin-typeahead__add tap-action-muted"
-                wire:click="{{ $addAction }}"
+                x-on:click.prevent.stop="invokeQuickAdd()"
+                data-admin-quick-add="{{ $addAction }}"
                 aria-label="{{ $addLabel ?? __('catalog.add') }}"
                 title="{{ $addLabel ?? __('catalog.add') }}"
             >

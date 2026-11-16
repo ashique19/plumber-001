@@ -14,7 +14,7 @@
         :clearable="trim($search) !== ''"
         clear-action="clearSupplierSearch"
         :show-add="true"
-        add-action="$set('showQuickSupplierModal', true)"
+        add-action="openQuickSupplierModal"
         :add-label="__('suppliers.quick_add_title')"
         :results-open="trim($search) !== '' && ! $selectedSupplierId"
     >
