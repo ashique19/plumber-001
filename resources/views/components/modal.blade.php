@@ -16,6 +16,7 @@
 @endphp
 
 @if ($show && filled($closeWire))
+    @teleport('body')
     <div
         class="x-modal-backdrop"
         wire:click.self="{{ $closeWire }}"
@@ -55,4 +56,5 @@
             @endisset
         </div>
     </div>
+    @endteleport
 @endif

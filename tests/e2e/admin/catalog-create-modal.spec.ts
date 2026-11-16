@@ -12,7 +12,7 @@ test.describe('catalog create deep links and add buttons', () => {
         await page.goto(adminPath('/admin/catalog?tab=products&create=product', 'en'));
         await page.waitForLoadState('networkidle');
         await expect(page.locator('#catalog-product-form')).toBeVisible({ timeout: 15_000 });
-        await expect(page.locator('.app-sheet--admin')).toBeVisible();
+        await expect(page.locator('.x-modal-backdrop')).toBeVisible();
     });
 
     test('products tab opens add product sheet from add button after cold load', async ({ page }) => {
@@ -24,6 +24,7 @@ test.describe('catalog create deep links and add buttons', () => {
         await add.click({ delay: 30 });
 
         await expect(page.locator('#catalog-product-form')).toBeVisible({ timeout: 15_000 });
+        await expect(page.locator('.x-modal-backdrop')).toBeVisible();
     });
 
     test('categories tab opens add category sheet from add button', async ({ page }) => {
@@ -32,6 +33,7 @@ test.describe('catalog create deep links and add buttons', () => {
 
         await page.getByRole('button', { name: /add category/i }).click({ delay: 30 });
         await expect(page.locator('#catalog-category-form')).toBeVisible({ timeout: 15_000 });
+        await expect(page.locator('.x-modal-backdrop')).toBeVisible();
     });
 
     test('modifiers tab opens add modifier sheet from add button', async ({ page }) => {
@@ -40,6 +42,7 @@ test.describe('catalog create deep links and add buttons', () => {
 
         await page.getByRole('button', { name: /add modifier/i }).click({ delay: 30 });
         await expect(page.locator('#catalog-modifier-form')).toBeVisible({ timeout: 15_000 });
+        await expect(page.locator('.x-modal-backdrop')).toBeVisible();
     });
 
     test('customers hub opens add sheet from ?create=customer', async ({ page }) => {

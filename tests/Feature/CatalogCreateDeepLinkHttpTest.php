@@ -16,7 +16,8 @@ it('renders product sheet on full page load with create=product deep link', func
         ->getContent();
 
     expect($html)->toContain('id="catalog-product-form"')
-        ->and($html)->toContain('app-sheet-backdrop');
+        ->and($html)->toContain('x-modal-backdrop')
+        ->and($html)->toContain('data-testid="catalog-product-modal"');
 
     preg_match('/wire:snapshot="([^"]+)"/', $html, $matches);
     expect($matches)->not->toBeEmpty();
