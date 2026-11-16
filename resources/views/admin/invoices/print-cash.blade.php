@@ -4,7 +4,7 @@
         @vite(['resources/css/invoice-print.css', 'resources/js/receipt.js'])
     @endpush
 
-    <div class="invoice-print-root invoice-print-sheet invoice-print-sheet--cash" data-invoice-print data-document-number="{{ $t['document_number'] }}">
+    <div class="invoice-print-root invoice-print-sheet invoice-print-sheet--cash" data-invoice-print data-auto-print="{{ request()->boolean('autoprint') ? '1' : '0' }}" data-document-number="{{ $t['document_number'] }}">
         <header class="invoice-print-toolbar no-print flex flex-wrap gap-2 p-2">
             <button type="button" class="tap-action-primary min-h-11" onclick="window.print()">{{ __('pos.print') }}</button>
             @if ($receiptUrl ?? null)
