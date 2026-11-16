@@ -284,6 +284,8 @@ final class InvoicePrintPresenter
         $city = trim((string) ($addr['city'] ?? ''));
         $postal = trim((string) ($addr['postal_code'] ?? $addr['postal'] ?? ''));
         $postBox = trim((string) ($addr['post_box'] ?? $payload['buyer_post_box'] ?? ''));
+        $countryCode = strtoupper(trim((string) ($payload['buyer_country'] ?? $addr['country'] ?? 'SA'))) ?: 'SA';
+        $addressPrint = self::formatBuyerAddressPrintLine($addr, $countryCode, $address ?? $addressLine);
 
         return array_filter([
             'name' => $displayName !== '' ? $displayName : null,
@@ -298,6 +300,9 @@ final class InvoicePrintPresenter
             'cr_number' => $cr !== '' ? $cr : null,
             'address' => $address,
             'address_line' => $addressLine,
+            'address_print' => $addressPrint,
+            'address_parts' => $addr !== [] ? $addr : null,
+            'country_code' => $countryCode,
             'city' => $city !== '' ? $city : null,
             'postal_code' => $postal !== '' ? $postal : null,
             'post_box' => $postBox !== '' ? $postBox : null,
@@ -320,6 +325,29 @@ final class InvoicePrintPresenter
         }
 
         return $fallback;
+    }
+
+    /**
+     * @param  array<string, mixed>  $addr
+     */
+    private static function formatBuyerAddressPrintLine(array $addr, string $countryCode, ?string $fallback): ?string
+    {
+        $parts = array_values(array_filter([
+            trim((string) ($addr['building'] ?? '')),
+            trim((string) ($addr['street'] ?? '')),
+            trim((string) ($addr['district'] ?? '')),
+            trim((string) ($addr['city'] ?? '')),
+            trim((string) ($addr['postal_code'] ?? $addr['postal'] ?? '')),
+            CountryPrintName::english($countryCode),
+        ], fn (string $part): bool => $part !== ''));
+
+        if ($parts !== []) {
+            return implode(', ', $parts);
+        }
+
+        $fallback = trim((string) ($fallback ?? ''));
+
+        return $fallback !== '' ? $fallback : null;
     }
 
     /**

@@ -32,6 +32,9 @@ it('renders a4 with bilingual labels buyer vat cr and phase1 qr', function () {
             'buyer_name_ar' => 'المشتري',
             'buyer_vat' => '300000000000003',
             'buyer_cr' => '1010000000',
+            'buyer_email' => 'ledger@example.test',
+            'buyer_phone' => '0562331303',
+            'buyer_country' => 'SA',
             'buyer_national_address' => [
                 'building' => '7229',
                 'district' => 'Al Olaya',
@@ -57,18 +60,21 @@ it('renders a4 with bilingual labels buyer vat cr and phase1 qr', function () {
         ->assertSee(__('pos.receipt_title_standard_en'), false)
         ->assertSee(__('pos.receipt_title_standard_ar'), false)
         ->assertSee('invoice-a4__buyer-table', false)
-        ->assertSee('Buyer', false)
+        ->assertSee('Customer', false)
         ->assertSee('العميل', false)
-        ->assertSee('Name', false)
-        ->assertSee('الاسم', false)
         ->assertSee('المشتري', false)
-        ->assertSee('VAT Number', false)
-        ->assertSee('رقم تسجيل ضريبة القيمة المضافة', false)
+        ->assertSee('VAT number', false)
+        ->assertSee('رقم التسجيل الضريبي', false)
         ->assertSee('300000000000003', false)
-        ->assertSee('Post Box', false)
-        ->assertSee('7229 - King Fahd Rd - Al Olaya', false)
-        ->assertSee('RIYADH · 12211', false)
-        ->assertSee('3851', false)
+        ->assertSee('7229, King Fahd Rd, Al Olaya, RIYADH, 12211, Kingdom of Saudi Arabia', false)
+        ->assertSee('ledger@example.test', false)
+        ->assertSee('+966 562331303', false)
+        ->assertSee('Invoice number', false)
+        ->assertSee('رقم الفاتورة', false)
+        ->assertSee('Due date', false)
+        ->assertSee('Date', false)
+        ->assertSee('التاريخ', false)
+        ->assertDontSee('Post Box', false)
         ->assertDontSee('CR Number', false)
         ->assertSee('receipt-qr', false)
         ->assertSee('sar-riyal-symbol.svg', false)

@@ -89,9 +89,14 @@
 
 .invoice-a4__title {
     text-align: center;
-    font-size: 14pt;
+    font-size: 16pt;
     font-weight: 700;
-    margin: 8px 0;
+    margin: 10px 0 12px;
+    line-height: 1.35;
+}
+
+.invoice-a4__title-en {
+    margin-inline-end: 0.35em;
 }
 
 .invoice-a4__title-ar {
@@ -112,11 +117,6 @@
     border: 1px solid var(--inv-border);
     padding: 4px 8px;
     vertical-align: middle;
-}
-
-.invoice-a4__buyer-table thead th {
-    font-weight: 700;
-    background: color-mix(in srgb, var(--inv-border) 35%, transparent);
 }
 
 .invoice-a4__buyer-table-label {
@@ -148,6 +148,38 @@
     font-size: 8pt;
     color: var(--inv-muted);
     margin-top: 2px;
+}
+
+.invoice-a4__buyer-table-split-cell {
+    padding: 0 !important;
+    vertical-align: top;
+}
+
+.invoice-a4__buyer-table-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+}
+
+.invoice-a4__buyer-table-split-col + .invoice-a4__buyer-table-split-col {
+    border-inline-start: 1px solid var(--inv-border);
+}
+
+.invoice-a4__buyer-table-split-row {
+    display: grid;
+    grid-template-columns: 22% 56% 22%;
+    align-items: center;
+    border-bottom: 1px solid var(--inv-border);
+    min-height: 1.75rem;
+}
+
+.invoice-a4__buyer-table-split-col .invoice-a4__buyer-table-split-row:last-child {
+    border-bottom: none;
+}
+
+.invoice-a4__buyer-table-split-row .invoice-a4__buyer-table-label,
+.invoice-a4__buyer-table-split-row .invoice-a4__buyer-table-value {
+    padding: 4px 8px;
 }
 
 .invoice-a4__customer-meta {

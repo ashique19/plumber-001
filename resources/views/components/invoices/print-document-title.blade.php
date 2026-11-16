@@ -7,6 +7,6 @@
 @endphp
 
 <h1 {{ $attributes->class(['invoice-a4__title']) }}>
-    {{ $titleEn }}
-    <span class="invoice-a4__title-ar block">{{ $titleAr }}</span>
+    <span class="invoice-a4__title-en">{{ $titleEn }}</span>
+    <span class="invoice-a4__title-ar" dir="rtl">{{ $titleAr }}</span>
 </h1>

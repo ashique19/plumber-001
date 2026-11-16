@@ -1,49 +1,44 @@
 <?php
 
+use App\Support\Invoicing\BuyerPhonePrint;
 use App\Support\Invoicing\BuyerPrintBlock;
 
-it('builds bilingual buyer rows with arabic name stacked and hides empty fields', function () {
+it('builds bilingual buyer rows with customer name and hides empty fields', function () {
     $rows = BuyerPrintBlock::rows([
         'name_ar' => 'شركة مثال',
         'name_en' => 'Example Co',
-        'address_line' => 'Al Olaya - King Fahd Rd',
-        'city' => 'RIYADH',
-        'post_box' => '3851',
+        'address_print' => '7229, King Fahd Rd, Al Olaya, RIYADH, 12211, Kingdom of Saudi Arabia',
+        'email' => 'buyer@example.test',
+        'phone' => '0562331303',
         'vat_registered' => true,
         'vat_number' => '300000000000003',
     ]);
 
     expect($rows)->toHaveCount(5)
-        ->and($rows[0]['en'])->toBe('Name')
-        ->and($rows[0]['ar'])->toBe('الاسم')
+        ->and($rows[0]['en'])->toBe('Customer')
+        ->and($rows[0]['ar'])->toBe('العميل')
         ->and($rows[0]['html'])->toContain('شركة مثال')
-        ->and($rows[4]['en'])->toBe('VAT Number')
-        ->and($rows[4]['value'])->toBe('300000000000003');
+        ->and(collect($rows)->firstWhere('en', 'Address')['value'])->toContain('Kingdom of Saudi Arabia')
+        ->and(collect($rows)->firstWhere('en', 'Phone')['value'])->toBe('+966 562331303')
+        ->and(collect($rows)->firstWhere('en', 'VAT number')['ar'])->toBe('رقم التسجيل الضريبي');
 });
 
-it('joins building street district on address row and city with postal', function () {
+it('composes address from parts when address_print is absent', function () {
     $rows = BuyerPrintBlock::rows([
         'name' => 'Buyer',
-        'address_line' => '7229 - King Fahd Rd - Al Olaya',
-        'city' => 'RIYADH',
-        'postal_code' => '12211',
+        'address_parts' => [
+            'building' => '9261',
+            'street' => 'Eastern Ring Road',
+            'district' => 'Ar Riyadh',
+            'city' => 'Riyadh',
+            'postal_code' => '11413',
+        ],
+        'country_code' => 'SA',
     ]);
 
-    $addressRow = collect($rows)->firstWhere('en', 'Address');
-    $cityRow = collect($rows)->firstWhere('en', 'City');
+    $address = collect($rows)->firstWhere('en', 'Address')['value'];
 
-    expect($addressRow['value'])->toBe('7229 - King Fahd Rd - Al Olaya')
-        ->and($cityRow['value'])->toBe('RIYADH · 12211');
-});
-
-it('shows postal code alone when city is missing', function () {
-    $rows = BuyerPrintBlock::rows([
-        'name' => 'Buyer',
-        'postal_code' => '12211',
-    ]);
-
-    expect(collect($rows)->pluck('en')->all())->toContain('Postal code')
-        ->and(collect($rows)->firstWhere('en', 'Postal code')['value'])->toBe('12211');
+    expect($address)->toBe('9261, Eastern Ring Road, Ar Riyadh, Riyadh, 11413, Kingdom of Saudi Arabia');
 });
 
 it('shows alternative id row when buyer is not vat registered', function () {
@@ -52,9 +47,14 @@ it('shows alternative id row when buyer is not vat registered', function () {
         'vat_registered' => false,
         'alt_id_type' => 'CRN',
         'alt_id_number' => '1010998899',
-        'city' => 'Jeddah',
     ]);
 
     expect(collect($rows)->pluck('en')->all())->toContain('CR Number')
         ->and(collect($rows)->firstWhere('en', 'CR Number')['value'])->toBe('1010998899');
+});
+
+it('formats saudi mobile numbers for print', function () {
+    expect(BuyerPhonePrint::format('0562331303'))->toBe('+966 562331303')
+        ->and(BuyerPhonePrint::format('+966562331303'))->toBe('+966 562331303')
+        ->and(BuyerPhonePrint::format('562331303'))->toBe('+966 562331303');
 });

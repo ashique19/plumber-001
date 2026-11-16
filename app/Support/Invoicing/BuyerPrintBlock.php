@@ -16,29 +16,24 @@ final class BuyerPrintBlock
 
         $rows = [];
 
-        $nameHtml = self::formatNameCell($customer);
+        $nameHtml = self::formatCustomerCell($customer);
         if ($nameHtml !== '') {
-            $rows[] = ['en' => 'Name', 'ar' => 'الاسم', 'html' => $nameHtml];
+            $rows[] = ['en' => 'Customer', 'ar' => 'العميل', 'html' => $nameHtml];
         }
 
-        $addressLine = trim((string) ($customer['address_line'] ?? $customer['address'] ?? ''));
-        if ($addressLine !== '') {
-            $rows[] = ['en' => 'Address', 'ar' => 'العنوان', 'value' => $addressLine];
+        $address = self::formatAddressLine($customer);
+        if ($address !== '') {
+            $rows[] = ['en' => 'Address', 'ar' => 'العنوان', 'value' => $address];
         }
 
-        $city = trim((string) ($customer['city'] ?? ''));
-        $postal = trim((string) ($customer['postal_code'] ?? ''));
-        if ($city !== '' && $postal !== '') {
-            $rows[] = ['en' => 'City', 'ar' => 'المدينة', 'value' => $city.' · '.$postal];
-        } elseif ($city !== '') {
-            $rows[] = ['en' => 'City', 'ar' => 'المدينة', 'value' => $city];
-        } elseif ($postal !== '') {
-            $rows[] = ['en' => 'Postal code', 'ar' => 'الرمز البريدي', 'value' => $postal];
+        $email = trim((string) ($customer['email'] ?? ''));
+        if ($email !== '') {
+            $rows[] = ['en' => 'Email', 'ar' => 'البريد الإلكتروني', 'value' => $email];
         }
 
-        $postBox = trim((string) ($customer['post_box'] ?? ''));
-        if ($postBox !== '') {
-            $rows[] = ['en' => 'Post Box', 'ar' => 'صندوق بريد', 'value' => $postBox];
+        $phone = BuyerPhonePrint::format($customer['phone'] ?? null);
+        if ($phone !== null && $phone !== '') {
+            $rows[] = ['en' => 'Phone', 'ar' => 'الهاتف', 'value' => $phone];
         }
 
         $vat = preg_replace('/\D/', '', (string) ($customer['vat_number'] ?? '')) ?? '';
@@ -49,8 +44,8 @@ final class BuyerPrintBlock
 
         if ($vatRegistered && $vat !== '') {
             $rows[] = [
-                'en' => 'VAT Number',
-                'ar' => 'رقم تسجيل ضريبة القيمة المضافة',
+                'en' => 'VAT number',
+                'ar' => 'رقم التسجيل الضريبي',
                 'value' => $vat,
             ];
         } elseif ($altType !== '' && $altNumber !== '') {
@@ -73,7 +68,36 @@ final class BuyerPrintBlock
     /**
      * @param  array<string, mixed>  $customer
      */
-    private static function formatNameCell(array $customer): string
+    private static function formatAddressLine(array $customer): string
+    {
+        $prepared = trim((string) ($customer['address_print'] ?? ''));
+        if ($prepared !== '') {
+            return $prepared;
+        }
+
+        $addr = (array) ($customer['address_parts'] ?? []);
+        $parts = array_values(array_filter([
+            trim((string) ($addr['building'] ?? '')),
+            trim((string) ($addr['street'] ?? '')),
+            trim((string) ($addr['district'] ?? '')),
+            trim((string) ($addr['city'] ?? $customer['city'] ?? '')),
+            trim((string) ($addr['postal_code'] ?? $addr['postal'] ?? $customer['postal_code'] ?? '')),
+            CountryPrintName::english(
+                (string) ($customer['country_code'] ?? $addr['country'] ?? 'SA'),
+            ),
+        ], fn (string $part): bool => $part !== ''));
+
+        if ($parts !== []) {
+            return implode(', ', $parts);
+        }
+
+        return trim((string) ($customer['address'] ?? $customer['address_line'] ?? ''));
+    }
+
+    /**
+     * @param  array<string, mixed>  $customer
+     */
+    private static function formatCustomerCell(array $customer): string
     {
         $nameAr = trim((string) ($customer['name_ar'] ?? ''));
         $nameEn = trim((string) ($customer['name_en'] ?? $customer['name'] ?? ''));
