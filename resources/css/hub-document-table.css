@@ -160,3 +160,54 @@ html[dir='rtl'] .hub-doc-table__actions {
     border-color: color-mix(in srgb, var(--app-accent) 55%, var(--app-border));
     color: var(--app-accent);
 }
+
+.hub-doc-table__action--disabled {
+    opacity: 0.45;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+.hub-doc-table__more summary {
+    list-style: none;
+    cursor: pointer;
+}
+
+.hub-doc-table__more summary::-webkit-details-marker {
+    display: none;
+}
+
+.hub-doc-table__more-panel {
+    position: absolute;
+    inset-inline-end: 0;
+    z-index: 10;
+    margin-top: 0.25rem;
+    min-width: 11rem;
+    padding: 0.35rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--app-border);
+    background: var(--app-surface, #fff);
+    box-shadow: 0 8px 24px color-mix(in srgb, #000 12%, transparent);
+}
+
+.hub-doc-table__more-item {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.45rem 0.55rem;
+    border-radius: 0.35rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: start;
+    color: inherit;
+    background: none;
+    border: 0;
+}
+
+.hub-doc-table__more-item:hover {
+    background: color-mix(in srgb, var(--app-border) 40%, transparent);
+}
+
+.hub-doc-table {
+    min-width: 62rem;
+}

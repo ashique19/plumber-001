@@ -20,6 +20,7 @@ const SURFACES: Surface[] = [
     { name: 'invoice-simplified', path: '/admin/invoices/issue/simplified' },
     { name: 'invoice-standard', path: '/admin/invoices/issue/standard' },
     { name: 'quotation-create', path: '/admin/quotations/create' },
+    { name: 'invoices-hub', path: '/admin/invoices' },
 ];
 
 for (const locale of LOCALES) {

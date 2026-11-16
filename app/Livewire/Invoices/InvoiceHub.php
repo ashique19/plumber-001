@@ -2,16 +2,14 @@
 
 namespace App\Livewire\Invoices;
 
-use App\Enums\InvoiceDocumentType;
 use App\Livewire\Concerns\DispatchesToasts;
 use App\Livewire\Concerns\ResolvesBusinessContext;
 use App\Livewire\Concerns\ValidatesFieldsLive;
 use App\Models\Invoice;
 use App\Services\Invoicing\InvoiceZatcaResubmitService;
-use App\Support\Hub\HubDocumentSigning;
-use App\Support\Hub\HubInvoicePrintLinks;
+use App\Support\Hub\HubInvoiceTableRow;
 use App\Support\Hub\HubInvoiceZatcaTab;
-use App\Support\Invoicing\InvoicePayloadTotals;
+use App\Services\Invoicing\InvoiceDuesLedgerService;
 use App\Support\Invoicing\ZatcaSubmissionStatus;
 use App\Business\BusinessContext;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -179,6 +177,7 @@ class InvoiceHub extends Component
         return view('livewire.invoices.invoice-hub', [
             'invoices' => $this->invoicePage(),
             'canIssueInvoice' => $user?->can('invoices.issue') ?? false,
+            'canRecordPayment' => $user?->can('invoices.issue') ?? false,
             'canResubmitZatca' => $canResubmit,
             'zatcaFailedCount' => HubInvoiceZatcaTab::countFailed(),
             'zatcaSuccessCount' => HubInvoiceZatcaTab::countSuccess(),
@@ -188,8 +187,8 @@ class InvoiceHub extends Component
     private function invoicePage(): LengthAwarePaginator
     {
         $query = Invoice::query()
-            ->with(['referencedInvoice'])
-            ->where('status', 'issued');
+            ->with(['referencedInvoice', 'payments'])
+            ->whereIn('status', ['issued', 'draft']);
 
         $term = trim($this->search);
         if ($term !== '') {
@@ -234,27 +233,11 @@ class InvoiceHub extends Component
 
         $paginator = $query->paginate(15);
 
-        $paginator->getCollection()->transform(function (Invoice $invoice): array {
-            $totals = InvoicePayloadTotals::forInvoice($invoice);
-            $customer = trim((string) data_get($invoice->payload, 'buyer_name', ''));
-            $customerAr = trim((string) data_get($invoice->payload, 'buyer_name_ar', ''));
-            if ($customer === '' && $customerAr !== '') {
-                $customer = $customerAr;
-            }
+        $ledger = app(InvoiceDuesLedgerService::class);
 
-            return [
-                'invoice' => $invoice,
-                'customer' => $customer !== '' ? $customer : '—',
-                'total_inc_vat' => $totals['total_inc_vat'],
-                'signing_key' => HubDocumentSigning::signingKey($invoice),
-                'print_urls' => HubInvoicePrintLinks::urls($invoice),
-                'is_standard' => $invoice->document_type === InvoiceDocumentType::Standard,
-                'zatca_failed' => HubInvoiceZatcaTab::isFailed($invoice),
-                'zatca_success' => HubInvoiceZatcaTab::isSuccess($invoice),
-                'zatca_error' => HubInvoiceZatcaTab::shortError($invoice),
-                'can_resend' => HubInvoiceZatcaTab::canResend($invoice),
-            ];
-        });
+        $paginator->getCollection()->transform(
+            fn (Invoice $invoice): array => HubInvoiceTableRow::fromInvoice($invoice, $ledger),
+        );
 
         return $paginator;
     }
