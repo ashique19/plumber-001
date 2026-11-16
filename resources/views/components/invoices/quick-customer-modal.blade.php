@@ -15,7 +15,9 @@
         'customerQuickAddrCity',
         'customerQuickAddrPostal',
         'customerQuickAddrAdditional',
+        'customerQuickAddrPostBox',
     ];
+    $openMoreAddress = filled($customerQuickAddrPostBox ?? '') || filled($customerQuickAddrAdditional ?? '');
 @endphp
 
 <x-modal
@@ -40,11 +42,19 @@
             <x-field.input :label="__('invoices.buyer_country')" name="customerQuickCountry" wire:model="customerQuickCountry" :liveValidate="false" maxlength="2" :required="$standardBuyer" wrapper-class="md:col-span-2" />
             <x-field.input :label="__('business.fields.building')" name="customerQuickAddrBuilding" wire:model="customerQuickAddrBuilding" :liveValidate="false" :required="$standardBuyer" />
             <x-field.input :label="__('business.fields.street')" name="customerQuickAddrStreet" wire:model="customerQuickAddrStreet" :liveValidate="false" :required="$standardBuyer" />
-            <x-field.input :label="__('business.fields.district')" name="customerQuickAddrDistrict" wire:model="customerQuickAddrDistrict" :liveValidate="false" />
+            <x-field.input :label="__('business.fields.district')" name="customerQuickAddrDistrict" wire:model="customerQuickAddrDistrict" :liveValidate="false" :required="$standardBuyer" />
             <x-field.input :label="__('business.fields.city')" name="customerQuickAddrCity" wire:model="customerQuickAddrCity" :liveValidate="false" :required="$standardBuyer" />
             <x-field.input :label="__('business.fields.postal')" name="customerQuickAddrPostal" wire:model="customerQuickAddrPostal" :liveValidate="false" :required="$standardBuyer" />
-            <x-field.input :label="__('business.fields.post_box')" name="customerQuickAddrPostBox" wire:model="customerQuickAddrPostBox" :liveValidate="false" />
-            <x-field.input :label="__('business.fields.additional')" name="customerQuickAddrAdditional" wire:model="customerQuickAddrAdditional" :liveValidate="false" wrapper-class="md:col-span-2" />
+
+            <details class="invoice-address-more md:col-span-2" @if ($openMoreAddress) open @endif>
+                <summary class="invoice-address-more__summary cursor-pointer text-sm font-medium text-[var(--app-fg)]">
+                    {{ __('customers.more_address_details') }}
+                </summary>
+                <div class="x-modal-form__fields x-modal-form__fields--2 mt-3">
+                    <x-field.input :label="__('business.fields.post_box')" name="customerQuickAddrPostBox" wire:model="customerQuickAddrPostBox" :liveValidate="false" />
+                    <x-field.input :label="__('business.fields.additional')" name="customerQuickAddrAdditional" wire:model="customerQuickAddrAdditional" :liveValidate="false" />
+                </div>
+            </details>
         </div>
 
         <div class="x-modal__footer x-modal__footer--in-form">

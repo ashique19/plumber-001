@@ -7,6 +7,7 @@
 @php
     $showVatCr = in_array('vat_or_cr', $missingKeys, true);
     $fieldNames = array_filter($missingKeys, fn (string $key): bool => $key !== 'vat_or_cr');
+    $openMoreAddress = filled($addrPostBox ?? '') || filled($addrAdditional ?? '');
 @endphp
 
 <x-modal
@@ -38,7 +39,7 @@
                 <x-field.input :label="__('business.fields.street')" name="addrStreet" wire:model="addrStreet" :liveValidate="false" required />
             @endif
             @if (in_array('addrDistrict', $missingKeys, true))
-                <x-field.input :label="__('business.fields.district')" name="addrDistrict" wire:model="addrDistrict" :liveValidate="false" />
+                <x-field.input :label="__('business.fields.district')" name="addrDistrict" wire:model="addrDistrict" :liveValidate="false" required />
             @endif
             @if (in_array('addrCity', $missingKeys, true))
                 <x-field.input :label="__('business.fields.city')" name="addrCity" wire:model="addrCity" :liveValidate="false" required />
@@ -46,7 +47,16 @@
             @if (in_array('addrPostal', $missingKeys, true))
                 <x-field.input :label="__('business.fields.postal')" name="addrPostal" wire:model="addrPostal" :liveValidate="false" required />
             @endif
-            <x-field.input :label="__('business.fields.post_box')" name="addrPostBox" wire:model="addrPostBox" :liveValidate="false" />
+
+            <details class="invoice-address-more md:col-span-2" @if ($openMoreAddress) open @endif>
+                <summary class="invoice-address-more__summary cursor-pointer text-sm font-medium text-[var(--app-fg)]">
+                    {{ __('customers.more_address_details') }}
+                </summary>
+                <div class="x-modal-form__fields x-modal-form__fields--2 mt-3">
+                    <x-field.input :label="__('business.fields.post_box')" name="addrPostBox" wire:model="addrPostBox" :liveValidate="false" />
+                    <x-field.input :label="__('business.fields.additional')" name="addrAdditional" wire:model="addrAdditional" :liveValidate="false" />
+                </div>
+            </details>
         </div>
 
         <label class="mt-4 flex min-h-12 cursor-pointer items-start gap-3 rounded-lg border border-[var(--app-border)] px-3 py-3 text-sm">

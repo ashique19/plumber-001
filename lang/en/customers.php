@@ -24,6 +24,7 @@ return [
     'adjust_saved' => 'Points updated.',
     'created' => 'Customer added.',
     'name' => 'Name',
+    'more_address_details' => 'More address details',
     'email_optional' => 'Email (optional)',
     'save' => 'Save customer',
     'tx_type' => [

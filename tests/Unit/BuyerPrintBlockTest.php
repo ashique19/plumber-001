@@ -21,6 +21,31 @@ it('builds bilingual buyer rows with arabic name stacked and hides empty fields'
         ->and($rows[4]['value'])->toBe('300000000000003');
 });
 
+it('joins building street district on address row and city with postal', function () {
+    $rows = BuyerPrintBlock::rows([
+        'name' => 'Buyer',
+        'address_line' => '7229 - King Fahd Rd - Al Olaya',
+        'city' => 'RIYADH',
+        'postal_code' => '12211',
+    ]);
+
+    $addressRow = collect($rows)->firstWhere('en', 'Address');
+    $cityRow = collect($rows)->firstWhere('en', 'City');
+
+    expect($addressRow['value'])->toBe('7229 - King Fahd Rd - Al Olaya')
+        ->and($cityRow['value'])->toBe('RIYADH · 12211');
+});
+
+it('shows postal code alone when city is missing', function () {
+    $rows = BuyerPrintBlock::rows([
+        'name' => 'Buyer',
+        'postal_code' => '12211',
+    ]);
+
+    expect(collect($rows)->pluck('en')->all())->toContain('Postal code')
+        ->and(collect($rows)->firstWhere('en', 'Postal code')['value'])->toBe('12211');
+});
+
 it('shows alternative id row when buyer is not vat registered', function () {
     $rows = BuyerPrintBlock::rows([
         'name' => 'Walk-in',

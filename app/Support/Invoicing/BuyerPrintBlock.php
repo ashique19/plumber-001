@@ -27,8 +27,13 @@ final class BuyerPrintBlock
         }
 
         $city = trim((string) ($customer['city'] ?? ''));
-        if ($city !== '') {
+        $postal = trim((string) ($customer['postal_code'] ?? ''));
+        if ($city !== '' && $postal !== '') {
+            $rows[] = ['en' => 'City', 'ar' => 'المدينة', 'value' => $city.' · '.$postal];
+        } elseif ($city !== '') {
             $rows[] = ['en' => 'City', 'ar' => 'المدينة', 'value' => $city];
+        } elseif ($postal !== '') {
+            $rows[] = ['en' => 'Postal code', 'ar' => 'الرمز البريدي', 'value' => $postal];
         }
 
         $postBox = trim((string) ($customer['post_box'] ?? ''));

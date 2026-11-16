@@ -29,6 +29,9 @@ final class StandardBuyerFieldGaps
         if (trim((string) ($host->addrStreet ?? '')) === '') {
             $gaps[] = __('business.fields.street');
         }
+        if (trim((string) ($host->addrDistrict ?? '')) === '') {
+            $gaps[] = __('business.fields.district');
+        }
         if (trim((string) ($host->addrCity ?? '')) === '') {
             $gaps[] = __('business.fields.city');
         }
@@ -80,6 +83,9 @@ final class StandardBuyerFieldGaps
         }
         if (trim((string) ($host->addrStreet ?? '')) === '') {
             $missing[] = 'addrStreet';
+        }
+        if (trim((string) ($host->addrDistrict ?? '')) === '') {
+            $missing[] = 'addrDistrict';
         }
         if (trim((string) ($host->addrCity ?? '')) === '') {
             $missing[] = 'addrCity';

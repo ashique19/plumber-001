@@ -24,6 +24,7 @@ return [
     'adjust_saved' => 'پوائنٹس اپ ڈیٹ ہو گئے.',
     'created' => 'کسٹمر شامل ہو گیا.',
     'name' => 'نام',
+    'more_address_details' => 'مزید پتے کی تفصیل',
     'email_optional' => 'ای میل (اختیاری)',
     'save' => 'محفوظ کریں',
     'tx_type' => [

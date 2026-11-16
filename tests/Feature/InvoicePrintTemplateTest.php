@@ -33,9 +33,11 @@ it('renders a4 with bilingual labels buyer vat cr and phase1 qr', function () {
             'buyer_vat' => '300000000000003',
             'buyer_cr' => '1010000000',
             'buyer_national_address' => [
+                'building' => '7229',
                 'district' => 'Al Olaya',
                 'street' => 'King Fahd Rd',
                 'city' => 'RIYADH',
+                'postal_code' => '12211',
                 'post_box' => '3851',
             ],
         ],
@@ -64,6 +66,8 @@ it('renders a4 with bilingual labels buyer vat cr and phase1 qr', function () {
         ->assertSee('رقم تسجيل ضريبة القيمة المضافة', false)
         ->assertSee('300000000000003', false)
         ->assertSee('Post Box', false)
+        ->assertSee('7229 - King Fahd Rd - Al Olaya', false)
+        ->assertSee('RIYADH · 12211', false)
         ->assertSee('3851', false)
         ->assertDontSee('CR Number', false)
         ->assertSee('receipt-qr', false)

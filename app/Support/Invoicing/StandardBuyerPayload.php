@@ -51,10 +51,11 @@ final class StandardBuyerPayload
 
         $building = trim((string) ($address['building'] ?? ''));
         $street = trim((string) ($address['street'] ?? ''));
+        $district = trim((string) ($address['district'] ?? ''));
         $city = trim((string) ($address['city'] ?? ''));
         $postal = preg_replace('/\D/', '', (string) ($address['postal_code'] ?? '')) ?? '';
 
-        if ($building === '' || $street === '' || $city === '' || ! preg_match('/^\d{5}$/', $postal)) {
+        if ($building === '' || $street === '' || $district === '' || $city === '' || ! preg_match('/^\d{5}$/', $postal)) {
             throw new \InvalidArgumentException(__('pos.errors.standard_buyer_address_required'));
         }
 

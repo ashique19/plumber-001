@@ -459,7 +459,7 @@ class ManageQuotation extends Component
           'buyerCountry' => ['required', 'string', 'size:2'],
           'addrBuilding' => ['required', 'string', 'max:32'],
           'addrStreet' => ['required', 'string', 'max:120'],
-          'addrDistrict' => ['nullable', 'string', 'max:120'],
+          'addrDistrict' => ['required', 'string', 'max:120'],
           'addrCity' => ['required', 'string', 'max:80'],
           'addrPostal' => FieldValidationRules::postalCodeRequired(),
           'addrAdditional' => ['nullable', 'string', 'max:32'],

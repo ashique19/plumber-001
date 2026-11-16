@@ -282,6 +282,7 @@ final class InvoicePrintPresenter
         }
 
         $city = trim((string) ($addr['city'] ?? ''));
+        $postal = trim((string) ($addr['postal_code'] ?? $addr['postal'] ?? ''));
         $postBox = trim((string) ($addr['post_box'] ?? $payload['buyer_post_box'] ?? ''));
 
         return array_filter([
@@ -298,6 +299,7 @@ final class InvoicePrintPresenter
             'address' => $address,
             'address_line' => $addressLine,
             'city' => $city !== '' ? $city : null,
+            'postal_code' => $postal !== '' ? $postal : null,
             'post_box' => $postBox !== '' ? $postBox : null,
         ]) ?: null;
     }
@@ -307,16 +309,14 @@ final class InvoicePrintPresenter
      */
     private static function formatBuyerAddressLine(array $addr, ?string $fallback): ?string
     {
-        $district = trim((string) ($addr['district'] ?? ''));
-        $street = trim((string) ($addr['street'] ?? ''));
-        if ($district !== '' && $street !== '') {
-            return $district.' - '.$street;
-        }
-        if ($street !== '') {
-            return $street;
-        }
-        if ($district !== '') {
-            return $district;
+        $parts = array_values(array_filter([
+            trim((string) ($addr['building'] ?? '')),
+            trim((string) ($addr['street'] ?? '')),
+            trim((string) ($addr['district'] ?? '')),
+        ], fn (string $part): bool => $part !== ''));
+
+        if ($parts !== []) {
+            return implode(' - ', $parts);
         }
 
         return $fallback;

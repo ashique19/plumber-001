@@ -141,6 +141,7 @@ trait ManagesInvoicingCustomerPicker
             $rules['customerQuickCr'] = array_merge(FieldValidationRules::crNumberOptional(), ['required_without:customerQuickVat']);
             $rules['customerQuickAddrBuilding'] = ['required', 'string', 'max:120'];
             $rules['customerQuickAddrStreet'] = ['required', 'string', 'max:120'];
+            $rules['customerQuickAddrDistrict'] = ['required', 'string', 'max:120'];
             $rules['customerQuickAddrCity'] = ['required', 'string', 'max:80'];
             $rules['customerQuickAddrPostal'] = FieldValidationRules::postalCodeRequired();
         }
@@ -221,6 +222,7 @@ trait ManagesInvoicingCustomerPicker
             $rules['customerQuickCr'] = array_merge(FieldValidationRules::crNumberOptional(), ['required_without:customerQuickVat']);
             $rules['customerQuickAddrBuilding'] = ['required', 'string', 'max:120'];
             $rules['customerQuickAddrStreet'] = ['required', 'string', 'max:120'];
+            $rules['customerQuickAddrDistrict'] = ['required', 'string', 'max:120'];
             $rules['customerQuickAddrCity'] = ['required', 'string', 'max:80'];
             $rules['customerQuickAddrPostal'] = FieldValidationRules::postalCodeRequired();
         }

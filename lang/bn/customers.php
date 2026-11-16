@@ -24,6 +24,7 @@ return [
     'adjust_saved' => 'পয়েন্ট আপডেট হয়েছে।',
     'created' => 'গ্রাহক যোগ হয়েছে।',
     'name' => 'নাম',
+    'more_address_details' => 'আরও ঠিকানার বিবরণ',
     'email_optional' => 'ইমেইল (ঐচ্ছিক)',
     'save' => 'গ্রাহক সংরক্ষণ',
     'tx_type' => [

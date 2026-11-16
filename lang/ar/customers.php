@@ -24,6 +24,7 @@ return [
     'adjust_saved' => 'تم تحديث النقاط.',
     'created' => 'تمت إضافة العميل.',
     'name' => 'الاسم',
+    'more_address_details' => 'تفاصيل إضافية للعنوان',
     'email_optional' => 'البريد (اختياري)',
     'save' => 'حفظ العميل',
     'tx_type' => [
