@@ -9,7 +9,18 @@
     </header>
 
     <div class="app-section-tabs app-section-tabs--scroll min-w-0 max-w-full gap-2">
-        @foreach (['products' => __('catalog.tab_products'), 'categories' => __('catalog.tab_categories'), 'modifiers' => __('catalog.tab_modifiers')] as $key => $label)
+        @php
+            $catalogTabs = [
+                'products' => __('catalog.tab_products'),
+                'categories' => __('catalog.tab_categories'),
+                'modifiers' => __('catalog.tab_modifiers'),
+            ];
+            if ($catalogUnitsSizesReady ?? false) {
+                $catalogTabs['units'] = __('catalog.tab_units');
+                $catalogTabs['sizes'] = __('catalog.tab_sizes');
+            }
+        @endphp
+        @foreach ($catalogTabs as $key => $label)
             <button
                 type="button"
                 wire:click="setTab('{{ $key }}')"
@@ -144,6 +155,54 @@
         </section>
     @endif
 
+    @if (($catalogUnitsSizesReady ?? false) && $tab === 'units')
+        <section class="mt-4">
+            @if($canWrite)
+                <x-app.add-button type="button" wire:click="startUnit">{{ __('catalog.add_unit') }}</x-app.add-button>
+            @endif
+            <ul class="mt-3 space-y-3">
+                @forelse($catalogUnits as $unit)
+                    <li class="app-card flex flex-wrap items-center justify-between gap-2 p-3">
+                        <div>
+                            <p class="font-medium">{{ $unit->displayName() }} <span class="text-xs text-[var(--app-muted)]">({{ $unit->code }})</span></p>
+                            <p class="text-xs text-[var(--app-muted)]">UBL: {{ $unit->ubl_unit_code }}</p>
+                        </div>
+                        @if($canWrite)
+                            <button type="button" class="tap-action-muted text-xs" wire:click="startUnit({{ $unit->id }})">{{ __('catalog.edit') }}</button>
+                        @endif
+                    </li>
+                @empty
+                    <li class="app-empty"><p class="text-sm text-[var(--app-muted)]">{{ __('catalog.empty_units') }}</p></li>
+                @endforelse
+            </ul>
+        </section>
+    @endif
+
+    @if (($catalogUnitsSizesReady ?? false) && $tab === 'sizes')
+        <section class="mt-4">
+            @if($canWrite)
+                <x-app.add-button type="button" wire:click="startSize">{{ __('catalog.add_size') }}</x-app.add-button>
+            @endif
+            <ul class="mt-3 space-y-3">
+                @forelse($catalogSizes as $size)
+                    <li class="app-card flex flex-wrap items-center justify-between gap-2 p-3">
+                        <div>
+                            <p class="font-medium">{{ $size->name }}</p>
+                            @if($size->measurement_type)
+                                <p class="text-xs text-[var(--app-muted)]">{{ $size->measurement_type }}</p>
+                            @endif
+                        </div>
+                        @if($canWrite)
+                            <button type="button" class="tap-action-muted text-xs" wire:click="startSize({{ $size->id }})">{{ __('catalog.edit') }}</button>
+                        @endif
+                    </li>
+                @empty
+                    <li class="app-empty"><p class="text-sm text-[var(--app-muted)]">{{ __('catalog.empty_sizes') }}</p></li>
+                @endforelse
+            </ul>
+        </section>
+    @endif
+
 </div>
 
     @if($showCategoryForm && $canWrite)
@@ -209,20 +268,45 @@
                     wrapper-class="quick-product-modal__name-field quick-product-modal__name-field--ar"
                 />
                 @if($catalogI18nReady ?? false)
-                    <x-field.input :label="__('catalog.name_bn')" name="productNameBn" wire:model="productNameBn" />
+                    <x-field.input :label="__('catalog.name_bn')" name="productNameBn" wire:model="productNameBn" :required="($catalogUnitsSizesReady ?? false)" />
                     <x-field.textarea :label="__('catalog.description_en')" name="productDescriptionEn" wire:model="productDescriptionEn" />
                     <x-field.textarea :label="__('catalog.description_ar')" name="productDescriptionAr" wire:model="productDescriptionAr" dir="rtl" />
                     <x-field.textarea :label="__('catalog.description_bn')" name="productDescriptionBn" wire:model="productDescriptionBn" />
                 @endif
                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <x-field.input :label="__('catalog.sku')" name="productSku" wire:model="productSku" />
-                    <x-field.select :label="__('catalog.category')" name="productCategoryId" wire:model="productCategoryId">
+                    @if($catalogUnitsSizesReady ?? false)
+                        <x-field.input :label="__('catalog.sku')" name="productSku" wire:model="productSku" readonly disabled />
+                    @else
+                        <x-field.input :label="__('catalog.sku')" name="productSku" wire:model="productSku" />
+                    @endif
+                    <x-field.select :label="__('catalog.category')" name="productCategoryId" wire:model="productCategoryId" :required="($catalogUnitsSizesReady ?? false)">
                         <option value="">{{ __('catalog.none') }}</option>
                         @foreach($categories as $cat)
                             <option value="{{ $cat->id }}">{{ $cat->displayName() }}</option>
                         @endforeach
                     </x-field.select>
                 </div>
+                @if($catalogUnitsSizesReady ?? false)
+                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        <x-field.select :label="__('catalog.unit')" name="productUnitId" wire:model="productUnitId" required>
+                            <option value="">{{ __('catalog.none') }}</option>
+                            @foreach($activeUnitsForPicker as $unit)
+                                <option value="{{ $unit->id }}">{{ $unit->displayName() }} ({{ $unit->code }})</option>
+                            @endforeach
+                        </x-field.select>
+                        <x-field.select :label="__('catalog.size')" name="productSizeId" wire:model="productSizeId">
+                            <option value="">{{ __('catalog.none') }}</option>
+                            @foreach($activeSizesForPicker as $size)
+                                <option value="{{ $size->id }}">{{ $size->name }}</option>
+                            @endforeach
+                        </x-field.select>
+                    </div>
+                    <x-field.select :label="__('catalog.vat_zatca_category')" name="productVatZatcaCategory" wire:model.live="productVatZatcaCategory" required>
+                        @foreach($vatZatcaCategoryOptions as $option)
+                            <option value="{{ $option->value }}">{{ __('catalog.vat_zatca_'.$option->value) }}</option>
+                        @endforeach
+                    </x-field.select>
+                @endif
                 <x-form.product-image-upload
                     :label="__('catalog.product_image.label')"
                     wire-model="productImageUpload"
@@ -245,7 +329,11 @@
                 </fieldset>
                 <x-field.toggle wire:model="productActive" name="productActive" :label="__('catalog.active')" />
                 @if($productStockReady ?? false)
-                    <x-field.toggle wire:model="productTrackStock" name="productTrackStock" :label="__('stock.track_stock')" />
+                    <x-field.input type="number" step="0.01" min="0" :label="__('catalog.purchase_price')" name="productCostInput" wire:model="productCostInput" inputmode="decimal" :required="($catalogUnitsSizesReady ?? false)" />
+                    <x-field.toggle wire:model.live="productTrackStock" name="productTrackStock" :label="__('stock.track_stock')" />
+                    @if($productTrackStock && ! $editingProductId)
+                        <x-field.input type="number" step="0.001" min="0" :label="__('catalog.opening_stock')" name="productOpeningStock" wire:model="productOpeningStock" inputmode="decimal" required />
+                    @endif
                     <x-field.input type="number" :label="__('stock.low_stock_threshold')" name="productLowStockThreshold" wire:model="productLowStockThreshold" inputmode="decimal" />
                 @endif
                 </div>
@@ -329,6 +417,54 @@
                     <x-modal.footer
                         cancel-wire='$set("showModifierForm", false)'
                         submit-target="saveModifier"
+                        :submit-label="__('catalog.save')"
+                    />
+                </div>
+            </form>
+        </x-modal>
+    @endif
+
+    @if(($catalogUnitsSizesReady ?? false) && $showUnitForm && $canWrite)
+        <x-modal
+            :show="true"
+            :title="$editingUnitId ? __('catalog.edit_unit') : __('catalog.add_unit')"
+            close-wire='$set("showUnitForm", false)'
+        >
+            <form id="catalog-unit-form" class="x-modal-form" wire:submit="saveUnit">
+                <div class="x-modal-form__fields app-admin-form">
+                <x-field.input :label="__('catalog.name_en')" name="unitNameEn" wire:model="unitNameEn" required />
+                <x-field.input :label="__('catalog.name_ar')" name="unitNameAr" wire:model="unitNameAr" dir="rtl" required />
+                <x-field.input :label="__('catalog.name_bn')" name="unitNameBn" wire:model="unitNameBn" required />
+                <x-field.input :label="__('catalog.unit_code')" name="unitCode" wire:model="unitCode" required />
+                <x-field.toggle wire:model="unitActive" name="unitActive" :label="__('catalog.active')" />
+                </div>
+                <div class="x-modal__footer x-modal__footer--in-form">
+                    <x-modal.footer
+                        cancel-wire='$set("showUnitForm", false)'
+                        submit-target="saveUnit"
+                        :submit-label="__('catalog.save')"
+                    />
+                </div>
+            </form>
+        </x-modal>
+    @endif
+
+    @if(($catalogUnitsSizesReady ?? false) && $showSizeForm && $canWrite)
+        <x-modal
+            :show="true"
+            :title="$editingSizeId ? __('catalog.edit_size') : __('catalog.add_size')"
+            close-wire='$set("showSizeForm", false)'
+        >
+            <form id="catalog-size-form" class="x-modal-form" wire:submit="saveSize">
+                <div class="x-modal-form__fields app-admin-form">
+                <x-field.input :label="__('catalog.name_en')" name="sizeName" wire:model="sizeName" required />
+                <x-field.input :label="__('catalog.measurement_type')" name="sizeMeasurementType" wire:model="sizeMeasurementType" />
+                <x-field.toggle wire:model="sizeActive" name="sizeActive" :label="__('catalog.active')" />
+                </div>
+                <div class="x-modal__footer x-modal__footer--in-form">
+                    <x-modal.footer
+                        cancel-wire='$set("showSizeForm", false)'
+                        submit-target="saveSize"
                         :submit-label="__('catalog.save')"
                     />
                 </div>

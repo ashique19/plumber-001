@@ -18,18 +18,7 @@ final class InvoicePayloadLines
             return [];
         }
 
-        return array_map(static function (array $line): InvoiceLineData {
-            $nameAr = trim((string) ($line['name_ar'] ?? ''));
-
-            return new InvoiceLineData(
-                name: (string) ($line['name'] ?? ''),
-                quantity: (float) ($line['quantity'] ?? 0),
-                unitPriceExVat: (float) ($line['unit_price_ex_vat'] ?? 0),
-                vatRate: (float) ($line['vat_rate'] ?? 15),
-                discountExVat: (float) ($line['discount_ex_vat'] ?? 0),
-                nameAr: $nameAr !== '' ? $nameAr : null,
-            );
-        }, $raw);
+        return InvoiceLineDataFactory::fromPayloadLines($raw);
     }
 
     /**

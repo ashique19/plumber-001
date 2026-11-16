@@ -183,6 +183,14 @@ final class ZHeartInvoicePayloadBuilder
                 $row['discount'] = round($line->discountExVat, 2);
             }
 
+            if (filled($line->unitCode)) {
+                $row['unit_code'] = $line->unitCode;
+            }
+
+            if (filled($line->vatZatcaCategory)) {
+                $row['vat_category'] = $line->vatZatcaCategory;
+            }
+
             return $row;
         }, $lines);
     }

@@ -3,6 +3,8 @@
 use App\Livewire\Catalog\MenuManager;
 use App\Models\BusinessSetting;
 use App\Models\Product;
+use App\Models\ProductCategory;
+use App\Models\ProductUnit;
 use App\Models\StaffUser;
 use App\Support\Upload\ProductImageConstraints;
 use Database\Seeders\DemoStaffSeeder;
@@ -44,10 +46,17 @@ it('rejects tiny product image dimensions on upload', function () {
 });
 
 it('persists cropped product image path on save', function () {
+    $category = ProductCategory::query()->firstOrFail();
+    $unitId = ProductUnit::query()->where('code', 'PCS')->value('id');
+
     Livewire::test(MenuManager::class)
         ->call('startProduct')
         ->set('productNameEn', 'Photo Latte')
         ->set('productNameAr', 'لاتيه')
+        ->set('productNameBn', 'ফটো লাত্তে')
+        ->set('productCategoryId', $category->id)
+        ->set('productUnitId', $unitId)
+        ->set('productCostInput', '5')
         ->set('productPriceInput', '12')
         ->set('productImageUpload', UploadedFile::fake()->image('latte.png', 400, 400))
         ->call('saveProduct')

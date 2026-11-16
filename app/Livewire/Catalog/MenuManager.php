@@ -4,7 +4,9 @@ namespace App\Livewire\Catalog;
 
 use App\Business\BusinessContext;
 use App\Enums\ProductItemType;
+use App\Enums\VatZatcaCategory;
 use App\Livewire\Concerns\DispatchesToasts;
+use App\Livewire\Concerns\ManagesCatalogUnitsAndSizes;
 use App\Livewire\Concerns\ResolvesBusinessContext;
 use App\Livewire\Concerns\ValidatesFieldsLive;
 use App\Models\Ingredient;
@@ -12,8 +14,14 @@ use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\ProductIngredient;
 use App\Models\ProductModifier;
+use App\Models\ProductSize;
+use App\Models\ProductUnit;
 use App\Services\Catalog\ProductImageService;
+use App\Services\Inventory\ProductStockService;
 use App\Support\Catalog\CatalogI18n;
+use App\Support\Catalog\CatalogUnitsSizesSchema;
+use App\Support\Catalog\ProductReferenceGuard;
+use App\Support\Catalog\ProductSkuGenerator;
 use App\Support\Catalog\ProductCategorySchema;
 use App\Support\Catalog\ProductStorefrontVisibility;
 use App\Support\Inventory\IngredientInventorySchema;
@@ -35,6 +43,7 @@ class MenuManager extends Component
     use DispatchesToasts;
     use ResolvesBusinessContext;
     use ValidatesFieldsLive;
+    use ManagesCatalogUnitsAndSizes;
     use WithFileUploads;
 
     public string $tab = 'products';
@@ -102,6 +111,16 @@ class MenuManager extends Component
 
     public string $productLowStockThreshold = '0';
 
+    public string $productCostInput = '';
+
+    public string $productOpeningStock = '';
+
+    public ?int $productUnitId = null;
+
+    public ?int $productSizeId = null;
+
+    public string $productVatZatcaCategory = 'S';
+
     /** @var 'item'|'service'|'part' */
     public string $productItemType = 'item';
 
@@ -140,7 +159,7 @@ class MenuManager extends Component
         app(PermissionRegistrar::class)->setPermissionsTeamId($this->business->id);
 
         $tab = request()->query('tab');
-        if (is_string($tab) && in_array($tab, ['categories', 'products', 'modifiers'], true)) {
+        if (is_string($tab) && in_array($tab, ['categories', 'products', 'modifiers', 'units', 'sizes'], true)) {
             $this->tab = $tab;
         }
 
@@ -152,9 +171,15 @@ class MenuManager extends Component
 
     public function setTab(string $tab): void
     {
-        if (in_array($tab, ['categories', 'products', 'modifiers'], true)) {
+        if (in_array($tab, ['categories', 'products', 'modifiers', 'units', 'sizes'], true)) {
             $this->tab = $tab;
         }
+    }
+
+    public function updatedProductVatZatcaCategory(string $value): void
+    {
+        $category = VatZatcaCategory::tryFrom($value) ?? VatZatcaCategory::Standard;
+        $this->productVatRate = $category->vatRateDefault();
     }
 
     public function startCategory(?int $id = null): void
@@ -249,7 +274,18 @@ class MenuManager extends Component
             if (ProductStockSchema::ready()) {
                 $this->productTrackStock = (bool) $product->track_stock;
                 $this->productLowStockThreshold = (string) ($product->low_stock_threshold ?? 0);
+                $this->productCostInput = number_format((float) $product->cost_ex_vat, 2, '.', '');
+                $this->productOpeningStock = '';
             }
+            if (CatalogUnitsSizesSchema::ready()) {
+                $this->productUnitId = $product->product_unit_id;
+                $this->productSizeId = $product->product_size_id;
+                $this->productVatZatcaCategory = $product->vatZatcaCategory()->value;
+            }
+        } elseif (CatalogUnitsSizesSchema::ready()) {
+            $this->productSku = ProductSkuGenerator::next();
+            $this->productUnitId = $this->defaultProductUnitId();
+            $this->productVatZatcaCategory = VatZatcaCategory::Standard->value;
         }
     }
 
@@ -293,18 +329,15 @@ class MenuManager extends Component
         $this->dispatch('catalog-product-image-cleared');
     }
 
-    public function saveProduct(ProductImageService $images): void
+    public function saveProduct(ProductImageService $images, ProductStockService $stock): void
     {
         $this->authorizeCatalogWrite();
         $rules = [
-            'productSku' => ['nullable', 'string', 'max:64', Rule::unique('products', 'sku')->ignore($this->editingProductId)],
             'productNameEn' => ['required', 'string', 'max:160'],
             'productNameAr' => ['required', 'string', 'max:160'],
-            'productNameBn' => ['nullable', 'string', 'max:160'],
             'productDescriptionEn' => ['nullable', 'string', 'max:2000'],
             'productDescriptionAr' => ['nullable', 'string', 'max:2000'],
             'productDescriptionBn' => ['nullable', 'string', 'max:2000'],
-            'productCategoryId' => ['nullable', 'integer'],
             'productPriceInput' => ['required', 'numeric', 'min:0'],
             'productVatRate' => ['required', 'numeric', 'min:0', 'max:100'],
             'productActive' => ['boolean'],
@@ -313,9 +346,29 @@ class MenuManager extends Component
             'productModifierIds' => ['array'],
             'productItemType' => ['required', Rule::in(array_map(fn (ProductItemType $t) => $t->value, ProductItemType::cases()))],
         ];
+        if (CatalogI18n::columnsExist()) {
+            $rules['productNameBn'] = ['required', 'string', 'max:160'];
+        } else {
+            $rules['productNameBn'] = ['nullable', 'string', 'max:160'];
+        }
+
+        if (CatalogUnitsSizesSchema::ready()) {
+            $rules['productCategoryId'] = ['required', 'integer', 'exists:product_categories,id'];
+            $rules['productUnitId'] = ['required', 'integer', 'exists:product_units,id'];
+            $rules['productSizeId'] = ['nullable', 'integer', 'exists:product_sizes,id'];
+            $rules['productVatZatcaCategory'] = ['required', Rule::in(VatZatcaCategory::values())];
+        } else {
+            $rules['productCategoryId'] = ['nullable', 'integer'];
+            $rules['productSku'] = ['nullable', 'string', 'max:64', Rule::unique('products', 'sku')->ignore($this->editingProductId)];
+        }
+
         if (ProductStockSchema::ready()) {
             $rules['productTrackStock'] = ['boolean'];
             $rules['productLowStockThreshold'] = ['nullable', 'numeric', 'min:0'];
+            $rules['productCostInput'] = ['required', 'numeric', 'min:0'];
+            if (! $this->editingProductId) {
+                $rules['productOpeningStock'] = [Rule::requiredIf(fn (): bool => $this->productTrackStock), 'nullable', 'numeric', 'gt:0'];
+            }
         }
         if ($this->productImageUpload !== null) {
             $rules['productImageUpload'] = ProductImageConstraints::componentRules();
@@ -344,8 +397,12 @@ class MenuManager extends Component
             $images->deleteIfManaged($previousImage);
         }
 
+        $sku = $this->editingProductId
+            ? (string) ($this->productQuery()->find($this->editingProductId)?->sku ?? $this->productSku)
+            : (CatalogUnitsSizesSchema::ready() ? ProductSkuGenerator::next() : ($validated['productSku'] ?? null));
+
         $payload = [
-            'sku' => $validated['productSku'] ?: null,
+            'sku' => $sku ?: null,
             'name_en' => $validated['productNameEn'],
             'name_ar' => $validated['productNameAr'],
             'product_category_id' => $validated['productCategoryId'] ?: null,
@@ -355,6 +412,13 @@ class MenuManager extends Component
             'is_active' => $validated['productActive'],
             'item_type' => $validated['productItemType'],
         ];
+
+        if (CatalogUnitsSizesSchema::ready()) {
+            $payload['product_unit_id'] = (int) $validated['productUnitId'];
+            $payload['product_size_id'] = $validated['productSizeId'] ?? null;
+            $payload['vat_zatca_category'] = $validated['productVatZatcaCategory'];
+            $payload['name_i18n_review'] = false;
+        }
 
         if (ProductStorefrontVisibility::columnsExist() && ProductStorefrontVisibility::catalogUiEnabled()) {
             $payload['show_on_homepage'] = $validated['productShowOnHomepage'];
@@ -371,6 +435,7 @@ class MenuManager extends Component
         if (ProductStockSchema::ready()) {
             $payload['track_stock'] = (bool) ($validated['productTrackStock'] ?? false);
             $payload['low_stock_threshold'] = round((float) ($validated['productLowStockThreshold'] ?? 0), 3);
+            $payload['cost_ex_vat'] = round((float) ($validated['productCostInput'] ?? 0), 2);
         }
 
         if ($this->editingProductId) {
@@ -381,6 +446,16 @@ class MenuManager extends Component
         } else {
             $product = $this->productQuery()->create(array_merge(ProductStorefrontVisibility::defaultsForNewProduct(), $payload));
             $product->modifiers()->sync($validated['productModifierIds']);
+            if (ProductStockSchema::ready() && $product->track_stock) {
+                $opening = (float) ($validated['productOpeningStock'] ?? 0);
+                $stock->recordOpeningStock(
+                    $product,
+                    $opening,
+                    (float) $payload['cost_ex_vat'],
+                    null,
+                    auth('staff')->id(),
+                );
+            }
             $this->toastSuccess(__('catalog.created_product'));
         }
 
@@ -392,8 +467,18 @@ class MenuManager extends Component
     public function deleteProduct(int $id): void
     {
         $this->authorizeCatalogWrite();
-        $this->productQuery()->findOrFail($id)->delete();
-        $this->toastSuccess(__('catalog.deleted_product'));
+        $product = $this->productQuery()->findOrFail($id);
+
+        if (CatalogUnitsSizesSchema::ready() && ProductReferenceGuard::isReferenced($product)) {
+            $product->update([
+                'is_active' => false,
+                'archived_at' => now(),
+            ]);
+            $this->toastSuccess(__('catalog.archived_product_referenced'));
+        } else {
+            $product->delete();
+            $this->toastSuccess(__('catalog.deleted_product'));
+        }
     }
 
     public function toggleProductShowOnHomepage(int $id): void
@@ -588,6 +673,20 @@ class MenuManager extends Component
             'ingredientOptions' => IngredientInventorySchema::ingredientsReady()
                 ? Ingredient::query()->whereNull('branch_id')->orderedForDisplay()->get()
                 : collect(),
+            'catalogUnitsSizesReady' => CatalogUnitsSizesSchema::ready(),
+            'catalogUnits' => CatalogUnitsSizesSchema::ready()
+                ? ProductUnit::query()->orderBy('code')->get()
+                : collect(),
+            'catalogSizes' => CatalogUnitsSizesSchema::ready()
+                ? ProductSize::query()->orderBy('name')->get()
+                : collect(),
+            'activeUnitsForPicker' => CatalogUnitsSizesSchema::ready()
+                ? ProductUnit::query()->where('is_active', true)->orderBy('name_en')->get()
+                : collect(),
+            'activeSizesForPicker' => CatalogUnitsSizesSchema::ready()
+                ? ProductSize::query()->where('is_active', true)->orderBy('name')->get()
+                : collect(),
+            'vatZatcaCategoryOptions' => VatZatcaCategory::cases(),
         ]);
     }
 
@@ -599,6 +698,59 @@ class MenuManager extends Component
     private function staffCanManageCatalog(): bool
     {
         return auth('staff')->user()?->can('staff.manage') ?? false;
+    }
+
+    private function paginatedProducts()
+    {
+        $query = $this->productQuery()->with(['category', 'unit', 'size']);
+
+        $term = trim($this->productSearch);
+        if ($term !== '') {
+            $like = '%'.$term.'%';
+            $query->where(function ($q) use ($like) {
+                $q->where('name_en', 'like', $like)
+                    ->orWhere('name_ar', 'like', $like)
+                    ->orWhere('sku', 'like', $like);
+                if (CatalogI18n::columnsExist()) {
+                    $q->orWhere('name_bn', 'like', $like);
+                }
+            });
+        }
+
+        if ($this->productCategoryFilter) {
+            $query->where('product_category_id', $this->productCategoryFilter);
+        }
+
+        if ($this->productKind !== 'all') {
+            $query->where('item_type', $this->productKind);
+        }
+
+        match ($this->productSort) {
+            'name_desc' => $query->orderByDesc('name_en'),
+            'price_asc' => $query->orderBy('price_ex_vat'),
+            'price_desc' => $query->orderByDesc('price_ex_vat'),
+            'newest' => $query->orderByDesc('id'),
+            default => $query->orderBy('sort_order')->orderBy('name_en'),
+        };
+
+        return $query->paginate(24);
+    }
+
+    private function duplicateSku(?string $sku): ?string
+    {
+        if ($sku === null || trim($sku) === '') {
+            return null;
+        }
+
+        $base = mb_substr($sku, 0, 58).'-C';
+        $candidate = $base;
+        $n = 2;
+        while ($this->productQuery()->where('sku', $candidate)->exists()) {
+            $candidate = $base.$n;
+            $n++;
+        }
+
+        return $candidate;
     }
 
     private function formatPriceForMode(float $exVat, float $vatRate): string
@@ -661,6 +813,20 @@ class MenuManager extends Component
         $this->productModifierIds = [];
         $this->productTrackStock = false;
         $this->productLowStockThreshold = '0';
+        $this->productCostInput = '';
+        $this->productOpeningStock = '';
+        $this->productUnitId = CatalogUnitsSizesSchema::ready() ? $this->defaultProductUnitId() : null;
+        $this->productSizeId = null;
+        $this->productVatZatcaCategory = VatZatcaCategory::Standard->value;
+    }
+
+    private function defaultProductUnitId(): ?int
+    {
+        if (! CatalogUnitsSizesSchema::ready()) {
+            return null;
+        }
+
+        return ProductUnit::query()->where('code', 'PCS')->value('id');
     }
 
     private function rejectProductImageUpload(string $message): void

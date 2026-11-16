@@ -11,6 +11,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             OwnerAdminSeeder::class,
             PlumberCatalogSeeder::class,
+            CatalogUnitsSizesSeeder::class,
         ]);
     }
 }

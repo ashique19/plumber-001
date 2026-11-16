@@ -2,6 +2,7 @@
 
 use App\Models\Product;
 use App\Models\ProductCategory;
+use App\Models\ProductUnit;
 use App\Models\BusinessSetting;
 use App\Models\StaffUser;
 use Database\Seeders\DemoStaffSeeder;
@@ -25,12 +26,19 @@ beforeEach(function () {
 });
 
 it('lets owner manage catalog products with inc vat entry', function () {
+    $category = ProductCategory::query()->firstOrFail();
+    $unitId = ProductUnit::query()->where('code', 'PCS')->value('id');
+
     Livewire::actingAs($this->owner, 'staff')
         ->test(MenuManager::class)
         ->set('priceMode', 'inc')
         ->call('startProduct')
         ->set('productNameEn', 'Test Mocha')
         ->set('productNameAr', 'موكا تجريبي')
+        ->set('productNameBn', 'টেস্ট মোকা')
+        ->set('productCategoryId', $category->id)
+        ->set('productUnitId', $unitId)
+        ->set('productCostInput', '8')
         ->set('productPriceInput', '23.00')
         ->set('productVatRate', 15)
         ->call('saveProduct');

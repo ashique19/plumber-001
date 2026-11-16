@@ -215,3 +215,29 @@ it('maps document level discount for z-heart totals', function () {
     expect($payload['totals']['tax_exclusive'])->toBe(90.0)
         ->and($payload['totals']['tax'])->toBe(13.5);
 });
+
+it('emits ubl unit code and vat category on lines', function () {
+    $business = BusinessSetting::query()->create([
+        'name' => 'Units Co',
+        'settings' => PlumberThemePreset::settings('Units Co', 'شركة', 'ar'),
+    ]);
+
+    $request = new InvoiceSigningRequest(
+        business: $business,
+        documentNumber: 'SIM-20',
+        documentType: InvoiceDocumentType::Simplified,
+        invoiceCategory: 'simplified',
+        lines: [new InvoiceLineData('Pipe', 2, 40, 15, unitCode: 'PCE', vatZatcaCategory: 'S')],
+        invoicePayload: [],
+        issueDateTimeUtc: Carbon::now('UTC'),
+        invoiceUuid: '550e8400-e29b-41d4-a716-446655440099',
+        referencedInvoiceNumber: null,
+        referencedInvoiceUuid: null,
+        noteReason: null,
+    );
+
+    $payload = app(ZHeartInvoicePayloadBuilder::class)->build($request);
+
+    expect($payload['lines'][0]['unit_code'])->toBe('PCE')
+        ->and($payload['lines'][0]['vat_category'])->toBe('S');
+});

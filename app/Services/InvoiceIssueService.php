@@ -14,6 +14,7 @@ use App\Services\Inventory\ProductStockService;
 use App\Services\Invoicing\InvoiceIssueResult;
 use App\Services\Invoicing\Signing\InvoiceSigningGatewayFactory;
 use App\Services\Invoicing\Signing\InvoiceSigningRequest;
+use App\Support\Invoicing\InvoiceLineDataFactory;
 use App\Support\Invoicing\SigningFailureSanitizer;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -238,17 +239,6 @@ class InvoiceIssueService
     {
         $raw = $invoice->payload['lines'] ?? [];
 
-        return array_map(function (array $line): InvoiceLineData {
-            $nameAr = trim((string) ($line['name_ar'] ?? ''));
-
-            return new InvoiceLineData(
-                name: (string) $line['name'],
-                quantity: (float) $line['quantity'],
-                unitPriceExVat: (float) $line['unit_price_ex_vat'],
-                vatRate: (float) ($line['vat_rate'] ?? 15),
-                discountExVat: (float) ($line['discount_ex_vat'] ?? 0),
-                nameAr: $nameAr !== '' ? $nameAr : null,
-            );
-        }, is_array($raw) ? $raw : []);
+        return InvoiceLineDataFactory::fromPayloadLines(is_array($raw) ? $raw : []);
     }
 }
