@@ -11,14 +11,15 @@ test.describe('dashboard quick action tiles only', () => {
         const dashboard = page.locator('[data-testid="admin-dashboard"]');
         await expect(dashboard).toBeVisible({ timeout: 20_000 });
 
-        const grid = dashboard.locator('.dashboard-action-grid');
-        await expect(grid).toBeVisible();
-        await expect(grid.locator('.dashboard-action-tile')).toHaveCount(8);
+        const board = dashboard.locator('.dashboard-action-board');
+        await expect(board).toBeVisible();
+        await expect(board.locator('.dashboard-action-tile')).toHaveCount(8);
 
         await expect(dashboard.locator('.dashboard-monthly-report')).toHaveCount(0);
         await expect(page.getByText(/recent sales/i)).toHaveCount(0);
         await expect(page.getByText(/orders today/i)).toHaveCount(0);
 
+        const grid = board.locator('.dashboard-action-board__grid');
         const cols = await grid.evaluate((el) => getComputedStyle(el).gridTemplateColumns.split(' ').length);
         expect(cols).toBe(2);
 
