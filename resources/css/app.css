@@ -148,6 +148,25 @@
         margin-inline-end: 0;
     }
 
+    @media (max-width: 63.9375rem) {
+        html.admin-app .toast-stack {
+            top: calc(env(safe-area-inset-top, 0px) + var(--app-topbar-height, 3.5rem) + 0.35rem);
+            bottom: auto;
+            z-index: 85;
+            margin-inline: auto;
+            max-width: min(24rem, calc(100vw - 1.5rem));
+        }
+
+        html.admin-app .toast-stack.has-app-tab-bar {
+            bottom: auto;
+        }
+
+        html.admin-app .toast-item {
+            padding: 0.5rem 0.65rem;
+            font-size: 0.8125rem;
+        }
+    }
+
     @media (min-width: 1024px) {
         .toast-stack {
             bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));

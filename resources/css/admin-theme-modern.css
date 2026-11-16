@@ -183,6 +183,16 @@
         display: block;
     }
 
+    .document-primary-submit {
+        display: none !important;
+    }
+
+    @media (min-width: 64rem) {
+        .document-primary-submit {
+            display: inline-flex !important;
+        }
+    }
+
     .document-sticky-action-bar {
         @apply fixed inset-x-0 bottom-0 z-40 border-t border-[var(--app-border)] bg-[var(--app-surface)]/95 px-4 py-3 backdrop-blur-md;
         padding-bottom: max(0.75rem, env(safe-area-inset-bottom));

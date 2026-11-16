@@ -171,6 +171,96 @@
         @apply mx-auto flex max-w-6xl items-center gap-1.5 px-2 py-1.5 sm:gap-2 sm:px-5 sm:py-3;
     }
 
+    .app-topbar__logo {
+        height: 1.625rem;
+        width: 1.625rem;
+    }
+
+    @media (min-width: 640px) {
+        .app-topbar__logo {
+            height: 2rem;
+            width: 2rem;
+        }
+    }
+
+    .app-topbar__brand-text {
+        min-width: 0;
+        flex: 1 1 auto;
+    }
+
+    .app-topbar__brand-name {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+        font-size: 0.6875rem;
+        line-height: 1.2;
+        font-weight: 600;
+    }
+
+    @media (min-width: 640px) {
+        .app-topbar__brand-name {
+            font-size: 0.8125rem;
+        }
+    }
+
+    .app-topbar__brand-subtitle {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+        font-size: 0.625rem;
+        line-height: 1.2;
+        color: var(--app-muted);
+    }
+
+    @media (min-width: 640px) {
+        .app-topbar__brand-subtitle {
+            font-size: 0.75rem;
+        }
+    }
+
+    .app-locale-switch--pills {
+        @apply flex flex-wrap gap-1 rounded-full border p-0.5;
+    }
+
+    .app-locale-switch-menu {
+        position: relative;
+        flex-shrink: 0;
+    }
+
+    .app-locale-switch-menu__trigger {
+        @apply inline-flex min-h-9 max-w-[6.5rem] items-center gap-1 rounded-full border px-2.5 text-[0.65rem] font-semibold;
+        border-color: var(--app-border);
+        background: var(--app-surface);
+        list-style: none;
+        cursor: pointer;
+    }
+
+    .app-locale-switch-menu__trigger::-webkit-details-marker {
+        display: none;
+    }
+
+    .app-locale-switch-menu__value {
+        @apply truncate;
+    }
+
+    .app-locale-switch-menu__list {
+        @apply absolute end-0 top-[calc(100%+0.35rem)] z-[70] min-w-[9rem] rounded-xl border p-1 shadow-lg;
+        border-color: var(--app-border);
+        background: var(--app-surface);
+    }
+
+    .app-locale-switch-menu__option {
+        @apply block rounded-lg px-3 py-2 text-xs font-semibold;
+        color: var(--app-text);
+    }
+
+    .app-locale-switch-menu__option.is-active {
+        background: color-mix(in srgb, var(--app-accent) 14%, transparent);
+        color: var(--app-text);
+    }
+
     .app-topbar__logout--compact {
         @apply min-h-9 gap-1 px-2 sm:min-h-11 sm:gap-2 sm:px-3;
     }

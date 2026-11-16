@@ -1,5 +1,10 @@
 const DEFAULT_ERROR_MS = 8000;
 const DEFAULT_TOAST_MS = 5000;
+const DEFAULT_TOAST_MOBILE_MS = 3200;
+
+function isMobileViewport() {
+    return typeof window !== 'undefined' && window.matchMedia('(max-width: 63.9375rem)').matches;
+}
 
 export function toastStackFactory(initial = [], copy = {}) {
     const mergeCopy = { ...window.__toastCopy, ...copy };
@@ -10,6 +15,10 @@ export function toastStackFactory(initial = [], copy = {}) {
 
         init() {
             initial.forEach((toast) => this.push(toast));
+
+            window.addEventListener('toast-clear', () => {
+                this.clearAll();
+            });
 
             if (typeof Livewire !== 'undefined') {
                 Livewire.on('toast', (payload) => {
@@ -56,9 +65,15 @@ export function toastStackFactory(initial = [], copy = {}) {
             this.toasts = [...this.toasts, toast].slice(-3);
 
             if (! persistent) {
-                const ms = raw.durationMs ?? (type === 'warning' ? DEFAULT_ERROR_MS : DEFAULT_TOAST_MS);
+                const baseMs = type === 'warning' || type === 'error' ? DEFAULT_ERROR_MS : DEFAULT_TOAST_MS;
+                const mobileMs = type === 'warning' || type === 'error' ? DEFAULT_ERROR_MS : DEFAULT_TOAST_MOBILE_MS;
+                const ms = raw.durationMs ?? (isMobileViewport() ? mobileMs : baseMs);
                 window.setTimeout(() => this.dismiss(id), ms);
             }
+        },
+
+        clearAll() {
+            this.toasts = [];
         },
 
         dismiss(id) {

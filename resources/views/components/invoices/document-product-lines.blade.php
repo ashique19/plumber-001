@@ -24,7 +24,11 @@
             @if (filled($line['unit_label'] ?? null))
                 <p class="text-xs text-[var(--app-muted)]">{{ __('invoices.line_unit') }}: {{ $line['unit_label'] }}</p>
             @endif
-            <div class="grid grid-cols-2 gap-3 {{ $compact ? '' : 'sm:grid-cols-3' }}">
+            <div @class([
+                'grid gap-3',
+                'grid-cols-2 sm:grid-cols-3' => ! $compact,
+                'grid-cols-2' => $compact,
+            ])>
                 <x-field.input
                     type="number"
                     step="0.001"
@@ -42,17 +46,16 @@
                     wire:model.live="lines.{{ $index }}.unit_price"
                 />
                 @unless ($compact)
-                    <div class="hidden sm:block">
-                        <x-field.input
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            max="100"
-                            :label="__('invoices.line_vat')"
-                            name="lines.{{ $index }}.vat_rate"
-                            wire:model.live="lines.{{ $index }}.vat_rate"
-                        />
-                    </div>
+                    <x-field.input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        max="100"
+                        :label="__('invoices.line_vat')"
+                        name="lines.{{ $index }}.vat_rate"
+                        wire:model.live="lines.{{ $index }}.vat_rate"
+                        wrapper-class="col-span-2 sm:col-span-1"
+                    />
                 @endunless
             </div>
         </article>
