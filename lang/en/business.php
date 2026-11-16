@@ -21,6 +21,14 @@ return [
         'api_key_missing' => 'No ZHEART_API_KEY is set on the server — signing service calls will fail until deploy env is configured.',
         'saved' => 'Invoicing settings saved.',
     ],
+    'print' => [
+        'invoice_template' => 'Invoice print template',
+        'quotation_template' => 'Quotation print template',
+        'template_modern' => 'Template A — Modern',
+        'template_classic' => 'Template B — Classic',
+        'preview' => 'Open preview in new tab',
+        'hint' => 'Both templates are A4-ready for browser Print / PDF. Preview uses your latest issued invoice or quotation with demo data only when a document exists.',
+    ],
     'brand' => [
         'logo_choose' => 'Choose logo file',
         'logo_remove' => 'Remove logo',

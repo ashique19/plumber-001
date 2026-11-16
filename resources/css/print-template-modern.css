@@ -1,0 +1,114 @@
+.print-tpl-modern__rule {
+    border: 0;
+    border-top: 1px solid var(--inv-border);
+    margin: 0 0 8px;
+}
+
+.print-tpl-modern__seller {
+    border-bottom: none;
+}
+
+.print-tpl-modern__lines thead th .ar {
+    display: block;
+    direction: rtl;
+    font-family: Tajawal, sans-serif;
+    font-size: 7.5pt;
+    font-weight: 600;
+}
+
+.print-tpl-modern__vat-cell {
+    text-align: center;
+    line-height: 1.25;
+}
+
+.print-tpl-modern__vat-pct {
+    display: block;
+    font-size: 8pt;
+    color: var(--inv-muted);
+}
+
+.print-tpl-modern__closing {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 16px;
+    align-items: start;
+    margin-top: 12px;
+    page-break-inside: avoid;
+}
+
+.print-tpl-modern__qr-wrap .invoice-a4__qr {
+    margin: 0;
+}
+
+.print-tpl-modern__totals {
+    width: 100%;
+    max-width: 320px;
+    margin-left: auto;
+    border-collapse: collapse;
+    font-size: 9pt;
+}
+
+.print-tpl-modern__totals td {
+    padding: 4px 6px;
+    vertical-align: middle;
+}
+
+.print-tpl-modern__totals-label {
+    text-align: start;
+    color: var(--inv-muted);
+    font-size: 8.5pt;
+}
+
+.print-tpl-modern__totals-label span {
+    display: block;
+    font-family: Tajawal, sans-serif;
+    font-size: 8pt;
+}
+
+.print-tpl-modern__totals-value {
+    text-align: end;
+    white-space: nowrap;
+}
+
+.print-tpl-modern__totals-net td {
+    padding-top: 6px;
+}
+
+.print-tpl-modern__page-footer {
+    margin-top: 16px;
+    text-align: center;
+    font-size: 8.5pt;
+}
+
+.print-tpl-modern__page-count::before {
+    content: 'Page ' counter(page) ' of ' counter(pages) ' - ' attr(data-print-footer-doc);
+    display: block;
+    margin-top: 4px;
+    font-size: 8pt;
+    color: var(--inv-muted);
+}
+
+@supports not (content: counter(pages)) {
+    .print-tpl-modern__page-count::before {
+        content: 'Page 1 of 1 - ' attr(data-print-footer-doc);
+    }
+}
+
+.invoice-print-sheet {
+    counter-reset: page;
+}
+
+@media print {
+    .invoice-a4__table thead {
+        display: table-header-group;
+    }
+
+    .print-classic__lines thead {
+        display: table-header-group;
+    }
+
+    @page {
+        size: A4;
+        margin: 10mm 12mm 14mm;
+    }
+}

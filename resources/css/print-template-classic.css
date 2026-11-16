@@ -1,0 +1,160 @@
+.print-tpl-classic {
+    font-size: 9pt;
+}
+
+.print-classic__top {
+    display: grid;
+    grid-template-columns: 120px 1fr 160px;
+    gap: 8px;
+    align-items: start;
+    margin-bottom: 8px;
+}
+
+.print-classic__logo {
+    max-height: 56px;
+    max-width: 110px;
+}
+
+.print-classic__title {
+    text-align: center;
+    font-size: 14pt;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.25;
+}
+
+.print-classic__title-ar {
+    display: block;
+    font-family: Tajawal, sans-serif;
+    direction: rtl;
+}
+
+.print-classic__title-en {
+    display: block;
+    font-size: 12pt;
+}
+
+.print-classic__top-right {
+    text-align: end;
+    font-size: 8pt;
+}
+
+.print-classic__top-right .invoice-a4__qr canvas {
+    width: 96px !important;
+    height: 96px !important;
+}
+
+.print-classic__meta-table,
+.print-classic__party-table,
+.print-classic__lines,
+.print-classic__totals {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 8px;
+}
+
+.print-classic__meta-table td,
+.print-classic__party-table td,
+.print-classic__lines th,
+.print-classic__lines td,
+.print-classic__totals td {
+    border: 1px solid var(--inv-border);
+    padding: 3px 6px;
+    vertical-align: middle;
+}
+
+.print-classic__lines thead th {
+    background: #e8e8e8;
+    font-size: 7.5pt;
+    font-weight: 700;
+    text-align: center;
+}
+
+.print-classic__lines thead th .ar {
+    display: block;
+    font-family: Tajawal, sans-serif;
+    font-weight: 600;
+    direction: rtl;
+}
+
+.print-classic__cell-label {
+    width: 22%;
+    font-weight: 600;
+    color: var(--inv-muted);
+    font-size: 8pt;
+}
+
+.print-classic__cell-label.ar {
+    text-align: end;
+    font-family: Tajawal, sans-serif;
+}
+
+.print-classic__cell-value {
+    text-align: center;
+}
+
+.print-classic__parties {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.print-classic__party-head {
+    background: #e8e8e8;
+    border: 1px solid var(--inv-border);
+    border-bottom: none;
+    padding: 4px 8px;
+    font-weight: 700;
+    font-size: 8.5pt;
+}
+
+.print-classic__party-head .ar {
+    float: inline-end;
+    font-family: Tajawal, sans-serif;
+    direction: rtl;
+}
+
+.print-classic__party-table {
+    margin: 0;
+}
+
+.print-classic__desc {
+    text-align: start;
+    min-width: 28%;
+}
+
+.print-classic__totals-wrap {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 8px;
+}
+
+.print-classic__totals {
+    width: 52%;
+}
+
+.print-classic__words {
+    border: 1px solid var(--inv-border);
+    padding: 6px 8px;
+    margin-top: 8px;
+    font-family: Tajawal, sans-serif;
+    font-size: 9pt;
+}
+
+.classic-party__name-ar {
+    display: block;
+    direction: rtl;
+    font-family: Tajawal, sans-serif;
+}
+
+.classic-party__name-en {
+    display: block;
+    font-size: 8pt;
+}
+
+@media print {
+    .print-classic__lines thead {
+        display: table-header-group;
+    }
+}

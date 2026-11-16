@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AnalyticsExportController;
 use App\Http\Controllers\Admin\Auth\LoginController;
 use App\Http\Controllers\Admin\InvoicePrintController;
+use App\Http\Controllers\Admin\PrintTemplatePreviewController;
 use App\Http\Controllers\Admin\QuotationPrintController;
 use App\Http\Controllers\Admin\Pos\ReceiptController;
 use App\Http\Middleware\EnsureBranchActiveForPos;
@@ -72,6 +73,10 @@ Route::prefix('admin')->middleware('auth:staff')->group(function (): void {
         Route::get('/quotations/create', ManageQuotation::class)->name('admin.quotations.create');
         Route::get('/quotations/{quotation}/edit', ManageQuotation::class)->name('admin.quotations.edit');
         Route::get('/quotations/{quotation}/print', QuotationPrintController::class)->name('admin.quotations.print');
+        Route::get('/print/preview/{kind}/{template}', PrintTemplatePreviewController::class)
+            ->whereIn('kind', ['invoice', 'quotation'])
+            ->whereIn('template', ['modern', 'classic'])
+            ->name('admin.print.template-preview');
     });
 
     Route::middleware(EnsurePosAccess::class)->prefix('pos')->name('admin.pos.')->group(function (): void {

@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin;
 
+use App\Enums\PrintDocumentTemplate;
 use App\Livewire\Concerns\DispatchesToasts;
 use App\Models\BusinessSetting;
 use App\Rules\SaudiVatNumber;
@@ -133,6 +134,10 @@ class BusinessSettings extends Component
     public bool $invoicingIntegrationEnabled = true;
 
     public int $paymentTermsDays = 30;
+
+    public string $invoicePrintTemplate = 'modern';
+
+    public string $quotationPrintTemplate = 'modern';
 
     /** @var list<string> */
     public array $tabsWithErrors = [];
@@ -325,6 +330,8 @@ class BusinessSettings extends Component
             $business = $service->saveInvoicing($this->business(), [
                 'integration_enabled' => $this->invoicingIntegrationEnabled,
                 'payment_terms_days' => $this->paymentTermsDays,
+                'invoice_print_template' => $this->invoicePrintTemplate,
+                'quotation_print_template' => $this->quotationPrintTemplate,
             ], auth('staff')->user());
         } catch (Throwable $e) {
             $this->failSave('invoicing', $e);
@@ -686,6 +693,16 @@ class BusinessSettings extends Component
 
         $this->invoicingIntegrationEnabled = $business->invoicingIntegrationEnabled();
         $this->paymentTermsDays = max(0, (int) data_get($business->settings, 'invoicing.payment_terms_days', 30));
+        $this->invoicePrintTemplate = in_array(
+            (string) data_get($business->settings, 'invoicing.invoice_print_template', 'modern'),
+            PrintDocumentTemplate::values(),
+            true,
+        ) ? (string) data_get($business->settings, 'invoicing.invoice_print_template', 'modern') : 'modern';
+        $this->quotationPrintTemplate = in_array(
+            (string) data_get($business->settings, 'invoicing.quotation_print_template', 'modern'),
+            PrintDocumentTemplate::values(),
+            true,
+        ) ? (string) data_get($business->settings, 'invoicing.quotation_print_template', 'modern') : 'modern';
 
         $this->sanitizeLegacyFieldFormats();
     }
