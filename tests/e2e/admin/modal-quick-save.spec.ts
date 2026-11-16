@@ -33,6 +33,8 @@ test.describe('quick-add modal save', () => {
         const modal = page.locator('.x-modal-backdrop');
         await modal.locator('input[name="customerQuickName"]').fill(customerName);
         await modal.locator('input[name="customerQuickPhone"]').fill(phone);
+        await modal.locator('select[name="customerQuickAltIdType"]').selectOption('CRN');
+        await modal.locator('input[name="customerQuickAltIdNumber"]').fill('1010998899');
         await saveModal(page);
 
         await expect(page.locator('input[name="customerSearch"]')).toHaveValue(customerName);
@@ -106,6 +108,8 @@ test.describe('quick-add modal save', () => {
         const modal = page.locator('.x-modal-backdrop');
         await modal.locator('input[name="customerQuickName"]').fill(customerName);
         await modal.locator('input[name="customerQuickPhone"]').fill(phone);
+        await modal.locator('select[name="customerQuickAltIdType"]').selectOption('CRN');
+        await modal.locator('input[name="customerQuickAltIdNumber"]').fill('1010998899');
         await saveModal(page);
 
         await expect(page.locator('input[name="customerSearch"]')).toHaveValue(customerName);

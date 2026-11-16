@@ -13,7 +13,8 @@ test.describe('customer edit modal', () => {
 
         await page.locator('[data-testid="customers-table"] button', { hasText: /সম্পাদনা|Edit|تعديل/i }).first().click();
         await expect(page.locator('[data-testid="customer-modal"]')).toBeVisible();
-        await expect(page.locator('input#customerName')).toBeVisible();
+        await expect(page.locator('[data-testid="customer-identity-fields"]')).toBeVisible();
+        await expect(page.locator('input#customerLegalNameEn, input#customerLegalNameAr').first()).toBeVisible();
         await expect(page.locator('input#customerAddrCity')).toBeVisible();
 
         await page.locator('[data-testid="customer-modal-tabs"] button', { hasText: /লয়্যালটি|Loyalty|الولاء/i }).click();

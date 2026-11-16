@@ -16,7 +16,7 @@ test.describe('customers table', () => {
 
         await page.goto(adminPath('/admin/customers?create=customer', 'en'));
         await page.waitForLoadState('networkidle');
-        await expect(page.locator('.app-nav-drawer, .x-modal-form').locator('input#customerName')).toBeVisible();
+        await expect(page.locator('[data-testid="customer-identity-fields"]')).toBeVisible();
 
         await page.screenshot({ path: '/opt/cursor/artifacts/customers-table-1280.png', fullPage: false });
     });
