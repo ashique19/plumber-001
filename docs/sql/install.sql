@@ -116,17 +116,9 @@ CREATE UNIQUE INDEX `staff_users_email_unique` on `staff_users`(`email`);
 CREATE TABLE IF NOT EXISTS `customers`(
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `name` VARCHAR(255) NOT NULL,
-  `legal_name_ar` VARCHAR(160),
-  `legal_name_en` VARCHAR(160),
   `phone` VARCHAR(255),
   `email` VARCHAR(255),
   `vat_number` VARCHAR(32),
-  `vat_registered` TINYINT(1) NOT NULL DEFAULT 0,
-  `alt_id_type` VARCHAR(8),
-  `alt_id_number` VARCHAR(64),
-  `country_code` CHAR(2) NOT NULL DEFAULT 'SA',
-  `street_name` VARCHAR(120),
-  `city` VARCHAR(80),
   `referral_code` VARCHAR(32),
   `referred_by_customer_id` BIGINT UNSIGNED,
   `points_balance` BIGINT UNSIGNED NOT NULL default '0',
@@ -159,33 +151,60 @@ CREATE INDEX `product_categories_branch_id_is_active_index` on `product_categori
   `branch_id`,
   `is_active`
 );
+CREATE TABLE IF NOT EXISTS `product_units`(
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `name_en` VARCHAR(255) NOT NULL,
+  `name_ar` VARCHAR(255) NOT NULL,
+  `name_bn` VARCHAR(160) NOT NULL,
+  `code` VARCHAR(16) NOT NULL,
+  `ubl_unit_code` VARCHAR(16) NOT NULL,
+  `is_active` tinyint(1) not null default '1',
+  `created_at` datetime,
+  `updated_at` datetime
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE UNIQUE INDEX `product_units_code_unique` on `product_units`(`code`);
+CREATE TABLE IF NOT EXISTS `product_sizes`(
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `name` VARCHAR(255) NOT NULL,
+  `measurement_type` VARCHAR(255),
+  `is_active` tinyint(1) not null default '1',
+  `created_at` datetime,
+  `updated_at` datetime
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 CREATE TABLE IF NOT EXISTS `products`(
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `branch_id` BIGINT UNSIGNED,
   `product_category_id` BIGINT UNSIGNED,
+  `product_unit_id` BIGINT UNSIGNED,
+  `product_size_id` BIGINT UNSIGNED,
   `sku` VARCHAR(255),
   `item_type` VARCHAR(16) NOT NULL default 'item',
   `name_en` VARCHAR(255) NOT NULL,
   `name_ar` VARCHAR(255),
   `name_bn` VARCHAR(160),
+  `name_i18n_review` tinyint(1) not null default '0',
   `image_url` VARCHAR(255),
   `description_en` TEXT,
   `description_ar` TEXT,
   `description_bn` TEXT,
   `price_ex_vat` DECIMAL(12,2) NOT NULL,
   `vat_rate` DECIMAL(5,2) NOT NULL default '15',
+  `vat_zatca_category` CHAR(1) NOT NULL default 'S',
   `sort_order` SMALLINT UNSIGNED NOT NULL default '0',
   `is_active` tinyint(1) not null default '1',
   `show_on_homepage` tinyint(1) not null default '0',
   `show_on_menu` tinyint(1) not null default '1',
   `created_at` datetime,
   `updated_at` datetime,
+  `archived_at` datetime,
   `track_stock` tinyint(1) not null default '0',
   `stock_quantity` DECIMAL(12,3) NOT NULL default '0',
   `low_stock_threshold` DECIMAL(12,3) NOT NULL default '0',
   `cost_ex_vat` DECIMAL(12,2) NOT NULL default '0',
   foreign key(`branch_id`) references `branches`(`id`) on delete set null,
-  foreign key(`product_category_id`) references `product_categories`(`id`) on delete set null
+  foreign key(`product_category_id`) references `product_categories`(`id`) on delete set null,
+  foreign key(`product_unit_id`) references `product_units`(`id`) on delete set null,
+  foreign key(`product_size_id`) references `product_sizes`(`id`) on delete set null
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 CREATE INDEX `products_branch_id_is_active_index` on `products`(
   `branch_id`,
@@ -199,6 +218,11 @@ CREATE INDEX `products_show_on_menu_is_active_index` on `products`(
   `show_on_menu`,
   `is_active`
 );
+CREATE TABLE IF NOT EXISTS `product_sku_counters`(
+  `key` VARCHAR(255) NOT NULL,
+  `last_value` INT UNSIGNED NOT NULL default '0',
+  primary key(`key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 CREATE TABLE IF NOT EXISTS `product_modifiers`(
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `name_en` VARCHAR(255) NOT NULL,
@@ -453,17 +477,9 @@ CREATE TABLE IF NOT EXISTS `role_has_permissions`(
 CREATE TABLE IF NOT EXISTS `suppliers`(
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `branch_id` BIGINT UNSIGNED,
-  `name` VARCHAR(160) NOT NULL,
-  `name_ar` VARCHAR(160),
-  `contact_person` VARCHAR(120),
-  `phone` VARCHAR(32),
-  `email` VARCHAR(120),
-  `vat_number` VARCHAR(32),
-  `cr_number` VARCHAR(32),
-  `address` TEXT,
-  `city` VARCHAR(80),
-  `notes` TEXT,
-  `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+  `name` VARCHAR(255) NOT NULL,
+  `vat_number` VARCHAR(255),
+  `phone` VARCHAR(255),
   `created_at` datetime,
   `updated_at` datetime,
   foreign key(`branch_id`) references `branches`(`id`) on delete set null
@@ -606,5 +622,26 @@ INSERT IGNORE INTO business_settings (id, name, settings, created_at, updated_at
 
 INSERT IGNORE INTO branches (id, code, name, name_ar, is_active, created_at, updated_at) VALUES
 (1, 'ruh-main', 'Riyadh Service Center', 'مركز الرياض', 1, NOW(), NOW());
+
+INSERT IGNORE INTO product_units (code, name_en, name_ar, name_bn, ubl_unit_code, is_active, created_at, updated_at) VALUES
+('PCS', 'Piece', 'قطعة', 'পিস', 'PCE', 1, NOW(), NOW()),
+('M', 'Meter', 'متر', 'মিটার', 'MTR', 1, NOW(), NOW()),
+('BOX', 'Box', 'صندوق', 'বাক্স', 'BX', 1, NOW(), NOW()),
+('ROLL', 'Roll', 'لفة', 'রোল', 'RO', 1, NOW(), NOW()),
+('KG', 'Kilogram', 'كيلوغرام', 'কিলোগ্রাম', 'KGM', 1, NOW(), NOW()),
+('L', 'Liter', 'لتر', 'লিটার', 'LTR', 1, NOW(), NOW()),
+('SET', 'Set', 'مجموعة', 'সেট', 'SET', 1, NOW(), NOW()),
+('HR', 'Hour', 'ساعة', 'ঘণ্টা', 'HUR', 1, NOW(), NOW()),
+('JOB', 'Job', 'مهمة', 'কাজ', 'E48', 1, NOW(), NOW());
+
+INSERT IGNORE INTO product_sizes (name, measurement_type, is_active, created_at, updated_at) VALUES
+('1/2 Inch', 'Diameter', 1, NOW(), NOW()),
+('3/4 Inch', 'Diameter', 1, NOW(), NOW()),
+('1 Inch', 'Diameter', 1, NOW(), NOW()),
+('1 1/4 Inch', 'Diameter', 1, NOW(), NOW()),
+('1 1/2 Inch', 'Diameter', 1, NOW(), NOW()),
+('2 Inch', 'Diameter', 1, NOW(), NOW()),
+('3 Inch', 'Diameter', 1, NOW(), NOW()),
+('4 Inch', 'Diameter', 1, NOW(), NOW());
 
 SET FOREIGN_KEY_CHECKS=1;

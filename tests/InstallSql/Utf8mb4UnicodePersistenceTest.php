@@ -6,6 +6,7 @@ use App\Models\BusinessSetting;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\ProductCategory;
+use App\Models\ProductUnit;
 use App\Models\StaffUser;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
@@ -61,6 +62,9 @@ it('persists bangla and arabic text after install.sql import and utf8mb4 convers
         ->set('productNameEn', 'Unicode service')
         ->set('productNameAr', 'خدمة يونيكود')
         ->set('productNameBn', 'ইউনিকোড সেবা')
+        ->set('productCategoryId', $category->id)
+        ->set('productUnitId', ProductUnit::query()->where('code', 'PCS')->value('id'))
+        ->set('productCostInput', '40')
         ->set('productPriceInput', '100')
         ->set('productVatRate', 15)
         ->call('saveProduct')

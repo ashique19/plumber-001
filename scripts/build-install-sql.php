@@ -188,8 +188,42 @@ function applyMysqlColumnOverrides(string $sql): string
             $block = $m[0];
             $block = preg_replace('/`item_type`\s+VARCHAR\(255\)/', '`item_type` VARCHAR(16)', $block, 1) ?? $block;
             $block = preg_replace('/`name_bn`\s+VARCHAR\(255\)/', '`name_bn` VARCHAR(160)', $block, 1) ?? $block;
+            $block = preg_replace(
+                '/`vat_zatca_category`\s+VARCHAR\(255\)\s+NOT NULL default \'S\'/',
+                '`vat_zatca_category` CHAR(1) NOT NULL default \'S\'',
+                $block,
+                1
+            ) ?? $block;
 
             return $block;
+        },
+        $sql,
+        1
+    ) ?? $sql;
+
+    $sql = preg_replace_callback(
+        '/CREATE TABLE IF NOT EXISTS `product_units`[\s\S]*?\);/i',
+        static function (array $m): string {
+            $block = $m[0];
+            $block = preg_replace('/`name_bn`\s+VARCHAR\(255\)/', '`name_bn` VARCHAR(160)', $block, 1) ?? $block;
+            $block = preg_replace('/`code`\s+VARCHAR\(255\)/', '`code` VARCHAR(16)', $block, 1) ?? $block;
+            $block = preg_replace('/`ubl_unit_code`\s+VARCHAR\(255\)/', '`ubl_unit_code` VARCHAR(16)', $block, 1) ?? $block;
+
+            return $block;
+        },
+        $sql,
+        1
+    ) ?? $sql;
+
+    $sql = preg_replace_callback(
+        '/CREATE TABLE IF NOT EXISTS `product_sku_counters`[\s\S]*?\);/i',
+        static function (array $m): string {
+            return preg_replace(
+                '/`last_value`\s+BIGINT\s+NOT NULL default \'0\'/',
+                '`last_value` INT UNSIGNED NOT NULL default \'0\'',
+                $m[0],
+                1
+            ) ?? $m[0];
         },
         $sql,
         1
@@ -390,6 +424,27 @@ INSERT IGNORE INTO business_settings (id, name, settings, created_at, updated_at
 
 INSERT IGNORE INTO branches (id, code, name, name_ar, is_active, created_at, updated_at) VALUES
 (1, 'ruh-main', 'Riyadh Service Center', 'مركز الرياض', 1, NOW(), NOW());
+
+INSERT IGNORE INTO product_units (code, name_en, name_ar, name_bn, ubl_unit_code, is_active, created_at, updated_at) VALUES
+('PCS', 'Piece', 'قطعة', 'পিস', 'PCE', 1, NOW(), NOW()),
+('M', 'Meter', 'متر', 'মিটার', 'MTR', 1, NOW(), NOW()),
+('BOX', 'Box', 'صندوق', 'বাক্স', 'BX', 1, NOW(), NOW()),
+('ROLL', 'Roll', 'لفة', 'রোল', 'RO', 1, NOW(), NOW()),
+('KG', 'Kilogram', 'كيلوغرام', 'কিলোগ্রাম', 'KGM', 1, NOW(), NOW()),
+('L', 'Liter', 'لتر', 'লিটার', 'LTR', 1, NOW(), NOW()),
+('SET', 'Set', 'مجموعة', 'সেট', 'SET', 1, NOW(), NOW()),
+('HR', 'Hour', 'ساعة', 'ঘণ্টা', 'HUR', 1, NOW(), NOW()),
+('JOB', 'Job', 'مهمة', 'কাজ', 'E48', 1, NOW(), NOW());
+
+INSERT IGNORE INTO product_sizes (name, measurement_type, is_active, created_at, updated_at) VALUES
+('1/2 Inch', 'Diameter', 1, NOW(), NOW()),
+('3/4 Inch', 'Diameter', 1, NOW(), NOW()),
+('1 Inch', 'Diameter', 1, NOW(), NOW()),
+('1 1/4 Inch', 'Diameter', 1, NOW(), NOW()),
+('1 1/2 Inch', 'Diameter', 1, NOW(), NOW()),
+('2 Inch', 'Diameter', 1, NOW(), NOW()),
+('3 Inch', 'Diameter', 1, NOW(), NOW()),
+('4 Inch', 'Diameter', 1, NOW(), NOW());
 
 SET FOREIGN_KEY_CHECKS=1;
 SQL;
