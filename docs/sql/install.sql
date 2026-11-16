@@ -119,6 +119,7 @@ CREATE TABLE IF NOT EXISTS `customers`(
   `phone` VARCHAR(255),
   `email` VARCHAR(255),
   `vat_number` VARCHAR(32),
+  `post_box` VARCHAR(32),
   `referral_code` VARCHAR(32),
   `referred_by_customer_id` BIGINT UNSIGNED,
   `points_balance` BIGINT UNSIGNED NOT NULL default '0',

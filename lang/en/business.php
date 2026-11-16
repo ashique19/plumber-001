@@ -172,6 +172,7 @@ return [
         'district' => 'District',
         'city' => 'City',
         'postal' => 'Postal code',
+        'post_box' => 'Post box',
         'additional' => 'Additional no.',
         'validation' => [
             'vat_format' => 'VAT number must be 15 digits starting and ending with 3.',

@@ -76,6 +76,9 @@ final class InvoicingCustomerLookup
         $host->addrDistrict = (string) ($na['district'] ?? '');
         $host->addrCity = (string) ($na['city'] ?? 'Riyadh');
         $host->addrPostal = (string) ($na['postal_code'] ?? $na['postal'] ?? '');
+        if (property_exists($host, 'addrPostBox')) {
+            $host->addrPostBox = (string) ($customer->post_box ?? $na['post_box'] ?? '');
+        }
         $host->addrAdditional = (string) ($na['additional'] ?? '');
 
         if (property_exists($host, 'selectedCustomerId')) {

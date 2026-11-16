@@ -57,6 +57,7 @@ final class IssueInvoicePrefill
         $prefill['addrDistrict'] = (string) ($na['district'] ?? '');
         $prefill['addrCity'] = (string) ($na['city'] ?? 'Riyadh');
         $prefill['addrPostal'] = (string) ($na['postal_code'] ?? '');
+        $prefill['addrPostBox'] = (string) ($na['post_box'] ?? '');
         $prefill['addrAdditional'] = (string) ($na['additional'] ?? '');
 
         return $prefill;
@@ -114,6 +115,7 @@ final class IssueInvoicePrefill
         $component->addrDistrict = $prefill['addrDistrict'] ?? $component->addrDistrict;
         $component->addrCity = $prefill['addrCity'] ?? $component->addrCity;
         $component->addrPostal = $prefill['addrPostal'] ?? $component->addrPostal;
+        $component->addrPostBox = $prefill['addrPostBox'] ?? $component->addrPostBox;
         $component->addrAdditional = $prefill['addrAdditional'] ?? $component->addrAdditional;
     }
 }

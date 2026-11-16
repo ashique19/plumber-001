@@ -99,6 +99,67 @@
     font-family: Tajawal, sans-serif;
 }
 
+.invoice-a4__buyer-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+    font-size: 9pt;
+    table-layout: fixed;
+}
+
+.invoice-a4__buyer-table th,
+.invoice-a4__buyer-table td {
+    border: 1px solid var(--inv-border);
+    padding: 4px 8px;
+    vertical-align: middle;
+}
+
+.invoice-a4__buyer-table thead th {
+    font-weight: 700;
+    background: color-mix(in srgb, var(--inv-border) 35%, transparent);
+}
+
+.invoice-a4__buyer-table-label {
+    width: 22%;
+    font-weight: 600;
+    color: var(--inv-muted);
+}
+
+.invoice-a4__buyer-table-value {
+    width: 56%;
+    text-align: center;
+}
+
+.invoice-a4__buyer-table-label.ar {
+    width: 22%;
+    font-family: Tajawal, sans-serif;
+    text-align: end;
+}
+
+.invoice-a4__buyer-name-ar {
+    display: block;
+    direction: rtl;
+    font-family: Tajawal, sans-serif;
+    font-weight: 600;
+}
+
+.invoice-a4__buyer-name-en {
+    display: block;
+    font-size: 8pt;
+    color: var(--inv-muted);
+    margin-top: 2px;
+}
+
+.invoice-a4__customer-meta {
+    border: 1px solid var(--inv-border);
+    padding: 8px 10px;
+    margin-bottom: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 12px;
+    font-size: 9pt;
+}
+
 .invoice-a4__customer {
     border: 1px solid var(--inv-border);
     padding: 8px 10px;

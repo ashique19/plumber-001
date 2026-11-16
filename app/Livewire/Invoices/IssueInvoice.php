@@ -12,6 +12,7 @@ use App\Livewire\Concerns\ManagesInvoicingCustomerPicker;
 use App\Livewire\Concerns\ManagesStandardBuyerCompletion;
 use App\Livewire\Concerns\ResolvesBusinessContext;
 use App\Livewire\Concerns\ValidatesFieldsLive;
+use App\Models\Customer;
 use App\Models\ProductCategory;
 use App\Models\Product;
 use App\Services\InvoiceIssueService;
@@ -81,6 +82,8 @@ class IssueInvoice extends Component
     public string $addrPostal = '';
 
     public string $addrAdditional = '';
+
+    public string $addrPostBox = '';
 
     public ?string $buyerNameOptional = '';
 
@@ -203,9 +206,17 @@ class IssueInvoice extends Component
         $payload = $draft->payload ?? [];
         if ($type === InvoiceDocumentType::Standard) {
             $vat = preg_replace('/\D/', '', $this->buyerVat) ?? '';
+            $nameAr = '';
+            if ($this->selectedCustomerId !== null) {
+                $profile = Customer::query()->find($this->selectedCustomerId)?->profile;
+                $nameAr = is_array($profile) ? trim((string) data_get($profile, 'name_ar', '')) : '';
+            }
             $payload = array_merge($payload, [
                 'buyer_name' => trim($this->buyerName),
+                'buyer_name_ar' => $nameAr !== '' ? $nameAr : null,
+                'buyer_name_en' => trim($this->buyerName) !== '' ? trim($this->buyerName) : null,
                 'buyer_vat' => $vat,
+                'buyer_vat_registered' => $vat !== '',
                 'buyer_cr' => trim($this->buyerCr),
                 'buyer_phone' => trim($this->buyerPhone),
                 'buyer_email' => trim($this->buyerEmail),
@@ -217,6 +228,7 @@ class IssueInvoice extends Component
                     'district' => $this->addrDistrict,
                     'city' => $this->addrCity,
                     'postal_code' => $this->addrPostal,
+                    'post_box' => trim($this->addrPostBox) !== '' ? trim($this->addrPostBox) : null,
                     'additional' => $this->addrAdditional,
                     'country' => strtoupper(trim($this->buyerCountry)) ?: 'SA',
                 ],

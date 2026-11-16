@@ -43,6 +43,7 @@
             <x-field.input :label="__('business.fields.district')" name="customerQuickAddrDistrict" wire:model="customerQuickAddrDistrict" :liveValidate="false" />
             <x-field.input :label="__('business.fields.city')" name="customerQuickAddrCity" wire:model="customerQuickAddrCity" :liveValidate="false" :required="$standardBuyer" />
             <x-field.input :label="__('business.fields.postal')" name="customerQuickAddrPostal" wire:model="customerQuickAddrPostal" :liveValidate="false" :required="$standardBuyer" />
+            <x-field.input :label="__('business.fields.post_box')" name="customerQuickAddrPostBox" wire:model="customerQuickAddrPostBox" :liveValidate="false" />
             <x-field.input :label="__('business.fields.additional')" name="customerQuickAddrAdditional" wire:model="customerQuickAddrAdditional" :liveValidate="false" wrapper-class="md:col-span-2" />
         </div>
 

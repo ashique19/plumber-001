@@ -55,30 +55,42 @@
 
         <x-invoices.print-document-title :t="$t" />
 
-        <div class="invoice-a4__customer">
-            @foreach ([
-                ['en' => 'Customer', 'ar' => 'العميل', 'val' => $t['customer']['name'] ?? null],
-                ['en' => 'Address', 'ar' => 'العنوان', 'val' => $t['customer']['address'] ?? null],
-                ['en' => 'Email', 'ar' => 'البريد', 'val' => $t['customer']['email'] ?? null],
-                ['en' => 'Mobile', 'ar' => 'الجوال', 'val' => $t['customer']['phone'] ?? null],
-                ['en' => 'VAT No.', 'ar' => 'الرقم الضريبي', 'val' => $t['customer']['vat_number'] ?? null],
-                ['en' => 'CR No.', 'ar' => 'السجل التجاري', 'val' => $t['customer']['cr_number'] ?? null],
-                ['en' => 'Invoice No.', 'ar' => 'رقم الفاتورة', 'val' => $t['document_number']],
-                ['en' => 'Issue date', 'ar' => 'تاريخ الإصدار', 'val' => $t['issue_date']],
-                ['en' => 'Supply date', 'ar' => 'تاريخ التوريد', 'val' => $t['supply_date'] ?? null],
-                ['en' => 'Due date', 'ar' => 'تاريخ الاستحقاق', 'val' => $t['due_date'] ?? null],
-            ] as $row)
-                @if (filled($row['val'] ?? null))
-                    <div>
-                        <span class="invoice-a4__customer-label">
-                            {{ $row['en'] }}
-                            <span class="ar">{{ $row['ar'] }}</span>
-                        </span>
-                        <div>{{ $row['val'] }}</div>
-                    </div>
-                @endif
-            @endforeach
-        </div>
+        @if (! ($t['is_simplified'] ?? false))
+            <x-invoices.print-buyer-table
+                :rows="\App\Support\Invoicing\BuyerPrintBlock::rows($t['customer'] ?? null)"
+                :document-meta="array_values(array_filter([
+                    ['en' => 'Invoice No.', 'ar' => 'رقم الفاتورة', 'value' => $t['document_number']],
+                    ['en' => 'Issue date', 'ar' => 'تاريخ الإصدار', 'value' => $t['issue_date']],
+                    ['en' => 'Supply date', 'ar' => 'تاريخ التوريد', 'value' => $t['supply_date'] ?? null],
+                    ['en' => 'Due date', 'ar' => 'تاريخ الاستحقاق', 'value' => $t['due_date'] ?? null],
+                ], fn (array $row): bool => filled($row['value'] ?? null)))"
+            />
+        @else
+            <div class="invoice-a4__customer">
+                @foreach ([
+                    ['en' => 'Customer', 'ar' => 'العميل', 'val' => $t['customer']['name'] ?? null],
+                    ['en' => 'Address', 'ar' => 'العنوان', 'val' => $t['customer']['address'] ?? null],
+                    ['en' => 'Email', 'ar' => 'البريد', 'val' => $t['customer']['email'] ?? null],
+                    ['en' => 'Mobile', 'ar' => 'الجوال', 'val' => $t['customer']['phone'] ?? null],
+                    ['en' => 'VAT No.', 'ar' => 'الرقم الضريبي', 'val' => $t['customer']['vat_number'] ?? null],
+                    ['en' => 'CR No.', 'ar' => 'السجل التجاري', 'val' => $t['customer']['cr_number'] ?? null],
+                    ['en' => 'Invoice No.', 'ar' => 'رقم الفاتورة', 'val' => $t['document_number']],
+                    ['en' => 'Issue date', 'ar' => 'تاريخ الإصدار', 'val' => $t['issue_date']],
+                    ['en' => 'Supply date', 'ar' => 'تاريخ التوريد', 'val' => $t['supply_date'] ?? null],
+                    ['en' => 'Due date', 'ar' => 'تاريخ الاستحقاق', 'val' => $t['due_date'] ?? null],
+                ] as $row)
+                    @if (filled($row['val'] ?? null))
+                        <div>
+                            <span class="invoice-a4__customer-label">
+                                {{ $row['en'] }}
+                                <span class="ar">{{ $row['ar'] }}</span>
+                            </span>
+                            <div>{{ $row['val'] }}</div>
+                        </div>
+                    @endif
+                @endforeach
+            </div>
+        @endif
 
         <table class="invoice-a4__table">
             <thead>

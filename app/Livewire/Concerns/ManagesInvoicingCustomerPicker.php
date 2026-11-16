@@ -45,6 +45,8 @@ trait ManagesInvoicingCustomerPicker
 
     public string $customerQuickAddrAdditional = '';
 
+    public string $customerQuickAddrPostBox = '';
+
     public function customerSearchResults(): Collection
     {
         return InvoicingCustomerLookup::search($this->customerSearch);
@@ -131,6 +133,7 @@ trait ManagesInvoicingCustomerPicker
             'customerQuickAddrCity' => ['nullable', 'string', 'max:80'],
             'customerQuickAddrPostal' => ['nullable', 'string', 'max:20'],
             'customerQuickAddrAdditional' => ['nullable', 'string', 'max:160'],
+            'customerQuickAddrPostBox' => ['nullable', 'string', 'max:32'],
         ];
 
         if ($this->documentStandardBuyerRequired()) {
@@ -145,12 +148,14 @@ trait ManagesInvoicingCustomerPicker
         $this->validate($rules);
 
         $vatDigits = preg_replace('/\D/', '', $this->customerQuickVat) ?? '';
+        $postBox = trim($this->customerQuickAddrPostBox);
 
         $customer = Customer::query()->create([
             'name' => trim($this->customerQuickName),
             'phone' => $this->customerQuickPhone,
             'email' => $this->customerQuickEmail !== '' ? trim($this->customerQuickEmail) : null,
             'vat_number' => $vatDigits !== '' ? $vatDigits : null,
+            'post_box' => $postBox !== '' ? $postBox : null,
             'referral_code' => '',
             'points_balance' => 0,
             'profile' => [
@@ -163,6 +168,7 @@ trait ManagesInvoicingCustomerPicker
                     'district' => trim($this->customerQuickAddrDistrict),
                     'city' => trim($this->customerQuickAddrCity) !== '' ? trim($this->customerQuickAddrCity) : 'Riyadh',
                     'postal_code' => trim($this->customerQuickAddrPostal),
+                    'post_box' => $postBox !== '' ? $postBox : null,
                     'additional' => trim($this->customerQuickAddrAdditional),
                     'country' => strtoupper(trim($this->customerQuickCountry)),
                 ],
@@ -207,6 +213,7 @@ trait ManagesInvoicingCustomerPicker
             'customerQuickAddrCity' => ['nullable', 'string', 'max:80'],
             'customerQuickAddrPostal' => ['nullable', 'string', 'max:20'],
             'customerQuickAddrAdditional' => ['nullable', 'string', 'max:160'],
+            'customerQuickAddrPostBox' => ['nullable', 'string', 'max:32'],
         ];
 
         if ($this->documentStandardBuyerRequired()) {
@@ -221,6 +228,7 @@ trait ManagesInvoicingCustomerPicker
         $this->validate($rules);
 
         $vatDigits = preg_replace('/\D/', '', $this->customerQuickVat) ?? '';
+        $postBox = trim($this->customerQuickAddrPostBox);
         $profile = is_array($customer->profile) ? $customer->profile : [];
 
         $customer->forceFill([
@@ -228,6 +236,7 @@ trait ManagesInvoicingCustomerPicker
             'phone' => $this->customerQuickPhone,
             'email' => $this->customerQuickEmail !== '' ? trim($this->customerQuickEmail) : null,
             'vat_number' => $vatDigits !== '' ? $vatDigits : null,
+            'post_box' => $postBox !== '' ? $postBox : null,
             'profile' => array_merge($profile, [
                 'name_ar' => trim($this->customerQuickNameAr),
                 'cr_number' => trim($this->customerQuickCr),
@@ -238,6 +247,7 @@ trait ManagesInvoicingCustomerPicker
                     'district' => trim($this->customerQuickAddrDistrict),
                     'city' => trim($this->customerQuickAddrCity) !== '' ? trim($this->customerQuickAddrCity) : 'Riyadh',
                     'postal_code' => trim($this->customerQuickAddrPostal),
+                    'post_box' => $postBox !== '' ? $postBox : null,
                     'additional' => trim($this->customerQuickAddrAdditional),
                     'country' => strtoupper(trim($this->customerQuickCountry)),
                 ],
@@ -271,6 +281,7 @@ trait ManagesInvoicingCustomerPicker
         $this->customerQuickAddrDistrict = (string) ($na['district'] ?? '');
         $this->customerQuickAddrCity = (string) ($na['city'] ?? 'Riyadh');
         $this->customerQuickAddrPostal = (string) ($na['postal_code'] ?? $na['postal'] ?? '');
+        $this->customerQuickAddrPostBox = (string) ($customer->post_box ?? $na['post_box'] ?? '');
         $this->customerQuickAddrAdditional = (string) ($na['additional'] ?? '');
     }
 
@@ -288,6 +299,7 @@ trait ManagesInvoicingCustomerPicker
         $this->customerQuickAddrDistrict = '';
         $this->customerQuickAddrCity = 'Riyadh';
         $this->customerQuickAddrPostal = '';
+        $this->customerQuickAddrPostBox = '';
         $this->customerQuickAddrAdditional = '';
         $this->customerQuickEditMode = false;
         $this->resetValidation();

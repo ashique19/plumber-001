@@ -14,6 +14,7 @@ class Customer extends Model
         'phone',
         'email',
         'vat_number',
+        'post_box',
         'referral_code',
         'referred_by_customer_id',
         'points_balance',

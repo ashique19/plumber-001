@@ -259,18 +259,67 @@ final class InvoicePrintPresenter
      */
     private static function customerFromPayload(array $payload): ?array
     {
+        $addr = (array) ($payload['buyer_national_address'] ?? []);
         $address = self::formatBuyerAddress($payload);
+        $addressLine = self::formatBuyerAddressLine($addr, $address);
 
         $vat = preg_replace('/\D/', '', (string) ($payload['buyer_vat'] ?? '')) ?? '';
+        $vatRegistered = array_key_exists('buyer_vat_registered', $payload)
+            ? (bool) $payload['buyer_vat_registered']
+            : $vat !== '';
+
+        $nameEn = trim((string) ($payload['buyer_name_en'] ?? $payload['buyer_name'] ?? ''));
+        $nameAr = trim((string) ($payload['buyer_name_ar'] ?? ''));
+        $displayName = $nameEn !== '' ? $nameEn : ($nameAr !== '' ? $nameAr : '');
+
+        $altType = strtoupper(trim((string) ($payload['buyer_alt_id_type'] ?? '')));
+        $altNumber = trim((string) ($payload['buyer_alt_id_number'] ?? ''));
+        $cr = trim((string) ($payload['buyer_cr'] ?? ''));
+        if ($altType === 'CRN' && $altNumber !== '') {
+            $cr = $altNumber;
+        } elseif ($cr === '' && $altType === 'CRN') {
+            $cr = $altNumber;
+        }
+
+        $city = trim((string) ($addr['city'] ?? ''));
+        $postBox = trim((string) ($addr['post_box'] ?? $payload['buyer_post_box'] ?? ''));
 
         return array_filter([
-            'name' => trim((string) ($payload['buyer_name'] ?? '')) ?: null,
+            'name' => $displayName !== '' ? $displayName : null,
+            'name_en' => $nameEn !== '' ? $nameEn : null,
+            'name_ar' => $nameAr !== '' ? $nameAr : null,
             'phone' => trim((string) ($payload['buyer_phone'] ?? '')) ?: null,
             'email' => trim((string) ($payload['buyer_email'] ?? '')) ?: null,
+            'vat_registered' => $vatRegistered,
             'vat_number' => $vat !== '' ? $vat : null,
-            'cr_number' => trim((string) ($payload['buyer_cr'] ?? '')) ?: null,
+            'alt_id_type' => $altType !== '' ? $altType : null,
+            'alt_id_number' => $altNumber !== '' ? $altNumber : null,
+            'cr_number' => $cr !== '' ? $cr : null,
             'address' => $address,
+            'address_line' => $addressLine,
+            'city' => $city !== '' ? $city : null,
+            'post_box' => $postBox !== '' ? $postBox : null,
         ]) ?: null;
+    }
+
+    /**
+     * @param  array<string, mixed>  $addr
+     */
+    private static function formatBuyerAddressLine(array $addr, ?string $fallback): ?string
+    {
+        $district = trim((string) ($addr['district'] ?? ''));
+        $street = trim((string) ($addr['street'] ?? ''));
+        if ($district !== '' && $street !== '') {
+            return $district.' - '.$street;
+        }
+        if ($street !== '') {
+            return $street;
+        }
+        if ($district !== '') {
+            return $district;
+        }
+
+        return $fallback;
     }
 
     /**

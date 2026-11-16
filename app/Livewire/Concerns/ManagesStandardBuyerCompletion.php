@@ -156,8 +156,11 @@ trait ManagesStandardBuyerCompletion
         $profile = is_array($customer->profile) ? $customer->profile : [];
         $na = (array) data_get($profile, 'national_address', []);
 
+        $postBox = property_exists($this, 'addrPostBox') ? trim($this->addrPostBox) : '';
+
         $customer->forceFill([
             'vat_number' => $vatDigits !== '' ? $vatDigits : $customer->vat_number,
+            'post_box' => $postBox !== '' ? $postBox : $customer->post_box,
             'profile' => array_merge($profile, [
                 'cr_number' => trim($this->buyerCr) !== '' ? trim($this->buyerCr) : (string) data_get($profile, 'cr_number', ''),
                 'country' => strtoupper(trim($this->buyerCountry)) ?: 'SA',
@@ -167,6 +170,9 @@ trait ManagesStandardBuyerCompletion
                     'district' => trim($this->addrDistrict) !== '' ? trim($this->addrDistrict) : ($na['district'] ?? ''),
                     'city' => trim($this->addrCity) !== '' ? trim($this->addrCity) : ($na['city'] ?? 'Riyadh'),
                     'postal_code' => trim($this->addrPostal) !== '' ? trim($this->addrPostal) : ($na['postal_code'] ?? $na['postal'] ?? ''),
+                    'post_box' => property_exists($this, 'addrPostBox') && trim($this->addrPostBox) !== ''
+                        ? trim($this->addrPostBox)
+                        : ($na['post_box'] ?? null),
                     'additional' => trim($this->addrAdditional) !== '' ? trim($this->addrAdditional) : ($na['additional'] ?? ''),
                     'country' => strtoupper(trim($this->buyerCountry)) ?: 'SA',
                 ]),

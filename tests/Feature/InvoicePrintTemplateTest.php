@@ -28,9 +28,16 @@ it('renders a4 with bilingual labels buyer vat cr and phase1 qr', function () {
             'lines' => [
                 ['name' => 'Pipe install', 'name_ar' => 'تركيب مواسير', 'quantity' => 1, 'unit_price_ex_vat' => 100, 'vat_rate' => 15],
             ],
-            'buyer_name' => 'Buyer',
+            'buyer_name' => 'Buyer EN',
+            'buyer_name_ar' => 'المشتري',
             'buyer_vat' => '300000000000003',
             'buyer_cr' => '1010000000',
+            'buyer_national_address' => [
+                'district' => 'Al Olaya',
+                'street' => 'King Fahd Rd',
+                'city' => 'RIYADH',
+                'post_box' => '3851',
+            ],
         ],
     ]);
 
@@ -47,9 +54,18 @@ it('renders a4 with bilingual labels buyer vat cr and phase1 qr', function () {
         ->assertOk()
         ->assertSee(__('pos.receipt_title_standard_en'), false)
         ->assertSee(__('pos.receipt_title_standard_ar'), false)
-        ->assertSee('VAT No.', false)
-        ->assertSee('الرقم الضريبي', false)
-        ->assertSee('1010000000', false)
+        ->assertSee('invoice-a4__buyer-table', false)
+        ->assertSee('Buyer', false)
+        ->assertSee('العميل', false)
+        ->assertSee('Name', false)
+        ->assertSee('الاسم', false)
+        ->assertSee('المشتري', false)
+        ->assertSee('VAT Number', false)
+        ->assertSee('رقم تسجيل ضريبة القيمة المضافة', false)
+        ->assertSee('300000000000003', false)
+        ->assertSee('Post Box', false)
+        ->assertSee('3851', false)
+        ->assertDontSee('CR Number', false)
         ->assertSee('receipt-qr', false)
         ->assertSee('sar-riyal-symbol.svg', false)
         ->assertDontSee('একীভূত', false);

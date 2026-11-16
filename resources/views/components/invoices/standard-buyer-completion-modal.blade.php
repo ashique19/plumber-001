@@ -46,6 +46,7 @@
             @if (in_array('addrPostal', $missingKeys, true))
                 <x-field.input :label="__('business.fields.postal')" name="addrPostal" wire:model="addrPostal" :liveValidate="false" required />
             @endif
+            <x-field.input :label="__('business.fields.post_box')" name="addrPostBox" wire:model="addrPostBox" :liveValidate="false" />
         </div>
 
         <label class="mt-4 flex min-h-12 cursor-pointer items-start gap-3 rounded-lg border border-[var(--app-border)] px-3 py-3 text-sm">
