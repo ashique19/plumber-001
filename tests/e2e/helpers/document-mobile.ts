@@ -43,9 +43,10 @@ export async function expectStandardLineFieldsVisible(page: Page): Promise<void>
 }
 
 export async function expectQuotationTotalsBreakdown(page: Page): Promise<void> {
-    await expect(page.locator('.document-create-summary')).toBeVisible();
-    await expect(page.getByText(/^Subtotal$|উপমোট|المجموع الفرعي/i)).toBeVisible();
-    await expect(page.getByText(/VAT \(15%\)|VAT|ضريبة/i)).toBeVisible();
+    const summary = page.locator('.document-create-summary');
+    await expect(summary).toBeVisible();
+    await expect(summary.getByText(/^Subtotal$|উপমোট|المجموع الفرعي/i)).toBeVisible();
+    await expect(summary.locator('dt').filter({ hasText: /VAT \(15%\)|VAT|ضريبة/i }).first()).toBeVisible();
 }
 
 async function rectsOverlap(a: DOMRect, b: DOMRect): Promise<boolean> {
