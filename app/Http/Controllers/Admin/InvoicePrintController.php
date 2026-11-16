@@ -19,7 +19,10 @@ class InvoicePrintController extends Controller
 {
     public function __invoke(Request $request, Invoice $invoice): View|RedirectResponse
     {
-        abort_unless($invoice->isIssued(), 404);
+        $previewDraft = $request->boolean('preview')
+            && auth('staff')->user()?->can('invoices.issue');
+
+        abort_unless($invoice->isIssued() || $previewDraft, 404);
 
         $business = BusinessSetting::singleton();
         $locale = EnabledLocales::resolve($request->query('locale', app()->getLocale()));

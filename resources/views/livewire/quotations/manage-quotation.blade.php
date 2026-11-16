@@ -1,54 +1,96 @@
-<div class="pb-32 lg:pb-8">
-    <header class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-        <h1 class="app-page-title">{{ $pageTitle }}</h1>
-        <a href="{{ route('admin.quotations') }}" class="tap-action-muted min-h-10 px-3 text-xs">{{ __('quotations.back') }}</a>
-    </header>
+<div
+    class="document-create-page"
+    x-on:document-open-preview.window="window.open($event.detail.url, '_blank')"
+>
+    <x-documents.create-header :title="$pageTitle" :back-url="route('admin.quotations')" />
 
     <form
         id="quotation-save-form"
         wire:submit="save"
-        class="app-card space-y-4 p-4"
         @document-line-added.window="$nextTick(() => document.querySelector('.invoice-document-lines__row:last-child')?.classList.add('invoice-document-lines__row--flash'))"
         x-on:document-validation-failed.window="$nextTick(() => document.getElementById('document-validation-summary')?.scrollIntoView({ behavior: 'smooth', block: 'start' }))"
     >
         <x-invoices.document-validation-summary />
-        <x-invoices.customer-picker
-            :results="$customerSearchResults"
-            :can-create="$canCreateCustomers"
-            :search="$customerSearch"
-            :selected-customer-id="$selectedCustomerId"
-            :compact="! $isStandard"
-            :show-walk-in-hint="! $isStandard"
-        />
 
-        <x-invoices.add-line-product-search
-            :results="$addLineProductSearchResults"
-            :can-create-product="$canCreateProducts"
-            :search="$addLineProductSearch"
-        />
+        <div class="document-create-grid">
+            <div class="document-create-main space-y-4">
+                <div class="document-create-card">
+                    <div class="document-create-card__body">
+                        <div class="document-meta-grid document-meta-grid--quotation">
+                            <div class="document-readonly-field">
+                                <span class="text-xs font-semibold text-[var(--app-muted)]">{{ __('quotations.field_document_number') }}</span>
+                                <div class="document-readonly-field__value">
+                                    <x-app.icon name="lock" class="h-4 w-4 text-[var(--app-muted)]" aria-hidden="true" />
+                                    <span>{{ $documentNumberLabel }}</span>
+                                </div>
+                            </div>
+                            <x-field.date :label="__('quotations.quotation_date')" name="supplyDate" wire:model.live="supplyDate" required />
+                            <x-field.date :label="__('quotations.validity_until')" name="validityUntil" wire:model.live="validityUntil" required />
+                        </div>
+                    </div>
+                </div>
 
-        <x-invoices.document-product-lines :lines="$lines" :compact="false" />
+                <x-invoices.document-customer-card
+                    :customer-strip="$customerStrip"
+                    :results="$customerSearchResults"
+                    :can-create="$canCreateCustomers"
+                    :search="$customerSearch"
+                    :selected-customer-id="$selectedCustomerId"
+                    :compact="! $isStandard"
+                    :show-walk-in-hint="! $isStandard"
+                />
 
-        <x-invoices.document-preview-totals-breakdown :preview-totals="$previewTotals" />
+                <div class="document-create-card">
+                    <div class="document-create-card__head">
+                        <x-app.icon name="package" class="h-5 w-5" aria-hidden="true" />
+                        <span>{{ __('invoices.add_products') }}</span>
+                    </div>
+                    <div class="document-create-card__body">
+                        <x-invoices.add-line-product-search
+                            :results="$addLineProductSearchResults"
+                            :can-create-product="$canCreateProducts"
+                            :search="$addLineProductSearch"
+                        />
+                        <x-invoices.document-product-lines-create :lines="$lines" :stock-hint="$stockHint" />
+                    </div>
+                </div>
 
-        <x-ui.livewire-action type="submit" wire-click="save" target="save" loading="save" class="document-primary-submit min-h-11 w-full text-base font-semibold">
-            {{ __('quotations.save') }}
-        </x-ui.livewire-action>
+                <div class="document-terms-grid">
+                    <x-field.textarea :label="__('quotations.terms_and_conditions')" name="termsAndConditions" wire:model.live="termsAndConditions" rows="6" />
+                    <x-field.textarea :label="__('invoices.document_notes')" name="documentNotes" wire:model.live="documentNotes" rows="6" :placeholder="__('quotations.notes_placeholder')" />
+                </div>
+
+                <x-invoices.document-more-options :is-standard="$isStandard" :lines="$lines" />
+            </div>
+
+            <aside class="document-create-sidebar space-y-4">
+                <x-documents.summary-card :heading="__('quotations.summary')" :summary-totals="$summaryTotals" />
+                <x-quotations.document-info-card
+                    :validity-days="$validityDays"
+                    :status-label="__('quotations.status_draft')"
+                />
+            </aside>
+        </div>
 
         <x-invoices.document-sticky-action-bar
-            :total="$previewTotals['total_inc_vat']"
-            :submit-label="__('quotations.save')"
+            :total="$summaryTotals['grand_total_inc_vat']"
+            :submit-label="__('quotations.create_submit')"
             wire-target="save"
             wire-click="save"
             form="quotation-save-form"
         />
 
-        <x-invoices.document-more-options
-            :is-standard="$isStandard"
-            :lines="$lines"
-            show-quotation-fields
+        <x-documents.create-footer
+            :cancel-url="route('admin.quotations')"
+            :primary-label="__('quotations.create_submit')"
+            primary-target="save"
+            primary-wire-click="save"
+            form-id="quotation-save-form"
+            draft-target="saveDraft"
+            preview-target="previewDocument"
+            :preview-label="__('quotations.preview_document')"
+            :show-preview="true"
         />
-
     </form>
 
     <x-invoices.quick-customer-modal :show="$showQuickCustomerModal" :standard-buyer="$isStandard" />

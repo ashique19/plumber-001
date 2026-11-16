@@ -34,3 +34,4 @@ Thumbs.db
 tests/e2e/report/
 tests/e2e/test-results/
 public/img/business/
+test-results/

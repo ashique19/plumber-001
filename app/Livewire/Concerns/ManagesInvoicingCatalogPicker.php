@@ -159,16 +159,23 @@ trait ManagesInvoicingCatalogPicker
             $nameAr = $nameEn;
         }
 
+        $nameBn = trim((string) ($product->name_bn ?? ''));
+
         $this->lines[$lineIndex] = array_merge($this->lines[$lineIndex], [
             'name' => $nameEn,
             'name_ar' => $nameAr,
+            'name_bn' => $nameBn,
             'quantity' => $this->lines[$lineIndex]['quantity'] !== '' ? $this->lines[$lineIndex]['quantity'] : '1',
             'unit_price' => (string) $product->price_ex_vat,
             'vat_rate' => (string) $product->vat_rate,
+            'discount_percent' => (string) ($this->lines[$lineIndex]['discount_percent'] ?? '0'),
             'product_id' => $product->id,
             'unit_label' => $product->unitPickerLabel(),
             'unit_code' => $product->ublUnitCode(),
             'vat_zatca_category' => $product->vatZatcaCategory()->value,
+            'product_image_url' => filled($product->image_url) ? (string) $product->image_url : '',
+            'track_stock' => (bool) $product->track_stock,
+            'stock_quantity' => $product->track_stock ? (string) $product->stock_quantity : '',
         ]);
     }
 
