@@ -32,7 +32,7 @@ test.describe('dashboard quick action tiles only', () => {
         await page.goto(adminPath('/admin/dashboard', 'en'));
         await page.waitForLoadState('networkidle');
 
-        const grid = page.locator('.dashboard-action-grid');
+        const grid = page.locator('.dashboard-action-board__grid');
         const cols = await grid.evaluate((el) => getComputedStyle(el).gridTemplateColumns.split(' ').length);
         expect(cols).toBe(4);
     });
