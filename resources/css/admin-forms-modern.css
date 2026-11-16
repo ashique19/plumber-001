@@ -404,11 +404,15 @@
     }
 
     html.admin-app .app-main--with-sidebar .app-content,
-    html.admin-app .app-main--with-sidebar .app-topbar__inner {
-        max-width: none;
+    html.admin-app .app-content {
+        @apply mx-auto w-full max-w-6xl;
     }
 
-    html.admin-app .app-content {
+    html.admin-app .app-main--with-sidebar .app-topbar__inner {
+        @apply mx-auto w-full max-w-6xl;
+    }
+
+    html.admin-app .app-content:has(> .admin-hub-page) {
         @apply max-w-7xl;
     }
 

@@ -10,12 +10,14 @@ export async function expectNoHorizontalScroll(page: Page): Promise<void> {
 }
 
 export async function expectBrandLineClamp(page: Page): Promise<void> {
-    const clamp = await page.locator('.app-topbar__brand-name').evaluate((el) => {
+    const title = page.locator('.app-topbar__page-title');
+  await expect(title).toBeVisible();
+    const overflow = await title.evaluate((el) => {
         const style = window.getComputedStyle(el);
 
-        return style.getPropertyValue('-webkit-line-clamp') || style.webkitLineClamp;
+        return style.textOverflow;
     });
-    expect(clamp).toBe('2');
+    expect(overflow).toBe('ellipsis');
 }
 
 export async function addCatalogLine(page: Page, query = 'SRV'): Promise<void> {

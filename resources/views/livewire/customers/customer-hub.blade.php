@@ -1,4 +1,4 @@
-<div class="customer-hub pb-24 lg:pb-8" data-testid="customers-hub">
+<div class="customer-hub admin-hub-page pb-24 lg:pb-8" data-testid="customers-hub">
     <header class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
             <h1 class="app-page-title">{{ __('customers.title') }}</h1>

@@ -22,7 +22,10 @@ it('renders grouped admin sidebar with business header and sales section', funct
         ->and($html)->toContain(__('admin_nav.items.dashboard', [], 'en'))
         ->and($html)->toContain(__('admin_nav.groups.sales', [], 'en'))
         ->and($html)->toContain(__('admin_nav.items.invoices', [], 'en'))
-        ->and($html)->toContain('app-topbar__menu-btn');
+        ->and($html)->toContain('app-topbar__menu-btn')
+        ->and($html)->toContain('admin-sidebar-nav__brand-name')
+        ->and($html)->toContain('app-topbar__page-title')
+        ->and($html)->not->toContain('app-topbar__brand-name');
 });
 
 it('highlights invoices when viewing the invoice hub', function () {

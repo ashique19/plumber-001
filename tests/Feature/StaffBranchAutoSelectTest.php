@@ -11,6 +11,7 @@ use Livewire\Livewire;
 
 beforeEach(function () {
     $this->withoutVite();
+    $this->startSession();
     (new DemoStaffSeeder)->run();
     $this->owner = StaffUser::query()->where('email', 'owner@example.test')->firstOrFail();
     $this->cashier = StaffUser::query()->where('email', 'cashier@example.test')->firstOrFail();
@@ -44,7 +45,10 @@ it('sends cashiers with one branch straight to the terminal after login', functi
     leaveOnlyBranchActive('ruh-main');
     auth('staff')->logout();
 
+    $this->get('/');
+
     $response = $this->post('/login', [
+        '_token' => csrf_token(),
         'email' => $this->cashier->email,
         'password' => 'TestPassword!2026',
     ]);
