@@ -45,6 +45,20 @@ it('selects a customer into standard invoice buyer fields', function () {
         ->assertSet('addrCity', 'Riyadh');
 });
 
+it('renders Arabic product hint below the name input in quick modal', function () {
+    $html = Livewire::actingAs($this->owner, 'staff')
+        ->test(IssueInvoice::class, ['mode' => 'simplified'])
+        ->call('openQuickProductModal')
+        ->html();
+
+    $arPos = strpos($html, 'id="quickProductNameAr"');
+    $hintAfterPos = strpos($html, 'form-field__hint--after', $arPos);
+
+    expect($arPos)->not->toBeFalse()
+        ->and($hintAfterPos)->not->toBeFalse()
+        ->and($hintAfterPos)->toBeGreaterThan($arPos);
+});
+
 it('requires Arabic product name on quick create with localized attribute label', function () {
     app()->setLocale('bn');
 

@@ -178,8 +178,25 @@
             wide
         >
             <form id="catalog-product-form" class="app-admin-form" wire:submit="saveProduct">
-                <x-field.input :label="__('catalog.name_en')" name="productNameEn" wire:model="productNameEn" required />
-                <x-field.input :label="__('catalog.name_ar')" name="productNameAr" wire:model="productNameAr" dir="rtl" required />
+                <x-field.input
+                    :label="__('catalog.name_en')"
+                    name="productNameEn"
+                    wire:model="productNameEn"
+                    required
+                    hint-position="after"
+                    :hint="' '"
+                    wrapper-class="quick-product-modal__name-field quick-product-modal__name-field--en"
+                />
+                <x-field.input
+                    :label="__('catalog.name_ar')"
+                    :hint="__('catalog.name_ar_hint')"
+                    hint-position="after"
+                    name="productNameAr"
+                    wire:model="productNameAr"
+                    dir="rtl"
+                    required
+                    wrapper-class="quick-product-modal__name-field quick-product-modal__name-field--ar"
+                />
                 @if($catalogI18nReady ?? false)
                     <x-field.input :label="__('catalog.name_bn')" name="productNameBn" wire:model="productNameBn" />
                     <x-field.textarea :label="__('catalog.description_en')" name="productDescriptionEn" wire:model="productDescriptionEn" />
