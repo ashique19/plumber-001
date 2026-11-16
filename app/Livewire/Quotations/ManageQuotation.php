@@ -4,8 +4,10 @@ namespace App\Livewire\Quotations;
 
 use App\Data\InvoiceLineData;
 use App\Livewire\Concerns\DispatchesToasts;
+use App\Livewire\Concerns\ManagesDocumentCreateChrome;
 use App\Livewire\Concerns\ManagesInvoicingCatalogPicker;
 use App\Livewire\Concerns\ManagesInvoicingCustomerPicker;
+use App\Support\Invoicing\DocumentCreateUiSupport;
 use App\Livewire\Concerns\ResolvesBusinessContext;
 use App\Livewire\Concerns\ValidatesFieldsLive;
 use App\Models\ProductCategory;
@@ -25,6 +27,7 @@ class ManageQuotation extends Component
 {
     use ResolvesBusinessContext;
     use DispatchesToasts;
+    use ManagesDocumentCreateChrome;
     use ManagesInvoicingCatalogPicker;
     use ManagesInvoicingCustomerPicker;
     use ValidatesFieldsLive;
@@ -84,6 +87,10 @@ class ManageQuotation extends Component
 
   public string $documentNotes = '';
 
+  public string $termsAndConditions = '';
+
+  public string $displayQuotationNumber = '';
+
   public function mount(?Quotation $quotation = null): void
   {
       $this->resolveBusiness();
@@ -96,9 +103,13 @@ class ManageQuotation extends Component
       $this->validityUntil = now('Asia/Riyadh')->addDays(30)->format('Y-m-d');
       $this->supplyDate = now('Asia/Riyadh')->format('Y-m-d');
 
+      $this->termsAndConditions = DocumentCreateUiSupport::defaultQuotationTerms($this->business);
+
       if ($quotation !== null) {
           $this->quotationId = $quotation->id;
           $this->hydrateFromQuotation($quotation);
+      } else {
+          $this->displayQuotationNumber = DocumentCreateUiSupport::pendingQuotationNumberLabel();
       }
   }
 
@@ -148,6 +159,24 @@ class ManageQuotation extends Component
 
       $this->supplyDate = (string) ($payload['supply_date'] ?? $this->supplyDate);
       $this->documentNotes = (string) ($payload['document_notes'] ?? '');
+      $this->termsAndConditions = (string) ($payload['terms_and_conditions'] ?? $this->termsAndConditions);
+      $this->displayQuotationNumber = $quotation->quotation_number;
+  }
+
+  public function saveDraft(): void
+  {
+      $this->persistQuotation(redirect: false, successKey: 'quotations.draft_saved');
+  }
+
+  public function previewDocument(): void
+  {
+      $quotation = $this->persistQuotation(redirect: false, successKey: null);
+      if ($quotation === null) {
+          return;
+      }
+
+      $url = route('admin.quotations.print', ['quotation' => $quotation]);
+      $this->dispatch('document-open-preview', url: $url);
   }
 
   public function removeLine(int $index): void
@@ -163,6 +192,11 @@ class ManageQuotation extends Component
 
   public function save(): void
   {
+      $this->persistQuotation(redirect: true, successKey: 'quotations.save_success');
+  }
+
+  private function persistQuotation(bool $redirect, ?string $successKey): ?Quotation
+  {
       $this->pruneEmptyDocumentLines();
       $this->hydrateCatalogLineNames();
 
@@ -170,7 +204,7 @@ class ManageQuotation extends Component
           $this->addError('document', __('invoices.errors.lines_required'));
           $this->dispatch('document-validation-failed');
 
-          return;
+          return null;
       }
 
       try {
@@ -185,7 +219,7 @@ class ManageQuotation extends Component
       if ($branch === null) {
           $this->toastError(__('pos.empty_branches'));
 
-          return;
+          return null;
       }
       StaffBranchContext::remember($branch);
 
@@ -205,8 +239,18 @@ class ManageQuotation extends Component
           'payload' => $payload,
       ])->save();
 
-      $this->toastSuccess(__('quotations.save_success', ['number' => $quotation->quotation_number]));
-      $this->redirect(route('admin.quotations'), navigate: true);
+      $this->quotationId = $quotation->id;
+      $this->displayQuotationNumber = $quotation->quotation_number;
+
+      if ($successKey !== null) {
+          $this->toastSuccess(__($successKey, ['number' => $quotation->quotation_number]));
+      }
+
+      if ($redirect) {
+          $this->redirect(route('admin.quotations'), navigate: true);
+      }
+
+      return $quotation;
   }
 
   /**
@@ -275,6 +319,11 @@ class ManageQuotation extends Component
           $payload['document_notes'] = $notes;
       }
 
+      $terms = trim($this->termsAndConditions);
+      if ($terms !== '') {
+          $payload['terms_and_conditions'] = $terms;
+      }
+
       $discount = max(0, (float) $this->invoiceDiscountExVat);
       if ($discount > 0) {
           $payload['invoice_discount_ex_vat'] = round($discount, 2);
@@ -310,6 +359,23 @@ class ManageQuotation extends Component
           'canCreateProducts' => $this->canCreateProductsFromDocument(),
           'productCategories' => ProductCategory::query()->orderBy('name_en')->get(),
           'previewTotals' => $this->previewTotals(),
+          'summaryTotals' => $this->documentSummaryTotals(),
+          'stockHint' => DocumentCreateUiSupport::stockHintForLines($this->lines),
+          'customerStrip' => DocumentCreateUiSupport::customerStrip(
+              $this->selectedCustomerId,
+              $this->buyerName,
+              $this->buyerVat,
+              $this->buyerPhone,
+              $this->buyerEmail,
+              $this->addrBuilding,
+              $this->addrStreet,
+              $this->addrDistrict,
+              $this->addrCity,
+              $this->addrPostal,
+              $this->addrAdditional,
+          ),
+          'validityDays' => DocumentCreateUiSupport::validityDaysBetween($this->supplyDate, $this->validityUntil),
+          'documentNumberLabel' => $this->displayQuotationNumber,
       ]);
   }
 
@@ -328,11 +394,15 @@ class ManageQuotation extends Component
           if ($name === '' && $unitPrice <= 0) {
               continue;
           }
+          $discountPct = max(0, (float) ($row['discount_percent'] ?? 0));
+          $discountEx = round((float) ($row['quantity'] ?? 1) * $unitPrice * $discountPct / 100, 2);
+
           $lines[] = new InvoiceLineData(
               name: $name !== '' ? $name : __('invoices.line_name'),
               quantity: (float) ($row['quantity'] ?? 1),
               unitPriceExVat: $unitPrice,
               vatRate: (float) ($row['vat_rate'] ?? 0),
+              discountExVat: $discountEx,
               nameAr: filled($row['name_ar'] ?? null) ? (string) $row['name_ar'] : null,
           );
       }
@@ -415,11 +485,16 @@ class ManageQuotation extends Component
       return [
           'name' => '',
           'name_ar' => '',
+          'name_bn' => '',
           'quantity' => '1',
           'unit_price' => '',
           'vat_rate' => '15',
+          'discount_percent' => '0',
           'product_id' => null,
           'unit_label' => '',
+          'product_image_url' => '',
+          'track_stock' => false,
+          'stock_quantity' => '',
       ];
   }
 
@@ -445,6 +520,7 @@ class ManageQuotation extends Component
           'invoiceMode' => ['required', 'in:standard,simplified'],
           'supplyDate' => ['nullable', 'date'],
           'documentNotes' => ['nullable', 'string', 'max:2000'],
+          'termsAndConditions' => ['nullable', 'string', 'max:6000'],
       ];
 
       if ($this->invoiceMode === 'simplified') {

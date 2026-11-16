@@ -4,18 +4,24 @@ namespace App\Livewire\Invoices;
 
 use App\Business\BusinessContext;
 use App\Data\InvoiceLineData;
+use App\Enums\InvoiceArPaymentMethod;
 use App\Enums\InvoiceDocumentType;
+use App\Enums\InvoiceStatus;
 use App\Exceptions\InvoiceSigningException;
 use App\Livewire\Concerns\DispatchesToasts;
+use App\Livewire\Concerns\ManagesDocumentCreateChrome;
 use App\Livewire\Concerns\ManagesInvoicingCatalogPicker;
 use App\Livewire\Concerns\ManagesInvoicingCustomerPicker;
 use App\Livewire\Concerns\ManagesStandardBuyerCompletion;
 use App\Livewire\Concerns\ResolvesBusinessContext;
 use App\Livewire\Concerns\ValidatesFieldsLive;
+use App\Models\Invoice;
 use App\Models\ProductCategory;
 use App\Models\Product;
 use App\Services\InvoiceIssueService;
+use App\Services\Invoicing\InvoiceDuesLedgerService;
 use App\Support\Customers\CustomerIdentityRules;
+use App\Support\Invoicing\DocumentCreateUiSupport;
 use App\Support\Invoicing\InvoiceDocumentTotals;
 use App\Support\Invoicing\IssueInvoicePrefill;
 use App\Support\Invoicing\SigningFailureSanitizer;
@@ -24,6 +30,7 @@ use App\Support\StaffBranchContext;
 use App\Support\Validation\FieldValidationRules;
 use App\Support\Validation\QuickModalValidationAttributes;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Locked;
@@ -33,6 +40,7 @@ use Livewire\Component;
 class IssueInvoice extends Component
 {
     use DispatchesToasts;
+    use ManagesDocumentCreateChrome;
     use ManagesInvoicingCatalogPicker;
     use ManagesInvoicingCustomerPicker;
     use ManagesStandardBuyerCompletion;
@@ -103,6 +111,15 @@ class IssueInvoice extends Component
 
     public bool $standardBuyerShowMoreAddress = false;
 
+    public string $paymentTerms = 'cash';
+
+    public string $paymentMethod = 'cash';
+
+    public string $amountReceived = '';
+
+    #[Locked]
+    public ?int $draftInvoiceId = null;
+
     public function updatedBuyerVatRegistered(mixed $value): void
     {
         $this->buyerVatRegistered = filter_var($value, FILTER_VALIDATE_BOOLEAN);
@@ -124,6 +141,67 @@ class IssueInvoice extends Component
         $this->supplyDate = now('Asia/Riyadh')->format('Y-m-d');
 
         IssueInvoicePrefill::applyIfPresent($this, $mode, request());
+
+        $addProduct = request()->query('add_product');
+        if (is_numeric($addProduct)) {
+            $this->addLineFromProduct((int) $addProduct);
+        }
+
+        $this->paymentMethod = InvoiceArPaymentMethod::Cash->value;
+        $this->syncAmountReceivedToGrandTotal();
+    }
+
+    public function updatedPaymentTerms(): void
+    {
+        if ($this->paymentTerms === 'cash') {
+            $this->syncAmountReceivedToGrandTotal();
+            $this->dueDate = now('Asia/Riyadh')->format('Y-m-d');
+        } else {
+            $termsDays = max(0, (int) data_get($this->business->settings, 'invoicing.payment_terms_days', 30));
+            $this->dueDate = now('Asia/Riyadh')->addDays($termsDays)->format('Y-m-d');
+        }
+    }
+
+    public function updated($propertyName): void
+    {
+        if ($propertyName === 'paymentTerms') {
+            return;
+        }
+
+        if (
+            $this->paymentTerms === 'cash'
+            && (str_starts_with((string) $propertyName, 'lines')
+                || in_array($propertyName, ['invoiceDiscountExVat', 'retentionPercent', 'retentionFixed'], true))
+        ) {
+            $this->syncAmountReceivedToGrandTotal();
+        }
+    }
+
+    public function saveDraft(InvoiceIssueService $issuer): void
+    {
+        $invoice = $this->persistDraftInvoice($issuer);
+        if ($invoice === null) {
+            return;
+        }
+
+        $this->toastSuccess(__('invoices.draft_saved', ['number' => $invoice->document_number]));
+    }
+
+    public function previewDocument(InvoiceIssueService $issuer): void
+    {
+        $invoice = $this->persistDraftInvoice($issuer);
+        if ($invoice === null) {
+            return;
+        }
+
+        $layout = $invoice->document_type === InvoiceDocumentType::Standard ? 'a4' : 'cash';
+        $url = route('admin.invoices.print', [
+            'invoice' => $invoice,
+            'layout' => $layout,
+            'preview' => 1,
+        ]);
+
+        $this->dispatch('document-open-preview', url: $url);
     }
 
     public function addLine(): void
@@ -174,8 +252,6 @@ class IssueInvoice extends Component
             return;
         }
 
-        $issueMode = $this->resolvedIssueMode();
-
         try {
             $this->validate($this->rulesForMode());
         } catch (\Illuminate\Validation\ValidationException $exception) {
@@ -184,18 +260,104 @@ class IssueInvoice extends Component
             throw $exception;
         }
 
+        $draft = $this->persistDraftInvoice($issuer, forIssue: true);
+        if ($draft === null) {
+            return;
+        }
+
+        try {
+            $outcome = $issuer->issue($draft->fresh());
+        } catch (InvoiceSigningException $e) {
+            Log::warning('invoice.livewire_issue_signing_failed', SigningFailureSanitizer::logContext($e));
+            $this->toastError($this->signingToastMessage($e));
+
+            return;
+        } catch (\Throwable $e) {
+            Log::error('invoice.livewire_issue_failed', SigningFailureSanitizer::logContext($e));
+            $this->toastError(__('invoices.errors.issue_failed'));
+
+            return;
+        }
+
+        $issued = $outcome->invoice;
+
+        $this->recordInitialPaymentIfNeeded($issued);
+
+        if (! $outcome->signingSucceeded) {
+            $this->toastWarning(
+                __('invoices.issue_saved_not_sent_zatca', ['number' => $issued->document_number]),
+                persistent: true,
+                dedupe: false,
+            );
+        }
+
+        $this->toastSuccess(__('invoices.issue_success', ['number' => $issued->document_number]));
+        $this->redirect(route('admin.invoices'), navigate: true);
+    }
+
+    private function persistDraftInvoice(InvoiceIssueService $issuer, bool $forIssue = false): ?Invoice
+    {
+        $this->pruneEmptyDocumentLines();
+        $this->hydrateCatalogLineNames();
+
+        if ($this->lines === []) {
+            $this->addError('document', __('invoices.errors.lines_required'));
+            $this->dispatch('document-validation-failed');
+
+            return null;
+        }
+
+        if (! $forIssue && $this->mode === 'standard' && ! $this->promptStandardBuyerCompletionIfNeeded(resumeIssue: false)) {
+            return null;
+        }
+
+        if (! $forIssue) {
+            try {
+                $this->validate($this->rulesForMode(relaxedDueDate: true));
+            } catch (\Illuminate\Validation\ValidationException $exception) {
+                $this->dispatch('document-validation-failed');
+
+                throw $exception;
+            }
+        }
+
         $branch = StaffBranchContext::resolve();
         if ($branch === null) {
             $this->toastError(__('pos.empty_branches'));
 
-            return;
+            return null;
         }
         StaffBranchContext::remember($branch);
-        $type = $issueMode === 'standard' ? InvoiceDocumentType::Standard : InvoiceDocumentType::Simplified;
-        $documentNumber = strtoupper($issueMode === 'standard' ? 'STD' : 'SIMP')
-            .'-'.now('Asia/Riyadh')->format('Ymd-His');
 
-        $lineItems = array_map(function (array $row): array {
+        $issueMode = $this->resolvedIssueMode();
+        $type = $issueMode === 'standard' ? InvoiceDocumentType::Standard : InvoiceDocumentType::Simplified;
+
+        $existing = $this->draftInvoiceId !== null
+            ? Invoice::query()->whereKey($this->draftInvoiceId)->where('status', InvoiceStatus::Draft)->first()
+            : null;
+
+        $documentNumber = $existing?->document_number
+            ?? strtoupper(($issueMode === 'standard' ? 'INV' : 'SIMP').'-'.now('Asia/Riyadh')->format('Ymd-His'));
+
+        $draft = $existing ?? $issuer->issueDraft($branch, $documentNumber, $type, $this->buildLineItems());
+
+        if ($existing !== null && $existing->document_type !== $type) {
+            $draft->forceFill(['document_type' => $type])->save();
+        }
+
+        $payload = $this->buildIssuePayload($type);
+        $draft->forceFill(['payload' => $payload, 'branch_id' => $branch->id])->save();
+        $this->draftInvoiceId = $draft->id;
+
+        return $draft->fresh();
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function buildLineItems(): array
+    {
+        return array_map(function (array $row): array {
             $item = [
                 'name' => trim($row['name']),
                 'quantity' => round((float) $row['quantity'], 3),
@@ -213,10 +375,15 @@ class IssueInvoice extends Component
 
             return $item;
         }, $this->lines);
+    }
 
-        $draft = $issuer->issueDraft($branch, $documentNumber, $type, $lineItems);
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildIssuePayload(InvoiceDocumentType $type): array
+    {
+        $payload = ['lines' => $this->buildLineItems()];
 
-        $payload = $draft->payload ?? [];
         if ($type === InvoiceDocumentType::Standard) {
             $vatRegistered = $this->buyerVatRegistered;
             $vat = $vatRegistered ? (preg_replace('/\D/', '', $this->buyerVat) ?? '') : '';
@@ -238,7 +405,7 @@ class IssueInvoice extends Component
                 'buyer_phone' => trim($this->buyerPhone),
                 'buyer_email' => trim($this->buyerEmail),
                 'buyer_country' => strtoupper(trim($this->buyerCountry)) ?: 'SA',
-                'buyer_due_date' => trim($this->dueDate),
+                'buyer_due_date' => $this->paymentTerms === 'credit' ? trim($this->dueDate) : '',
                 'buyer_national_address' => [
                     'building' => $this->addrBuilding,
                     'street' => $this->addrStreet,
@@ -284,34 +451,41 @@ class IssueInvoice extends Component
             $payload['retention_percent'] = round($retentionPercent, 2);
         }
 
-        $draft->forceFill(['payload' => $payload])->save();
+        $payload['payment_terms'] = $this->paymentTerms;
+        $payload['payment_method'] = $this->paymentMethod;
+        $payload['amount_received'] = max(0, (float) $this->amountReceived);
+
+        return $payload;
+    }
+
+    private function recordInitialPaymentIfNeeded(Invoice $issued): void
+    {
+        $amount = max(0, (float) $this->amountReceived);
+        if ($amount <= 0) {
+            return;
+        }
+
+        $actor = auth('staff')->user();
+        if ($actor === null) {
+            return;
+        }
+
+        $method = InvoiceArPaymentMethod::tryFrom($this->paymentMethod) ?? InvoiceArPaymentMethod::Cash;
 
         try {
-            $outcome = $issuer->issue($draft->fresh());
-        } catch (InvoiceSigningException $e) {
-            Log::warning('invoice.livewire_issue_signing_failed', SigningFailureSanitizer::logContext($e));
-            $this->toastError($this->signingToastMessage($e));
-
-            return;
-        } catch (\Throwable $e) {
-            Log::error('invoice.livewire_issue_failed', SigningFailureSanitizer::logContext($e));
-            $this->toastError(__('invoices.errors.issue_failed'));
-
-            return;
-        }
-
-        $issued = $outcome->invoice;
-
-        if (! $outcome->signingSucceeded) {
-            $this->toastWarning(
-                __('invoices.issue_saved_not_sent_zatca', ['number' => $issued->document_number]),
-                persistent: true,
-                dedupe: false,
+            app(InvoiceDuesLedgerService::class)->recordPayment(
+                $issued,
+                now('Asia/Riyadh')->format('Y-m-d'),
+                $amount,
+                $method,
+                null,
+                false,
+                $actor,
             );
+        } catch (\Throwable $e) {
+            Log::warning('invoice.issue_initial_payment_failed', ['message' => $e->getMessage()]);
+            $this->toastWarning(__('invoices.payment_record_failed'));
         }
-
-        $this->toastSuccess(__('invoices.issue_success', ['number' => $issued->document_number]));
-        $this->redirect(route('admin.invoices'), navigate: true);
     }
 
     private function signingToastMessage(InvoiceSigningException $exception): string
@@ -333,10 +507,11 @@ class IssueInvoice extends Component
     {
         $isStandard = $this->mode === 'standard';
 
+        $draft = $this->draftInvoiceId !== null ? Invoice::query()->find($this->draftInvoiceId) : null;
+        $documentNumberLabel = $draft?->document_number ?? DocumentCreateUiSupport::pendingInvoiceNumberLabel();
+
         return view('livewire.invoices.issue-invoice', [
-            'pageTitle' => $isStandard
-                ? __('invoices.issue_standard_title')
-                : __('invoices.issue_simplified_title'),
+            'pageTitle' => __('invoices.create_heading'),
             'isStandard' => $isStandard,
             'standardBuyerMissingKeys' => $isStandard ? $this->standardBuyerCompletionMissingKeys() : [],
             'customerSearchResults' => $this->customerSearchResults(),
@@ -345,6 +520,28 @@ class IssueInvoice extends Component
             'canCreateProducts' => $this->canCreateProductsFromDocument(),
             'productCategories' => ProductCategory::query()->orderBy('name_en')->get(),
             'previewTotals' => $this->previewTotals(),
+            'summaryTotals' => $this->documentSummaryTotals(),
+            'paymentDueAmount' => $this->paymentDueAmount(),
+            'stockHint' => DocumentCreateUiSupport::stockHintForLines($this->lines),
+            'documentNumberLabel' => $documentNumberLabel,
+            'customerStrip' => DocumentCreateUiSupport::customerStrip(
+                $this->selectedCustomerId,
+                $this->buyerName,
+                $this->buyerVat,
+                $this->buyerPhone,
+                $this->buyerEmail,
+                $this->addrBuilding,
+                $this->addrStreet,
+                $this->addrDistrict,
+                $this->addrCity,
+                $this->addrPostal,
+                $this->addrAdditional,
+            ),
+            'paymentMethodOptions' => [
+                InvoiceArPaymentMethod::Cash->value => InvoiceArPaymentMethod::Cash->label(),
+                InvoiceArPaymentMethod::Bank->value => InvoiceArPaymentMethod::Bank->label(),
+                InvoiceArPaymentMethod::Card->value => InvoiceArPaymentMethod::Card->label(),
+            ],
             'zatcaNotReady' => ! ZatcaSubmissionStatus::canSubmitToZatca($this->business),
         ]);
     }
@@ -364,11 +561,15 @@ class IssueInvoice extends Component
             if ($name === '' && $unitPrice <= 0) {
                 continue;
             }
+            $discountPct = max(0, (float) ($row['discount_percent'] ?? 0));
+            $discountEx = round((float) ($row['quantity'] ?? 1) * $unitPrice * $discountPct / 100, 2);
+
             $lines[] = new InvoiceLineData(
                 name: $name !== '' ? $name : __('invoices.line_name'),
                 quantity: (float) ($row['quantity'] ?? 1),
                 unitPriceExVat: $unitPrice,
                 vatRate: (float) ($row['vat_rate'] ?? 0),
+                discountExVat: $discountEx,
                 nameAr: filled($row['name_ar'] ?? null) ? (string) $row['name_ar'] : null,
             );
         }
@@ -462,18 +663,23 @@ class IssueInvoice extends Component
         return [
             'name' => '',
             'name_ar' => '',
+            'name_bn' => '',
             'quantity' => '1',
             'unit_price' => '',
             'vat_rate' => '15',
+            'discount_percent' => '0',
             'product_id' => null,
             'unit_label' => '',
+            'product_image_url' => '',
+            'track_stock' => false,
+            'stock_quantity' => '',
         ];
     }
 
     /**
      * @return array<string, mixed>
      */
-    private function rulesForMode(): array
+    private function rulesForMode(bool $relaxedDueDate = false): array
     {
         $lineRules = [
             'lines' => ['required', 'array', 'min:1'],
@@ -502,7 +708,11 @@ class IssueInvoice extends Component
             'sa_standard_buyer' => true,
         ]), [
             'selectedCustomerId' => ['required', 'integer', 'exists:customers,id'],
-            'dueDate' => ['required', 'date'],
+            'dueDate' => $relaxedDueDate || $this->paymentTerms === 'cash'
+                ? ['nullable', 'date']
+                : ['required', 'date'],
+            'paymentMethod' => ['required', Rule::in(array_map(fn (InvoiceArPaymentMethod $m) => $m->value, InvoiceArPaymentMethod::cases()))],
+            'amountReceived' => ['nullable', 'numeric', 'min:0'],
         ]);
     }
 

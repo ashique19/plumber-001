@@ -31,7 +31,7 @@ const PAGES = [
     {
         name: 'quotation-create',
         path: '/admin/quotations/create',
-        sticky: /save quotation|حفظ عرض|কোটেশন সংরক্ষণ/i,
+        sticky: /create quotation|إنشاء عرض|কোটেশন তৈরি/i,
         standard: true,
     },
 ] as const;

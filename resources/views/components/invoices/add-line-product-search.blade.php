@@ -9,7 +9,7 @@
         :label="__('invoices.search_catalog_products')"
         name="addLineProductSearch"
         wire:model.live.debounce.200ms="addLineProductSearch"
-        :placeholder="__('invoices.add_line_product_placeholder')"
+        :placeholder="__('invoices.add_line_product_placeholder_multilingual')"
         :clearable="trim($search) !== ''"
         clear-action="$set('addLineProductSearch', '')"
         :show-add="$canCreateProduct"

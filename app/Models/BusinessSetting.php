@@ -158,6 +158,9 @@ class BusinessSetting extends Model
         'invoice_print_template' => 'modern',
         'quotation_print_template' => 'modern',
       ],
+      'quotations' => [
+        'default_terms' => '',
+      ],
       'content' => [
         'plumber' => [],
       ],

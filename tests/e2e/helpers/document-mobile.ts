@@ -30,10 +30,6 @@ export async function addCatalogLine(page: Page, query = 'SRV'): Promise<void> {
 }
 
 export async function expectSingleMobilePrimarySubmit(page: Page, stickyLabel: RegExp): Promise<void> {
-    const desktop = page.locator('.document-primary-submit');
-    await expect(desktop).toHaveCount(1);
-    await expect(desktop).toBeHidden();
-
     const stickyButtons = page.locator('.document-sticky-action-bar button[type="submit"]');
     await expect(stickyButtons).toHaveCount(1);
     await expect(stickyButtons.first()).toBeVisible();
@@ -41,15 +37,15 @@ export async function expectSingleMobilePrimarySubmit(page: Page, stickyLabel: R
 }
 
 export async function expectStandardLineFieldsVisible(page: Page): Promise<void> {
-    await expect(page.locator('input[name^="lines."][name$=".quantity"]').first()).toBeVisible();
+    await expect(page.locator('.document-qty-stepper').first()).toBeVisible();
     await expect(page.locator('input[name^="lines."][name$=".unit_price"]').first()).toBeVisible();
-    await expect(page.locator('input[name^="lines."][name$=".vat_rate"]').first()).toBeVisible();
+    await expect(page.locator('select[name^="lines."][name$=".vat_rate"], input[name^="lines."][name$=".vat_rate"]').first()).toBeVisible();
 }
 
 export async function expectQuotationTotalsBreakdown(page: Page): Promise<void> {
-    await expect(page.locator('.invoice-issue-preview-totals')).toBeVisible();
-    await expect(page.getByText(/Subtotal \(ex VAT\)|উপমোট|الإجمالي بدون ضريبة/i)).toBeVisible();
-    await expect(page.getByText(/Total VAT|মোট VAT|إجمالي ضريبة/i)).toBeVisible();
+    await expect(page.locator('.document-create-summary')).toBeVisible();
+    await expect(page.getByText(/^Subtotal$|উপমোট|المجموع الفرعي/i)).toBeVisible();
+    await expect(page.getByText(/VAT \(15%\)|VAT|ضريبة/i)).toBeVisible();
 }
 
 async function rectsOverlap(a: DOMRect, b: DOMRect): Promise<boolean> {
@@ -100,8 +96,10 @@ export async function expectToastDoesNotOverlapPageTitle(page: Page): Promise<vo
 }
 
 export async function expectDocumentTotalsRowsSeparated(page: Page): Promise<void> {
-    const rows = page.locator('.invoice-issue-preview-totals__row');
-    await expect(rows).toHaveCount(2);
+    const rows = page.locator('.document-summary-rows > div');
+    await expect(rows.first()).toBeVisible();
+    const count = await rows.count();
+    expect(count).toBeGreaterThanOrEqual(2);
 
     const gapOk = await rows.evaluateAll((elements) => {
         if (elements.length < 2) {

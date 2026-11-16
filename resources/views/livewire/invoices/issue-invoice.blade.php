@@ -1,66 +1,106 @@
-<div class="pb-32 lg:pb-8">
-    <header class="mb-4">
-        <h1 class="app-page-title">{{ $pageTitle }}</h1>
-    </header>
-
-    <section class="app-card mb-4 space-y-2 p-4">
-        <p class="text-sm font-semibold">
-            {{ $isStandard ? __('invoices.print_a4') : __('invoices.print_cash') }}
-        </p>
-        <p class="text-xs text-[var(--app-muted)]">
-            {{ $isStandard ? __('invoices.layout_a4') : __('invoices.layout_cash') }}
-        </p>
-        <a
-            class="tap-action-muted inline-flex min-h-10 items-center px-3 text-xs font-semibold"
-            href="{{ route('admin.invoices.issue', ['mode' => $isStandard ? 'simplified' : 'standard']) }}"
-        >
-            {{ $isStandard ? __('invoices.issue_simplified_title') : __('invoices.issue_standard_title') }}
-        </a>
-    </section>
+<div
+    class="document-create-page"
+    x-on:document-open-preview.window="window.open($event.detail.url, '_blank')"
+>
+    <x-documents.create-header :title="__('invoices.create_heading')" :back-url="route('admin.invoices')" />
 
     <form
         id="invoice-issue-form"
         wire:submit="issue"
-        class="app-card space-y-4 p-4"
         @document-line-added.window="$nextTick(() => document.querySelector('.invoice-document-lines__row:last-child')?.classList.add('invoice-document-lines__row--flash'))"
         x-on:document-validation-failed.window="$nextTick(() => document.getElementById('document-validation-summary')?.scrollIntoView({ behavior: 'smooth', block: 'start' }))"
     >
         <x-invoices.document-validation-summary />
-        <x-invoices.customer-picker
-            :results="$customerSearchResults"
-            :can-create="$canCreateCustomers"
-            :search="$customerSearch"
-            :selected-customer-id="$selectedCustomerId"
-            :compact="! $isStandard"
-            :show-walk-in-hint="! $isStandard"
-        />
 
-        <x-invoices.add-line-product-search
-            :results="$addLineProductSearchResults"
-            :can-create-product="$canCreateProducts"
-            :search="$addLineProductSearch"
-        />
+        <div class="document-create-grid">
+            <div class="document-create-main space-y-4">
+                <div class="document-create-card">
+                    <div class="document-create-card__body">
+                        <div class="document-meta-grid">
+                            <h2 class="sr-only">{{ __('invoices.document_meta') }}</h2>
+                            <div class="document-readonly-field">
+                                <span class="text-xs font-semibold text-[var(--app-muted)]">{{ __('invoices.field_document_number') }}</span>
+                                <div class="document-readonly-field__value">
+                                    <x-app.icon name="lock" class="h-4 w-4 text-[var(--app-muted)]" aria-hidden="true" />
+                                    <span>{{ $documentNumberLabel }}</span>
+                                </div>
+                            </div>
+                            <x-field.date :label="__('invoices.invoice_date')" name="supplyDate" wire:model.live="supplyDate" required />
+                            <x-field.select :label="__('invoices.invoice_type')" name="mode" wire:model.live="mode" required>
+                                <option value="standard">{{ __('invoices.type.standard_tax') }}</option>
+                                <option value="simplified">{{ __('invoices.type.simplified_tax') }}</option>
+                            </x-field.select>
+                            <x-field.select :label="__('invoices.payment_terms_label')" name="paymentTerms" wire:model.live="paymentTerms">
+                                <option value="cash">{{ __('invoices.payment_terms_cash') }}</option>
+                                <option value="credit">{{ __('invoices.payment_terms_credit') }}</option>
+                            </x-field.select>
+                            <x-field.date
+                                :label="__('invoices.due_date')"
+                                name="dueDate"
+                                wire:model.live="dueDate"
+                                :disabled="$paymentTerms === 'cash'"
+                                :required="$isStandard && $paymentTerms === 'credit'"
+                            />
+                        </div>
+                    </div>
+                </div>
 
-        <x-invoices.document-product-lines :lines="$lines" :compact="! $isStandard" />
+                <x-invoices.document-customer-card
+                    :customer-strip="$customerStrip"
+                    :results="$customerSearchResults"
+                    :can-create="$canCreateCustomers"
+                    :search="$customerSearch"
+                    :selected-customer-id="$selectedCustomerId"
+                    :compact="! $isStandard"
+                    :show-walk-in-hint="! $isStandard"
+                />
 
-        <x-invoices.document-preview-totals-breakdown :preview-totals="$previewTotals" />
+                <div class="document-create-card">
+                    <div class="document-create-card__head">
+                        <x-app.icon name="package" class="h-5 w-5" aria-hidden="true" />
+                        <span>{{ __('invoices.add_products') }}</span>
+                    </div>
+                    <div class="document-create-card__body">
+                        <x-invoices.add-line-product-search
+                            :results="$addLineProductSearchResults"
+                            :can-create-product="$canCreateProducts"
+                            :search="$addLineProductSearch"
+                        />
+                        <x-invoices.document-product-lines-create :lines="$lines" :stock-hint="$stockHint" />
+                    </div>
+                </div>
 
-        <x-invoices.zatca-not-ready-notice :show="$zatcaNotReady" />
+                <x-invoices.document-more-options :is-standard="$isStandard" :lines="$lines" />
 
-        <x-ui.livewire-action type="submit" wire-click="issue" target="issue" loading="issue" class="document-primary-submit min-h-14 w-full text-base font-semibold">
-            {{ __('invoices.issue_submit') }}
-        </x-ui.livewire-action>
+                <x-invoices.zatca-not-ready-notice :show="$zatcaNotReady" />
+            </div>
+
+            <aside class="document-create-sidebar space-y-4">
+                <x-documents.summary-card :heading="__('invoices.invoice_summary')" :summary-totals="$summaryTotals" />
+                <x-invoices.document-payment-details
+                    :payment-method-options="$paymentMethodOptions"
+                    :due-amount="$paymentDueAmount"
+                />
+            </aside>
+        </div>
 
         <x-invoices.document-sticky-action-bar
-            :total="$previewTotals['total_inc_vat']"
+            :total="$summaryTotals['grand_total_inc_vat']"
             :submit-label="__('invoices.issue_submit')"
             wire-target="issue"
             form="invoice-issue-form"
             wire-click="issue"
         />
 
-        <x-invoices.document-more-options :is-standard="$isStandard" :lines="$lines" />
-
+        <x-documents.create-footer
+            :cancel-url="route('admin.invoices')"
+            :primary-label="__('invoices.issue_submit')"
+            primary-target="issue"
+            primary-wire-click="issue"
+            form-id="invoice-issue-form"
+            draft-target="saveDraft"
+            preview-target="previewDocument"
+        />
     </form>
 
     <x-invoices.quick-customer-modal
