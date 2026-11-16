@@ -116,6 +116,8 @@ class MenuManager extends Component
 
     public string $productOpeningStock = '';
 
+    public string $productCurrentStock = '';
+
     public ?int $productUnitId = null;
 
     public ?int $productSizeId = null;
@@ -304,6 +306,7 @@ class MenuManager extends Component
                 $this->productLowStockThreshold = (string) ($product->low_stock_threshold ?? 0);
                 $this->productCostInput = number_format((float) $product->cost_ex_vat, 2, '.', '');
                 $this->productOpeningStock = '';
+                $this->productCurrentStock = number_format((float) $product->stock_quantity, 3, '.', '');
             }
             if (CatalogUnitsSizesSchema::ready()) {
                 $this->productUnitId = $product->product_unit_id;
@@ -395,7 +398,7 @@ class MenuManager extends Component
             $rules['productLowStockThreshold'] = ['nullable', 'numeric', 'min:0'];
             $rules['productCostInput'] = ['required', 'numeric', 'min:0'];
             if (! $this->editingProductId) {
-                $rules['productOpeningStock'] = [Rule::requiredIf(fn (): bool => $this->productTrackStock), 'nullable', 'numeric', 'gt:0'];
+                $rules['productOpeningStock'] = [Rule::requiredIf(fn (): bool => $this->productTrackStock), 'nullable', 'numeric', 'min:0'];
             }
         }
         if ($this->productImageUpload !== null) {
@@ -851,6 +854,7 @@ class MenuManager extends Component
         $this->productLowStockThreshold = '0';
         $this->productCostInput = '';
         $this->productOpeningStock = '';
+        $this->productCurrentStock = '';
         $this->productUnitId = CatalogUnitsSizesSchema::ready() ? $this->defaultProductUnitId() : null;
         $this->productSizeId = null;
         $this->productVatZatcaCategory = VatZatcaCategory::Standard->value;
@@ -885,7 +889,7 @@ class MenuManager extends Component
             'productActive', 'productShowOnHomepage', 'productShowOnMenu',
         ];
         $pricing = ['productCostInput', 'productPriceInput', 'productVatRate', 'productVatZatcaCategory'];
-        $stock = ['productTrackStock', 'productOpeningStock', 'productLowStockThreshold'];
+        $stock = ['productTrackStock', 'productOpeningStock', 'productLowStockThreshold', 'productCurrentStock', 'productUnitIdStock'];
 
         if (in_array($field, $basic, true)) {
             return 'basic';

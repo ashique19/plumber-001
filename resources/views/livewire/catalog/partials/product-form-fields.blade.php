@@ -144,10 +144,46 @@
 <div wire:cloak @class(['space-y-3', 'hidden' => $productFormTab !== 'stock'])">
     @if($productStockReady ?? false)
         <x-field.toggle wire:model.live="productTrackStock" name="productTrackStock" :label="__('stock.track_stock')" />
-        @if($productTrackStock && ! $editingProductId)
-            <x-field.input type="number" step="0.001" min="0" :label="__('catalog.opening_stock')" name="productOpeningStock" wire:model="productOpeningStock" inputmode="decimal" required />
+        @if($catalogUnitsSizesReady ?? false)
+            <x-field.select :label="__('catalog.unit')" name="productUnitIdStock" wire:model="productUnitId" required>
+                <option value="">{{ __('catalog.none') }}</option>
+                @foreach($activeUnitsForPicker as $unit)
+                    <option value="{{ $unit->id }}">{{ $unit->displayName() }} ({{ $unit->code }})</option>
+                @endforeach
+            </x-field.select>
         @endif
-        <x-field.input type="number" :label="__('stock.low_stock_threshold')" name="productLowStockThreshold" wire:model="productLowStockThreshold" inputmode="decimal" />
+        @if($productTrackStock && ! $editingProductId)
+            <x-field.input
+                type="number"
+                step="0.001"
+                min="0"
+                :label="__('catalog.opening_stock')"
+                name="productOpeningStock"
+                wire:model="productOpeningStock"
+                inputmode="decimal"
+                required
+                :hint="__('catalog.opening_stock_hint')"
+            />
+        @endif
+        @if($productTrackStock && $editingProductId)
+            <x-field.input
+                type="number"
+                :label="__('catalog.current_stock')"
+                name="productCurrentStock"
+                wire:model="productCurrentStock"
+                readonly
+                disabled
+                :hint="__('catalog.current_stock_hint')"
+            />
+        @endif
+        <x-field.input
+            type="number"
+            :label="__('catalog.min_stock_level')"
+            name="productLowStockThreshold"
+            wire:model="productLowStockThreshold"
+            inputmode="decimal"
+            :hint="__('catalog.min_stock_level_hint')"
+        />
     @else
         <p class="text-sm text-[var(--app-muted)]">{{ __('catalog.product_stock_unavailable') }}</p>
     @endif
