@@ -1,11 +1,16 @@
 import { test, expect } from 'playwright/test';
 import { adminPath, staffLogin } from '../helpers/staff-auth.js';
 
-const CUSTOMER_NAME = 'E2E Modal Buyer';
+const UNIQUE = Date.now().toString().slice(-7);
 
-function uniqueSaudiMobile(): string {
-    const suffix = String(Date.now()).slice(-8);
-    return `054${suffix}`;
+function saudiMobile(): string {
+    return `05${Math.floor(10_000_000 + Math.random() * 89_999_999)}`;
+}
+
+async function saveModal(page: import('playwright/test').Page): Promise<void> {
+    const backdrop = page.locator('.x-modal-backdrop');
+    await backdrop.locator('button.tap-action-primary').click();
+    await expect(backdrop).toHaveCount(0, { timeout: 30_000 });
 }
 
 test.describe('standard invoice buyer completion modal', () => {
@@ -14,23 +19,28 @@ test.describe('standard invoice buyer completion modal', () => {
     });
 
     test('shows modal when customer lacks VAT and address (bn)', async ({ page }) => {
+        const customerName = `E2E Modal Buyer ${UNIQUE}`;
+
         await page.goto(adminPath('/admin/invoices/issue/simplified', 'bn'));
+        await page.waitForLoadState('networkidle');
+
         await page.locator('.invoice-customer-picker .admin-typeahead__add').click();
-        await expect(page.locator('input#customerQuickName')).toBeVisible({ timeout: 15_000 });
-        await page.locator('input#customerQuickName').fill(CUSTOMER_NAME);
-        await page.locator('input#customerQuickPhone').fill(uniqueSaudiMobile());
-        await page.getByRole('button', { name: /save|সংরক্ষণ|حفظ/i }).click();
-        await expect(page.locator('.x-modal-backdrop')).toHaveCount(0, { timeout: 20_000 });
+        const createModal = page.locator('.x-modal-backdrop');
+        await expect(createModal).toBeVisible({ timeout: 15_000 });
+        await createModal.locator('input#customerQuickName').fill(customerName);
+        await createModal.locator('input#customerQuickPhone').fill(saudiMobile());
+        await saveModal(page);
 
         await page.goto(adminPath('/admin/invoices/issue/standard', 'bn'));
-        await page.locator('input#customerSearch').fill(CUSTOMER_NAME);
+        await page.waitForLoadState('networkidle');
+        await page.locator('input#customerSearch').fill(customerName);
         await page.locator('.invoice-customer-picker__option').first().click();
 
-        const modal = page.locator('.x-modal-backdrop');
-        await expect(modal).toBeVisible({ timeout: 15_000 });
-        await expect(modal.locator('#buyerVat')).toBeVisible();
-        await expect(modal.locator('#buyerCr')).toBeVisible();
-        await expect(modal.locator('#addrBuilding')).toBeVisible();
+        const completionModal = page.locator('.x-modal-backdrop');
+        await expect(completionModal).toBeVisible({ timeout: 15_000 });
+        await expect(completionModal.locator('#buyerVat')).toBeVisible();
+        await expect(completionModal.locator('#buyerCr')).toBeVisible();
+        await expect(completionModal.locator('#addrBuilding')).toBeVisible();
     });
 
     test('shows validation summary when issuing without lines (ar RTL)', async ({ page }) => {
