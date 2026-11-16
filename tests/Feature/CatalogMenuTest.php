@@ -58,14 +58,14 @@ it('does not show storefront visibility toggles in the product form', function (
         ->and($html)->not->toContain(__('catalog.show_on_menu'));
 });
 
-it('renders mobile admin sheet chrome for product modal', function () {
+it('renders shared x-modal chrome for product modal', function () {
     $html = Livewire::actingAs($this->owner, 'staff')
         ->test(MenuManager::class)
         ->call('startProduct')
         ->html();
 
-    expect($html)->toContain('app-sheet--admin')
-        ->and($html)->toContain('app-sheet__footer')
+    expect($html)->toContain('x-modal-backdrop')
+        ->and($html)->toContain('x-modal__footer')
         ->and($html)->toContain('catalog-product-form')
         ->and($html)->toContain(__('catalog.cancel'));
 });
