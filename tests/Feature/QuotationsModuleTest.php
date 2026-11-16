@@ -26,6 +26,16 @@ afterEach(function () {
     IssueInvoicePrefill::clear();
 });
 
+it('renders quotation totals preview breakdown like invoices', function () {
+    $html = Livewire::actingAs($this->owner, 'staff')
+        ->test(ManageQuotation::class)
+        ->html();
+
+    expect($html)->toContain(__('invoices.subtotal_ex_vat'))
+        ->and($html)->toContain(__('invoices.total_vat'))
+        ->and($html)->toContain('document-primary-submit');
+});
+
 it('creates a quotation from the livewire form', function () {
     $product = Product::query()->where('is_active', true)->firstOrFail();
 

@@ -97,6 +97,7 @@ export function registerAdminModalScroll(Alpine) {
         release: null,
         init() {
             this.release = acquireAdminModalScrollLock();
+            window.dispatchEvent(new CustomEvent('toast-clear'));
         },
         destroy() {
             this.release?.();

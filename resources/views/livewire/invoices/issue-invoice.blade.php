@@ -66,7 +66,7 @@
 
         <x-invoices.zatca-not-ready-notice :show="$zatcaNotReady" />
 
-        <x-ui.livewire-action type="submit" target="issue" loading="issue" class="tap-action-primary hidden min-h-14 w-full text-base font-semibold lg:inline-flex">
+        <x-ui.livewire-action type="submit" target="issue" loading="issue" class="document-primary-submit min-h-14 w-full text-base font-semibold">
             {{ __('invoices.issue_submit') }}
         </x-ui.livewire-action>
 

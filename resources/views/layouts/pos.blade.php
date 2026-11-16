@@ -35,9 +35,7 @@
         ? StaffLandingRoute::forUser($business, $staffUser)
         : route('admin.pos.home');
     app(\Spatie\Permission\PermissionRegistrar::class)->setPermissionsTeamId($business?->id ?? 1);
-    $localeSwitchClass = ($adminSidebar && $adminMenu)
-        ? 'hidden min-[380px]:flex shrink-0'
-        : 'app-locale-switch--compact shrink-0';
+    $localeSwitchClass = 'shrink-0';
     $contentUsesNoTabbar = ! $adminSidebar;
 @endphp
 <!DOCTYPE html>
@@ -137,17 +135,17 @@
                     @endif
                     <a href="{{ $brandHomeUrl }}" class="app-topbar__brand app-brand-home min-w-0 flex-1">
                         @if ($logoUrl)
-                            <img src="{{ asset($logoUrl) }}" alt="{{ __($logoAltKey, ['name' => $displayName]) }}" class="h-7 w-7 shrink-0 rounded-lg object-contain sm:h-8 sm:w-8" width="32" height="32">
+                            <img src="{{ asset($logoUrl) }}" alt="{{ __($logoAltKey, ['name' => $displayName]) }}" class="app-topbar__logo shrink-0 rounded-lg object-contain" width="32" height="32">
                         @else
-                            <x-plumber.logo-mark class="h-7 w-7 shrink-0 text-[var(--app-accent)] sm:h-8 sm:w-8" :name="$displayName" />
+                            <x-plumber.logo-mark class="app-topbar__logo shrink-0 text-[var(--app-accent)]" :name="$displayName" />
                         @endif
-                        <div class="min-w-0">
-                            <p class="truncate text-xs font-semibold sm:text-sm">{{ $displayName }}</p>
+                        <div class="app-topbar__brand-text min-w-0">
+                            <p class="app-topbar__brand-name">{{ $displayName }}</p>
                             @if ($adminSidebar)
                                 @if($branch)
-                                    <p class="truncate text-xs text-[var(--app-muted)]">{{ $branch->name }}</p>
+                                    <p class="app-topbar__brand-subtitle">{{ $branch->name }}</p>
                                 @elseif($branchParam && ! $showBranchSwitcher)
-                                    <p class="truncate text-xs text-[var(--app-muted)]">{{ $branchParam->name }}</p>
+                                    <p class="app-topbar__brand-subtitle">{{ $branchParam->name }}</p>
                                 @elseif($showBranchSwitcher)
                                     <details class="relative text-xs">
                                         <summary class="cursor-pointer list-none text-[var(--app-accent)]">{{ __('pos.switch_branch') }}</summary>
@@ -163,7 +161,7 @@
                             @endif
                         </div>
                     </a>
-                    <x-app.locale-switch :current="$locale" :class="$localeSwitchClass" />
+                    <x-app.locale-switch :current="$locale" :class="$localeSwitchClass" responsive />
                     @if ($adminSidebar)
                         <button
                             type="button"

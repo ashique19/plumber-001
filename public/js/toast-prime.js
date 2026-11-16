@@ -2,6 +2,10 @@
   // resources/js/toast-stack-factory.js
   var DEFAULT_ERROR_MS = 8e3;
   var DEFAULT_TOAST_MS = 5e3;
+  var DEFAULT_TOAST_MOBILE_MS = 3200;
+  function isMobileViewport() {
+    return typeof window !== "undefined" && window.matchMedia("(max-width: 63.9375rem)").matches;
+  }
   function toastStackFactory(initial = [], copy = {}) {
     const mergeCopy = { ...window.__toastCopy, ...copy };
     return {
@@ -9,6 +13,9 @@
       copy: mergeCopy,
       init() {
         initial.forEach((toast) => this.push(toast));
+        window.addEventListener("toast-clear", () => {
+          this.clearAll();
+        });
         if (typeof Livewire !== "undefined") {
           Livewire.on("toast", (payload) => {
             const data = Array.isArray(payload) ? payload[0] : payload;
@@ -48,9 +55,14 @@
         }
         this.toasts = [...this.toasts, toast].slice(-3);
         if (!persistent) {
-          const ms = raw.durationMs ?? (type === "warning" ? DEFAULT_ERROR_MS : DEFAULT_TOAST_MS);
+          const baseMs = type === "warning" || type === "error" ? DEFAULT_ERROR_MS : DEFAULT_TOAST_MS;
+          const mobileMs = type === "warning" || type === "error" ? DEFAULT_ERROR_MS : DEFAULT_TOAST_MOBILE_MS;
+          const ms = raw.durationMs ?? (isMobileViewport() ? mobileMs : baseMs);
           window.setTimeout(() => this.dismiss(id), ms);
         }
+      },
+      clearAll() {
+        this.toasts = [];
       },
       dismiss(id) {
         this.toasts = this.toasts.filter((t) => t.id !== id);
