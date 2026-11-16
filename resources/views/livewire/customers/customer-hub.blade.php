@@ -4,7 +4,7 @@
             <h1 class="app-page-title">{{ __('customers.title') }}</h1>
             <p class="app-page-lead">{{ __('customers.subtitle') }}</p>
         </div>
-        <x-app.add-button type="button" variant="primary" wire:click="startCustomer" class="mb-0 hidden w-full sm:ms-auto sm:inline-flex sm:w-auto">
+        <x-app.add-button type="button" variant="primary" data-admin-livewire-call="startCustomer" class="mb-0 hidden w-full sm:ms-auto sm:inline-flex sm:w-auto">
             {{ __('customers.add') }}
         </x-app.add-button>
     </header>

@@ -1,3 +1,4 @@
+<div class="catalog-admin-page">
 <div class="catalog-admin min-w-0 max-w-full overflow-x-hidden pb-20 lg:pb-8">
     <header class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
@@ -27,7 +28,7 @@
     @if ($tab === 'categories')
         <section class="mt-4">
             @if($canWrite)
-                <x-app.add-button type="button" wire:click="startCategory()">{{ __('catalog.add_category') }}</x-app.add-button>
+                <x-app.add-button type="button" variant="primary" data-admin-livewire-call="startCategory">{{ __('catalog.add_category') }}</x-app.add-button>
             @endif
             <ul class="space-y-3">
                 @forelse($categories as $cat)
@@ -61,7 +62,7 @@
     @if ($tab === 'products')
         <section class="mt-4">
             @if($canWrite)
-                <x-app.add-button type="button" variant="primary" wire:click="startProduct()">{{ __('catalog.add_product') }}</x-app.add-button>
+                <x-app.add-button type="button" variant="primary" data-admin-livewire-call="startProduct">{{ __('catalog.add_product') }}</x-app.add-button>
             @endif
             <ul class="grid grid-cols-1 gap-3 lg:grid-cols-2">
                 @forelse($products as $product)
@@ -118,7 +119,7 @@
     @if ($tab === 'modifiers')
         <section class="mt-4">
             @if($canWrite)
-                <x-app.add-button type="button" wire:click="startModifier()">{{ __('catalog.add_modifier') }}</x-app.add-button>
+                <x-app.add-button type="button" variant="primary" data-admin-livewire-call="startModifier">{{ __('catalog.add_modifier') }}</x-app.add-button>
             @endif
             <ul class="space-y-3">
                 @forelse($modifiers as $mod)
@@ -142,6 +143,8 @@
             </ul>
         </section>
     @endif
+
+</div>
 
     @if($showCategoryForm && $canWrite)
         <div class="app-sheet-backdrop" wire:click="$set('showCategoryForm', false)"></div>
