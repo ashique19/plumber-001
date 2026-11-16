@@ -15,16 +15,15 @@ beforeEach(function () {
     $this->cashier = StaffUser::query()->where('email', 'cashier@example.test')->firstOrFail();
 });
 
-it('links brand chrome to the dashboard for staff with reports access', function () {
-    $dashboardUrl = StaffLandingRoute::forUser($this->business, $this->owner);
-
+it('shows sidebar brand and page title in admin topbar for dashboard access', function () {
     $html = $this->actingAs($this->owner, 'staff')
         ->get(route('admin.dashboard'))
         ->assertOk()
         ->getContent();
 
-    expect($html)->toContain('app-brand-home')
-        ->and($html)->toContain('href="'.$dashboardUrl.'"');
+    expect($html)->toContain('admin-sidebar-nav__brand')
+        ->and($html)->toContain('app-topbar__page-title')
+        ->and($html)->not->toContain('app-topbar__brand app-brand-home');
 });
 
 it('links brand chrome to pos home for cashiers without dashboard access', function () {
@@ -35,7 +34,6 @@ it('links brand chrome to pos home for cashiers without dashboard access', funct
         ->assertOk()
         ->getContent();
 
-    expect($html)->toContain('app-brand-home')
-        ->and($html)->toContain('href="'.$landingUrl.'"')
+    expect($html)->toContain('app-topbar__page-title')
         ->and($landingUrl)->not->toBe(route('admin.dashboard'));
 });
