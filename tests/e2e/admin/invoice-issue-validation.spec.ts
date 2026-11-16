@@ -1,8 +1,12 @@
 import { test, expect } from 'playwright/test';
 import { adminPath, staffLogin } from '../helpers/staff-auth.js';
 
-const UNIQUE_PHONE = '0544002299';
 const CUSTOMER_NAME = 'E2E Modal Buyer';
+
+function uniqueSaudiMobile(): string {
+    const suffix = String(Date.now()).slice(-8);
+    return `054${suffix}`;
+}
 
 test.describe('standard invoice buyer completion modal', () => {
     test.beforeEach(async ({ page }) => {
