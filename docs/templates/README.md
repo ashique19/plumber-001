@@ -5,7 +5,8 @@ Third-party samples stored here for **layout comparison only**. Do not seed or h
 | File | Template | Notes |
 |------|----------|--------|
 | `plumber-template-A.pdf` | A — Modern | Two-page tax invoice (seller header, buyer table, lines, totals + QR footer) |
-| `plumber-template-A-page-1.png` | A — Modern | Page 1 screenshot (add when available in repo) |
+| `plumber-template-A-full.png` | A — Modern | Full two-page screenshot (add when available in repo) |
+| `plumber-template-A-page-1.png` | A — Modern | Page 1 screenshot (optional) |
 | `plumber-template-A-page-2.png` | A — Modern | Page 2 screenshot (totals / QR / footer) |
 | `plumber-template-B.jpg` | B — Classic | Single-page classic ZATCA-style grid |
 

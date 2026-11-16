@@ -11,6 +11,8 @@
     @endif
 </header>
 
+@include('print.partials.not-cleared-watermark')
+
 @if ($zatcaNotSent ?? false)
     <p class="invoice-zatca-notice no-print m-2 rounded-xl border border-amber-300/80 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-950" role="status">
         {{ __('invoices.signing.zatca_not_sent') }}
