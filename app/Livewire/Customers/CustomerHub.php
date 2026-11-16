@@ -44,13 +44,15 @@ class CustomerHub extends Component
     #[Url(as: 'dir')]
     public string $sortDir = 'asc';
 
-    public bool $showCustomerForm = false;
+    public bool $showCustomerModal = false;
 
-    public bool $showDetailSheet = false;
+    public string $customerModalTab = 'details';
 
     public ?int $editingCustomerId = null;
 
     public string $customerName = '';
+
+    public string $customerNameAr = '';
 
     public string $customerPhone = '';
 
@@ -60,7 +62,19 @@ class CustomerHub extends Component
 
     public string $customerCr = '';
 
-    public string $customerCity = '';
+    public string $customerCountry = 'SA';
+
+    public string $customerAddrBuilding = '';
+
+    public string $customerAddrStreet = '';
+
+    public string $customerAddrDistrict = '';
+
+    public string $customerAddrCity = '';
+
+    public string $customerAddrPostal = '';
+
+    public string $customerAddrAdditional = '';
 
     public string $adjustPoints = '';
 
@@ -94,7 +108,7 @@ class CustomerHub extends Component
         }
 
         if ($this->customer !== null) {
-            $this->showDetailSheet = true;
+            $this->openCustomerModal($this->customer, 'details');
         }
     }
 
@@ -102,7 +116,7 @@ class CustomerHub extends Component
     {
         $this->resetPage();
         $this->customer = null;
-        $this->showDetailSheet = false;
+        $this->closeCustomerModal();
     }
 
     public function updatingSort(): void
@@ -133,44 +147,47 @@ class CustomerHub extends Component
 
     public function selectCustomer(int $customerId): void
     {
-        $this->customer = $customerId;
-        $this->resetAdjustForm();
-        $this->showDetailSheet = true;
-    }
-
-    public function closeDetailSheet(): void
-    {
-        $this->showDetailSheet = false;
-    }
-
-    public function startCustomer(): void
-    {
-        $this->editingCustomerId = null;
-        $this->showCustomerForm = true;
-        $this->customerName = '';
-        $this->customerPhone = '';
-        $this->customerEmail = '';
-        $this->customerVat = '';
-        $this->customerCr = '';
-        $this->customerCity = '';
-        $this->resetValidation();
+        $this->openCustomerModal($customerId, 'details');
     }
 
     public function startEdit(int $customerId): void
+    {
+        $this->openCustomerModal($customerId, 'details');
+    }
+
+    public function openCustomerModal(int $customerId, string $tab = 'details'): void
     {
         $customer = Customer::query()->find($customerId);
         if ($customer === null) {
             return;
         }
 
-        $this->editingCustomerId = $customer->id;
-        $this->showCustomerForm = true;
-        $this->customerName = $customer->name;
-        $this->customerPhone = (string) ($customer->phone ?? '');
-        $this->customerEmail = (string) ($customer->email ?? '');
-        $this->customerVat = (string) ($customer->vat_number ?? '');
-        $this->customerCr = (string) (CustomerProfileFields::crNumber($customer) ?? '');
-        $this->customerCity = (string) (CustomerProfileFields::city($customer) ?? '');
+        $this->customer = $customerId;
+        $this->hydrateCustomerForm($customer);
+        $this->customerModalTab = $tab === 'loyalty' ? 'loyalty' : 'details';
+        $this->showCustomerModal = true;
+        $this->resetAdjustForm();
+    }
+
+    public function setCustomerModalTab(string $tab): void
+    {
+        if (in_array($tab, ['details', 'loyalty'], true) && $this->editingCustomerId !== null) {
+            $this->customerModalTab = $tab;
+        }
+    }
+
+    public function closeCustomerModal(): void
+    {
+        $this->showCustomerModal = false;
+    }
+
+    public function startCustomer(): void
+    {
+        $this->customer = null;
+        $this->editingCustomerId = null;
+        $this->customerModalTab = 'details';
+        $this->showCustomerModal = true;
+        $this->resetCustomerFormFields();
         $this->resetValidation();
     }
 
@@ -192,33 +209,47 @@ class CustomerHub extends Component
             'customerPhone' => $phoneRules,
             'customerVat' => FieldValidationRules::vatOptional(),
             'customerCr' => FieldValidationRules::crNumberOptional(),
-            'customerCity' => ['nullable', 'string', 'max:80'],
+            'customerCountry' => ['nullable', 'string', 'size:2'],
+            'customerAddrBuilding' => ['nullable', 'string', 'max:120'],
+            'customerAddrStreet' => ['nullable', 'string', 'max:120'],
+            'customerAddrDistrict' => ['nullable', 'string', 'max:120'],
+            'customerAddrCity' => ['nullable', 'string', 'max:80'],
+            'customerAddrPostal' => ['nullable', 'string', 'max:20'],
+            'customerAddrAdditional' => ['nullable', 'string', 'max:160'],
         ]));
 
         $vatDigits = preg_replace('/\D/', '', $this->customerVat) ?? '';
-        $profilePatch = [
+        $country = strtoupper(trim($this->customerCountry !== '' ? $this->customerCountry : 'SA'));
+        $nationalAddress = [
+            'building' => trim($this->customerAddrBuilding) !== '' ? trim($this->customerAddrBuilding) : null,
+            'street' => trim($this->customerAddrStreet) !== '' ? trim($this->customerAddrStreet) : null,
+            'district' => trim($this->customerAddrDistrict) !== '' ? trim($this->customerAddrDistrict) : null,
+            'city' => trim($this->customerAddrCity) !== '' ? trim($this->customerAddrCity) : null,
+            'postal_code' => trim($this->customerAddrPostal) !== '' ? trim($this->customerAddrPostal) : null,
+            'additional' => trim($this->customerAddrAdditional) !== '' ? trim($this->customerAddrAdditional) : null,
+            'country' => $country,
+        ];
+
+        $profilePayload = [
+            'name_ar' => trim($this->customerNameAr) !== '' ? trim($this->customerNameAr) : null,
             'cr_number' => trim($this->customerCr) !== '' ? trim($this->customerCr) : null,
-            'national_address' => [
-                'city' => trim($this->customerCity) !== '' ? trim($this->customerCity) : null,
-            ],
+            'country' => $country,
+            'national_address' => $nationalAddress,
         ];
 
         if ($this->editingCustomerId !== null) {
             $customer = Customer::query()->findOrFail($this->editingCustomerId);
             $profile = is_array($customer->profile) ? $customer->profile : [];
-            $na = is_array($profile['national_address'] ?? null) ? $profile['national_address'] : [];
 
             $customer->forceFill([
                 'name' => trim($this->customerName),
                 'phone' => $this->customerPhone,
                 'email' => $this->customerEmail !== '' ? trim($this->customerEmail) : null,
                 'vat_number' => $vatDigits !== '' ? $vatDigits : null,
-                'profile' => array_merge($profile, [
-                    'cr_number' => $profilePatch['cr_number'],
-                    'national_address' => array_merge($na, $profilePatch['national_address']),
-                ]),
+                'profile' => array_replace_recursive($profile, $profilePayload),
             ])->save();
 
+            $this->hydrateCustomerForm($customer->fresh());
             $this->toastSuccess(__('customers.updated'));
         } else {
             $customer = Customer::query()->create([
@@ -228,19 +259,13 @@ class CustomerHub extends Component
                 'vat_number' => $vatDigits !== '' ? $vatDigits : null,
                 'referral_code' => '',
                 'points_balance' => 0,
-                'profile' => [
-                    'cr_number' => $profilePatch['cr_number'],
-                    'national_address' => $profilePatch['national_address'],
-                ],
+                'profile' => $profilePayload,
             ]);
 
             $loyalty->ensureReferralCode($customer);
-            $this->customer = $customer->id;
+            $this->openCustomerModal($customer->id, 'details');
             $this->toastSuccess(__('customers.created'));
         }
-
-        $this->showCustomerForm = false;
-        $this->editingCustomerId = null;
     }
 
     public function deleteCustomer(int $customerId): void
@@ -252,7 +277,7 @@ class CustomerHub extends Component
 
         if ($this->customer === $customerId) {
             $this->customer = null;
-            $this->showDetailSheet = false;
+            $this->closeCustomerModal();
         }
 
         $customer->delete();
@@ -420,6 +445,44 @@ class CustomerHub extends Component
         $this->resetValidation(['adjustPoints', 'adjustNote']);
     }
 
+    private function resetCustomerFormFields(): void
+    {
+        $this->customerName = '';
+        $this->customerNameAr = '';
+        $this->customerPhone = '';
+        $this->customerEmail = '';
+        $this->customerVat = '';
+        $this->customerCr = '';
+        $this->customerCountry = 'SA';
+        $this->customerAddrBuilding = '';
+        $this->customerAddrStreet = '';
+        $this->customerAddrDistrict = '';
+        $this->customerAddrCity = '';
+        $this->customerAddrPostal = '';
+        $this->customerAddrAdditional = '';
+    }
+
+    private function hydrateCustomerForm(Customer $customer): void
+    {
+        $this->editingCustomerId = $customer->id;
+        $profile = is_array($customer->profile) ? $customer->profile : [];
+        $na = is_array($profile['national_address'] ?? null) ? $profile['national_address'] : [];
+
+        $this->customerName = $customer->name;
+        $this->customerNameAr = (string) ($profile['name_ar'] ?? '');
+        $this->customerPhone = (string) ($customer->phone ?? '');
+        $this->customerEmail = (string) ($customer->email ?? '');
+        $this->customerVat = (string) ($customer->vat_number ?? '');
+        $this->customerCr = (string) (CustomerProfileFields::crNumber($customer) ?? '');
+        $this->customerCountry = strtoupper((string) ($profile['country'] ?? ($na['country'] ?? 'SA')));
+        $this->customerAddrBuilding = (string) ($na['building'] ?? '');
+        $this->customerAddrStreet = (string) ($na['street'] ?? '');
+        $this->customerAddrDistrict = (string) ($na['district'] ?? '');
+        $this->customerAddrCity = (string) ($na['city'] ?? CustomerProfileFields::city($customer) ?? '');
+        $this->customerAddrPostal = (string) ($na['postal_code'] ?? '');
+        $this->customerAddrAdditional = (string) ($na['additional'] ?? '');
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -427,11 +490,18 @@ class CustomerHub extends Component
     {
         return [
             'customerName' => ['required', 'string', 'max:120'],
+            'customerNameAr' => ['nullable', 'string', 'max:160'],
             'customerPhone' => FieldValidationRules::saudiMobileRequired(),
             'customerEmail' => FieldValidationRules::emailOptional(),
             'customerVat' => ['nullable', 'string', 'max:32'],
             'customerCr' => ['nullable', 'string', 'max:32'],
-            'customerCity' => ['nullable', 'string', 'max:80'],
+            'customerCountry' => ['nullable', 'string', 'max:2'],
+            'customerAddrBuilding' => ['nullable', 'string', 'max:120'],
+            'customerAddrStreet' => ['nullable', 'string', 'max:120'],
+            'customerAddrDistrict' => ['nullable', 'string', 'max:120'],
+            'customerAddrCity' => ['nullable', 'string', 'max:80'],
+            'customerAddrPostal' => ['nullable', 'string', 'max:20'],
+            'customerAddrAdditional' => ['nullable', 'string', 'max:160'],
             'adjustPoints' => ['nullable', 'integer', 'not_in:0'],
             'adjustNote' => ['nullable', 'string', 'max:200'],
         ];

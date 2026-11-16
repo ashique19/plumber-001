@@ -32,4 +32,16 @@
         z-index: 3;
         background: color-mix(in srgb, var(--app-surface-muted) 60%, var(--app-surface));
     }
+
+    html.admin-app .customer-hub-modal-shell.x-modal {
+        max-height: min(94dvh, 42rem);
+    }
+
+    html.admin-app .customer-hub-modal-shell .x-modal__close {
+        @apply min-h-9 min-w-9 rounded-lg;
+    }
+
+    html.admin-app .customer-hub-modal-shell .x-modal__body {
+        @apply flex min-h-0 flex-1 flex-col overflow-hidden;
+    }
 }

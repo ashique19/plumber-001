@@ -123,7 +123,7 @@ it('opens customer create sheet from dashboard customer link', function () {
     Livewire::actingAs($this->owner, 'staff')
         ->withQueryParams(['create' => 'customer'])
         ->test(CustomerHub::class)
-        ->assertSet('showCustomerForm', true)
+        ->assertSet('showCustomerModal', true)
         ->assertSee(__('customers.add'), false);
 });
 

@@ -37,7 +37,7 @@ it('opens add customer modal from create query', function () {
     Livewire::actingAs($this->owner, 'staff')
         ->withQueryParams(['create' => 'customer'])
         ->test(CustomerHub::class)
-        ->assertSet('showCustomerForm', true)
+        ->assertSet('showCustomerModal', true)
         ->assertSee(__('customers.add'), false);
 });
 
@@ -53,6 +53,20 @@ it('denies cashier access', function () {
     expect($this->cashier->can('reports.view'))->toBeFalse();
 });
 
+it('shows details tab with editable address fields in customer modal', function () {
+    $customer = Customer::query()
+        ->where('phone', '0501000001')
+        ->firstOrFail();
+
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(CustomerHub::class)
+        ->call('selectCustomer', $customer->id)
+        ->assertSet('showCustomerModal', true)
+        ->assertSeeHtml('data-testid="customer-modal-tabs"')
+        ->assertSee(__('customers.tab_details'), false)
+        ->assertSeeHtml('name="customerAddrCity"');
+});
+
 it('adjusts points with audit row', function () {
     $customer = Customer::query()
         ->where('phone', '0501000001')
@@ -61,6 +75,7 @@ it('adjusts points with audit row', function () {
     Livewire::actingAs($this->owner, 'staff')
         ->test(CustomerHub::class)
         ->call('selectCustomer', $customer->id)
+        ->call('setCustomerModalTab', 'loyalty')
         ->set('adjustPoints', '10')
         ->set('adjustNote', 'Manager courtesy top-up')
         ->call('saveAdjust')

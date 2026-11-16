@@ -27,6 +27,8 @@ return [
     'updated' => 'Customer updated.',
     'deleted' => 'Customer removed.',
     'edit_title' => 'Edit customer',
+    'tab_details' => 'Details',
+    'tab_loyalty' => 'Loyalty',
     'confirm_delete' => 'Delete this customer? Loyalty history will be removed. Invoices keep their snapshot.',
     'name' => 'Name',
     'email_optional' => 'Email (optional)',

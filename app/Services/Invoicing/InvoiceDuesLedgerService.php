@@ -274,20 +274,12 @@ class InvoiceDuesLedgerService
         }
 
         $lookup = array_fill_keys($customerIds, 0.0);
+        $idSet = array_flip($customerIds);
 
-        $invoices = Invoice::query()
-            ->where('status', InvoiceStatus::Issued)
-            ->whereIn('document_type', [
-                InvoiceDocumentType::Standard,
-                InvoiceDocumentType::Simplified,
-            ])
-            ->whereIn('customer_id', $customerIds)
-            ->with(['payments'])
-            ->get(['id', 'customer_id', 'status', 'document_type', 'source_type', 'source_id', 'payload']);
-
-        foreach ($invoices as $invoice) {
-            $customerId = $invoice->customer_id;
-            if ($customerId === null || ! array_key_exists($customerId, $lookup)) {
+        foreach ($this->collectibleInvoices() as $invoice) {
+            $identity = InvoiceCustomerIdentity::resolve($invoice);
+            $customerId = $identity['customer_id'];
+            if ($customerId === null || ! isset($idSet[$customerId])) {
                 continue;
             }
 
