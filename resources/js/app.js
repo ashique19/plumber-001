@@ -5,7 +5,11 @@ import { registerCatalogProductImageUpload } from './product-image-upload.js';
 import { registerPosQtyStepper } from './pos-qty-stepper.js';
 import { registerInvoiceCatalogPicker } from './invoice-catalog-picker.js';
 import { registerAdminModalScroll, wireAdminModalScrollLivewire } from './admin-modal-scroll-lock.js';
-import { registerAdminTypeaheadControl, wireAdminQuickAddDelegation } from './admin-typeahead-control.js';
+import {
+    registerAdminTypeaheadControl,
+    wireAdminCreateQueryDeepLinks,
+    wireAdminQuickAddDelegation,
+} from './admin-typeahead-control.js';
 import { registerAdminTheme } from './admin-theme.js';
 import { registerToastStack } from './toast-stack.js';
 import { wireLivewireRequestFeedback } from './livewire-feedback.js';
@@ -27,6 +31,7 @@ registerAdminTheme(Alpine);
 registerAdminModalScroll(Alpine);
 registerAdminTypeaheadControl(Alpine);
 wireAdminQuickAddDelegation();
+wireAdminCreateQueryDeepLinks();
 
 document.addEventListener('livewire:init', () => {
     wireAdminModalScrollLivewire(Livewire);

@@ -26,6 +26,7 @@ use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use Spatie\Permission\PermissionRegistrar;
 
 #[Layout('layouts.pos')]
 class MenuManager extends Component
@@ -136,13 +137,14 @@ class MenuManager extends Component
     {
         $this->resolveBusiness();
         BusinessContext::set($this->business);
+        app(PermissionRegistrar::class)->setPermissionsTeamId($this->business->id);
 
         $tab = request()->query('tab');
         if (is_string($tab) && in_array($tab, ['categories', 'products', 'modifiers'], true)) {
             $this->tab = $tab;
         }
 
-        if (request()->query('create') === 'product' && auth('staff')->user()?->can('staff.manage')) {
+        if (request()->query('create') === 'product' && $this->staffCanManageCatalog()) {
             $this->tab = 'products';
             $this->startProduct();
         }
@@ -575,7 +577,7 @@ class MenuManager extends Component
             'categories' => $categories,
             'products' => $products,
             'modifiers' => $modifiers,
-            'canWrite' => auth('staff')->user()?->can('staff.manage') ?? false,
+            'canWrite' => $this->staffCanManageCatalog(),
             'storefrontVisibilityReady' => ProductStorefrontVisibility::columnsExist()
                 && ProductStorefrontVisibility::catalogUiEnabled(),
             'catalogI18nReady' => CatalogI18n::columnsExist(),
@@ -591,7 +593,12 @@ class MenuManager extends Component
 
     private function authorizeCatalogWrite(): void
     {
-        abort_unless(auth('staff')->user()?->can('staff.manage'), 403);
+        abort_unless($this->staffCanManageCatalog(), 403);
+    }
+
+    private function staffCanManageCatalog(): bool
+    {
+        return auth('staff')->user()?->can('staff.manage') ?? false;
     }
 
     private function formatPriceForMode(float $exVat, float $vatRate): string
