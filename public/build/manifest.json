@@ -353,7 +353,7 @@
     "isEntry": true
   },
   "resources/css/app.css": {
-    "file": "assets/app-BUAZm2dw.css",
+    "file": "assets/app-DXopOzAU.css",
     "name": "app",
     "names": [
       "app.css"
@@ -455,8 +455,17 @@
     "src": "resources/css/error-pages.css",
     "isEntry": true
   },
+  "resources/css/hub-document-table.css": {
+    "file": "assets/hub-document-table-CgqjEY_q.css",
+    "name": "hub-document-table",
+    "names": [
+      "hub-document-table.css"
+    ],
+    "src": "resources/css/hub-document-table.css",
+    "isEntry": true
+  },
   "resources/css/invoice-print.css": {
-    "file": "assets/invoice-print-ySdaMSvz.css",
+    "file": "assets/invoice-print-3rX_L2MQ.css",
     "name": "invoice-print",
     "names": [
       "invoice-print.css"
@@ -503,7 +512,7 @@
     ]
   },
   "resources/js/receipt.js": {
-    "file": "assets/receipt-DYqNJLHd.js",
+    "file": "assets/receipt-Dd-k7eC2.js",
     "name": "receipt",
     "src": "resources/js/receipt.js",
     "isEntry": true,
