@@ -7,7 +7,7 @@
 <div class="admin-sidebar-nav flex h-full flex-col" data-variant="{{ $variant }}">
     <div class="admin-sidebar-nav__header flex items-center gap-2 border-b px-3 py-4" style="border-color: var(--app-border)">
         <x-plumber.logo-mark class="h-9 w-9 shrink-0 text-[var(--app-accent)]" :name="$menu['businessName']" />
-        <span class="truncate text-sm font-semibold leading-snug">{{ $menu['businessName'] }}</span>
+        <span class="admin-sidebar-nav__brand-name" title="{{ $menu['businessName'] }}">{{ $menu['businessName'] }}</span>
     </div>
     <nav class="admin-sidebar-nav__scroll flex flex-1 flex-col gap-0.5 overflow-y-auto p-2" aria-label="{{ __('admin_nav.aria') }}">
         @foreach ($menu['groups'] as $block)

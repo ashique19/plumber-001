@@ -149,8 +149,14 @@
     }
 
     @media (max-width: 63.9375rem) {
+        html.admin-app {
+            --toast-below-topbar: 3.25rem;
+        }
+
         html.admin-app .toast-stack {
-            top: calc(env(safe-area-inset-top, 0px) + var(--app-topbar-height, 3.5rem) + 0.35rem);
+            top: calc(
+                env(safe-area-inset-top, 0px) + var(--app-topbar-height, 3.5rem) + var(--toast-below-topbar, 3.25rem)
+            );
             bottom: auto;
             z-index: 85;
             margin-inline: auto;

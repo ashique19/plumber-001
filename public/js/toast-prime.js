@@ -2,7 +2,7 @@
   // resources/js/toast-stack-factory.js
   var DEFAULT_ERROR_MS = 8e3;
   var DEFAULT_TOAST_MS = 5e3;
-  var DEFAULT_TOAST_MOBILE_MS = 3200;
+  var DEFAULT_TOAST_MOBILE_MS = 5e3;
   function isMobileViewport() {
     return typeof window !== "undefined" && window.matchMedia("(max-width: 63.9375rem)").matches;
   }

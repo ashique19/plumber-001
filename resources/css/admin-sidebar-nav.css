@@ -6,6 +6,17 @@
         inset-inline-start: 0;
     }
 
+    .admin-sidebar-nav__brand-name {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+        font-size: 0.875rem;
+        line-height: 1.25;
+        font-weight: 600;
+        min-width: 0;
+    }
+
     .admin-sidebar-nav__scroll {
         max-height: calc(100dvh - 5.5rem - env(safe-area-inset-top));
     }

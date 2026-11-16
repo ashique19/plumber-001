@@ -40,29 +40,7 @@
 
         <x-invoices.document-product-lines :lines="$lines" :compact="! $isStandard" />
 
-        <section class="invoice-issue-preview-totals rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] p-4" aria-live="polite">
-            <h2 class="mb-2 text-sm font-semibold">{{ __('invoices.preview_totals') }}</h2>
-            <p class="text-2xl font-bold tabular-nums">
-                {{ number_format($previewTotals['total_inc_vat'], 2) }}
-                <span class="text-sm font-medium text-[var(--app-muted)]">{{ __('invoices.total_inc_vat') }}</span>
-            </p>
-            <dl class="mt-3 grid gap-2 text-sm sm:grid-cols-2">
-                <div class="flex justify-between gap-2">
-                    <dt class="text-[var(--app-muted)]">{{ __('invoices.subtotal_ex_vat') }}</dt>
-                    <dd class="font-semibold tabular-nums">{{ number_format($previewTotals['subtotal_ex_vat'], 2) }}</dd>
-                </div>
-                <div class="flex justify-between gap-2">
-                    <dt class="text-[var(--app-muted)]">{{ __('invoices.total_vat') }}</dt>
-                    <dd class="font-semibold tabular-nums">{{ number_format($previewTotals['total_vat'], 2) }}</dd>
-                </div>
-                @if (($previewTotals['retention_amount'] ?? 0) > 0)
-                    <div class="flex justify-between gap-2 sm:col-span-2">
-                        <dt class="text-[var(--app-muted)]">{{ __('invoices.retention_amount') }}</dt>
-                        <dd class="font-semibold tabular-nums">{{ number_format($previewTotals['retention_amount'], 2) }}</dd>
-                    </div>
-                @endif
-            </dl>
-        </section>
+        <x-invoices.document-preview-totals-breakdown :preview-totals="$previewTotals" />
 
         <x-invoices.zatca-not-ready-notice :show="$zatcaNotReady" />
 

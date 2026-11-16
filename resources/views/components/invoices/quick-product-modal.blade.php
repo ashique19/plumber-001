@@ -26,6 +26,7 @@
             <x-field.input
                 :label="__('catalog.name_ar')"
                 :hint="__('catalog.name_ar_hint')"
+                hint-position="after"
                 name="quickProductNameAr"
                 wire:model="quickProductNameAr"
                 :liveValidate="false"

@@ -1,6 +1,6 @@
 const DEFAULT_ERROR_MS = 8000;
 const DEFAULT_TOAST_MS = 5000;
-const DEFAULT_TOAST_MOBILE_MS = 3200;
+const DEFAULT_TOAST_MOBILE_MS = 5000;
 
 function isMobileViewport() {
     return typeof window !== 'undefined' && window.matchMedia('(max-width: 63.9375rem)').matches;

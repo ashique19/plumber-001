@@ -9,6 +9,8 @@ import {
     expectSingleMobilePrimarySubmit,
     expectStandardLineFieldsVisible,
     expectToastClearWhenModalOpens,
+    expectToastDoesNotOverlapPageTitle,
+    expectDocumentTotalsRowsSeparated,
 } from '../helpers/document-mobile.js';
 
 const MOBILE = { width: 390, height: 844 } as const;
@@ -59,6 +61,7 @@ for (const pageConfig of PAGES) {
 
             await expectQuotationTotalsBreakdown(page);
             await expectSingleMobilePrimarySubmit(page, pageConfig.sticky);
+            await expectToastDoesNotOverlapPageTitle(page);
 
             const focusTarget = page.locator('.invoice-add-line-search input[data-admin-search-input="1"]').first();
             await expectFocusedInputNotCoveredByToast(page, focusTarget);
@@ -69,6 +72,23 @@ for (const pageConfig of PAGES) {
         });
     });
 }
+
+test.describe('document totals breakdown — desktop', () => {
+    test.use({ viewport: { width: 1280, height: 900 } });
+
+    test.beforeEach(async ({ page }) => {
+        await staffLogin(page);
+    });
+
+    for (const path of ['/admin/quotations/create', '/admin/invoices/issue/standard'] as const) {
+        test(`stacked rows on ${path}`, async ({ page }) => {
+            await page.goto(adminPath(path, 'en'));
+            await page.waitForLoadState('networkidle');
+            await addCatalogLine(page);
+            await expectDocumentTotalsRowsSeparated(page);
+        });
+    }
+});
 
 test.describe('document mobile UI — theme + RTL spot checks', () => {
     test.use({ viewport: MOBILE });
