@@ -29,7 +29,7 @@ test.describe('standard invoice buyer completion modal', () => {
         await expect(createModal).toBeVisible({ timeout: 15_000 });
         await createModal.locator('input#customerQuickName').fill(customerName);
         await createModal.locator('input#customerQuickPhone').fill(saudiMobile());
-        await createModal.locator('input[name="customerQuickVatRegistered"][value="1"]').check();
+        await createModal.locator('label.admin-segmented__option', { hasText: /registered|নিবন্ধিত|مسجل/i }).first().click();
         await createModal.locator('input#customerQuickVat').fill('300000000000003');
         await saveModal(page);
 
