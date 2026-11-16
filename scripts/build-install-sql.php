@@ -170,6 +170,50 @@ function applyMysqlColumnOverrides(string $sql): string
     ) ?? $sql;
 
     $sql = preg_replace_callback(
+        '/CREATE TABLE IF NOT EXISTS `customers`[\s\S]*?\);/i',
+        static function (array $m): string {
+            $block = $m[0];
+            $block = preg_replace('/`legal_name_ar`\s+VARCHAR\(255\)/', '`legal_name_ar` VARCHAR(160)', $block, 1) ?? $block;
+            $block = preg_replace('/`legal_name_en`\s+VARCHAR\(255\)/', '`legal_name_en` VARCHAR(160)', $block, 1) ?? $block;
+            $block = preg_replace('/`vat_number`\s+VARCHAR\(255\)/', '`vat_number` VARCHAR(32)', $block, 1) ?? $block;
+            $block = preg_replace('/`alt_id_type`\s+VARCHAR\(255\)/', '`alt_id_type` VARCHAR(8)', $block, 1) ?? $block;
+            $block = preg_replace('/`alt_id_number`\s+VARCHAR\(255\)/', '`alt_id_number` VARCHAR(64)', $block, 1) ?? $block;
+            $block = preg_replace(
+                '/`country_code`\s+VARCHAR\(255\)\s+NOT NULL default \'SA\'/',
+                '`country_code` CHAR(2) NOT NULL default \'SA\'',
+                $block,
+                1
+            ) ?? $block;
+            $block = preg_replace('/`street_name`\s+VARCHAR\(255\)/', '`street_name` VARCHAR(120)', $block, 1) ?? $block;
+            $block = preg_replace('/`city`\s+VARCHAR\(255\)/', '`city` VARCHAR(80)', $block, 1) ?? $block;
+            $block = preg_replace('/`referral_code`\s+VARCHAR\(255\)/', '`referral_code` VARCHAR(32)', $block, 1) ?? $block;
+
+            return $block;
+        },
+        $sql,
+        1
+    ) ?? $sql;
+
+    $sql = preg_replace_callback(
+        '/CREATE TABLE IF NOT EXISTS `suppliers`[\s\S]*?\);/i',
+        static function (array $m): string {
+            $block = $m[0];
+            $block = preg_replace('/`name`\s+VARCHAR\(255\) NOT NULL/', '`name` VARCHAR(160) NOT NULL', $block, 1) ?? $block;
+            $block = preg_replace('/`name_ar`\s+VARCHAR\(255\)/', '`name_ar` VARCHAR(160)', $block, 1) ?? $block;
+            $block = preg_replace('/`contact_person`\s+VARCHAR\(255\)/', '`contact_person` VARCHAR(120)', $block, 1) ?? $block;
+            $block = preg_replace('/`phone`\s+VARCHAR\(255\)/', '`phone` VARCHAR(32)', $block, 1) ?? $block;
+            $block = preg_replace('/`email`\s+VARCHAR\(255\)/', '`email` VARCHAR(120)', $block, 1) ?? $block;
+            $block = preg_replace('/`vat_number`\s+VARCHAR\(255\)/', '`vat_number` VARCHAR(32)', $block, 1) ?? $block;
+            $block = preg_replace('/`cr_number`\s+VARCHAR\(255\)/', '`cr_number` VARCHAR(32)', $block, 1) ?? $block;
+            $block = preg_replace('/`city`\s+VARCHAR\(255\)/', '`city` VARCHAR(80)', $block, 1) ?? $block;
+
+            return $block;
+        },
+        $sql,
+        1
+    ) ?? $sql;
+
+    $sql = preg_replace_callback(
         '/CREATE TABLE IF NOT EXISTS `product_categories`[\s\S]*?\);/i',
         static function (array $m): string {
             $block = $m[0];
