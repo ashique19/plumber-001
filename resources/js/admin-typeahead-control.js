@@ -49,6 +49,26 @@ export function registerAdminTypeaheadControl(Alpine) {
                     return false;
                 }
 
+                const setMatch = typeof action === 'string'
+                    ? action.match(/^\$set\('([^']+)',\s*(true|false|null|\d+|'[^']*')\)$/)
+                    : null;
+                if (setMatch && typeof wire.set === 'function') {
+                    const [, prop, raw] = setMatch;
+                    const value = raw === 'true'
+                        ? true
+                        : raw === 'false'
+                            ? false
+                            : raw === 'null'
+                                ? null
+                                : raw.startsWith("'")
+                                    ? raw.slice(1, -1)
+                                    : Number(raw);
+
+                    wire.set(prop, value);
+
+                    return true;
+                }
+
                 if (typeof wire.call === 'function') {
                     wire.call(action);
 
