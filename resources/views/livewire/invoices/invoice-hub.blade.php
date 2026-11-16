@@ -53,14 +53,38 @@
             <option value="credit_note">{{ __('invoices.type.credit_note') }}</option>
             <option value="debit_note">{{ __('invoices.type.debit_note') }}</option>
         </x-field.select>
-        <x-field.select :label="__('invoices.signing_filter')" name="signingFilter" wire:model.live="signingFilter" :liveValidate="false">
-            <option value="all">{{ __('invoices.filter_all') }}</option>
-            <option value="submitted">{{ __('invoices.signing.submitted') }}</option>
-            <option value="signed">{{ __('invoices.signing.signed') }}</option>
-            <option value="zatca_not_sent">{{ __('invoices.signing.zatca_not_sent') }}</option>
-            <option value="none">{{ __('invoices.signing.none') }}</option>
-        </x-field.select>
     </section>
+
+    <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <nav class="hub-doc-table__tabs" aria-label="{{ __('invoices.zatca_tabs_label') }}">
+            <button type="button" @class(['hub-doc-table__tab', 'hub-doc-table__tab--active' => $zatcaTab === 'all']) wire:click="$set('zatcaTab', 'all')">
+                {{ __('invoices.zatca_tab_all') }}
+            </button>
+            <button type="button" @class(['hub-doc-table__tab', 'hub-doc-table__tab--active' => $zatcaTab === 'failed']) wire:click="$set('zatcaTab', 'failed')">
+                {{ __('invoices.zatca_tab_failed') }}
+                @if (($zatcaFailedCount ?? 0) > 0)
+                    <span class="hub-doc-table__tab-badge">{{ $zatcaFailedCount }}</span>
+                @endif
+            </button>
+            <button type="button" @class(['hub-doc-table__tab', 'hub-doc-table__tab--active' => $zatcaTab === 'success']) wire:click="$set('zatcaTab', 'success')">
+                {{ __('invoices.zatca_tab_success') }}
+                @if (($zatcaSuccessCount ?? 0) > 0)
+                    <span class="hub-doc-table__tab-badge hub-doc-table__tab-badge--muted">{{ $zatcaSuccessCount }}</span>
+                @endif
+            </button>
+        </nav>
+        @if (($canResubmitZatca ?? false) && ($zatcaTab === 'failed') && ($zatcaFailedCount ?? 0) > 0)
+            <button
+                type="button"
+                class="tap-action-muted min-h-11 px-4 text-sm font-semibold"
+                wire:click="resubmitAllFailed"
+                wire:loading.attr="disabled"
+                wire:target="resubmitAllFailed"
+            >
+                {{ __('invoices.zatca_resubmit_all') }}
+            </button>
+        @endif
+    </div>
 
     @if ($invoices->isEmpty())
         <p class="app-card p-6 text-center text-sm text-[var(--app-muted)]">{{ __('invoices.empty') }}</p>
@@ -115,15 +139,34 @@
                             <x-invoices.sar-symbol /> {{ number_format($row['total_inc_vat'], 2) }}
                         </td>
                         <td>
-                            <span @class([
-                                'pos-status-pill',
-                                'pos-status-pill--paid' => in_array($signingKey, ['submitted', 'signed'], true),
-                                'pos-status-pill--refunded' => $signingKey === 'none',
-                                'pos-status-pill--warning' => $signingKey === 'zatca_not_sent',
-                            ])>{{ __('invoices.signing.'.$signingKey) }}</span>
+                            <span
+                                @class([
+                                    'pos-status-pill',
+                                    'pos-status-pill--paid' => $row['zatca_success'] || in_array($signingKey, ['submitted', 'signed'], true),
+                                    'pos-status-pill--refunded' => $signingKey === 'none' && ! $row['zatca_failed'],
+                                    'pos-status-pill--warning' => $row['zatca_failed'] || $signingKey === 'zatca_not_sent',
+                                ])
+                                @if ($row['zatca_error']) title="{{ $row['zatca_error'] }}" @endif
+                            >{{ __('invoices.signing.'.$signingKey) }}</span>
+                            @if ($row['zatca_error'])
+                                <p class="mt-1 max-w-[10rem] truncate text-[0.65rem] text-[var(--app-muted)]" title="{{ $row['zatca_error'] }}">{{ $row['zatca_error'] }}</p>
+                            @endif
                         </td>
                         <td>
                             <div class="hub-doc-table__actions">
+                                @if (($canResubmitZatca ?? false) && $row['can_resend'])
+                                    <button
+                                        type="button"
+                                        class="hub-doc-table__action hub-doc-table__action--accent"
+                                        wire:click="resubmitInvoice({{ $invoice->id }})"
+                                        wire:loading.attr="disabled"
+                                        wire:target="resubmitInvoice({{ $invoice->id }})"
+                                        title="{{ $row['zatca_error'] ?? __('invoices.action_resend_zatca') }}"
+                                    >
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                                        {{ __('invoices.action_resend_zatca') }}
+                                    </button>
+                                @endif
                                 <a class="hub-doc-table__action" href="{{ $urls['print'] }}" target="_blank" rel="noopener">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
                                     {{ __('invoices.action_print') }}

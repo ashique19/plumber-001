@@ -3,12 +3,16 @@
 namespace App\Livewire\Invoices;
 
 use App\Enums\InvoiceDocumentType;
+use App\Livewire\Concerns\DispatchesToasts;
 use App\Livewire\Concerns\ResolvesBusinessContext;
 use App\Livewire\Concerns\ValidatesFieldsLive;
 use App\Models\Invoice;
+use App\Services\Invoicing\InvoiceZatcaResubmitService;
 use App\Support\Hub\HubDocumentSigning;
 use App\Support\Hub\HubInvoicePrintLinks;
+use App\Support\Hub\HubInvoiceZatcaTab;
 use App\Support\Invoicing\InvoicePayloadTotals;
+use App\Support\Invoicing\ZatcaSubmissionStatus;
 use App\Business\BusinessContext;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -23,6 +27,7 @@ use Spatie\Permission\PermissionRegistrar;
 class InvoiceHub extends Component
 {
     use ResolvesBusinessContext;
+    use DispatchesToasts;
     use ValidatesFieldsLive;
     use WithPagination;
 
@@ -33,7 +38,7 @@ class InvoiceHub extends Component
     public string $typeFilter = 'all';
 
     #[Url]
-    public string $signingFilter = 'all';
+    public string $zatcaTab = HubInvoiceZatcaTab::ALL;
 
     #[Url]
     public string $dateFrom = '';
@@ -46,6 +51,9 @@ class InvoiceHub extends Component
 
     #[Url]
     public string $sortDir = 'desc';
+
+    /** @var array<int, bool> */
+    public array $resubmitting = [];
 
     public function mount(): void
     {
@@ -64,7 +72,7 @@ class InvoiceHub extends Component
         $this->resetPage();
     }
 
-    public function updatingSigningFilter(): void
+    public function updatingZatcaTab(): void
     {
         $this->resetPage();
     }
@@ -96,13 +104,84 @@ class InvoiceHub extends Component
         $this->resetPage();
     }
 
+    public function resubmitInvoice(int $invoiceId, InvoiceZatcaResubmitService $service): void
+    {
+        abort_unless(auth('staff')->user()?->can('invoices.issue'), 403);
+
+        $this->resubmitting[$invoiceId] = true;
+
+        try {
+            $invoice = Invoice::query()->whereKey($invoiceId)->firstOrFail();
+            $result = $service->resubmit($invoice);
+
+            if ($result->ok && $result->invoice) {
+                $this->toastSuccess(__('invoices.zatca_resubmit_success', ['number' => $result->invoice->document_number]));
+
+                if ($this->zatcaTab === HubInvoiceZatcaTab::FAILED && HubInvoiceZatcaTab::isSuccess($result->invoice)) {
+                    $this->zatcaTab = HubInvoiceZatcaTab::SUCCESS;
+                }
+
+                return;
+            }
+
+            if ($result->code === 'locked') {
+                $this->toastWarning($result->userMessage ?? '');
+            } elseif ($result->code === 'already_success') {
+                $this->toastInfo($result->userMessage ?? '');
+                $this->zatcaTab = HubInvoiceZatcaTab::SUCCESS;
+            } elseif ($result->userMessage) {
+                $this->toastError($result->userMessage);
+            }
+        } finally {
+            unset($this->resubmitting[$invoiceId]);
+        }
+    }
+
+    public function resubmitAllFailed(InvoiceZatcaResubmitService $service): void
+    {
+        abort_unless(auth('staff')->user()?->can('invoices.issue'), 403);
+
+        $query = Invoice::query()->where('status', 'issued');
+        HubInvoiceZatcaTab::applyFailedScope($query);
+        $invoices = $query->orderBy('id')->limit(40)->get();
+
+        $ok = 0;
+        $failed = 0;
+
+        foreach ($invoices as $invoice) {
+            $result = $service->resubmit($invoice);
+            if ($result->ok) {
+                $ok++;
+            } else {
+                $failed++;
+            }
+        }
+
+        if ($invoices->isEmpty()) {
+            $this->toastInfo(__('invoices.zatca_resubmit_bulk_empty'));
+
+            return;
+        }
+
+        $this->toastInfo(__('invoices.zatca_resubmit_bulk_done', ['ok' => $ok, 'fail' => $failed]));
+
+        if ($ok > 0 && $failed === 0) {
+            $this->zatcaTab = HubInvoiceZatcaTab::SUCCESS;
+        }
+    }
+
     public function render(): View
     {
         $user = auth('staff')->user();
+        $canResubmit = ($user?->can('invoices.issue') ?? false)
+            && ZatcaSubmissionStatus::canSubmitToZatca($this->business);
 
         return view('livewire.invoices.invoice-hub', [
             'invoices' => $this->invoicePage(),
             'canIssueInvoice' => $user?->can('invoices.issue') ?? false,
+            'canResubmitZatca' => $canResubmit,
+            'zatcaFailedCount' => HubInvoiceZatcaTab::countFailed(),
+            'zatcaSuccessCount' => HubInvoiceZatcaTab::countSuccess(),
         ]);
     }
 
@@ -135,23 +214,9 @@ class InvoiceHub extends Component
             $query->whereDate('issued_at', '<=', $this->dateTo);
         }
 
-        match ($this->signingFilter) {
-            'none' => $query->where(function (Builder $q): void {
-                $q->whereNull('signed_xml')->orWhere('signed_xml', '');
-            }),
-            'signed' => $query->whereNotNull('signed_xml')
-                ->where('signed_xml', '!=', '')
-                ->where(function (Builder $q): void {
-                    $q->whereNull('payload->zheart_remote_submitted')
-                        ->orWhere('payload->zheart_remote_submitted', false);
-                }),
-            'submitted' => $query->where(function (Builder $q): void {
-                $q->where('payload->zheart_remote_submitted', true)
-                    ->orWhereNotNull('payload->zheart_zatca');
-            }),
-            'zatca_not_sent' => $query->where('payload->signing_submission_status', 'not_submitted'),
-            default => null,
-        };
+        if (in_array($this->zatcaTab, [HubInvoiceZatcaTab::FAILED, HubInvoiceZatcaTab::SUCCESS], true)) {
+            HubInvoiceZatcaTab::applyTabScope($query, $this->zatcaTab);
+        }
 
         $dir = $this->sortDir === 'asc' ? 'asc' : 'desc';
 
@@ -184,6 +249,10 @@ class InvoiceHub extends Component
                 'signing_key' => HubDocumentSigning::signingKey($invoice),
                 'print_urls' => HubInvoicePrintLinks::urls($invoice),
                 'is_standard' => $invoice->document_type === InvoiceDocumentType::Standard,
+                'zatca_failed' => HubInvoiceZatcaTab::isFailed($invoice),
+                'zatca_success' => HubInvoiceZatcaTab::isSuccess($invoice),
+                'zatca_error' => HubInvoiceZatcaTab::shortError($invoice),
+                'can_resend' => HubInvoiceZatcaTab::canResend($invoice),
             ];
         });
 

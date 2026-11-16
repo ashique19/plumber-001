@@ -110,3 +110,53 @@ html[dir='rtl'] .hub-doc-table__sticky {
 html[dir='rtl'] .hub-doc-table__actions {
     justify-content: flex-start;
 }
+
+.hub-doc-table__tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    align-items: center;
+}
+
+.hub-doc-table__tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-height: 2.5rem;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border-radius: 999px;
+    border: 1px solid var(--app-border);
+    background: var(--app-surface-2, #f8fafc);
+    color: inherit;
+    cursor: pointer;
+}
+
+.hub-doc-table__tab--active {
+    border-color: var(--app-accent);
+    background: color-mix(in srgb, var(--app-accent) 12%, transparent);
+    color: var(--app-accent);
+}
+
+.hub-doc-table__tab-badge {
+    display: inline-flex;
+    min-width: 1.25rem;
+    justify-content: center;
+    padding: 0.1rem 0.35rem;
+    border-radius: 999px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    background: var(--app-accent);
+    color: #fff;
+}
+
+.hub-doc-table__tab-badge--muted {
+    background: color-mix(in srgb, var(--app-border) 55%, var(--app-muted));
+    color: var(--app-surface, #fff);
+}
+
+.hub-doc-table__action--accent {
+    border-color: color-mix(in srgb, var(--app-accent) 55%, var(--app-border));
+    color: var(--app-accent);
+}
