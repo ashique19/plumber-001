@@ -69,6 +69,58 @@ export async function expectToastClearWhenModalOpens(page: Page, openModal: () =
     await expect(page.locator('#toast-stack .toast-item')).toHaveCount(0);
 }
 
+export async function expectToastDoesNotOverlapPageTitle(page: Page): Promise<void> {
+    const h1 = page.locator('h1.app-page-title').first();
+    await expect(h1).toBeVisible();
+
+    await page.evaluate(() => {
+        window.dispatchEvent(
+            new CustomEvent('toast', {
+                detail: { type: 'success', message: 'E2E title overlap probe', dedupe: false },
+            }),
+        );
+    });
+    await expect(page.locator('#toast-stack .toast-item')).toHaveCount(1);
+
+    const overlaps = await page.evaluate(() => {
+        const toast = document.querySelector('#toast-stack .toast-item');
+        const title = document.querySelector('h1.app-page-title');
+        if (! toast || ! title) {
+            return false;
+        }
+
+        const a = toast.getBoundingClientRect();
+        const b = title.getBoundingClientRect();
+
+        return !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom);
+    });
+    expect(overlaps, 'toast should not overlap page title').toBe(false);
+}
+
+export async function expectDocumentTotalsRowsSeparated(page: Page): Promise<void> {
+    const rows = page.locator('.invoice-issue-preview-totals__row');
+    await expect(rows).toHaveCount(2);
+
+    const gapOk = await rows.evaluateAll((elements) => {
+        if (elements.length < 2) {
+            return false;
+        }
+
+        const first = elements[0].getBoundingClientRect();
+        const second = elements[1].getBoundingClientRect();
+
+        return second.top >= first.bottom - 1;
+    });
+    expect(gapOk, 'totals breakdown rows should stack vertically').toBeTruthy();
+
+    const columnGap = await rows.first().evaluate((row) => {
+        const style = window.getComputedStyle(row);
+
+        return parseFloat(style.columnGap) || 0;
+    });
+    expect(columnGap).toBeGreaterThanOrEqual(12);
+}
+
 export async function expectFocusedInputNotCoveredByToast(page: Page, input: Locator): Promise<void> {
     await input.focus();
     await page.evaluate(() => {

@@ -291,6 +291,10 @@
         min-height: 3rem;
     }
 
+    html.admin-app .x-modal-form__fields .form-field__hint--after {
+        margin-top: 0.25rem;
+    }
+
     @keyframes x-modal-backdrop-in {
         from {
             opacity: 0;

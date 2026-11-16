@@ -213,6 +213,28 @@
         box-shadow: var(--app-shadow);
     }
 
+    .invoice-issue-preview-totals__breakdown {
+        display: grid;
+        gap: 0.5rem;
+    }
+
+    .invoice-issue-preview-totals__row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        column-gap: 1rem;
+        align-items: baseline;
+        row-gap: 0.125rem;
+    }
+
+    .invoice-issue-preview-totals__row dd {
+        text-align: end;
+        white-space: nowrap;
+    }
+
+    [dir='rtl'] .invoice-issue-preview-totals__row dd {
+        text-align: start;
+    }
+
     .invoice-issue-preview-totals--compact {
         @apply sticky bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-[5];
     }

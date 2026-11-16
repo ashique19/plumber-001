@@ -15,6 +15,7 @@
     'prefix' => null,
     'clearable' => false,
     'clearAction' => null,
+    'hintPosition' => 'before',
 ])
 
 @php
@@ -36,7 +37,7 @@
         {{ $label }}
         @if($required)<span class="text-rose-600" aria-hidden="true">*</span>@endif
     </span>
-    @if($hint)
+    @if($hint && $hintPosition === 'before')
         <span class="form-field__hint type-small">{{ $hint }}</span>
     @endif
     <div @class([$wrapClass])>
@@ -73,5 +74,8 @@
             </button>
         @endif
     </div>
+    @if($hint && $hintPosition === 'after')
+        <span class="form-field__hint form-field__hint--after type-small">{{ $hint }}</span>
+    @endif
     <x-field.partials.error :name="$name" />
 </label>
