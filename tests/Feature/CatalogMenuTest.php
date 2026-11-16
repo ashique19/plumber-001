@@ -70,6 +70,24 @@ it('renders shared x-modal chrome for product modal', function () {
         ->and($html)->toContain(__('catalog.cancel'));
 });
 
+it('renders shared x-modal chrome for category and modifier forms', function () {
+    $categoryHtml = Livewire::actingAs($this->owner, 'staff')
+        ->test(MenuManager::class)
+        ->call('startCategory')
+        ->html();
+
+    expect($categoryHtml)->toContain('x-modal-backdrop')
+        ->and($categoryHtml)->toContain('catalog-category-form');
+
+    $modifierHtml = Livewire::actingAs($this->owner, 'staff')
+        ->test(MenuManager::class)
+        ->call('startModifier')
+        ->html();
+
+    expect($modifierHtml)->toContain('x-modal-backdrop')
+        ->and($modifierHtml)->toContain('catalog-modifier-form');
+});
+
 it('preserves storefront visibility columns when editing a product', function () {
     $product = Product::query()->firstOrFail();
     $product->update([
