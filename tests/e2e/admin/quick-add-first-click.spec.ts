@@ -59,9 +59,26 @@ const CASES: QuickAddCase[] = [
     },
 ];
 
-async function hardReload(page: import('playwright/test').Page): Promise<void> {
+async function hardReload(page: import('playwright/test').Page, settleMs = 0): Promise<void> {
     await page.reload({ waitUntil: 'networkidle' });
     await expect(page.locator('html.admin-app')).toHaveCount(1);
+    if (settleMs > 0) {
+        await page.waitForTimeout(settleMs);
+    }
+}
+
+async function assertQuickAddOpensModal(
+    page: import('playwright/test').Page,
+    addSelector: string,
+    modalReadySelector: string,
+): Promise<void> {
+    const add = page.locator(addSelector);
+    await expect(add).toBeVisible();
+    await add.click({ clickCount: 1, delay: 30 });
+
+    const modal = page.locator('.x-modal-backdrop');
+    await expect(modal).toBeVisible({ timeout: 15_000 });
+    await expect(modal.locator(modalReadySelector)).toBeVisible({ timeout: 15_000 });
 }
 
 for (const viewport of [
@@ -81,14 +98,31 @@ for (const viewport of [
                 await page.waitForLoadState('networkidle');
                 await hardReload(page);
 
-                const add = page.locator(quickCase.addSelector);
-                await expect(add).toBeVisible();
-                await add.click({ clickCount: 1 });
-
-                const modal = page.locator('.x-modal-backdrop');
-                await expect(modal).toBeVisible({ timeout: 10_000 });
-                await expect(modal.locator(quickCase.modalReadySelector)).toBeVisible({ timeout: 10_000 });
+                await assertQuickAddOpensModal(page, quickCase.addSelector, quickCase.modalReadySelector);
             });
         }
     });
 }
+
+test.describe('quick-add first click after hard reload (standard invoice bn desktop)', () => {
+    test.use({ viewport: { width: 1280, height: 900 } });
+
+    test.beforeEach(async ({ page }) => {
+        await staffLogin(page);
+    });
+
+    test('standard-invoice-product opens নতুন পণ্য modal on first click', async ({ page }) => {
+        await page.goto(adminPath('/admin/invoices/issue/standard', 'bn'));
+        await page.waitForLoadState('networkidle');
+        await hardReload(page, 5_000);
+
+        await assertQuickAddOpensModal(
+            page,
+            '.invoice-add-line-search .admin-typeahead__add',
+            'input#quickProductNameEn',
+        );
+
+        const modal = page.locator('.x-modal-backdrop');
+        await expect(modal.getByRole('heading', { name: 'নতুন পণ্য' })).toBeVisible();
+    });
+});

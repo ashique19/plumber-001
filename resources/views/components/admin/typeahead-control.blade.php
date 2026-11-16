@@ -17,7 +17,7 @@
 <div
     class="admin-typeahead"
     x-data="adminTypeaheadControl({ resultsOpen: @js($resultsOpen), addAction: @js($hasAdd ? $addAction : null) })"
-    x-on:focusin="if ($el.contains($event.target)) { openPanel() }"
+    x-on:focusin="if ($el.contains($event.target) && ! $event.target.closest('.admin-typeahead__add')) { openPanel() }"
     x-on:click.outside="closePanel()"
 >
     <span class="form-field__label type-label">{{ $label }}</span>

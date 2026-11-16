@@ -4,7 +4,7 @@
     'search' => '',
 ])
 
-<div class="invoice-add-line-search mb-3">
+<div class="invoice-add-line-search mb-3" wire:key="invoice-add-line-product-search">
     <x-admin.typeahead-control
         :label="__('invoices.search_catalog_products')"
         name="addLineProductSearch"
