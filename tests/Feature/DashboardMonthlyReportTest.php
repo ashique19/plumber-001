@@ -41,7 +41,7 @@ it('renders only quick action tiles without monthly report charts or kpi rows', 
             ->withQueryParams(['locale' => $locale])
             ->test(AdminDashboard::class)
             ->assertSeeHtml('data-testid="admin-dashboard"')
-            ->assertSeeHtml('dashboard-action-grid')
+            ->assertSeeHtml('dashboard-action-board')
             ->assertSee(__('dashboard.tiles.create_invoice', [], $locale), false)
             ->assertDontSee(__('dashboard.monthly_report.title', [], $locale), false)
             ->assertDontSee(__('dashboard.recent_sales', [], $locale), false)
