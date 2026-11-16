@@ -8,7 +8,7 @@
     $grandLabel = $grandLabel ?? __('invoices.grand_total');
 @endphp
 
-<div class="document-create-card document-create-summary">
+<div class="document-create-card document-create-summary" aria-label="{{ __('invoices.preview_totals') }}">
     <div class="document-create-card__head">
         <x-app.icon name="calculator" class="h-5 w-5" aria-hidden="true" />
         <span>{{ $heading }}</span>
@@ -16,7 +16,10 @@
     <div class="document-create-card__body" aria-live="polite">
         <dl class="document-summary-rows">
             <div>
-                <dt class="text-[var(--app-muted)]">{{ __('invoices.summary_subtotal') }}</dt>
+                <dt class="text-[var(--app-muted)]">
+                    <span class="sr-only">{{ __('invoices.subtotal_ex_vat') }}</span>
+                    <span aria-hidden="true">{{ __('invoices.summary_subtotal') }}</span>
+                </dt>
                 <dd class="tabular-nums font-semibold">{{ number_format($summaryTotals['subtotal_ex_vat'], 2) }}</dd>
             </div>
             <div>
@@ -28,7 +31,10 @@
                 <dd class="tabular-nums font-semibold">{{ number_format($summaryTotals['taxable_ex_vat'], 2) }}</dd>
             </div>
             <div>
-                <dt class="text-[var(--app-muted)]">{{ __('invoices.summary_vat', ['rate' => 15]) }}</dt>
+                <dt class="text-[var(--app-muted)]">
+                    <span class="sr-only">{{ __('invoices.total_vat') }}</span>
+                    <span aria-hidden="true">{{ __('invoices.summary_vat', ['rate' => 15]) }}</span>
+                </dt>
                 <dd class="tabular-nums font-semibold">{{ number_format($summaryTotals['total_vat'], 2) }}</dd>
             </div>
         </dl>

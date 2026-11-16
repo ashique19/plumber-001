@@ -8,14 +8,14 @@
     'compact' => false,
 ])
 
-<div class="document-create-card">
+<div class="document-create-card invoice-customer-picker">
     <div class="document-create-card__head justify-between">
         <div class="flex items-center gap-2">
             <x-app.icon name="user" class="h-5 w-5" aria-hidden="true" />
             <span>{{ __('invoices.customer_information') }}</span>
         </div>
         @if ($canCreate)
-            <button type="button" class="tap-action-outline px-3 py-1 text-xs font-semibold" wire:click="openQuickCustomerModal">
+            <button type="button" class="admin-typeahead__add tap-action-outline px-3 py-1 text-xs font-semibold" wire:click="openQuickCustomerModal">
                 {{ __('invoices.add_customer') }}
             </button>
         @endif

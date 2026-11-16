@@ -337,7 +337,7 @@ class IssueInvoice extends Component
             : null;
 
         $documentNumber = $existing?->document_number
-            ?? strtoupper(($issueMode === 'standard' ? 'INV' : 'SIMP').'-'.now('Asia/Riyadh')->format('Ymd-His'));
+            ?? strtoupper(($issueMode === 'standard' ? 'STD' : 'SIMP').'-'.now('Asia/Riyadh')->format('Ymd-His'));
 
         $draft = $existing ?? $issuer->issueDraft($branch, $documentNumber, $type, $this->buildLineItems());
 

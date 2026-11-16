@@ -36,7 +36,7 @@
                 wire-click="{{ $primaryWireClick }}"
                 :target="$primaryTarget"
                 :loading="$primaryTarget"
-                class="tap-action-primary document-create-footer__primary min-h-11 px-5 text-sm font-semibold"
+                class="tap-action-primary document-create-footer__primary document-primary-submit min-h-11 px-5 text-sm font-semibold"
             >
                 {{ $primaryLabel }}
             </x-ui.livewire-action>

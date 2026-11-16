@@ -10,6 +10,7 @@
     $filled = collect($lines)->filter(fn ($row) => filled($row['product_id'] ?? null));
 @endphp
 
+<section class="invoice-document-lines" aria-label="{{ __('invoices.lines_section') }}">
 <div class="document-product-line-cards">
     @foreach ($lines as $index => $line)
         @continue(! filled($line['product_id'] ?? null))
@@ -124,7 +125,7 @@
                     <span class="text-xs font-medium">{{ $line['unit_label'] ?: 'PCS' }}</span>
                 </td>
                 <td class="min-w-[6.5rem]">
-                    <input type="number" step="0.01" min="0" class="form-field__control w-full" wire:model.live="lines.{{ $index }}.unit_price" />
+                    <x-field.money step="0.01" min="0" :label="__('invoices.line_price_ex_vat')" name="lines.{{ $index }}.unit_price" wire:model.live="lines.{{ $index }}.unit_price" wrapper-class="!mb-0 [&_.form-field__label]:sr-only" />
                 </td>
                 <td class="min-w-[5rem]">
                     <select class="form-field__control w-full" wire:model.live="lines.{{ $index }}.discount_percent">
@@ -171,3 +172,4 @@
 >
     {{ __('invoices.add_another_product') }}
 </button>
+</section>
