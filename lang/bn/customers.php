@@ -13,6 +13,7 @@ return [
     'guest_label' => 'অতিথি',
     'points' => ':count পয়েন্ট',
     'phone' => 'ফোন',
+    'email' => 'ইমেইল',
     'points_balance' => 'পয়েন্ট ব্যালেন্স',
     'referral_code' => 'রেফারেল',
     'referred_by' => 'রেফার করেছেন',

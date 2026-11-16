@@ -13,6 +13,7 @@ return [
     'guest_label' => 'ضيف',
     'points' => ':count نقطة',
     'phone' => 'الجوال',
+    'email' => 'البريد الإلكتروني',
     'points_balance' => 'رصيد النقاط',
     'referral_code' => 'إحالة',
     'referred_by' => 'أُحيل بواسطة',
