@@ -9,7 +9,7 @@
     'showWalkInContactFields' => false,
 ])
 
-<div class="document-create-card">
+<div class="document-create-card document-create-card--customer">
     <div class="document-create-card__head justify-between">
         <div class="flex items-center gap-2">
             <x-app.icon name="user" class="h-5 w-5" aria-hidden="true" />
