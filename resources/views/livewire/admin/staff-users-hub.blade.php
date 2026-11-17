@@ -136,29 +136,34 @@
         close-wire="closeForm"
         size="lg"
     >
-        <form class="app-admin-form" wire:submit="save" novalidate>
-            <x-field.input :label="__('staff_users.name')" name="name" wire:model="name" required />
-            <x-field.input type="email" :label="__('staff_users.email')" name="email" wire:model="email" required />
-            <x-field.input
-                type="password"
-                :label="$editingId ? __('staff_users.password_optional') : __('staff_users.password')"
-                name="password"
-                wire:model="password"
-                @if(!$editingId) required @endif
-            />
-            <x-field.select :label="__('staff_users.role')" name="role" wire:model="role" required>
-                @foreach ($roleOptions as $roleKey)
-                    <option value="{{ $roleKey }}">{{ __('staff_users.roles.'.$roleKey) }}</option>
-                @endforeach
-            </x-field.select>
-            <x-field.select :label="__('staff_users.language')" name="locale" wire:model="locale" required>
-                @foreach ($localeOptions as $code => $label)
-                    <option value="{{ $code }}" @selected($locale === $code)>{{ $label }}</option>
-                @endforeach
-            </x-field.select>
-            <div class="flex justify-end gap-2 pt-2">
-                <button type="button" class="tap-action-muted min-h-11 px-4" wire:click="closeForm">{{ __('staff_users.cancel') }}</button>
-                <x-ui.livewire-action type="submit" target="save" loading="saving" variant="primary" class="min-h-11">{{ __('staff_users.save') }}</x-ui.livewire-action>
+        <form class="x-modal-form" wire:submit="save" novalidate data-testid="staff-user-form">
+            <div class="x-modal-form__fields app-admin-form">
+                <x-field.input :label="__('staff_users.name')" name="name" wire:model="name" required />
+                <x-field.input type="email" :label="__('staff_users.email')" name="email" wire:model="email" required />
+                <x-field.input
+                    type="password"
+                    :label="$editingId ? __('staff_users.password_optional') : __('staff_users.password')"
+                    name="password"
+                    wire:model="password"
+                    @if(!$editingId) required @endif
+                />
+                <x-field.select :label="__('staff_users.role')" name="role" wire:model="role" required :liveValidate="false">
+                    @foreach ($roleOptions as $roleKey)
+                        <option value="{{ $roleKey }}">{{ __('staff_users.roles.'.$roleKey) }}</option>
+                    @endforeach
+                </x-field.select>
+                <x-field.select :label="__('staff_users.language')" name="locale" wire:model="locale" required :liveValidate="false">
+                    @foreach ($localeOptions as $code => $label)
+                        <option value="{{ $code }}" @selected($locale === $code)>{{ $label }}</option>
+                    @endforeach
+                </x-field.select>
+            </div>
+            <div class="x-modal__footer x-modal__footer--in-form">
+                <x-modal.footer
+                    cancel-wire="closeForm"
+                    submit-target="save"
+                    :submit-label="__('staff_users.save')"
+                />
             </div>
         </form>
     </x-admin.hub-sheet>

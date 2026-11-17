@@ -3,6 +3,14 @@
 return [
     'required' => 'The :attribute field is required.',
 
+    'attributes' => [
+        'name' => 'Name',
+        'email' => 'Email',
+        'password' => 'Password',
+        'role' => 'Role',
+        'locale' => 'Language',
+    ],
+
     'quick_attributes' => [
         'customer_name' => 'Name',
         'customer_name_ar' => 'Name (Arabic)',

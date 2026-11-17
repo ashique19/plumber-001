@@ -3,6 +3,7 @@
 use App\Business\BusinessContext;
 use App\Livewire\Admin\BusinessSettings;
 use App\Livewire\Admin\StaffProfile;
+use App\Livewire\Admin\StaffUsersHub;
 use App\Livewire\Concerns\ValidatesFieldsLive;
 use App\Livewire\Expenses\ExpensesHub;
 use App\Livewire\Payments\PaymentsDuesHub;
@@ -77,21 +78,27 @@ it('ensures livewire components with live field validation expose validateLiveFi
 it('calls validateLiveField on the staff profile without error', function () {
     Livewire::actingAs($this->owner, 'staff')
         ->test(StaffProfile::class)
+        ->call('touchLiveField', 'name')
+        ->set('name', '')
         ->call('validateLiveField', 'name')
-        ->assertHasNoErrors();
+        ->assertHasErrors(['name']);
 });
 
 it('calls validateLiveField on expense and payments forms without error', function () {
     Livewire::actingAs($this->owner, 'staff')
         ->test(ExpensesHub::class)
         ->set('showForm', true)
-        ->call('validateLiveField', 'vendor')
-        ->assertHasNoErrors();
+        ->call('touchLiveField', 'amountExVat')
+        ->set('amountExVat', '')
+        ->call('validateLiveField', 'amountExVat')
+        ->assertHasErrors(['amountExVat']);
 
     Livewire::actingAs($this->owner, 'staff')
         ->test(PaymentsDuesHub::class)
+        ->call('touchLiveField', 'paidOn')
+        ->set('paidOn', '')
         ->call('validateLiveField', 'paidOn')
-        ->assertHasNoErrors();
+        ->assertHasErrors(['paidOn']);
 });
 
 it('calls validateLiveField on order history refund reason without error', function () {
@@ -100,8 +107,19 @@ it('calls validateLiveField on order history refund reason without error', funct
     Livewire::actingAs($this->owner, 'staff')
         ->test(OrderHistory::class, ['branch' => $this->branch])
         ->call('openRefundModal', $order->id)
+        ->call('touchLiveField', 'refundReason')
         ->set('refundReason', 'Sample refund reason')
         ->call('validateLiveField', 'refundReason')
+        ->assertHasNoErrors();
+});
+
+it('does not validate untouched fields on blur hook', function () {
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(StaffUsersHub::class)
+        ->call('startCreate')
+        ->set('role', 'manager')
+        ->set('locale', 'en')
+        ->call('validateLiveField', 'name')
         ->assertHasNoErrors();
 });
 

@@ -20,8 +20,10 @@ beforeEach(function () {
 it('exposes validateLiveField for shared form blur hooks', function () {
     Livewire::actingAs($this->owner, 'staff')
         ->test(StaffProfile::class)
+        ->call('touchLiveField', 'email')
+        ->set('email', '')
         ->call('validateLiveField', 'email')
-        ->assertHasNoErrors();
+        ->assertHasErrors(['email']);
 });
 
 it('renders staff profile for authenticated user', function () {

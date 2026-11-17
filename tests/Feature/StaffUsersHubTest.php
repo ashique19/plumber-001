@@ -55,6 +55,18 @@ it('lists users with pagination and row actions for the owner', function () {
         ->assertSet('perPage', 10);
 });
 
+it('does not show a name validation error when changing role or locale before touching name', function () {
+    $bnNameRequired = __('validation.required', ['attribute' => __('validation.attributes.name')]);
+
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(StaffUsersHub::class)
+        ->call('startCreate')
+        ->set('role', StaffAdminRoleCatalog::UI_MANAGER)
+        ->set('locale', 'ar')
+        ->assertHasNoErrors()
+        ->assertDontSee($bnNameRequired);
+});
+
 it('creates a staff user with default bn locale and cashier role', function () {
     Livewire::actingAs($this->owner, 'staff')
         ->test(StaffUsersHub::class)

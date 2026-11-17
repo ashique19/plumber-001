@@ -192,6 +192,7 @@ class StaffUsersHub extends Component
         $this->password = '';
         $this->role = StaffAdminRoleCatalog::UI_STAFF;
         $this->locale = 'bn';
+        $this->resetLiveValidationState();
     }
 
     /**

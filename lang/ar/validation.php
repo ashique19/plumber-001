@@ -3,6 +3,14 @@
 return [
     'required' => 'حقل :attribute مطلوب.',
 
+    'attributes' => [
+        'name' => 'الاسم',
+        'email' => 'البريد الإلكتروني',
+        'password' => 'كلمة المرور',
+        'role' => 'الدور',
+        'locale' => 'اللغة',
+    ],
+
     'quick_attributes' => [
         'customer_name' => 'الاسم',
         'customer_name_ar' => 'الاسم (عربي)',
