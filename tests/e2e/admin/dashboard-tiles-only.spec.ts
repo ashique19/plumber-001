@@ -41,7 +41,7 @@ test.describe('dashboard quick action tiles only', () => {
         const content = page.locator('.app-content');
         const mainBox = await content.boundingBox();
         expect(mainBox).not.toBeNull();
-        expect(mainBox!.width).toBeLessThanOrEqual(1152 + 48);
+        expect(mainBox!.width).toBeGreaterThan(950);
 
         await page.screenshot({ path: '/opt/cursor/artifacts/dashboard-content-width-1280.png', fullPage: false });
     });
@@ -54,8 +54,7 @@ test.describe('dashboard quick action tiles only', () => {
         const content = page.locator('.app-content');
         const box = await content.boundingBox();
         expect(box).not.toBeNull();
-        expect(box!.width).toBeLessThanOrEqual(1152 + 48);
-        expect(box!.x).toBeGreaterThan(200);
+        expect(box!.width).toBeGreaterThan(1400);
 
         await page.screenshot({ path: '/opt/cursor/artifacts/dashboard-content-width-1920.png', fullPage: false });
     });

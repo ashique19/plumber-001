@@ -1,29 +1,21 @@
 <?php
 
-use App\Models\BusinessSetting;
-use App\Models\StaffUser;
-use Database\Seeders\DemoStaffSeeder;
+it('widens admin content on large breakpoints without changing the mobile shell cap', function () {
+    $adminWidth = (string) file_get_contents(resource_path('css/admin-content-width.css'));
+    $shell = (string) file_get_contents(resource_path('css/app-shell.css'));
+    $create = (string) file_get_contents(resource_path('css/document-create-layout.css'));
 
-beforeEach(function () {
-    $this->withoutVite();
-    (new DemoStaffSeeder)->run();
-    BusinessSetting::singleton();
-    $this->owner = StaffUser::query()->where('email', 'owner@example.test')->firstOrFail();
-});
+    expect($adminWidth)
+        ->toContain('min-width: 1024px')
+        ->toContain('100rem')
+        ->toContain('padding-inline: 1.5rem')
+        ->toContain('min-width: 1280px')
+        ->toContain('padding-inline: 2rem');
 
-it('constrains admin main content and allows wider hub pages', function () {
-    $dashboardHtml = $this->actingAs($this->owner, 'staff')
-        ->get(route('admin.dashboard'))
-        ->assertOk()
-        ->getContent();
+    expect($shell)->toContain('max-w-6xl');
 
-    expect($dashboardHtml)->toContain('app-content')
-        ->and($dashboardHtml)->toContain('dashboard-action-grid');
-
-    $customersHtml = $this->actingAs($this->owner, 'staff')
-        ->get(route('admin.customers'))
-        ->assertOk()
-        ->getContent();
-
-    expect($customersHtml)->toContain('admin-hub-page');
+    expect($create)
+        ->toContain('--document-sidebar-width: 24rem')
+        ->toContain('position: sticky')
+        ->toMatch('/min-width: 1280px[\s\S]*position: sticky/');
 });

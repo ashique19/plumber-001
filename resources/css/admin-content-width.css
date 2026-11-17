@@ -1,0 +1,33 @@
+/**
+ * Admin shell content width — widen on lg+ while mobile/tablet keep app-shell defaults.
+ */
+@media (min-width: 1024px) {
+    html.admin-app .app-main--with-sidebar .app-content,
+    html.admin-app .app-content {
+        width: 100%;
+        max-width: min(100%, 100rem);
+        margin-inline: auto;
+        padding-inline: 1.5rem;
+    }
+
+    html.admin-app .app-main--with-sidebar .app-topbar__inner,
+    html.admin-app .app-topbar__inner {
+        width: 100%;
+        max-width: min(100%, 100rem);
+        margin-inline: auto;
+        padding-inline: 1.5rem;
+    }
+
+    html.admin-app .app-content:has(> .admin-hub-page) {
+        max-width: min(100%, 100rem);
+    }
+}
+
+@media (min-width: 1280px) {
+    html.admin-app .app-main--with-sidebar .app-content,
+    html.admin-app .app-content,
+    html.admin-app .app-main--with-sidebar .app-topbar__inner,
+    html.admin-app .app-topbar__inner {
+        padding-inline: 2rem;
+    }
+}
