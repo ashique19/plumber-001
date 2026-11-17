@@ -55,6 +55,18 @@ beforeEach(function () {
                 'reporting_status' => 'reported',
             ],
         ], 200),
+        'https://z-heart.test/api/v1/invoices/clear' => Http::response([
+            'status' => 'ok',
+            'data' => [
+                'signed_xml' => base64_encode('<Invoice/>'),
+                'uuid' => '550e8400-e29b-41d4-a716-446655440099',
+                'invoice_hash' => 'hash-pos',
+                'icv' => 1,
+                'qr' => 'cXI=',
+                'zatca' => ['status' => 'CLEARED'],
+                'reporting_status' => 'cleared',
+            ],
+        ], 200),
     ]);
 
     $this->owner = StaffUser::query()->where('email', 'owner@example.test')->firstOrFail();
