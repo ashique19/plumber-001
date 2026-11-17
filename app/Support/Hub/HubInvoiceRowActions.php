@@ -3,7 +3,6 @@
 namespace App\Support\Hub;
 
 use App\Enums\InvoiceDocumentType;
-use App\Enums\InvoiceStatus;
 use App\Models\Invoice;
 use App\Models\StaffUser;
 use App\Support\Invoicing\InvoicePrintClearance;
@@ -73,11 +72,15 @@ final class HubInvoiceRowActions
         $awaiting = self::showAwaitingClearanceControls($invoice);
         $actor ??= auth('staff')->user();
 
+        $canIssueFromHub = self::canIssueDraft($invoice)
+            && $actor instanceof StaffUser
+            && $actor->hasAnyRole(['owner', 'manager']);
+
         return [
             'view' => self::canView($invoice),
             'edit' => self::canEdit($invoice),
             'edit_url' => HubInvoiceDraftLifecycle::editUrl($invoice),
-            'issue_draft' => self::canIssueDraft($invoice),
+            'issue_draft' => $canIssueFromHub,
             'preview_draft' => HubInvoiceDraftLifecycle::canPreview($invoice),
             'preview_draft_url' => HubInvoiceDraftLifecycle::previewUrl($invoice),
             'authorize_draft' => HubInvoiceDraftLifecycle::canAuthorize($actor, $invoice),

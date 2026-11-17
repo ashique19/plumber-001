@@ -27,6 +27,24 @@
         <x-field.input type="date" :label="__('quotations.date_to')" name="dateTo" wire:model.live="dateTo" :liveValidate="false" />
     </section>
 
+    <nav class="hub-doc-table__tabs hub-doc-table__tabs--scroll mb-4" aria-label="{{ __('quotations.lifecycle_tabs_label') }}" data-testid="hub-quotation-lifecycle-tabs">
+        <button type="button" @class(['hub-doc-table__tab', 'hub-doc-table__tab--active' => $lifecycleTab === 'all']) wire:click="$set('lifecycleTab', 'all')">
+            {{ __('quotations.lifecycle_tab_all') }}
+        </button>
+        <button type="button" @class(['hub-doc-table__tab', 'hub-doc-table__tab--active' => $lifecycleTab === 'open']) wire:click="$set('lifecycleTab', 'open')">
+            {{ __('quotations.lifecycle_tab_open') }}
+            @if (($openQuotationCount ?? 0) > 0)
+                <span class="hub-doc-table__tab-badge">{{ $openQuotationCount }}</span>
+            @endif
+        </button>
+        <button type="button" @class(['hub-doc-table__tab', 'hub-doc-table__tab--active' => $lifecycleTab === 'converted']) wire:click="$set('lifecycleTab', 'converted')">
+            {{ __('quotations.lifecycle_tab_converted') }}
+        </button>
+        <button type="button" @class(['hub-doc-table__tab', 'hub-doc-table__tab--active' => $lifecycleTab === 'expired']) wire:click="$set('lifecycleTab', 'expired')">
+            {{ __('quotations.lifecycle_tab_expired') }}
+        </button>
+    </nav>
+
     @if ($quotations->isNotEmpty())
         <ul class="mb-4 space-y-3 sm:hidden" data-testid="hub-quotation-cards">
             @foreach ($quotations as $row)

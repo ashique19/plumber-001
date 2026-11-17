@@ -2,21 +2,29 @@
     /** @var array<string, mixed> $row */
     $invoice = $row['invoice'];
     $urls = $row['print_urls'];
-    $paymentKey = $row['payment_status']->value;
+    $paymentKey = $row['payment_status']?->value;
     $a = $row['actions'];
+    $rowUrl = $row['row_url'] ?? null;
 @endphp
 <li wire:key="inv-card-{{ $invoice->id }}" class="hub-doc-mobile-card" data-testid="hub-invoice-mobile-card">
+    @if (filled($rowUrl))
+        <a href="{{ $rowUrl }}" wire:navigate class="hub-doc-mobile-card__hit" data-testid="hub-invoice-mobile-row-link">
+    @endif
     <div class="hub-doc-mobile-card__head">
         <div>
-            <p class="font-semibold tabular-nums">{{ $invoice->document_number }}</p>
+            <p class="font-semibold tabular-nums">{{ $row['display_number'] }}</p>
             <p class="text-xs text-[var(--app-muted)]">{{ $row['customer'] }}</p>
         </div>
-        <span @class([
-            'pos-status-pill',
-            'pos-status-pill--paid' => $paymentKey === 'paid',
-            'pos-status-pill--warning' => $paymentKey === 'partial',
-            'pos-status-pill--refunded' => $paymentKey === 'unpaid',
-        ])>{{ $row['payment_status']->label() }}</span>
+        @if ($row['payment_status'] === null)
+            <span class="text-sm text-[var(--app-muted)]">—</span>
+        @else
+            <span @class([
+                'pos-status-pill',
+                'pos-status-pill--paid' => $paymentKey === 'paid',
+                'pos-status-pill--warning' => $paymentKey === 'partial',
+                'pos-status-pill--refunded' => $paymentKey === 'unpaid',
+            ])>{{ $row['payment_status']->label() }}</span>
+        @endif
     </div>
     <dl class="hub-doc-mobile-card__meta">
         <div class="hub-doc-mobile-card__meta-row">
@@ -32,7 +40,10 @@
             <x-invoices.hub-invoice-status-pill :invoice="$invoice" kind="zatca" :zatca-error="$row['zatca_error']" />
         </div>
     </dl>
-    <div class="hub-doc-mobile-card__actions">
+    @if (filled($rowUrl))
+        </a>
+    @endif
+    <div class="hub-doc-mobile-card__actions" @if (filled($rowUrl)) onclick="event.stopPropagation()" @endif>
         <x-hub.invoice-row-actions
             :invoice-id="$invoice->id"
             :actions="$a"

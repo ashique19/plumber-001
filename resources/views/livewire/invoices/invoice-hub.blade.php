@@ -52,6 +52,27 @@
         </x-field.select>
     </section>
 
+    <nav class="hub-doc-table__tabs hub-doc-table__tabs--scroll mb-4" aria-label="{{ __('invoices.lifecycle_tabs_label') }}" data-testid="hub-invoice-lifecycle-tabs">
+        <button type="button" @class(['hub-doc-table__tab', 'hub-doc-table__tab--active' => $lifecycleTab === 'all']) wire:click="$set('lifecycleTab', 'all')">
+            {{ __('invoices.lifecycle_tab_all') }}
+        </button>
+        <button type="button" @class(['hub-doc-table__tab', 'hub-doc-table__tab--active' => $lifecycleTab === 'drafts']) wire:click="$set('lifecycleTab', 'drafts')">
+            {{ __('invoices.lifecycle_tab_drafts') }}
+            @if (($draftCount ?? 0) > 0)
+                <span class="hub-doc-table__tab-badge">{{ $draftCount }}</span>
+            @endif
+        </button>
+        <button type="button" @class(['hub-doc-table__tab', 'hub-doc-table__tab--active' => $lifecycleTab === 'issued']) wire:click="$set('lifecycleTab', 'issued')">
+            {{ __('invoices.lifecycle_tab_issued') }}
+        </button>
+        <button type="button" @class(['hub-doc-table__tab', 'hub-doc-table__tab--active' => $lifecycleTab === 'awaiting_clearance']) wire:click="$set('lifecycleTab', 'awaiting_clearance')">
+            {{ __('invoices.lifecycle_tab_awaiting_clearance') }}
+        </button>
+        <button type="button" @class(['hub-doc-table__tab', 'hub-doc-table__tab--active' => $lifecycleTab === 'unpaid']) wire:click="$set('lifecycleTab', 'unpaid')">
+            {{ __('invoices.lifecycle_tab_unpaid') }}
+        </button>
+    </nav>
+
     <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <nav class="hub-doc-table__tabs" aria-label="{{ __('invoices.zatca_tabs_label') }}">
             <button type="button" @class(['hub-doc-table__tab', 'hub-doc-table__tab--active' => $zatcaTab === 'all']) wire:click="$set('zatcaTab', 'all')">
@@ -125,24 +146,40 @@
                     @php
                         $invoice = $row['invoice'];
                         $urls = $row['print_urls'];
-                        $paymentKey = $row['payment_status']->value;
+                        $paymentKey = $row['payment_status']?->value;
                         $a = $row['actions'];
                     @endphp
-                    <tr wire:key="inv-{{ $invoice->id }}">
-                        <td class="hub-doc-table__sticky hub-doc-table__doc-number">{{ $invoice->document_number }}</td>
+                    <tr wire:key="inv-{{ $invoice->id }}" @class(['hub-doc-table__data-row' => filled($row['row_url'] ?? null)])>
+                        <td class="hub-doc-table__sticky hub-doc-table__doc-number">
+                            @if (filled($row['row_url'] ?? null))
+                                <a href="{{ $row['row_url'] }}" wire:navigate class="hub-doc-table__row-link">{{ $row['display_number'] }}</a>
+                            @else
+                                {{ $row['display_number'] }}
+                            @endif
+                        </td>
                         <td class="tabular-nums whitespace-nowrap">{{ $invoice->issued_at?->format('Y-m-d') ?? ($invoice->created_at?->format('Y-m-d') ?? '—') }}</td>
                         <td class="hub-doc-table__customer" dir="auto" title="{{ $row['customer'] }}">
                             <span class="hub-doc-table__customer-text">{{ $row['customer'] }}</span>
                         </td>
                         <td class="hub-doc-table__amount"><x-invoices.sar-symbol /> {{ number_format($row['total_inc_vat'], 2) }}</td>
-                        <td class="hub-doc-table__amount"><x-invoices.sar-symbol /> {{ number_format($row['due_amount'], 2) }}</td>
+                        <td class="hub-doc-table__amount">
+                            @if ($row['due_amount'] === null)
+                                —
+                            @else
+                                <x-invoices.sar-symbol /> {{ number_format($row['due_amount'], 2) }}
+                            @endif
+                        </td>
                         <td class="hub-doc-table__status-col">
-                            <span @class([
-                                'pos-status-pill',
-                                'pos-status-pill--paid' => $paymentKey === 'paid',
-                                'pos-status-pill--warning' => $paymentKey === 'partial',
-                                'pos-status-pill--refunded' => $paymentKey === 'unpaid',
-                            ])>{{ $row['payment_status']->label() }}</span>
+                            @if ($row['payment_status'] === null)
+                                —
+                            @else
+                                <span @class([
+                                    'pos-status-pill',
+                                    'pos-status-pill--paid' => $paymentKey === 'paid',
+                                    'pos-status-pill--warning' => $paymentKey === 'partial',
+                                    'pos-status-pill--refunded' => $paymentKey === 'unpaid',
+                                ])>{{ $row['payment_status']->label() }}</span>
+                            @endif
                         </td>
                         <td class="hub-doc-table__status-col">
                             <div class="hub-doc-table__status-cell">
