@@ -22,9 +22,9 @@
     </td>
     <td class="invoice-print-totals__value tabular-nums" dir="ltr">
         @if ($strong)
-            <strong>{{ $slot }}</strong>
+            <strong><span class="invoice-print-money">{{ $slot }}</span></strong>
         @else
-            {{ $slot }}
+            <span class="invoice-print-money">{{ $slot }}</span>
         @endif
     </td>
 </tr>
