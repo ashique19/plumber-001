@@ -4,6 +4,7 @@
     'downloadUrl',
     'printBackUrl' => '',
     'canManage' => false,
+    'menuViewport' => 'table',
 ])
 
 <div {{ $attributes->class(['hub-doc-table__actions', 'hub-doc-table__actions--compact']) }} data-testid="hub-quotation-row-actions">
@@ -23,7 +24,7 @@
         test-id="hub-row-action-download"
     />
     @if ($canManage)
-        <x-hub.more-menu :menu-id="'quotation-'.$quotationId">
+        <x-hub.more-menu :menu-id="'quotation-'.$quotationId.'-'.$menuViewport">
             <a class="hub-doc-table__more-item" role="menuitem" href="{{ route('admin.quotations.edit', $quotationId) }}">{{ __('quotations.edit') }}</a>
             <button
                 type="button"

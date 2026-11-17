@@ -76,6 +76,7 @@
                             :download-url="$urls['download']"
                             :print-back-url="$urls['fallback_back'] ?? route('admin.quotations')"
                             :can-manage="$canManageQuotations ?? false"
+                            menu-viewport="card"
                         />
                     </div>
                 </li>
@@ -134,6 +135,7 @@
                                 :download-url="$urls['download']"
                                 :print-back-url="$urls['fallback_back'] ?? route('admin.quotations')"
                                 :can-manage="$canManageQuotations ?? false"
+                                menu-viewport="table"
                             />
                         </td>
                     </tr>

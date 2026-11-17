@@ -11,6 +11,7 @@
     'printBackUrl' => '',
     'canResubmitZatca' => false,
     'recordPaymentOnPage' => false,
+    'menuViewport' => 'table',
 ])
 
 <div {{ $attributes->class(['hub-doc-table__actions', 'hub-doc-table__actions--compact']) }} data-testid="hub-invoice-row-actions">
@@ -38,6 +39,7 @@
             :actions="$actions"
             :more="$more"
             :can-resubmit-zatca="$canResubmitZatca"
+            :menu-viewport="$menuViewport"
             draft-toolbar
         />
     @else
@@ -126,6 +128,7 @@
             :actions="$actions"
             :more="$more"
             :can-resubmit-zatca="$canResubmitZatca"
+            :menu-viewport="$menuViewport"
         />
     @endif
 </div>
