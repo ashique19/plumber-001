@@ -30,7 +30,7 @@
                 required
                 hint-position="after"
                 :hint="' '"
-                wrapper-class="md:col-span-2 quick-product-modal__name-field quick-product-modal__name-field--en"
+                wrapper-class="quick-product-modal__name-field quick-product-modal__name-field--en"
             />
             <x-field.input
                 :label="__('catalog.name_ar')"
@@ -41,7 +41,7 @@
                 :liveValidate="false"
                 required
                 dir="rtl"
-                wrapper-class="md:col-span-2 quick-product-modal__name-field quick-product-modal__name-field--ar"
+                wrapper-class="quick-product-modal__name-field quick-product-modal__name-field--ar"
             />
             <x-field.input type="number" step="0.01" min="0" :label="__('catalog.price_ex_vat')" name="quickProductPrice" wire:model="quickProductPrice" :liveValidate="false" required />
             <x-field.input type="number" step="0.01" min="0" max="100" :label="__('catalog.vat_rate')" name="quickProductVat" wire:model="quickProductVat" :liveValidate="false" required />

@@ -29,7 +29,7 @@
 </nav>
 
 <div class="catalog-product-form__panels min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-5">
-<div wire:cloak @class(['space-y-3', 'hidden' => $productFormTab !== 'basic'])">
+<div wire:cloak @class(['admin-modal-field-stack', 'hidden' => $productFormTab !== 'basic'])">
     <x-form.product-image-upload
         :label="__('catalog.product_image.label')"
         wire-model="productImageUpload"
@@ -99,7 +99,7 @@
     <x-field.toggle wire:model="productActive" name="productActive" :label="__('catalog.active')" />
 </div>
 
-<div wire:cloak @class(['space-y-3', 'hidden' => $productFormTab !== 'pricing'])>
+<div wire:cloak @class(['admin-modal-field-stack', 'hidden' => $productFormTab !== 'pricing'])>
     @if($productStockReady ?? false)
         <x-field.input
             type="number"
@@ -131,7 +131,7 @@
     @endif
 </div>
 
-<div wire:cloak @class(['space-y-3', 'hidden' => $productFormTab !== 'stock'])>
+<div wire:cloak @class(['admin-modal-field-stack', 'hidden' => $productFormTab !== 'stock'])>
     @if($productStockReady ?? false)
         <x-field.toggle wire:model.live="productTrackStock" name="productTrackStock" :label="__('stock.track_stock')" />
         @if($catalogUnitsSizesReady ?? false)

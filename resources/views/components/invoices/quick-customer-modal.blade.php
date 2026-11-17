@@ -13,7 +13,7 @@
     <form class="x-modal-form" wire:submit.prevent="saveQuickCustomer">
         <x-modal.validation-summary :fields="$quickCustomerFields" />
 
-        <div class="x-modal-form__fields x-modal-form__fields--2">
+        <div class="x-modal-form__fields">
             <x-customers.identity-fields
                 :fields="\App\Support\Customers\CustomerIdentityRules::quickFields()"
                 more-address-prop="customerQuickShowMoreAddress"

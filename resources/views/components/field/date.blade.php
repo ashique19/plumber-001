@@ -1,4 +1,4 @@
-@props(['label', 'name'])
+@props(['label', 'name', 'wrapperClass' => ''])
 
 <x-form.input
     type="date"
@@ -6,5 +6,6 @@
     :name="$name"
     inputmode="none"
     autocomplete="off"
-    {{ $attributes }}
+    :wrapper-class="$wrapperClass"
+    {{ $attributes->except(['label', 'name', 'wrapperClass', 'wrapper-class']) }}
 />

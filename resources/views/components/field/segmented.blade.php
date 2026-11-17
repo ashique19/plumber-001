@@ -4,7 +4,7 @@
     'options' => [],
 ])
 
-<div {{ $attributes->except(['wire:model', 'wire:model.live', 'wire:model.blur', 'wire:model.defer'])->merge(['class' => 'form-field']) }}>
+<div {{ $attributes->except(['wire:model', 'wire:model.live', 'wire:model.blur', 'wire:model.defer'])->class('form-field') }}>
     <span class="form-field__label type-label">{{ $label }}</span>
     <div class="admin-segmented" role="radiogroup" aria-label="{{ $label }}">
         @foreach ($options as $value => $optionLabel)
