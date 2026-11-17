@@ -1,4 +1,4 @@
-@props(['label', 'name', 'currency' => null])
+@props(['label', 'name', 'currency' => null, 'wrapperClass' => ''])
 
 <x-form.input
     type="number"
@@ -7,5 +7,6 @@
     :label="$label"
     :name="$name"
     :prefix="$currency ?? __('invoices.riyal_symbol')"
-    {{ $attributes }}
+    :wrapper-class="$wrapperClass"
+    {{ $attributes->except(['label', 'name', 'currency', 'wrapperClass', 'wrapper-class']) }}
 />

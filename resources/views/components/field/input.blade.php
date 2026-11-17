@@ -4,6 +4,7 @@
     'type' => 'text',
     'hint' => null,
     'hintPosition' => null,
+    'wrapperClass' => '',
 ])
 
 @php
@@ -19,5 +20,6 @@
     :type="$type"
     :hint="$hint"
     :hint-position="$hintPlacement"
-    {{ $attributes->except(['label', 'name', 'type', 'hint', 'hintPosition', 'hint-position']) }}
+    :wrapper-class="$wrapperClass"
+    {{ $attributes->except(['label', 'name', 'type', 'hint', 'hintPosition', 'hint-position', 'wrapperClass', 'wrapper-class']) }}
 />
