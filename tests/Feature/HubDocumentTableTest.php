@@ -39,7 +39,8 @@ it('renders invoice hub table with print links', function () {
         ->assertSee(__('invoices.col_zatca_status'), false)
         ->assertSee($invoice->document_number, false)
         ->assertSeeHtml('href="'.e($urls['print']).'"', false)
-        ->assertSeeHtml('autoprint=1', false);
+        ->assertSeeHtml('href="'.e($urls['download']).'"', false)
+        ->assertDontSee('autoprint=1', false);
 });
 
 it('filters invoices by document number search', function () {
@@ -76,5 +77,6 @@ it('renders quotation hub table when quotations exist', function () {
         ->assertSeeHtml('hub-doc-table')
         ->assertSee($quotation->quotation_number, false)
         ->assertSee('Table Test Buyer', false)
-        ->assertSeeHtml('autoprint=1', false);
+        ->assertSee(route('admin.quotations.pdf', $quotation), false)
+        ->assertDontSee('autoprint=1', false);
 });

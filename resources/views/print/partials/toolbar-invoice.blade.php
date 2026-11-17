@@ -1,3 +1,4 @@
+@if (! ($isPdf ?? false))
 <header class="invoice-print-toolbar no-print flex flex-wrap gap-2 p-2">
     <button type="button" class="tap-action-primary min-h-11" onclick="window.print()">{{ __('pos.print') }}</button>
     @if ($receiptUrl ?? null)
@@ -10,6 +11,7 @@
         <a class="tap-action-muted min-h-11" href="{{ $a4Url }}">{{ __('invoices.layout_a4') }}</a>
     @endif
 </header>
+@endif
 
 @include('print.partials.not-cleared-watermark')
 

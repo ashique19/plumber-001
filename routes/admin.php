@@ -2,8 +2,10 @@
 
 use App\Http\Controllers\Admin\AnalyticsExportController;
 use App\Http\Controllers\Admin\Auth\LoginController;
+use App\Http\Controllers\Admin\InvoicePdfController;
 use App\Http\Controllers\Admin\InvoicePrintController;
 use App\Http\Controllers\Admin\PrintTemplatePreviewController;
+use App\Http\Controllers\Admin\QuotationPdfController;
 use App\Http\Controllers\Admin\QuotationPrintController;
 use App\Http\Controllers\Admin\Pos\ReceiptController;
 use App\Http\Middleware\EnsureBranchActiveForPos;
@@ -71,10 +73,12 @@ Route::prefix('admin')->middleware('auth:staff')->group(function (): void {
             ->where('mode', 'standard|simplified')
             ->name('admin.invoices.issue');
         Route::get('/invoices/{invoice}/print', InvoicePrintController::class)->name('admin.invoices.print');
+        Route::get('/invoices/{invoice}/pdf', InvoicePdfController::class)->name('admin.invoices.pdf');
         Route::get('/quotations', QuotationHub::class)->name('admin.quotations');
         Route::get('/quotations/create', ManageQuotation::class)->name('admin.quotations.create');
         Route::get('/quotations/{quotation}/edit', ManageQuotation::class)->name('admin.quotations.edit');
         Route::get('/quotations/{quotation}/print', QuotationPrintController::class)->name('admin.quotations.print');
+        Route::get('/quotations/{quotation}/pdf', QuotationPdfController::class)->name('admin.quotations.pdf');
         Route::get('/print/preview/{kind}/{template}', PrintTemplatePreviewController::class)
             ->whereIn('kind', ['invoice', 'quotation'])
             ->whereIn('template', ['modern', 'classic'])

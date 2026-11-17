@@ -74,7 +74,7 @@
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
                                     {{ __('quotations.action_print') }}
                                 </a>
-                                <a class="hub-doc-table__action" href="{{ $urls['download'] }}" target="_blank" rel="noopener">
+                                <a class="hub-doc-table__action" href="{{ $urls['download'] }}">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
                                     {{ __('quotations.action_download_pdf') }}
                                 </a>

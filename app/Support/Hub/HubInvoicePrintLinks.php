@@ -22,7 +22,7 @@ final class HubInvoicePrintLinks
 
         return [
             'print' => $base,
-            'download' => $base.(str_contains($base, '?') ? '&' : '?').'autoprint=1',
+            'download' => route('admin.invoices.pdf', ['invoice' => $invoice]),
             'view' => $base,
         ];
     }
