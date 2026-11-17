@@ -19,7 +19,7 @@ final class HubInvoiceRowActions
 
     public static function canEdit(Invoice $invoice): bool
     {
-        return $invoice->status === InvoiceStatus::Draft;
+        return HubInvoiceDraftLifecycle::canEdit($invoice);
     }
 
     public static function canDownloadOrPrint(Invoice $invoice): bool
@@ -50,7 +50,12 @@ final class HubInvoiceRowActions
 
     public static function canDeleteDraft(Invoice $invoice): bool
     {
-        return $invoice->status === InvoiceStatus::Draft;
+        return HubInvoiceDraftLifecycle::canDelete($invoice);
+    }
+
+    public static function canIssueDraft(Invoice $invoice): bool
+    {
+        return HubInvoiceDraftLifecycle::canIssue($invoice);
     }
 
     public static function canResendZatca(Invoice $invoice): bool
@@ -66,14 +71,11 @@ final class HubInvoiceRowActions
         $canPrint = self::canDownloadOrPrint($invoice);
         $awaiting = self::showAwaitingClearanceControls($invoice);
 
-        $mode = $invoice->document_type->value === 'standard' ? 'standard' : 'simplified';
-
         return [
             'view' => self::canView($invoice),
             'edit' => self::canEdit($invoice),
-            'edit_url' => self::canEdit($invoice)
-                ? route('admin.invoices.issue', ['mode' => $mode, 'draft' => $invoice->id])
-                : null,
+            'edit_url' => HubInvoiceDraftLifecycle::editUrl($invoice),
+            'issue_draft' => self::canIssueDraft($invoice),
             'download' => $canPrint,
             'print' => $canPrint,
             'awaiting_clearance' => $awaiting && ! $canPrint,
