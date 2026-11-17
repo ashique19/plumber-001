@@ -104,18 +104,18 @@ final class HubInvoiceZatcaTab
         return null;
     }
 
+    /**
+     * Issued invoice that still needs a ZATCA report or clearance outcome.
+     */
+    public static function needsZatcaResubmit(Invoice $invoice): bool
+    {
+        return $invoice->isIssued() && ! self::isSuccess($invoice);
+    }
+
     public static function canResend(Invoice $invoice): bool
     {
-        if (! $invoice->isIssued() || ! ZatcaSubmissionStatus::canSubmitToZatca()) {
-            return false;
-        }
-
-        if (self::isSuccess($invoice)) {
-            return false;
-        }
-
-        return self::isFailed($invoice)
-            || ZatcaSubmissionStatus::invoiceNotSentToZatca($invoice);
+        return self::needsZatcaResubmit($invoice)
+            && ZatcaSubmissionStatus::canSubmitToZatca();
     }
 
     public static function applyTabScope(Builder $query, string $tab): void
@@ -183,5 +183,22 @@ final class HubInvoiceZatcaTab
         self::applySuccessScope($query);
 
         return (int) $query->count();
+    }
+
+    public static function applyNotSuccessScope(Builder $query): void
+    {
+        $query->where('status', 'issued')
+            ->whereNot(function (Builder $success): void {
+                self::applySuccessScope($success);
+            });
+    }
+
+    public static function countPendingResubmit(): int
+    {
+        return Invoice::query()
+            ->where('status', 'issued')
+            ->get()
+            ->filter(fn (Invoice $invoice): bool => self::needsZatcaResubmit($invoice))
+            ->count();
     }
 }

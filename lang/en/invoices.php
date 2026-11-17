@@ -98,6 +98,7 @@ return [
     'zatca_resubmit_not_eligible' => 'This invoice cannot be resubmitted yet.',
     'zatca_resubmit_bulk_done' => 'Bulk resubmit finished: :ok succeeded, :fail failed.',
     'zatca_resubmit_bulk_empty' => 'No failed invoices to resubmit.',
+    'zatca_resubmit_disabled_no_zheart' => 'Configure Z-Heart in Business settings to send invoices to ZATCA.',
     'zatca_error_not_sent' => 'Not sent to ZATCA',
     'zatca_error_clear_failed' => 'ZATCA did not clear this standard invoice. Check Z-Heart logs and credentials, then resubmit.',
     'zatca_error_clear_status' => 'ZATCA clearance returned status: :status',

@@ -91,13 +91,26 @@
                 @endif
             </button>
         </nav>
-        @if (($canResubmitZatca ?? false) && ($zatcaFailedCount ?? 0) > 0 && in_array($zatcaTab, [\App\Support\Hub\HubInvoiceZatcaTab::ALL, \App\Support\Hub\HubInvoiceZatcaTab::FAILED], true))
+        @php
+            $showZatcaBulkResubmit = ($zatcaPendingResubmitCount ?? 0) > 0
+                && (
+                    in_array($zatcaTab, [\App\Support\Hub\HubInvoiceZatcaTab::ALL, \App\Support\Hub\HubInvoiceZatcaTab::FAILED], true)
+                    || $lifecycleTab === \App\Support\Hub\HubInvoiceLifecycleTab::AWAITING_CLEARANCE
+                );
+        @endphp
+        @if ($showZatcaBulkResubmit)
             <button
                 type="button"
-                class="tap-action-muted min-h-11 px-4 text-sm font-semibold"
-                wire:click="resubmitAllFailed"
-                wire:loading.attr="disabled"
-                wire:target="resubmitAllFailed"
+                class="tap-action-muted min-h-11 px-4 text-sm font-semibold @if (! ($canResubmitZatca ?? false)) opacity-60 @endif"
+                @if ($canResubmitZatca ?? false)
+                    wire:click="resubmitAllFailed"
+                    wire:loading.attr="disabled"
+                    wire:target="resubmitAllFailed"
+                @else
+                    disabled
+                    title="{{ __('invoices.zatca_resubmit_disabled_no_zheart') }}"
+                @endif
+                data-testid="hub-zatca-resubmit-all-pending"
             >
                 {{ __('invoices.zatca_resubmit_all_pending') }}
             </button>

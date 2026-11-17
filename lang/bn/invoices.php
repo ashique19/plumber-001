@@ -100,6 +100,7 @@ return array (
   'zatca_resubmit_not_eligible' => 'এই ইনভয়েস এখনো পুনরায় পাঠানো যাবে না।',
   'zatca_resubmit_bulk_done' => 'বাল্ক পুনঃপাঠ শেষ: :ok সফল, :fail ব্যর্থ।',
   'zatca_resubmit_bulk_empty' => 'পুনরায় পাঠানোর মতো ব্যর্থ ইনভয়েস নেই।',
+  'zatca_resubmit_disabled_no_zheart' => 'ZATCA-তে পাঠাতে ব্যবসায়িক সেটিংসে Z-Heart কনফিগার করুন।',
   'zatca_error_not_sent' => 'ZATCA-তে পাঠানো হয়নি',
   'zatca_error_clear_failed' => 'ZATCA এই স্ট্যান্ডার্ড ইনভয়েস ক্লিয়ার করেনি। Z-Heart লগ ও ক্রেডেনশিয়াল পরীক্ষা করে আবার জমা দিন।',
   'zatca_error_clear_status' => 'ZATCA ক্লিয়ারেন্স স্ট্যাটাস: :status',
