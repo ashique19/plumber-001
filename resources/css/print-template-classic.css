@@ -172,6 +172,14 @@
     font-size: 9pt;
 }
 
+.print-classic__sheet-footer {
+    margin-top: 12px;
+    padding-top: 6px;
+    text-align: end;
+    font-size: 8pt;
+    color: var(--inv-muted);
+}
+
 .classic-party__name-ar {
     display: block;
     direction: rtl;
