@@ -89,6 +89,47 @@ it('requires opening stock when tracking inventory and records an opening moveme
     expect(ProductStockMovement::query()->where('product_id', $product->id)->where('type', 'opening')->count())->toBe(1);
 });
 
+it('shows unit and size selects on the stock tab for create and edit', function () {
+    $product = Product::query()->create([
+        'track_stock' => true,
+        'stock_quantity' => 4,
+        'low_stock_threshold' => 1,
+        'cost_ex_vat' => 5,
+        'price_ex_vat' => 15,
+        'vat_rate' => 15,
+        'name_en' => 'Sized Valve',
+        'name_ar' => 'صمام',
+        'name_bn' => 'ভালভ',
+        'product_category_id' => ProductCategory::query()->value('id'),
+        'product_unit_id' => ProductUnit::query()->where('code', 'PCS')->value('id'),
+        'sku' => 'PRD-889',
+    ]);
+
+    $createHtml = Livewire::actingAs($this->owner, 'staff')
+        ->test(MenuManager::class)
+        ->call('startProduct')
+        ->set('productFormTab', 'stock')
+        ->html();
+
+    expect($createHtml)
+        ->toContain('data-testid="product-stock-unit-size"')
+        ->toContain('name="productUnitId"')
+        ->toContain('name="productSizeId"')
+        ->toContain(__('catalog.unit'))
+        ->toContain(__('catalog.size'));
+
+    $editHtml = Livewire::actingAs($this->owner, 'staff')
+        ->test(MenuManager::class)
+        ->call('startProduct', $product->id)
+        ->set('productFormTab', 'stock')
+        ->html();
+
+    expect($editHtml)
+        ->toContain('data-testid="product-stock-unit-size"')
+        ->toContain('name="productUnitId"')
+        ->toContain('name="productSizeId"');
+});
+
 it('shows current stock read-only on edit and ignores quantity changes from the product form', function () {
     $product = Product::query()->create([
         'track_stock' => true,

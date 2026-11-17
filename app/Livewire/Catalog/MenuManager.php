@@ -1026,12 +1026,12 @@ class MenuManager extends Component
         $basic = [
             'productNameEn', 'productNameAr', 'productNameBn',
             'productDescriptionEn', 'productDescriptionAr', 'productDescriptionBn',
-            'productCategoryId', 'productUnitId', 'productSizeId', 'productSku',
+            'productCategoryId', 'productSku',
             'productImageUpload', 'productItemType', 'productModifierIds',
             'productActive', 'productShowOnHomepage', 'productShowOnMenu',
         ];
         $pricing = ['productCostInput', 'productPriceInput', 'productVatRate', 'productVatZatcaCategory'];
-        $stock = ['productTrackStock', 'productOpeningStock', 'productLowStockThreshold', 'productCurrentStock', 'productUnitIdStock'];
+        $stock = ['productTrackStock', 'productOpeningStock', 'productLowStockThreshold', 'productCurrentStock', 'productUnitId', 'productSizeId'];
 
         if (in_array($field, $basic, true)) {
             return 'basic';
