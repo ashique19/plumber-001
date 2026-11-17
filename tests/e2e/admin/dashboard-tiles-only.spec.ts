@@ -6,7 +6,7 @@ test.describe('dashboard quick action tiles only', () => {
         await staffLogin(page);
     });
 
-    test('shows eight separate tiles and no widgets below on mobile', async ({ page }) => {
+    test('shows seven separate tiles and no widgets below on mobile', async ({ page }) => {
         await page.setViewportSize({ width: 375, height: 812 });
         await page.goto(adminPath('/admin/dashboard', 'en'));
         await page.waitForLoadState('networkidle');
@@ -18,7 +18,7 @@ test.describe('dashboard quick action tiles only', () => {
 
         const grid = dashboard.locator('.dashboard-action-grid');
         await expect(grid).toBeVisible();
-        await expect(grid.locator('.dashboard-action-tile')).toHaveCount(8);
+        await expect(grid.locator('.dashboard-action-tile')).toHaveCount(7);
         await expect(page.locator('.dashboard-action-board')).toHaveCount(0);
 
         await expect(dashboard.locator('.dashboard-monthly-report')).toHaveCount(0);
