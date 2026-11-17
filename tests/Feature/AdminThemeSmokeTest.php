@@ -107,7 +107,8 @@ it('renders key livewire admin components', function () {
     $this->actingAs($this->owner, 'staff');
 
     Livewire::test(\App\Livewire\Admin\AdminDashboard::class)
-        ->assertSee(__('dashboard.title'), false);
+        ->assertDontSee(__('dashboard.subtitle'), false)
+        ->assertSeeHtml('dashboard-action-grid');
 
     Livewire::test(\App\Livewire\Invoices\IssueInvoice::class, ['mode' => 'simplified'])
         ->assertSee(__('invoices.customer_search'), false);

@@ -13,6 +13,8 @@ test.describe('dashboard quick action tiles only', () => {
 
         const dashboard = page.locator('[data-testid="admin-dashboard"]');
         await expect(dashboard).toBeVisible({ timeout: 20_000 });
+        await expect(dashboard.locator('h1.app-page-title')).toHaveCount(0);
+        await expect(dashboard.locator('.app-page-lead')).toHaveCount(0);
 
         const grid = dashboard.locator('.dashboard-action-grid');
         await expect(grid).toBeVisible();
@@ -25,6 +27,20 @@ test.describe('dashboard quick action tiles only', () => {
 
         const cols = await grid.evaluate((el) => getComputedStyle(el).gridTemplateColumns.split(' ').length);
         expect(cols).toBe(2);
+    });
+
+    test('starts with tiles only in Bangla (no page heading block)', async ({ page }) => {
+        await page.setViewportSize({ width: 1280, height: 900 });
+        await page.goto(adminPath('/admin/dashboard', 'bn'));
+        await page.waitForLoadState('networkidle');
+
+        const dashboard = page.locator('[data-testid="admin-dashboard"]');
+        await expect(dashboard.locator('.dashboard-action-grid')).toBeVisible();
+        await expect(dashboard.locator('h1.app-page-title')).toHaveCount(0);
+        await expect(dashboard.getByText('আজকের বিক্রয়, ইনভয়েস এবং জমার অবস্থা।')).toHaveCount(0);
+
+        const documentTitle = await page.title();
+        expect(documentTitle).toMatch(/ড্যাশবোর্ড|Dashboard/i);
     });
 
     test('uses four columns on 1280px and captures screenshot', async ({ page }) => {
