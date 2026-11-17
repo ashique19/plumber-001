@@ -80,6 +80,10 @@ trait ManagesInvoicingCustomerPicker
             return;
         }
 
+        if (property_exists($this, 'buyerContactOverride')) {
+            $this->buyerContactOverride = false;
+        }
+
         InvoicingCustomerLookup::applyCustomerToBuyer($this, $customer);
         $this->customerSearch = $customer->name;
         $this->customerQuickEditMode = false;

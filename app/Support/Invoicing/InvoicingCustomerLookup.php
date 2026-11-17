@@ -52,11 +52,21 @@ final class InvoicingCustomerLookup
    */
     public static function applyCustomerToBuyer(object $host, Customer $customer): void
     {
+        $fields = CustomerIdentityRules::buyerFields();
+        if (property_exists($host, 'buyerContactOverride') && $host->buyerContactOverride) {
+            unset($fields['email'], $fields['phone']);
+        }
+
         CustomerIdentityPersistence::fillHostFromCustomer(
             $host,
-            CustomerIdentityRules::buyerFields(),
+            $fields,
             $customer,
         );
+
+        if (property_exists($host, 'buyerContactOverride') && ! $host->buyerContactOverride) {
+            $host->buyerPhone = trim((string) ($customer->phone ?? ''));
+            $host->buyerEmail = trim((string) ($customer->email ?? ''));
+        }
 
         $state = CustomerIdentityPersistence::stateFromCustomer($customer);
         if (property_exists($host, 'buyerCr')) {

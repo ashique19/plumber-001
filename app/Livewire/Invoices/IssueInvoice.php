@@ -9,6 +9,7 @@ use App\Enums\InvoiceDocumentType;
 use App\Enums\InvoiceStatus;
 use App\Exceptions\InvoiceSigningException;
 use App\Livewire\Concerns\DispatchesToasts;
+use App\Livewire\Concerns\ManagesDocumentBuyerContact;
 use App\Livewire\Concerns\ManagesDocumentCreateChrome;
 use App\Livewire\Concerns\ManagesInvoicingCatalogPicker;
 use App\Livewire\Concerns\ManagesInvoicingCustomerPicker;
@@ -42,6 +43,7 @@ use Livewire\Component;
 class IssueInvoice extends Component
 {
     use DispatchesToasts;
+    use ManagesDocumentBuyerContact;
     use ManagesDocumentCreateChrome;
     use ManagesInvoicingCatalogPicker;
     use ManagesInvoicingCustomerPicker;
@@ -180,6 +182,7 @@ class IssueInvoice extends Component
         $this->issueSubmissionToken = (string) Str::uuid();
 
         DocumentCreateUiSupport::assignMissingLineIds($this->lines);
+        $this->applyBuyerContactOverrideFromState($this->selectedCustomerId);
     }
 
     public function hydrate(): void

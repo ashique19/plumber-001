@@ -84,6 +84,7 @@
                     :selected-customer-id="$selectedCustomerId"
                     :compact="! $isStandard"
                     :show-walk-in-hint="! $isStandard"
+                    :show-walk-in-contact-fields="! $isStandard && $selectedCustomerId === null"
                 />
 
                 <div class="document-create-card">

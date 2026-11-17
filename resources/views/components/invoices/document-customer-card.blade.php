@@ -6,6 +6,7 @@
     'selectedCustomerId' => null,
     'showWalkInHint' => false,
     'compact' => false,
+    'showWalkInContactFields' => false,
 ])
 
 <div class="document-create-card">
@@ -54,6 +55,32 @@
                     @if (filled($customerStrip['email'] ?? null))
                         <p class="m-0 flex items-center gap-1 min-w-0 break-all"><x-app.icon name="mail" class="h-4 w-4 shrink-0" /> {{ $customerStrip['email'] }}</p>
                     @endif
+                </div>
+            </div>
+        @endif
+        @if ($selectedCustomerId)
+            <div class="document-buyer-contact mt-3 border-t border-[var(--app-border)] pt-3">
+                <x-form.toggle
+                    name="buyerContactOverride"
+                    :label="__('invoices.buyer_contact_override_toggle')"
+                    wire:model.live="buyerContactOverride"
+                    class="document-buyer-contact__toggle"
+                />
+                <div
+                    class="document-buyer-contact__fields admin-form-grid admin-form-grid--2 mt-3 gap-3"
+                    wire:show="buyerContactOverride"
+                    x-cloak
+                >
+                        <x-field.input :label="__('invoices.buyer_phone')" name="buyerPhone" wire:model.blur="buyerPhone" inputmode="tel" autocomplete="tel" icon="phone" />
+                        <x-field.input type="email" :label="__('invoices.buyer_email')" name="buyerEmail" wire:model.blur="buyerEmail" autocomplete="email" icon="mail" />
+                </div>
+            </div>
+        @elseif ($showWalkInContactFields)
+            <div class="document-buyer-contact document-buyer-contact--walk-in mt-3 border-t border-dashed border-[var(--app-border)] pt-3">
+                <p class="m-0 mb-2 text-sm font-semibold text-[var(--app-text)]">{{ __('invoices.buyer_contact_walk_in_heading') }}</p>
+                <div class="admin-form-grid admin-form-grid--2 gap-3">
+                    <x-field.input :label="__('invoices.buyer_phone')" name="buyerPhone" wire:model.blur="buyerPhone" inputmode="tel" autocomplete="tel" icon="phone" />
+                    <x-field.input type="email" :label="__('invoices.buyer_email')" name="buyerEmail" wire:model.blur="buyerEmail" autocomplete="email" icon="mail" />
                 </div>
             </div>
         @endif

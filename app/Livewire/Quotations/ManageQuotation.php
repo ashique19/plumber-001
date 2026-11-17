@@ -4,6 +4,7 @@ namespace App\Livewire\Quotations;
 
 use App\Data\InvoiceLineData;
 use App\Livewire\Concerns\DispatchesToasts;
+use App\Livewire\Concerns\ManagesDocumentBuyerContact;
 use App\Livewire\Concerns\ManagesDocumentCreateChrome;
 use App\Livewire\Concerns\ManagesInvoicingCatalogPicker;
 use App\Livewire\Concerns\ManagesInvoicingCustomerPicker;
@@ -29,6 +30,7 @@ class ManageQuotation extends Component
 {
     use ResolvesBusinessContext;
     use DispatchesToasts;
+    use ManagesDocumentBuyerContact;
     use ManagesDocumentCreateChrome;
     use ManagesInvoicingCatalogPicker;
     use ManagesInvoicingCustomerPicker;
@@ -170,6 +172,7 @@ class ManageQuotation extends Component
       $this->displayQuotationNumber = $quotation->quotation_number;
 
       DocumentCreateUiSupport::assignMissingLineIds($this->lines);
+      $this->applyBuyerContactOverrideFromState($this->selectedCustomerId);
   }
 
   public function saveDraft(): void
