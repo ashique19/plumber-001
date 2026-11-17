@@ -70,7 +70,7 @@
                 @endif
             </button>
         </nav>
-        @if (($canResubmitZatca ?? false) && ($zatcaTab === 'failed') && ($zatcaFailedCount ?? 0) > 0)
+        @if (($canResubmitZatca ?? false) && ($zatcaFailedCount ?? 0) > 0 && in_array($zatcaTab, [\App\Support\Hub\HubInvoiceZatcaTab::ALL, \App\Support\Hub\HubInvoiceZatcaTab::FAILED], true))
             <button
                 type="button"
                 class="tap-action-muted min-h-11 px-4 text-sm font-semibold"
@@ -78,7 +78,7 @@
                 wire:loading.attr="disabled"
                 wire:target="resubmitAllFailed"
             >
-                {{ __('invoices.zatca_resubmit_all') }}
+                {{ __('invoices.zatca_resubmit_all_pending') }}
             </button>
         @endif
     </div>

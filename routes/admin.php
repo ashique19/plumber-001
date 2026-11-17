@@ -81,6 +81,8 @@ Route::prefix('admin')->middleware('auth:staff')->group(function (): void {
             ->name('admin.invoices.issue');
         Route::get('/invoices/{invoice}/print', InvoicePrintController::class)->name('admin.invoices.print');
         Route::get('/invoices/{invoice}/pdf', InvoicePdfController::class)->name('admin.invoices.pdf');
+        Route::post('/invoices/{invoice}/zatca-resubmit', \App\Http\Controllers\Admin\InvoiceZatcaResubmitController::class)
+            ->name('admin.invoices.zatca-resubmit');
         Route::post('/invoices/{invoice}/issue-draft', [\App\Http\Controllers\Admin\InvoiceDraftLifecycleController::class, 'issue'])
             ->name('admin.invoices.drafts.issue');
         Route::post('/invoices/{invoice}/authorize-draft', [\App\Http\Controllers\Admin\InvoiceDraftLifecycleController::class, 'authorize'])

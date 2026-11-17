@@ -109,6 +109,10 @@ class InvoiceHub extends Component
     {
         abort_unless(auth('staff')->user()?->can('invoices.issue'), 403);
 
+        if ($this->resubmitting[$invoiceId] ?? false) {
+            return;
+        }
+
         $this->resubmitting[$invoiceId] = true;
 
         try {

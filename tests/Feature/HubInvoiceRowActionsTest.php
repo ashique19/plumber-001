@@ -159,8 +159,8 @@ it('shows resend as a primary row action on the failed tab', function () {
     Livewire::actingAs($this->owner, 'staff')
         ->test(InvoiceHub::class)
         ->set('zatcaTab', \App\Support\Hub\HubInvoiceZatcaTab::FAILED)
-        ->assertSee(__('invoices.action_resend_zatca'), false)
-        ->assertSee(__('invoices.zatca_resubmit_all'), false);
+        ->assertSee(__('invoices.action_send_report_zatca'), false)
+        ->assertSee(__('invoices.zatca_resubmit_all_pending'), false);
 });
 
 it('rejects hub delete draft for issued invoices server-side', function () {

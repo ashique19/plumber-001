@@ -10,6 +10,9 @@ use App\Models\PosOrder;
 use App\Support\EnabledLocales;
 use App\Support\Invoicing\InvoicePrintPresenter;
 use App\Support\Invoicing\PrintTemplateResolver;
+use App\Support\Hub\HubInvoiceRowActions;
+use App\Support\Hub\HubInvoiceZatcaResubmitCopy;
+use App\Support\Hub\HubInvoiceZatcaTab;
 use App\Support\Invoicing\ZatcaSubmissionStatus;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -68,6 +71,11 @@ class InvoicePrintController extends Controller
             ? route('admin.pos.receipt', array_merge([$order], $baseParams, ['layout' => 'receipt']))
             : null;
 
+        $canResubmitZatca = $invoice->isIssued()
+            && (auth('staff')->user()?->can('invoices.issue') ?? false)
+            && ZatcaSubmissionStatus::canSubmitToZatca($business)
+            && HubInvoiceRowActions::canResendZatca($invoice);
+
         $shared = [
             'invoice' => $invoice,
             't' => $t,
@@ -75,6 +83,10 @@ class InvoicePrintController extends Controller
             'zatcaNotSent' => ZatcaSubmissionStatus::invoiceNotSentToZatca($invoice),
             'fallbackBackUrl' => route('admin.invoices'),
             'pdfUrl' => route('admin.invoices.pdf', ['invoice' => $invoice]),
+            'canResubmitZatca' => $canResubmitZatca,
+            'zatcaResubmitUrl' => route('admin.invoices.zatca-resubmit', ['invoice' => $invoice]),
+            'zatcaResubmitLabel' => HubInvoiceZatcaResubmitCopy::actionLabel($invoice),
+            'zatcaInlineError' => HubInvoiceZatcaTab::shortError($invoice),
         ];
 
         if ($layout === 'cash') {
