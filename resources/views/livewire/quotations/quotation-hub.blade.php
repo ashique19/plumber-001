@@ -15,13 +15,13 @@
         @endif
     </header>
 
-    <section class="app-card app-filter-fields mb-4 grid grid-cols-1 items-end gap-3 p-4 md:grid-cols-2">
+    <section class="app-card app-filter-fields mb-4 grid grid-cols-1 items-end gap-3 p-4 md:grid-cols-2 lg:grid-cols-3">
         <x-field.search
             :label="__('quotations.search')"
             name="search"
             wire:model.live.debounce.300ms="search"
             :placeholder="__('quotations.search_hint')"
-            wrapper-class="min-w-0 md:col-span-2"
+            wrapper-class="min-w-0 md:col-span-2 lg:col-span-1"
         />
         <x-field.input type="date" :label="__('quotations.date_from')" name="dateFrom" wire:model.live="dateFrom" :liveValidate="false" />
         <x-field.input type="date" :label="__('quotations.date_to')" name="dateTo" wire:model.live="dateTo" :liveValidate="false" />

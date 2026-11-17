@@ -8,10 +8,15 @@
 .hub-doc-table-scroll {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    background:
-        linear-gradient(var(--app-surface, #fff) 33%, transparent) 0 0 / 1.5rem 100% local,
-        linear-gradient(to right, color-mix(in srgb, #000 12%, transparent), transparent) 0 0 / 0.75rem 100% local,
-        linear-gradient(to left, color-mix(in srgb, #000 12%, transparent), transparent) 100% 0 / 0.75rem 100% local;
+    background-color: var(--app-surface, #fff);
+    background-repeat: no-repeat;
+    background-image:
+        linear-gradient(var(--app-surface, #fff) 33%, transparent),
+        linear-gradient(to right, color-mix(in srgb, #000 12%, transparent), transparent),
+        linear-gradient(to left, color-mix(in srgb, #000 12%, transparent), transparent);
+    background-size: 1.5rem 100%, 0.75rem 100%, 0.75rem 100%;
+    background-position: 0 0, 0 0, 100% 0;
+    background-attachment: local, local, local;
 }
 
 .hub-doc-table {
@@ -36,6 +41,15 @@
     padding: 0.65rem 0.75rem;
     vertical-align: middle;
     border-bottom: 1px solid color-mix(in srgb, var(--app-border) 55%, transparent);
+    background: var(--app-surface, #fff);
+}
+
+.hub-doc-table tbody tr:hover td {
+    background: color-mix(in srgb, var(--plumber-safety, #c68b59) 8%, var(--app-surface, #fff));
+}
+
+.hub-doc-table tbody tr:hover .hub-doc-table__sticky {
+    background: color-mix(in srgb, var(--plumber-safety, #c68b59) 8%, var(--app-surface, #fff));
 }
 
 .hub-doc-table tbody .hub-doc-table__sticky {
