@@ -24,8 +24,8 @@ it('renders grouped admin sidebar with business header and sales section', funct
         ->and($html)->toContain(__('admin_nav.items.invoices', [], 'en'))
         ->and($html)->toContain('app-topbar__menu-btn')
         ->and($html)->toContain('admin-sidebar-nav__brand-name')
-        ->and($html)->toContain('app-topbar__page-title')
-        ->and($html)->not->toContain('app-topbar__brand-name');
+        ->and($html)->not->toContain('app-topbar__page-title')
+        ->and($html)->toContain('data-testid="app-topbar-mobile-brand"');
 });
 
 it('highlights invoices when viewing the invoice hub', function () {

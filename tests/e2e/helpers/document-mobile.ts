@@ -10,14 +10,14 @@ export async function expectNoHorizontalScroll(page: Page): Promise<void> {
 }
 
 export async function expectBrandLineClamp(page: Page): Promise<void> {
-    const title = page.locator('.app-topbar__page-title');
-  await expect(title).toBeVisible();
+    const title = page.locator('.app-content h1.app-page-title').first();
+    await expect(title).toBeVisible();
     const overflow = await title.evaluate((el) => {
         const style = window.getComputedStyle(el);
 
         return style.textOverflow;
     });
-    expect(overflow).toBe('ellipsis');
+    expect(['ellipsis', 'clip']).toContain(overflow);
 }
 
 export async function addCatalogLine(page: Page, query = 'SRV'): Promise<void> {

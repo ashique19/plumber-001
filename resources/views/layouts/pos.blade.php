@@ -144,9 +144,21 @@
                         </button>
                     @endif
                     @if ($adminSidebar && $adminNavHasItems)
-                        <p class="app-topbar__page-title min-w-0 flex-1 truncate text-start text-sm font-semibold leading-snug text-[var(--app-text)] sm:text-base" dir="auto">
-                            {{ $topbarTitle }}
-                        </p>
+                        <a
+                            href="{{ $brandHomeUrl }}"
+                            class="app-topbar__brand app-brand-home min-w-0 flex-1 lg:hidden"
+                            data-testid="app-topbar-mobile-brand"
+                        >
+                            @if ($logoUrl)
+                                <img src="{{ asset($logoUrl) }}" alt="{{ __($logoAltKey, ['name' => $displayName]) }}" class="app-topbar__logo shrink-0 rounded-lg object-contain" width="32" height="32">
+                            @else
+                                <x-plumber.logo-mark class="app-topbar__logo shrink-0 text-[var(--app-accent)]" :name="$displayName" />
+                            @endif
+                            <div class="app-topbar__brand-text min-w-0">
+                                <p class="app-topbar__brand-name">{{ $displayName }}</p>
+                            </div>
+                        </a>
+                        <div class="hidden min-w-0 flex-1 lg:block" aria-hidden="true"></div>
                     @else
                         <a href="{{ $brandHomeUrl }}" class="app-topbar__brand app-brand-home min-w-0 flex-1">
                             @if ($logoUrl)
