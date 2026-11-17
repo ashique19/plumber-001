@@ -16,6 +16,7 @@ use App\Business\BusinessContext;
 use Illuminate\Support\Facades\Hash;
 
 beforeEach(function () {
+    config(['features.loyalty' => true]);
     $this->withoutVite();
     AuthRoleProvisioner::seedStaffRoles();
 });

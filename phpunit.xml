@@ -40,6 +40,7 @@
         <env name="APP_LOCALE" value="bn"/>
         <env name="APP_FALLBACK_LOCALE" value="en"/>
         <env name="APP_ENABLED_LOCALES" value="en,bn,ar"/>
+        <env name="FEATURE_LOYALTY" value="false"/>
         <env name="AUTH_GUARD" value="staff"/>
         <env name="ZHEART_BASE_URL" value="https://z-heart.test"/>
         <env name="ZHEART_API_KEY" value="zh_test1234.testkey"/>

@@ -76,12 +76,26 @@ it('shows details tab with editable address fields in customer modal', function 
         ->test(CustomerHub::class)
         ->call('selectCustomer', $customer->id)
         ->assertSet('showCustomerModal', true)
-        ->assertSeeHtml('data-testid="customer-modal-tabs"')
-        ->assertSee(__('customers.tab_details'), false)
         ->assertSeeHtml('data-testid="customer-identity-fields"');
+
+    if (config('features.loyalty')) {
+        Livewire::actingAs($this->owner, 'staff')
+            ->test(CustomerHub::class)
+            ->call('selectCustomer', $customer->id)
+            ->assertSeeHtml('data-testid="customer-modal-tabs"')
+            ->assertSee(__('customers.tab_details'), false);
+    } else {
+        Livewire::actingAs($this->owner, 'staff')
+            ->test(CustomerHub::class)
+            ->call('selectCustomer', $customer->id)
+            ->assertDontSeeHtml('data-testid="customer-modal-tabs"');
+    }
 });
 
 it('adjusts points with audit row', function () {
+    if (! config('features.loyalty')) {
+        $this->markTestSkipped('Loyalty feature is disabled.');
+    }
     $customer = Customer::query()
         ->where('phone', '0501000001')
         ->firstOrFail();
@@ -101,6 +115,9 @@ it('adjusts points with audit row', function () {
 });
 
 it('creates customers with referral codes', function () {
+    if (! config('features.loyalty')) {
+        $this->markTestSkipped('Loyalty feature is disabled.');
+    }
     Livewire::actingAs($this->owner, 'staff')
         ->test(CustomerHub::class)
         ->call('startCustomer')

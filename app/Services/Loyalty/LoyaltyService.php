@@ -5,6 +5,7 @@ namespace App\Services\Loyalty;
 use App\Models\Customer;
 use App\Models\LoyaltyTransaction;
 use App\Models\PosOrder;
+use App\Support\Features;
 use App\Support\Loyalty\LoyaltyConfig;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
@@ -13,6 +14,10 @@ class LoyaltyService
 {
     public function ensureReferralCode(Customer $customer): Customer
     {
+        if (! Features::loyaltyEnabled()) {
+            return $customer;
+        }
+
         if ($customer->referral_code !== '') {
             return $customer;
         }
@@ -26,6 +31,10 @@ class LoyaltyService
 
     public function earnForPaidOrder(PosOrder $order): void
     {
+        if (! Features::loyaltyEnabled()) {
+            return;
+        }
+
         if ($order->customer_id === null) {
             return;
         }
@@ -44,6 +53,10 @@ class LoyaltyService
 
     public function redeemOnOrder(PosOrder $order, Customer $customer, int $points): float
     {
+        if (! Features::loyaltyEnabled()) {
+            throw new \InvalidArgumentException('Loyalty is disabled.');
+        }
+
         $config = LoyaltyConfig::for(\App\Business\BusinessContext::require());
 
         if ($points < $config->minimumRedeemPoints()) {
@@ -71,6 +84,10 @@ class LoyaltyService
 
     public function adjustPoints(Customer $customer, int $pointsDelta, string $reason): LoyaltyTransaction
     {
+        if (! Features::loyaltyEnabled()) {
+            throw new \InvalidArgumentException('Loyalty is disabled.');
+        }
+
         $reason = trim($reason);
         if ($pointsDelta === 0) {
             throw new \InvalidArgumentException('Points adjustment cannot be zero.');
@@ -90,6 +107,10 @@ class LoyaltyService
 
     public function attachCustomerByReferral(PosOrder $order, string $referralCode, ?string $phone = null): Customer
     {
+        if (! Features::loyaltyEnabled()) {
+            throw new \InvalidArgumentException('Loyalty is disabled.');
+        }
+
         $code = strtoupper(trim($referralCode));
         $referrer = Customer::query()
             ->where('referral_code', $code)
