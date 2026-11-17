@@ -161,6 +161,14 @@ class BusinessSettings extends Component
 
     public ?int $zheartTestHttpStatus = null;
 
+    public ?string $zheartTestReason = null;
+
+    /** @var array<string, mixed>|null */
+    public ?array $zheartTestCard = null;
+
+    /** @var list<string> */
+    public array $zheartTestWarnings = [];
+
     /** @var list<string> */
     public array $tabsWithErrors = [];
 
@@ -675,7 +683,7 @@ class BusinessSettings extends Component
             $key = ZHeartCredentials::apiKey($business);
         }
 
-        $result = $client->testConnection($base, $key);
+        $result = $client->testConnection($base, $key, $business);
         $this->zheartTestStatus = match ($result['severity'] ?? 'error') {
             'ok' => 'ok',
             'warn' => 'warn',
@@ -683,6 +691,9 @@ class BusinessSettings extends Component
         };
         $this->zheartTestMessage = $result['message'];
         $this->zheartTestHttpStatus = $result['http_status'] ?? null;
+        $this->zheartTestReason = $result['reason'] ?? null;
+        $this->zheartTestCard = is_array($result['card'] ?? null) ? $result['card'] : null;
+        $this->zheartTestWarnings = is_array($result['warnings'] ?? null) ? $result['warnings'] : [];
 
         if ($result['ok']) {
             $this->toastSuccess($result['message']);
@@ -879,6 +890,9 @@ class BusinessSettings extends Component
         $this->zheartTestStatus = null;
         $this->zheartTestMessage = '';
         $this->zheartTestHttpStatus = null;
+        $this->zheartTestReason = null;
+        $this->zheartTestCard = null;
+        $this->zheartTestWarnings = [];
 
         $this->sanitizeLegacyFieldFormats();
     }

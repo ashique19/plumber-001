@@ -114,7 +114,7 @@ it('reports client details on successful auth check', function () {
     expect($result['ok'])->toBeTrue()
         ->and($result['http_status'])->toBe(200)
         ->and($result['message'])->toContain('Acme Plumbing')
-        ->and($result['message'])->toContain('production');
+        ->and($result['message'])->toContain('PRODUCTION');
 });
 
 it('treats auth 404 as z-heart upgrade needed', function () {
@@ -128,7 +128,7 @@ it('treats auth 404 as z-heart upgrade needed', function () {
     expect($result['ok'])->toBeFalse()
         ->and($result['severity'])->toBe('warn')
         ->and($result['http_status'])->toBe(404)
-        ->and($result['message'])->toContain('/api/v1/auth');
+        ->and($result['reason'])->toBe('outdated');
 });
 
 it('treats auth 401 as key or allowlist failure', function () {
@@ -142,7 +142,7 @@ it('treats auth 401 as key or allowlist failure', function () {
     expect($result['ok'])->toBeFalse()
         ->and($result['severity'])->toBe('error')
         ->and($result['http_status'])->toBe(401)
-        ->and($result['message'])->toContain('allowlist');
+        ->and($result['reason'])->toBe('bad_key');
 });
 
 it('treats auth 403 like 401 for connection test', function () {
@@ -154,7 +154,33 @@ it('treats auth 403 like 401 for connection test', function () {
     $result = app(ZHeartClient::class)->testConnection();
 
     expect($result['http_status'])->toBe(403)
-        ->and($result['message'])->toContain('allowlist');
+        ->and($result['reason'])->toBe('ip_not_allowed');
+});
+
+it('returns structured card on successful auth', function () {
+    Http::fake([
+        'https://z-heart.test/api/v1/health' => Http::response(['status' => 'ok'], 200),
+        'https://z-heart.test/api/v1/auth' => Http::response([
+            'status' => 'ok',
+            'client' => [
+                'name' => 'Acme Plumbing',
+                'vat_number' => '300012345600003',
+                'cr_number' => '1010123456',
+                'environment' => 'production',
+                'active' => true,
+                'onboarded' => true,
+                'last_zatca_call_at' => '2026-01-10T12:00:00Z',
+            ],
+            'api_key' => ['label' => 'Live key', 'last4' => '9abc'],
+            'ip_allowlist_enabled' => false,
+        ], 200),
+    ]);
+
+    $result = app(ZHeartClient::class)->testConnection();
+
+    expect($result['card']['client_name'])->toBe('Acme Plumbing')
+        ->and($result['card']['environment_production'])->toBeTrue()
+        ->and($result['card']['key_label'])->toBe('Live key');
 });
 
 function minimalZHeartInvoicePayload(string $type = 'simplified'): array
