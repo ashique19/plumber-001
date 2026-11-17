@@ -123,6 +123,8 @@ trait ManagesInvoicingCustomerPicker
             abort(403);
         }
 
+        $this->resetErrorBag();
+
         if ($this->customerQuickEditMode && $this->selectedCustomerId !== null) {
             $this->saveEditedCustomerProfile($loyalty);
 
