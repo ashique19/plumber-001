@@ -32,6 +32,7 @@
         : null;
     $adminNavHasItems = $adminMenu && collect($adminMenu['groups'] ?? [])
         ->flatMap(fn (array $group) => $group['items'] ?? [])
+        ->reject(fn (array $item) => ($item['id'] ?? '') === 'profile')
         ->isNotEmpty();
     $branchParam = $branch ?? ($staffUser ? StaffBranchContext::resolve($staffUser) : null);
     $brandHomeUrl = ($staffUser && $business)
