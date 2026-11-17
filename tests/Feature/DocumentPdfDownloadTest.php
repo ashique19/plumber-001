@@ -97,8 +97,8 @@ it('wraps PDF HTML with an Arabic-capable default font and SAR fallback, without
 
     expect($wrapped)
         ->toContain('AmiriPdf')
-        ->toContain('invoice-sar-symbol__fallback')
-        ->toContain('display:inline!important')
+        ->toContain('invoice-sar-symbol__svg')
+        ->toContain('display:inline-block!important')
         ->not->toContain('???');
 
     $binary = DocumentPdfRenderer::render($html);
