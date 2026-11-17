@@ -115,66 +115,17 @@
             @else
                 <div class="print-tpl-modern__qr-wrap print-tpl-modern__qr-wrap--empty" aria-hidden="true"></div>
             @endif
-            <table class="print-tpl-modern__totals" role="presentation">
-                <tr>
-                    <td class="print-tpl-modern__totals-label">
-                        <span class="print-tpl-modern__totals-en">Subtotal</span>
-                        <span class="print-tpl-modern__totals-ar invoice-print-ar" dir="rtl">المجموع الفرعي</span>
-                    </td>
-                    <td class="print-tpl-modern__totals-value"><x-invoices.sar-symbol /> {{ number_format($tot['subtotal_ex_vat'], 2) }}</td>
-                </tr>
-                @if (($tot['invoice_discount_ex_vat'] ?? 0) > 0)
-                    <tr>
-                        <td class="print-tpl-modern__totals-label">
-                            <span class="print-tpl-modern__totals-en">Discount</span>
-                            <span class="print-tpl-modern__totals-ar invoice-print-ar" dir="rtl">الخصم</span>
-                        </td>
-                        <td class="print-tpl-modern__totals-value">- <x-invoices.sar-symbol /> {{ number_format($tot['invoice_discount_ex_vat'], 2) }}</td>
-                    </tr>
-                @endif
-                <tr>
-                    <td class="print-tpl-modern__totals-label">
-                        <span class="print-tpl-modern__totals-en">Total VAT</span>
-                        <span class="print-tpl-modern__totals-ar invoice-print-ar" dir="rtl">إجمالي ضريبة القيمة المضافة</span>
-                    </td>
-                    <td class="print-tpl-modern__totals-value"><x-invoices.sar-symbol /> {{ number_format($tot['total_vat'], 2) }}</td>
-                </tr>
-                <tr class="print-tpl-modern__totals-total">
-                    <td class="print-tpl-modern__totals-label">
-                        <strong>
-                            <span class="print-tpl-modern__totals-en">Total</span>
-                            <span class="print-tpl-modern__totals-ar invoice-print-ar" dir="rtl">المجموع شامل القيمة المضافة</span>
-                        </strong>
-                    </td>
-                    <td class="print-tpl-modern__totals-value"><strong><x-invoices.sar-symbol /> {{ number_format($tot['total_inc_vat'], 2) }}</strong></td>
-                </tr>
-                @if (($tot['retention_amount'] ?? 0) > 0)
-                    <tr>
-                        <td class="print-tpl-modern__totals-label">
-                            <span class="print-tpl-modern__totals-en">Retention</span>
-                            <span class="print-tpl-modern__totals-ar invoice-print-ar" dir="rtl">حجز حسن التنفيذ</span>
-                        </td>
-                        <td class="print-tpl-modern__totals-value">- <x-invoices.sar-symbol /> {{ number_format($tot['retention_amount'], 2) }}</td>
-                    </tr>
-                @endif
-                <tr class="print-tpl-modern__totals-net">
-                    <td class="print-tpl-modern__totals-label">
-                        <strong>
-                            <span class="print-tpl-modern__totals-en">Net due</span>
-                            <span class="print-tpl-modern__totals-ar invoice-print-ar" dir="rtl">المبلغ المستحق</span>
-                        </strong>
-                    </td>
-                    <td class="print-tpl-modern__totals-value"><strong><x-invoices.sar-symbol /> {{ number_format($t['net_due_inc_vat'], 2) }}</strong></td>
-                </tr>
-            </table>
+            @include('print.partials.modern-totals-table', ['tot' => $tot, 't' => $t])
         </section>
 
-        @if (filled($t['amount_words_ar'] ?? null))
-            <p class="invoice-a4__words print-tpl-modern__words invoice-print-ar" dir="rtl">{{ $t['amount_words_ar'] }}</p>
-        @endif
-        @if (filled($t['amount_words_en'] ?? null))
-            <p class="invoice-a4__words print-tpl-modern__words">{{ $t['amount_words_en'] }}</p>
-        @endif
+        <div class="invoice-print-words-block print-tpl-modern__words">
+            @if (filled($t['amount_words_en'] ?? null))
+                <p class="invoice-print-words-block__en invoice-a4__words">{{ $t['amount_words_en'] }}</p>
+            @endif
+            @if (filled($t['amount_words_ar'] ?? null))
+                <p class="invoice-print-words-block__ar invoice-a4__words invoice-print-ar" dir="rtl">{{ $t['amount_words_ar'] }}</p>
+            @endif
+        </div>
 
         <footer class="invoice-a4__footer print-tpl-modern__sheet-footer print-only" data-document-number="{{ $t['document_number'] }}">
             <div class="print-tpl-modern__footer-names">

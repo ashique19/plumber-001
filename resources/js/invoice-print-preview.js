@@ -17,11 +17,14 @@ function fillPrintPageLabels() {
     document.querySelectorAll('[data-print-page-label]').forEach((el) => {
         const root = el.closest('[data-invoice-print]') || document.querySelector('[data-invoice-print]');
         const doc = el.getAttribute('data-document-number') || '';
-        const template = el.getAttribute('data-page-of') || '';
+        const pageEnTpl = el.getAttribute('data-page-en') || '';
+        const pageArTpl = el.getAttribute('data-page-ar') || '';
         const pages = estimatePrintPages(root);
 
-        if (pages === 1 && template.includes(':current') && template.includes(':total')) {
-            el.textContent = `${template.replace(':current', '1').replace(':total', '1')} - ${doc}`.trim();
+        if (pages === 1 && pageEnTpl.includes(':current') && pageEnTpl.includes(':total')) {
+            const pageEn = pageEnTpl.replace(':current', '1').replace(':total', '1');
+            const pageAr = pageArTpl.replace(':current', '1').replace(':total', '1');
+            el.textContent = `${pageEn} · ${pageAr} - ${doc}`.trim();
 
             return;
         }

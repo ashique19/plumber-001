@@ -20,7 +20,7 @@ beforeEach(function () {
     $this->branchId = Branch::query()->first()?->id;
 });
 
-it('keeps template A totals as a compact right-aligned two-column table', function () {
+it('keeps template A totals as a compact right-aligned three-column table', function () {
     $css = (string) file_get_contents(resource_path('css/print-template-modern.css'));
     expect($css)
         ->toContain('.print-tpl-modern__closing')
@@ -52,7 +52,7 @@ it('keeps template A totals as a compact right-aligned two-column table', functi
     assertModernTotalsTable($html);
 });
 
-it('keeps template B and quotation totals as two-column tables', function () {
+it('keeps template B and quotation totals as three-column tables', function () {
     $invoice = Invoice::query()->create([
         'branch_id' => $this->branchId,
         'document_number' => 'STD-TOTALS-BOX-B',
@@ -72,7 +72,7 @@ it('keeps template B and quotation totals as two-column tables', function () {
         ->getContent();
 
     expect($classic)->toContain('print-classic__totals-wrap');
-    assertTwoColumnTable($classic, 'print-classic__totals');
+    assertThreeColumnTotalsTable($classic, 'print-classic__totals');
 
     $quotation = Quotation::query()->create([
         'branch_id' => $this->branchId,
@@ -124,16 +124,16 @@ it('applies the same totals table rules in PDF HTML', function () {
 function assertModernTotalsTable(string $html): void
 {
     expect($html)
-        ->toContain('print-tpl-modern__totals-en')
-        ->toContain('print-tpl-modern__totals-ar')
-        ->toContain('print-tpl-modern__totals-value')
+        ->toContain('invoice-print-totals__en')
+        ->toContain('invoice-print-totals__ar')
+        ->toContain('invoice-print-totals__value')
         ->toContain('print-tpl-modern__totals-total')
         ->toContain('print-tpl-modern__totals-net');
 
-    assertTwoColumnTable($html, 'print-tpl-modern__totals');
+    assertThreeColumnTotalsTable($html, 'print-tpl-modern__totals');
 }
 
-function assertTwoColumnTable(string $html, string $class): void
+function assertThreeColumnTotalsTable(string $html, string $class): void
 {
     expect($html)->toMatch('/<table[^>]*class="[^"]*'.preg_quote($class, '/').'[^"]*"/');
 
@@ -151,6 +151,6 @@ function assertTwoColumnTable(string $html, string $class): void
 
     foreach ($rows as $row) {
         $cells = $xpath->query('./td', $row);
-        expect($cells->length)->toBe(2);
+        expect($cells->length)->toBe(3);
     }
 }
