@@ -30,3 +30,27 @@ it('forces sa country for standard clearance payloads when requested', function 
 
     expect($mapped['country'] ?? null)->toBe('SA');
 });
+
+it('detects complete saudi national address for b2c', function () {
+    expect(ZHeartBuyerAddressMapper::hasCompleteSaudiNationalAddress([]))->toBeFalse()
+        ->and(ZHeartBuyerAddressMapper::hasCompleteSaudiNationalAddress([
+            'country' => 'SA',
+            'city' => 'Riyadh',
+        ]))->toBeFalse()
+        ->and(ZHeartBuyerAddressMapper::hasCompleteSaudiNationalAddress([
+            'building' => '1',
+            'street' => 'St',
+            'district' => 'D',
+            'city' => 'Riyadh',
+            'postal_code' => '1234',
+            'country' => 'SA',
+        ]))->toBeFalse()
+        ->and(ZHeartBuyerAddressMapper::hasCompleteSaudiNationalAddress([
+            'building' => '7229',
+            'street' => 'King Fahd Rd',
+            'district' => 'Al Olaya',
+            'city' => 'Riyadh',
+            'postal_code' => '12211',
+            'country' => 'SA',
+        ]))->toBeTrue();
+});

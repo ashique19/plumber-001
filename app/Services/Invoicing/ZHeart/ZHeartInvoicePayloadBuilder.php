@@ -137,14 +137,22 @@ final class ZHeartInvoicePayloadBuilder
         }
 
         $addressCountry = ZHeartBuyerAddressMapper::countryCode($address, $country);
-        $forceCountry = $type === 'standard';
-        $normalizedAddress = ZHeartBuyerAddressMapper::toZHeart($address, $addressCountry, $forceCountry);
+        $includeAddress = $type === 'standard'
+            || ZHeartBuyerAddressMapper::hasCompleteSaudiNationalAddress($address);
 
-        if ($normalizedAddress !== [] || $forceCountry) {
-            if ($forceCountry && ! isset($normalizedAddress['country'])) {
+        if ($includeAddress) {
+            $normalizedAddress = ZHeartBuyerAddressMapper::toZHeart($address, $addressCountry, true);
+
+            if ($type === 'standard' && ! isset($normalizedAddress['country'])) {
                 $normalizedAddress['country'] = 'SA';
             }
-            $buyer['address'] = $normalizedAddress;
+
+            if ($normalizedAddress !== [] || $type === 'standard') {
+                if ($type === 'standard' && $normalizedAddress === []) {
+                    $normalizedAddress = ['country' => 'SA'];
+                }
+                $buyer['address'] = $normalizedAddress;
+            }
         }
 
         return $buyer;

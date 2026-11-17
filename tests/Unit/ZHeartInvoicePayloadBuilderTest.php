@@ -222,6 +222,135 @@ it('maps document level discount for z-heart totals', function () {
         ->and($payload['totals']['tax'])->toBe(13.5);
 });
 
+it('omits buyer address on simplified walk-in without buyer', function () {
+    $business = BusinessSetting::query()->create([
+        'name' => 'Walk-in Co',
+        'settings' => PlumberThemePreset::settings('Walk-in Co', 'شركة', 'ar'),
+    ]);
+
+    $request = new InvoiceSigningRequest(
+        business: $business,
+        documentNumber: 'SIM-WALK',
+        documentType: InvoiceDocumentType::Simplified,
+        invoiceCategory: 'simplified',
+        lines: [new InvoiceLineData('Pipe', 1, 10, 15)],
+        invoicePayload: [],
+        issueDateTimeUtc: Carbon::now('UTC'),
+        invoiceUuid: '550e8400-e29b-41d4-a716-446655440100',
+        referencedInvoiceNumber: null,
+        referencedInvoiceUuid: null,
+        noteReason: null,
+    );
+
+    $payload = app(ZHeartInvoicePayloadBuilder::class)->build($request);
+
+    expect($payload)->not->toHaveKey('buyer');
+});
+
+it('omits buyer address on simplified when customer has partial national address', function () {
+    $business = BusinessSetting::query()->create([
+        'name' => 'Partial Co',
+        'settings' => PlumberThemePreset::settings('Partial Co', 'شركة', 'ar'),
+    ]);
+
+    $request = new InvoiceSigningRequest(
+        business: $business,
+        documentNumber: 'SIM-PART',
+        documentType: InvoiceDocumentType::Simplified,
+        invoiceCategory: 'simplified',
+        lines: [new InvoiceLineData('Pipe', 1, 10, 15)],
+        invoicePayload: [
+            'buyer_name' => 'Walk-in Customer',
+            'buyer_country' => 'SA',
+            'buyer_national_address' => [
+                'country' => 'SA',
+                'city' => 'Riyadh',
+            ],
+        ],
+        issueDateTimeUtc: Carbon::now('UTC'),
+        invoiceUuid: '550e8400-e29b-41d4-a716-446655440101',
+        referencedInvoiceNumber: null,
+        referencedInvoiceUuid: null,
+        noteReason: null,
+    );
+
+    $payload = app(ZHeartInvoicePayloadBuilder::class)->build($request);
+
+    expect($payload['buyer']['name'])->toBe('Walk-in Customer')
+        ->and($payload['buyer'])->not->toHaveKey('address');
+});
+
+it('includes full buyer address on simplified when national address is complete', function () {
+    $business = BusinessSetting::query()->create([
+        'name' => 'Full Addr Co',
+        'settings' => PlumberThemePreset::settings('Full Addr Co', 'شركة', 'ar'),
+    ]);
+
+    $request = new InvoiceSigningRequest(
+        business: $business,
+        documentNumber: 'SIM-FULL',
+        documentType: InvoiceDocumentType::Simplified,
+        invoiceCategory: 'simplified',
+        lines: [new InvoiceLineData('Pipe', 1, 10, 15)],
+        invoicePayload: [
+            'buyer_name' => 'VIP Customer',
+            'buyer_national_address' => [
+                'building' => '7229',
+                'street' => 'King Fahd Rd',
+                'district' => 'Al Olaya',
+                'city' => 'Riyadh',
+                'postal_code' => '12211',
+                'country' => 'SA',
+            ],
+        ],
+        issueDateTimeUtc: Carbon::now('UTC'),
+        invoiceUuid: '550e8400-e29b-41d4-a716-446655440102',
+        referencedInvoiceNumber: null,
+        referencedInvoiceUuid: null,
+        noteReason: null,
+    );
+
+    $payload = app(ZHeartInvoicePayloadBuilder::class)->build($request);
+
+    expect($payload['buyer']['address']['country'])->toBe('SA')
+        ->and($payload['buyer']['address']['postal'])->toBe('12211')
+        ->and($payload['buyer']['address']['buildingNumber'])->toBe('7229');
+});
+
+it('keeps standard buyer address with country sa when address fields are partial', function () {
+    $business = BusinessSetting::query()->create([
+        'name' => 'Std Partial Co',
+        'settings' => PlumberThemePreset::settings('Std Partial Co', 'شركة', 'ar'),
+    ]);
+
+    $request = new InvoiceSigningRequest(
+        business: $business,
+        documentNumber: 'STD-PART',
+        documentType: InvoiceDocumentType::Standard,
+        invoiceCategory: 'standard',
+        lines: [new InvoiceLineData('Service', 1, 100, 15)],
+        invoicePayload: [
+            'buyer_name' => 'Acme LLC',
+            'buyer_vat_registered' => true,
+            'buyer_vat' => '300000000000003',
+            'buyer_cr' => '1234567890',
+            'buyer_national_address' => [
+                'city' => 'Riyadh',
+            ],
+        ],
+        issueDateTimeUtc: Carbon::now('UTC'),
+        invoiceUuid: '550e8400-e29b-41d4-a716-446655440103',
+        referencedInvoiceNumber: null,
+        referencedInvoiceUuid: null,
+        noteReason: null,
+    );
+
+    $payload = app(ZHeartInvoicePayloadBuilder::class)->build($request);
+
+    expect($payload['buyer']['address']['country'])->toBe('SA')
+        ->and($payload['buyer']['address']['city'])->toBe('Riyadh');
+});
+
 it('emits ubl unit code and vat category on lines', function () {
     $business = BusinessSetting::query()->create([
         'name' => 'Units Co',
