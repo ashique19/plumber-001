@@ -91,6 +91,7 @@ it('does not retry report on 503 even when retry_times is high', function () {
 it('health checks the remote service', function () {
     Http::fake([
         'https://z-heart.test/api/v1/health' => Http::response(['status' => 'ok'], 200),
+        'https://z-heart.test/api/v1/auth' => Http::response(['status' => 'ok'], 200),
     ]);
 
     expect(app(ZHeartClient::class)->health())->toBeTrue();

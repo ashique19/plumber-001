@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Casts\BusinessSettingsPayload;
 use App\Enums\InvoiceDocumentType;
+use App\Support\Invoicing\ZHeartCredentials;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
@@ -164,6 +165,11 @@ class BusinessSetting extends Model
       'content' => [
         'plumber' => [],
       ],
+      'zheart' => [
+        'base_url' => '',
+        'api_key_encrypted' => null,
+        'api_key_last4' => null,
+      ],
     ];
   }
 
@@ -172,12 +178,10 @@ class BusinessSetting extends Model
     $stored = data_get($this->settings, 'invoicing.integration_enabled');
 
     if ($stored === null) {
-      $key = config('zheart.api_key');
-
-      return is_string($key) && $key !== '';
+      return ZHeartCredentials::isConfigured($this);
     }
 
-    return (bool) $stored;
+    return (bool) $stored && ZHeartCredentials::isConfigured($this);
   }
 
   public function defaultInvoiceDocumentType(): InvoiceDocumentType

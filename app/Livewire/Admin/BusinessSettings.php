@@ -8,7 +8,9 @@ use App\Models\BusinessSetting;
 use App\Rules\SaudiVatNumber;
 use App\Services\Business\BusinessSettingsService;
 use App\Support\Geo\GeoMapsUrl;
+use App\Services\Invoicing\ZHeart\ZHeartClient;
 use App\Support\BusinessHours;
+use App\Support\Invoicing\ZHeartCredentials;
 use App\Support\BusinessProfile;
 use App\Support\Upload\LogoUploadConstraints;
 use Illuminate\Database\QueryException;
@@ -139,6 +141,22 @@ class BusinessSettings extends Component
 
     public string $quotationPrintTemplate = 'modern';
 
+    public string $zheartBaseUrl = '';
+
+    public string $zheartApiKeyInput = '';
+
+    public bool $zheartReplaceKeyOpen = false;
+
+    public bool $zheartHasStoredKey = false;
+
+    public ?string $zheartKeyLast4 = null;
+
+    public bool $zheartUsingEnvFallback = false;
+
+    public ?string $zheartTestStatus = null;
+
+    public string $zheartTestMessage = '';
+
     /** @var list<string> */
     public array $tabsWithErrors = [];
 
@@ -155,7 +173,10 @@ class BusinessSettings extends Component
     public function setSection(string $section): void
     {
         $allowed = ['brand', 'legal', 'invoicing', 'contact', 'hours', 'branches', 'extras'];
-        if (in_array($section, $allowed, true)) {
+        if ($section === 'zheart' && ! $this->isOwner()) {
+            return;
+        }
+        if (in_array($section, $allowed, true) || $section === 'zheart') {
             if ($section !== 'brand' && ! $this->logoAwaitingSave) {
                 $this->logoUpload = null;
             }
@@ -554,6 +575,99 @@ class BusinessSettings extends Component
         $this->syncBusinessState($business);
     }
 
+    public function beginZheartReplaceKey(): void
+    {
+        $this->assertOwner();
+        $this->zheartReplaceKeyOpen = true;
+        $this->zheartApiKeyInput = '';
+    }
+
+    public function saveZheart(BusinessSettingsService $service): void
+    {
+        $this->assertOwner();
+        $this->section = 'zheart';
+        $this->tabsWithErrors = [];
+
+        $rules = [
+            'zheartBaseUrl' => ['nullable', 'string', 'max:255', 'regex:/^https?:\/\/.+/i'],
+        ];
+        if (trim($this->zheartApiKeyInput) !== '') {
+            $rules['zheartApiKeyInput'] = ['required', 'string', 'min:16', 'max:512'];
+        }
+
+        try {
+            $this->runSectionValidation($rules, 'zheart');
+        } catch (ValidationException) {
+            return;
+        }
+
+        try {
+            $business = $service->saveZheart($this->business(), [
+                'base_url' => $this->zheartBaseUrl,
+                'api_key' => trim($this->zheartApiKeyInput) !== '' ? trim($this->zheartApiKeyInput) : null,
+            ], auth('staff')->user());
+        } catch (Throwable $e) {
+            $this->failSave('zheart', $e);
+
+            return;
+        }
+
+        $this->zheartApiKeyInput = '';
+        $this->zheartReplaceKeyOpen = false;
+        $this->toastSuccess(__('business.messages.saved'));
+        $this->syncBusinessState($business);
+    }
+
+    public function removeZheartKey(BusinessSettingsService $service): void
+    {
+        $this->assertOwner();
+        $this->section = 'zheart';
+
+        try {
+            $business = $service->saveZheart($this->business(), [
+                'remove_api_key' => true,
+            ], auth('staff')->user());
+        } catch (Throwable $e) {
+            $this->failSave('zheart', $e);
+
+            return;
+        }
+
+        $this->zheartApiKeyInput = '';
+        $this->zheartReplaceKeyOpen = false;
+        $this->toastSuccess(__('business.zheart.key_removed'));
+        $this->syncBusinessState($business);
+    }
+
+    public function testZheartConnection(ZHeartClient $client): void
+    {
+        $this->assertOwner();
+        $this->section = 'zheart';
+
+        $business = $this->business();
+        $base = trim($this->zheartBaseUrl);
+        if ($base === '') {
+            $base = ZHeartCredentials::baseUrl($business);
+        } else {
+            $base = rtrim($base, '/');
+        }
+
+        $key = trim($this->zheartApiKeyInput);
+        if ($key === '') {
+            $key = ZHeartCredentials::apiKey($business);
+        }
+
+        $result = $client->testConnection($base, $key);
+        $this->zheartTestStatus = $result['ok'] ? 'ok' : 'error';
+        $this->zheartTestMessage = $result['message'];
+
+        if ($result['ok']) {
+            $this->toastSuccess($result['message']);
+        } else {
+            $this->toastError($result['message']);
+        }
+    }
+
     public function render(): View
     {
         $business = $this->business();
@@ -565,7 +679,18 @@ class BusinessSettings extends Component
             'colorOptions' => BusinessProfile::brandColorOptions($business),
             'teamUrl' => route('admin.team'),
             'usersUrl' => ($staffUser && $staffUser->hasRole('owner')) ? route('admin.users') : null,
+            'isOwner' => $this->isOwner(),
         ]);
+    }
+
+    private function isOwner(): bool
+    {
+        return auth('staff')->user()?->hasRole('owner') ?? false;
+    }
+
+    private function assertOwner(): void
+    {
+        abort_unless($this->isOwner(), 403);
     }
 
     private function business(): BusinessSetting
@@ -706,6 +831,17 @@ class BusinessSettings extends Component
             PrintDocumentTemplate::values(),
             true,
         ) ? (string) data_get($business->settings, 'invoicing.quotation_print_template', 'modern') : 'modern';
+
+        $this->zheartBaseUrl = (string) data_get($business->settings, 'zheart.base_url', '');
+        $this->zheartHasStoredKey = ZHeartCredentials::hasStoredApiKey($business);
+        $this->zheartKeyLast4 = ZHeartCredentials::storedKeyLast4($business);
+        $this->zheartUsingEnvFallback = ! $this->zheartHasStoredKey
+            && is_string(config('zheart.api_key'))
+            && config('zheart.api_key') !== '';
+        $this->zheartApiKeyInput = '';
+        $this->zheartReplaceKeyOpen = false;
+        $this->zheartTestStatus = null;
+        $this->zheartTestMessage = '';
 
         $this->sanitizeLegacyFieldFormats();
     }

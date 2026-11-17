@@ -7,6 +7,7 @@ use App\Models\StaffUser;
 use App\Support\Storefront\BusinessContentMirror;
 use App\Support\BusinessHours;
 use App\Support\BusinessProfile;
+use App\Support\Invoicing\ZHeartCredentials;
 use Illuminate\Support\Facades\Log;
 
 class BusinessSettingsService
@@ -333,6 +334,37 @@ class BusinessSettingsService
             'payment_terms_days' => $invoicing['payment_terms_days'] ?? null,
             'invoice_print_template' => $invoicing['invoice_print_template'] ?? 'modern',
             'quotation_print_template' => $invoicing['quotation_print_template'] ?? 'modern',
+        ], $actor);
+
+        return $business->fresh();
+    }
+
+    /**
+     * @param  array{base_url?: string, api_key?: ?string, remove_api_key?: bool}  $input
+     */
+    public function saveZheart(BusinessSetting $business, array $input, ?StaffUser $actor = null): BusinessSetting
+    {
+        $settings = $this->detachSettings($business->settings ?? BusinessSetting::defaultSettings());
+        $zheart = is_array($settings['zheart'] ?? null) ? $settings['zheart'] : [];
+
+        if (array_key_exists('base_url', $input)) {
+            $zheart['base_url'] = trim((string) $input['base_url']);
+        }
+
+        $settings['zheart'] = $zheart;
+
+        if (! empty($input['remove_api_key'])) {
+            $settings = ZHeartCredentials::clearStoredKeyFromSettings($settings);
+        } elseif (isset($input['api_key']) && is_string($input['api_key']) && trim($input['api_key']) !== '') {
+            $settings = ZHeartCredentials::applyKeyToSettings($settings, trim($input['api_key']));
+        }
+
+        $zheart = is_array($settings['zheart'] ?? null) ? $settings['zheart'] : [];
+        $this->persist($business, $settings);
+        $this->audit->record($business, 'business.settings.zheart', [
+            'base_url_set' => filled($zheart['base_url'] ?? null),
+            'stored_key_present' => filled(data_get($settings, 'zheart.api_key_encrypted')),
+            'api_key' => '[redacted]',
         ], $actor);
 
         return $business->fresh();
