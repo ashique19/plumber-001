@@ -13,6 +13,7 @@ use App\Services\Invoicing\InvoiceDuesLedgerService;
 use App\Services\Invoicing\InvoiceZatcaResubmitService;
 use App\Support\Hub\HubChronologicalSort;
 use App\Support\Hub\HubInvoiceDraftLifecycle;
+use App\Support\Hub\HubInvoiceLifecycleTab;
 use App\Support\Hub\HubInvoiceRowActions;
 use App\Support\Hub\HubInvoiceTableRow;
 use App\Support\Hub\HubInvoiceZatcaTab;
@@ -41,6 +42,9 @@ class InvoiceHub extends Component
 
     #[Url]
     public string $zatcaTab = HubInvoiceZatcaTab::ALL;
+
+    #[Url(as: 'lifecycle')]
+    public string $lifecycleTab = HubInvoiceLifecycleTab::ALL;
 
     #[Url]
     public string $dateFrom = '';
@@ -75,6 +79,11 @@ class InvoiceHub extends Component
     }
 
     public function updatingZatcaTab(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingLifecycleTab(): void
     {
         $this->resetPage();
     }
@@ -247,11 +256,16 @@ class InvoiceHub extends Component
         $canResubmit = ($user?->can('invoices.issue') ?? false)
             && ZatcaSubmissionStatus::canSubmitToZatca($this->business);
 
+        $lifecycleTab = HubInvoiceLifecycleTab::normalize($this->lifecycleTab);
+        $this->lifecycleTab = $lifecycleTab;
+
         return view('livewire.invoices.invoice-hub', [
             'invoices' => $this->invoicePage(),
             'canIssueInvoice' => $user?->can('invoices.issue') ?? false,
             'canRecordPayment' => $user?->can('invoices.issue') ?? false,
             'canResubmitZatca' => $canResubmit,
+            'lifecycleTab' => $lifecycleTab,
+            'draftCount' => HubInvoiceLifecycleTab::countDrafts(),
             'zatcaFailedCount' => HubInvoiceZatcaTab::countFailed(),
             'zatcaSuccessCount' => HubInvoiceZatcaTab::countSuccess(),
         ]);
@@ -285,6 +299,8 @@ class InvoiceHub extends Component
         if ($this->dateTo !== '') {
             $query->whereDate('issued_at', '<=', $this->dateTo);
         }
+
+        HubInvoiceLifecycleTab::applyScope($query, $this->lifecycleTab);
 
         if (in_array($this->zatcaTab, [HubInvoiceZatcaTab::FAILED, HubInvoiceZatcaTab::SUCCESS], true)) {
             HubInvoiceZatcaTab::applyTabScope($query, $this->zatcaTab);

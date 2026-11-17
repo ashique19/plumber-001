@@ -248,6 +248,51 @@ html[dir='rtl'] .hub-doc-table__actions {
     align-items: center;
 }
 
+.hub-doc-table__tabs--scroll {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 0.15rem;
+    scrollbar-width: thin;
+}
+
+.hub-doc-table__tabs--scroll .hub-doc-table__tab {
+    flex: 0 0 auto;
+}
+
+.hub-doc-table__row-link {
+    color: inherit;
+    text-decoration: none;
+    font-weight: inherit;
+}
+
+.hub-doc-table__row-link:hover {
+    color: var(--app-accent);
+    text-decoration: underline;
+}
+
+.hub-doc-table__action--watermark {
+    opacity: 0.72;
+}
+
+.hub-doc-mobile-card__hit {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+    margin: -0.25rem -0.25rem 0.5rem;
+    padding: 0.25rem;
+    border-radius: 0.5rem;
+}
+
+.hub-doc-mobile-card__hit:focus-visible {
+    outline: 2px solid var(--app-accent);
+    outline-offset: 2px;
+}
+
+.hub-doc-table__data-row:hover .hub-doc-table__row-link {
+    color: var(--app-accent);
+}
+
 .hub-doc-table__tab {
     display: inline-flex;
     align-items: center;

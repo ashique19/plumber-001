@@ -2,12 +2,11 @@
 
 namespace App\Support\Hub;
 
-use App\Enums\InvoiceCollectionStatus;
 use App\Enums\InvoiceStatus;
 use App\Models\Invoice;
+use App\Models\PosOrder;
 use App\Services\Invoicing\InvoiceDuesLedgerService;
 use App\Support\Invoicing\InvoicePayloadTotals;
-use App\Support\Invoicing\InvoicePrintClearance;
 
 final class HubInvoiceTableRow
 {
@@ -29,13 +28,16 @@ final class HubInvoiceTableRow
         $dueAmount = $balance['principal_outstanding'];
         $actions = HubInvoiceRowActions::forInvoice($invoice, $dueAmount);
         $viewUrl = $actions['edit'] ? (string) $actions['edit_url'] : $printUrls['view'];
+        $isDraft = $invoice->status === InvoiceStatus::Draft;
 
         return [
             'invoice' => $invoice,
+            'display_number' => HubInvoiceListLabel::forHub($invoice),
+            'row_url' => $viewUrl,
             'customer' => $customer !== '' ? $customer : '—',
             'total_inc_vat' => $totals['total_inc_vat'],
-            'due_amount' => $dueAmount,
-            'payment_status' => $balance['status'],
+            'due_amount' => $isDraft ? null : $dueAmount,
+            'payment_status' => $isDraft ? null : $balance['status'],
             'invoice_status_key' => self::invoiceStatusKey($invoice),
             'zatca_badge' => HubInvoiceZatcaBadge::badgeKey($invoice),
             'zatca_error' => HubInvoiceZatcaTab::shortError($invoice),
@@ -79,7 +81,7 @@ final class HubInvoiceTableRow
             : null;
 
         $creditUrl = null;
-        if ($invoice->isIssued() && $invoice->source_type === \App\Models\PosOrder::class && $invoice->source_id && $invoice->branch_id) {
+        if ($invoice->isIssued() && $invoice->source_type === PosOrder::class && $invoice->source_id && $invoice->branch_id) {
             $creditUrl = route('admin.pos.history', ['branch' => $invoice->branch_id]);
         }
 

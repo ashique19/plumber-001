@@ -12,6 +12,7 @@ use App\Livewire\Concerns\ValidatesFieldsLive;
 use App\Models\BusinessSetting;
 use App\Models\Quotation;
 use App\Support\Hub\HubChronologicalSort;
+use App\Support\Hub\HubQuotationLifecycleTab;
 use App\Support\Hub\HubQuotationPrintLinks;
 use App\Support\Invoicing\InvoiceDocumentTotals;
 use App\Support\Invoicing\IssueInvoicePrefill;
@@ -46,6 +47,9 @@ class QuotationHub extends Component
     #[Url]
     public string $sortDir = 'desc';
 
+    #[Url(as: 'lifecycle')]
+    public string $lifecycleTab = HubQuotationLifecycleTab::ALL;
+
     public function mount(): void
     {
         $this->resolveBusiness();
@@ -64,6 +68,11 @@ class QuotationHub extends Component
     }
 
     public function updatingDateTo(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingLifecycleTab(): void
     {
         $this->resetPage();
     }
@@ -109,9 +118,14 @@ class QuotationHub extends Component
     {
         $user = auth('staff')->user();
 
+        $lifecycleTab = HubQuotationLifecycleTab::normalize($this->lifecycleTab);
+        $this->lifecycleTab = $lifecycleTab;
+
         return view('livewire.quotations.quotation-hub', [
             'quotations' => $this->quotationPage(),
             'canManageQuotations' => $user?->can('invoices.issue') ?? false,
+            'lifecycleTab' => $lifecycleTab,
+            'openQuotationCount' => HubQuotationLifecycleTab::countOpen(),
         ]);
     }
 
@@ -135,6 +149,8 @@ class QuotationHub extends Component
         if ($this->dateTo !== '') {
             $query->whereDate('created_at', '<=', $this->dateTo);
         }
+
+        HubQuotationLifecycleTab::applyScope($query, $this->lifecycleTab);
 
         $descending = $this->sortDir !== 'asc';
         $dir = $descending ? 'desc' : 'asc';

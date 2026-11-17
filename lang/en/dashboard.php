@@ -17,6 +17,7 @@ return [
         'record_purchase' => 'Record Purchase',
         'payments_dues' => 'Payments & Dues',
         'view_reports' => 'View Reports',
+        'invoice_drafts' => 'Drafts (:count)',
         'subtitles' => [
             'create_invoice' => 'Generate a new sales invoice',
             'create_quotation' => 'Prepare a quotation for customers',
@@ -26,6 +27,7 @@ return [
             'record_purchase' => 'Add supplier purchases and update stock',
             'payments_dues' => 'Record payments and check outstanding balances',
             'view_reports' => 'Access sales, profit, and inventory reports',
+            'invoice_drafts' => 'Open draft invoices and continue editing',
         ],
     ],
     'open_analytics' => 'Full analytics',
