@@ -11,6 +11,7 @@ use App\Models\Invoice;
 use App\Models\InvoicePayment;
 use App\Models\PosOrder;
 use App\Models\StaffUser;
+use App\Support\Hub\HubChronologicalSort;
 use App\Support\Invoicing\InvoiceCustomerIdentity;
 use App\Support\Invoicing\InvoicePayloadLines;
 use Illuminate\Support\Collection;
@@ -142,7 +143,7 @@ class InvoiceDuesLedgerService
                 InvoiceDocumentType::Simplified,
             ])
             ->with(['payments'])
-            ->orderByDesc('issued_at')
+            ->tap(fn ($q) => HubChronologicalSort::applyLatestFirst($q, 'issued_at'))
             ->get();
     }
 
@@ -247,6 +248,8 @@ class InvoiceDuesLedgerService
         if ($matchingIdentity === null) {
             throw new \InvalidArgumentException('Customer not found.');
         }
+
+        $invoiceRows = HubChronologicalSort::sortRowsByIssuedCreatedId($invoiceRows);
 
         usort($paymentRows, static fn (array $a, array $b): int => strcmp($b['paid_on']?->toDateString() ?? '', $a['paid_on']?->toDateString() ?? ''));
 

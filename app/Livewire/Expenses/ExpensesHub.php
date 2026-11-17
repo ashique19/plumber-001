@@ -10,6 +10,7 @@ use App\Livewire\Concerns\ResolvesBusinessContext;
 use App\Livewire\Concerns\ValidatesFieldsLive;
 use App\Models\Branch;
 use App\Models\BusinessExpense;
+use App\Support\Hub\HubChronologicalSort;
 use App\Support\StaffBranchContext;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\View\View;
@@ -161,8 +162,7 @@ class ExpensesHub extends Component
     {
         return $this->filteredQuery()
             ->with(['branch', 'recordedBy'])
-            ->orderByDesc('spent_on')
-            ->orderByDesc('id')
+            ->tap(fn ($q) => HubChronologicalSort::applyLatestFirst($q, 'spent_on'))
             ->paginate($this->adminPerPage());
     }
 

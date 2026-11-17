@@ -11,6 +11,7 @@ use App\Livewire\Concerns\ResolvesBusinessContext;
 use App\Livewire\Concerns\ValidatesFieldsLive;
 use App\Models\Invoice;
 use App\Services\Invoicing\InvoiceDuesLedgerService;
+use App\Support\Hub\HubChronologicalSort;
 use App\Support\Hub\HubInvoiceTableRow;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
@@ -168,7 +169,7 @@ class PaymentsDuesHub extends Component
                 $like = '%'.trim($this->invoiceSearch).'%';
                 $q->where('document_number', 'like', $like);
             })
-            ->orderByDesc('issued_at')
+            ->tap(fn ($q) => HubChronologicalSort::applyLatestFirst($q, 'issued_at'))
             ->paginate($this->adminPerPage(), ['*'], 'invoicesPage')
             ->through(function (Invoice $invoice) use ($ledger): array {
                 $balance = $ledger->balanceFor($invoice);
