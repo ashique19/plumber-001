@@ -1,9 +1,15 @@
 @php
+    $sessionLocale = null;
+    try {
+        $sessionLocale = request()->hasSession() ? request()->session()->get('locale') : null;
+    } catch (\Throwable) {
+        $sessionLocale = null;
+    }
     $errorLocale = \App\Support\EnabledLocales::resolve(
         request()->query('locale')
-            ?? (request()->hasSession() ? request()->session()->get('locale') : null)
-            ?? \App\Business\BusinessContext::get()?->settings['default_locale']
+            ?? $sessionLocale
             ?? app()->getLocale()
+            ?? \App\Business\BusinessContext::get()?->settings['default_locale']
     );
     app()->setLocale($errorLocale);
 

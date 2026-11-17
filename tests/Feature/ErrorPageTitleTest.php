@@ -15,7 +15,7 @@ it('renders 404 copy in the session locale instead of always Bangla', function (
     $bnHeading = trans('errors.not_found_heading', [], 'bn');
 
     $html = $this->withSession(['locale' => 'en'])
-        ->get('/this-route-does-not-exist-xyz')
+        ->get('/this-route-does-not-exist-xyz?locale=en')
         ->assertNotFound()
         ->getContent();
 
