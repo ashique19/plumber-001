@@ -178,6 +178,13 @@ class IssueInvoice extends Component
         $this->paymentMethod = InvoiceArPaymentMethod::Cash->value;
         $this->syncAmountReceivedToGrandTotal();
         $this->issueSubmissionToken = (string) Str::uuid();
+
+        DocumentCreateUiSupport::assignMissingLineIds($this->lines);
+    }
+
+    public function hydrate(): void
+    {
+        DocumentCreateUiSupport::assignMissingLineIds($this->lines);
     }
 
     public function updatedPaymentTerms(): void
@@ -727,6 +734,7 @@ class IssueInvoice extends Component
     protected function emptyLine(): array
     {
         return [
+            'line_id' => DocumentCreateUiSupport::newLineId(),
             'name' => '',
             'name_ar' => '',
             'name_bn' => '',

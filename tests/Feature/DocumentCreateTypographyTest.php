@@ -19,7 +19,7 @@ it('renders document create typography hooks for bn invoice issue', function () 
 
         expect($html)
             ->toContain('document-readonly-field__label')
-            ->toContain('document-product-lines-scroll')
+            ->toContain('invoice-document-lines')
             ->toContain('lang="'.$locale.'"');
     }
 });

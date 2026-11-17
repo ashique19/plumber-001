@@ -89,7 +89,8 @@ trait ManagesInvoicingCatalogPicker
             $bump = DocumentCatalogLineMerge::bumpLineQuantity($this->lines, $existingIndex, 1.0);
             $this->refreshLineStockSnapshot($existingIndex, $product);
             $this->addLineProductSearch = '';
-            $this->dispatch('document-line-merged', lineIndex: $existingIndex);
+            $lineId = (string) ($this->lines[$existingIndex]['line_id'] ?? '');
+            $this->dispatch('document-line-merged', lineIndex: $existingIndex, lineId: $lineId);
             if ($notify) {
                 if ($bump['capped']) {
                     $this->toastInfo(__('invoices.catalog_product_qty_capped', ['name' => $product->displayName()]));
@@ -109,7 +110,8 @@ trait ManagesInvoicingCatalogPicker
         $index = count($this->lines) - 1;
         $this->fillLineFromProduct($index, $product);
         $this->addLineProductSearch = '';
-        $this->dispatch('document-line-added', lineIndex: $index);
+        $lineId = (string) ($this->lines[$index]['line_id'] ?? '');
+        $this->dispatch('document-line-added', lineId: $lineId, lineIndex: $index);
         if ($notify) {
             $this->toastInfo(__('invoices.catalog_product_applied', ['name' => $product->displayName()]));
         }

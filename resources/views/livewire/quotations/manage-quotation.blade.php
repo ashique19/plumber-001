@@ -8,19 +8,35 @@
         id="quotation-save-form"
         wire:submit="save"
         @document-line-added.window="$nextTick(() => {
+            const lineId = $event.detail?.lineId ?? null;
             const i = $event.detail?.lineIndex;
-            const row = typeof i === 'number'
-                ? document.querySelector(`[data-document-line-index='${i}']`)
-                : document.querySelector('.invoice-document-lines__row:last-child');
-            row?.classList.add('invoice-document-lines__row--flash');
-            row && setTimeout(() => row.classList.remove('invoice-document-lines__row--flash'), 1600);
+            const el = lineId
+                ? document.querySelector('[data-document-line-id=' + JSON.stringify(lineId) + ']')
+                : (typeof i === 'number'
+                    ? document.querySelector(`[data-document-line-index='${i}']`)
+                    : document.querySelector('.invoice-document-lines__row:last-child'));
+            el?.classList.add('invoice-document-lines__row--flash');
+            el && setTimeout(() => el.classList.remove('invoice-document-lines__row--flash'), 1600);
+            const stepper = el?.querySelector('.document-qty-stepper');
+            stepper?.querySelector('button')?.focus({ preventScroll: true });
+            stepper?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
         })"
         @document-line-merged.window="$nextTick(() => {
+            const lineId = $event.detail?.lineId ?? null;
             const i = $event.detail?.lineIndex;
-            document.querySelectorAll(`[data-document-line-index='${i}']`).forEach((row) => {
+            const targets = lineId
+                ? document.querySelectorAll('[data-document-line-id=' + JSON.stringify(lineId) + ']')
+                : (typeof i === 'number'
+                    ? document.querySelectorAll(`[data-document-line-index='${i}']`)
+                    : []);
+            targets.forEach((row) => {
                 row.classList.add('invoice-document-lines__row--flash');
                 setTimeout(() => row.classList.remove('invoice-document-lines__row--flash'), 1600);
             });
+            const el = targets[0];
+            const stepper = el?.querySelector('.document-qty-stepper');
+            stepper?.querySelector('button')?.focus({ preventScroll: true });
+            stepper?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
         })"
         x-on:document-validation-failed.window="$nextTick(() => document.getElementById('document-validation-summary')?.scrollIntoView({ behavior: 'smooth', block: 'start' }))"
     >
