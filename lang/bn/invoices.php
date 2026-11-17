@@ -66,16 +66,20 @@ return array (
   'invoice_status' => 
   array (
     'draft' => 'ড্রাফট',
-    'pending' => 'অপেক্ষমাণ',
-    'issued' => 'ইস্যু',
+    'issued' => 'ইস্যুকৃত',
+    'cancelled' => 'বাতিল',
+    'credited' => 'ক্রেডিটকৃত',
+    'returned' => 'ফেরত',
   ),
   'zatca_badge' => 
   array (
-    'not_submitted' => 'জমা হয়নি',
-    'pending' => 'অপেক্ষমাণ',
-    'cleared' => 'ক্লিয়ার্ড',
+    'not_sent' => 'পাঠানো হয়নি',
+    'reporting_pending' => 'রিপোর্টিং বাকি',
+    'clearance_pending' => 'ক্লিয়ারেন্স বাকি',
     'reported' => 'রিপোর্টেড',
-    'rejected' => 'প্রত্যাখ্যাত',
+    'reported_warnings' => 'রিপোর্টেড (সতর্কতা)',
+    'cleared' => 'ক্লিয়ার্ড',
+    'rejected' => 'প্রত্যাখ্যাত / ব্যর্থ',
   ),
   'print_not_cleared' => 'ক্লিয়ার হয়নি',
   'print_not_cleared_notice' => 'স্ট্যান্ডার্ড ইনভয়েস এখনো ZATCA-তে ক্লিয়ার হয়নি। ক্লিয়ার না হওয়া পর্যন্ত QR লুকানো। হাব থেকে প্রিন্ট/ডাউনলোড নিষ্ক্রিয়।',

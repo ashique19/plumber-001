@@ -8,9 +8,11 @@ use App\Models\BusinessSetting;
 use App\Models\Invoice;
 use App\Models\StaffUser;
 use App\Support\Hub\HubInvoiceStatusDisplay;
+use App\Support\Hub\HubInvoiceTableRow;
 use App\Support\Hub\HubInvoiceZatcaBadge;
 use Database\Seeders\DemoStaffSeeder;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Livewire;
 
 afterEach(function () {
     Auth::guard('staff')->logout();
@@ -47,27 +49,31 @@ function makeStandardAwaitingClearanceInvoice(): Invoice
         ],
     ]);
 
-    expect(HubInvoiceZatcaBadge::badgeKey($invoice))->toBe(HubInvoiceZatcaBadge::Pending)
+    expect(HubInvoiceZatcaBadge::badgeKey($invoice))->toBe(HubInvoiceZatcaBadge::ClearancePending)
+        ->and(HubInvoiceTableRow::invoiceStatusKey($invoice))->toBe('issued')
         ->and(HubInvoiceStatusDisplay::awaitingStandardClearance($invoice))->toBeTrue();
 
     return $invoice;
 }
 
-it('labels standard uncleared invoice and zatca badges as awaiting clearance in the hub', function () {
+it('shows issued lifecycle and clearance pending zatca as separate hub pills', function () {
     $invoice = makeStandardAwaitingClearanceInvoice();
-    $short = __('invoices.awaiting_zatca_clearance_short');
+    $clearance = __('invoices.zatca_badge.clearance_pending');
+    $issued = __('invoices.invoice_status.issued');
     $full = __('invoices.awaiting_zatca_clearance');
     $hint = __('invoices.zatca_clearance_hint');
 
     Livewire::actingAs($this->owner, 'staff')
         ->test(InvoiceHub::class)
         ->set('search', $invoice->document_number)
-        ->assertSee($short, false)
+        ->assertSee($issued, false)
+        ->assertSee($clearance, false)
         ->assertSeeHtml('title="'.e($full).'"', false)
         ->assertSee($hint, false)
         ->assertSeeHtml('data-testid="hub-invoice-status-pill-invoice"', false)
         ->assertSeeHtml('data-testid="hub-invoice-status-pill-zatca"', false)
-        ->assertDontSee(__('invoices.invoice_status.pending'), false);
+        ->assertSeeHtml('hub-invoice-status-pill--invoice', false)
+        ->assertSeeHtml('hub-invoice-status-pill--zatca', false);
 });
 
 it('shows awaiting clearance status block on standard invoice print view', function () {
@@ -77,12 +83,13 @@ it('shows awaiting clearance status block on standard invoice print view', funct
         ->get(route('admin.invoices.print', ['invoice' => $invoice, 'layout' => 'a4']));
 
     $response->assertOk()
-        ->assertSee(__('invoices.awaiting_zatca_clearance'), false)
+        ->assertSee(__('invoices.invoice_status.issued'), false)
+        ->assertSee(__('invoices.zatca_badge.clearance_pending'), false)
         ->assertSee(__('invoices.zatca_clearance_hint'), false)
         ->assertSeeHtml('data-testid="invoice-view-status"', false);
 });
 
-it('keeps generic pending label for simplified invoices awaiting report', function () {
+it('labels simplified reporting pending on zatca only', function () {
     $invoice = Invoice::query()->create([
         'document_number' => 'SIM-ZATCA-PENDING-1',
         'document_type' => InvoiceDocumentType::Simplified,
@@ -99,6 +106,18 @@ it('keeps generic pending label for simplified invoices awaiting report', functi
     Livewire::actingAs($this->owner, 'staff')
         ->test(InvoiceHub::class)
         ->set('search', $invoice->document_number)
-        ->assertSee(__('invoices.zatca_badge.pending'), false)
+        ->assertSee(__('invoices.invoice_status.issued'), false)
+        ->assertSee(__('invoices.zatca_badge.reporting_pending'), false)
         ->assertDontSee(__('invoices.zatca_clearance_hint'), false);
+});
+
+it('maps credit notes to credited lifecycle status', function () {
+    $invoice = Invoice::query()->create([
+        'document_number' => 'CN-1',
+        'document_type' => InvoiceDocumentType::CreditNote,
+        'status' => InvoiceStatus::Issued,
+        'payload' => ['lines' => []],
+    ]);
+
+    expect(HubInvoiceTableRow::invoiceStatusKey($invoice))->toBe('credited');
 });

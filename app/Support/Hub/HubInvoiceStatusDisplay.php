@@ -13,15 +13,16 @@ final class HubInvoiceStatusDisplay
 
     public static function showsClearanceHint(Invoice $invoice): bool
     {
-        return self::awaitingStandardClearance($invoice);
+        if (! self::awaitingStandardClearance($invoice)) {
+            return false;
+        }
+
+        return HubInvoiceZatcaBadge::badgeKey($invoice) === HubInvoiceZatcaBadge::ClearancePending;
     }
 
     public static function invoiceStatusLabel(Invoice $invoice): string
     {
         $key = HubInvoiceTableRow::invoiceStatusKey($invoice);
-        if (self::awaitingStandardClearance($invoice) && $key === 'pending') {
-            return (string) __('invoices.awaiting_zatca_clearance_short');
-        }
 
         return (string) __('invoices.invoice_status.'.$key);
     }
@@ -29,9 +30,6 @@ final class HubInvoiceStatusDisplay
     public static function zatcaBadgeLabel(Invoice $invoice): string
     {
         $badge = HubInvoiceZatcaBadge::badgeKey($invoice);
-        if (self::awaitingStandardClearance($invoice) && $badge === HubInvoiceZatcaBadge::Pending) {
-            return (string) __('invoices.awaiting_zatca_clearance_short');
-        }
 
         return (string) __('invoices.zatca_badge.'.$badge);
     }
@@ -48,12 +46,11 @@ final class HubInvoiceStatusDisplay
 
     public static function invoiceStatusPillVariant(Invoice $invoice): string
     {
-        $key = HubInvoiceTableRow::invoiceStatusKey($invoice);
-
-        return match ($key) {
-            'pending' => 'warning',
-            'draft' => 'refunded',
-            default => 'paid',
+        return match (HubInvoiceTableRow::invoiceStatusKey($invoice)) {
+            'draft' => 'muted',
+            'cancelled' => 'cancelled',
+            'credited', 'returned' => 'refunded',
+            default => 'info',
         };
     }
 
@@ -62,9 +59,11 @@ final class HubInvoiceStatusDisplay
         $badge = HubInvoiceZatcaBadge::badgeKey($invoice);
 
         return match ($badge) {
-            HubInvoiceZatcaBadge::Cleared, HubInvoiceZatcaBadge::Reported => 'paid',
-            HubInvoiceZatcaBadge::Pending => 'warning',
-            default => 'refunded',
+            HubInvoiceZatcaBadge::Cleared,
+            HubInvoiceZatcaBadge::Reported => 'paid',
+            HubInvoiceZatcaBadge::ReportedWithWarnings => 'warning',
+            HubInvoiceZatcaBadge::Rejected => 'cancelled',
+            default => 'warning',
         };
     }
 }
