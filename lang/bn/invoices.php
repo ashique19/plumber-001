@@ -81,6 +81,8 @@ return array (
   'print_not_cleared_notice' => 'স্ট্যান্ডার্ড ইনভয়েস এখনো ZATCA-তে ক্লিয়ার হয়নি। ক্লিয়ার না হওয়া পর্যন্ত QR লুকানো। হাব থেকে প্রিন্ট/ডাউনলোড নিষ্ক্রিয়।',
   'pdf_not_cleared' => 'ZATCA ক্লিয়ার না হওয়া পর্যন্ত PDF ডাউনলোড উপলব্ধ নয়।',
   'pdf_not_available' => 'ইস্যুকৃত ইনভয়েসের জন্যই PDF ডাউনলোড করা যায়।',
+  'pdf_available_after_clearance' => 'ZATCA ক্লিয়ার হওয়ার পর উপলব্ধ',
+  'pdf_render_failed' => 'PDF তৈরি করা যায়নি। আবার চেষ্টা করুন বা সমস্যা থাকলে সহায়তায় যোগাযোগ করুন।',
   'zatca_tabs_label' => 'ZATCA জমা',
   'zatca_tab_all' => 'সব',
   'zatca_tab_failed' => 'ZATCA ব্যর্থ',

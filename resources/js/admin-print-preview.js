@@ -21,11 +21,15 @@ export function registerAdminPrintPreview(Alpine) {
         a4Url: null,
         cashUrl: null,
         pdfUrl: null,
+        canDownloadPdf: true,
         layout: 'a4',
         backUrl: '',
+        pdfBlockedTitle: '',
         _keyHandler: null,
 
         init() {
+            this.pdfBlockedTitle = this.$el.dataset.pdfBlockedTitle || '';
+
             this._keyHandler = (event) => {
                 if (event.key === 'Escape' && this.open) {
                     event.preventDefault();
@@ -56,6 +60,7 @@ export function registerAdminPrintPreview(Alpine) {
                 a4Url: button.getAttribute('data-print-a4') || null,
                 cashUrl: button.getAttribute('data-print-cash') || null,
                 pdfUrl: button.getAttribute('data-print-pdf') || null,
+                canDownloadPdf: button.getAttribute('data-print-can-download') !== '0',
                 layout: button.getAttribute('data-print-layout') || 'a4',
                 backUrl: button.getAttribute('data-print-back') || '',
             });
@@ -68,6 +73,7 @@ export function registerAdminPrintPreview(Alpine) {
             this.a4Url = detail.a4Url || null;
             this.cashUrl = detail.cashUrl || null;
             this.pdfUrl = detail.pdfUrl || null;
+            this.canDownloadPdf = detail.canDownloadPdf !== false;
             this.layout = detail.layout || 'a4';
             this.backUrl = detail.backUrl || '';
             this.src = embedUrl(detail.src);
@@ -91,6 +97,9 @@ export function registerAdminPrintPreview(Alpine) {
         },
 
         printFrame() {
+            if (! this.canDownloadPdf) {
+                return;
+            }
             const frame = this.$refs.frame;
             if (frame?.contentWindow) {
                 frame.contentWindow.focus();

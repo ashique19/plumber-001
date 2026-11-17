@@ -76,6 +76,8 @@ class InvoicePrintController extends Controller
             && ZatcaSubmissionStatus::canSubmitToZatca($business)
             && HubInvoiceRowActions::canResendZatca($invoice);
 
+        $canDownloadPdf = HubInvoiceRowActions::canDownloadOrPrint($invoice);
+
         $shared = [
             'invoice' => $invoice,
             't' => $t,
@@ -83,6 +85,7 @@ class InvoicePrintController extends Controller
             'zatcaNotSent' => ZatcaSubmissionStatus::invoiceNotSentToZatca($invoice),
             'fallbackBackUrl' => route('admin.invoices'),
             'pdfUrl' => route('admin.invoices.pdf', ['invoice' => $invoice]),
+            'canDownloadPdf' => $canDownloadPdf,
             'canResubmitZatca' => $canResubmitZatca,
             'zatcaResubmitUrl' => route('admin.invoices.zatca-resubmit', ['invoice' => $invoice]),
             'zatcaResubmitLabel' => HubInvoiceZatcaResubmitCopy::actionLabel($invoice),
