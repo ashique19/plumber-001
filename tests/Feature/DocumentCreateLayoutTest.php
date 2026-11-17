@@ -27,7 +27,7 @@ it('renders quotation create layout shell', function (): void {
     Livewire::actingAs($this->owner, 'staff')
         ->test(ManageQuotation::class)
         ->assertSee(__('quotations.create_title'))
-        ->assertSee('conditions', false)
+        ->assertSee(__('quotations.terms_and_conditions'), false)
         ->assertSee(__('quotations.summary'))
         ->assertSee(__('quotations.information'));
 });
