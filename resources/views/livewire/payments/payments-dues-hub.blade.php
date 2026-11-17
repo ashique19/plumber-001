@@ -186,29 +186,33 @@
                     <x-admin.hub-pager :paginator="$invoicePicklist" />
                 </div>
 
-                <form class="space-y-3" wire:submit="recordPayment">
-                    @if ($selectedBalance)
-                        <div class="rounded-lg border border-[var(--app-border)] bg-[var(--app-surface-muted)]/50 p-3 text-xs">
-                            <p>{{ __('payments.due_now') }}: <span class="tabular-nums font-semibold">{{ number_format($selectedBalance['principal_outstanding'], 2) }}</span></p>
-                            <p class="mt-1">{{ __('payments.retention_due') }}: <span class="tabular-nums font-semibold text-amber-800">{{ number_format($selectedBalance['retention_outstanding'], 2) }}</span></p>
-                        </div>
-                    @endif
+                <form wire:submit="recordPayment">
+                    <div class="grid gap-4 md:grid-cols-2">
+                        @if ($selectedBalance)
+                            <div class="col-span-full rounded-lg border border-[var(--app-border)] bg-[var(--app-surface-muted)]/50 p-3 text-xs">
+                                <p>{{ __('payments.due_now') }}: <span class="tabular-nums font-semibold">{{ number_format($selectedBalance['principal_outstanding'], 2) }}</span></p>
+                                <p class="mt-1">{{ __('payments.retention_due') }}: <span class="tabular-nums font-semibold text-amber-800">{{ number_format($selectedBalance['retention_outstanding'], 2) }}</span></p>
+                            </div>
+                        @endif
 
-                    <x-field.input type="date" :label="__('payments.paid_on')" name="paidOn" wire:model="paidOn" />
-                    <x-field.input type="number" step="0.01" min="0.01" :label="__('payments.amount')" name="paymentAmount" wire:model="paymentAmount" />
-                    <x-field.select :label="__('payments.method.label')" name="paymentMethod" wire:model="paymentMethod">
-                        <option value="cash">{{ __('payments.method.cash') }}</option>
-                        <option value="bank">{{ __('payments.method.bank') }}</option>
-                        <option value="card">{{ __('payments.method.card') }}</option>
-                    </x-field.select>
-                    <x-field.input :label="__('payments.reference')" name="paymentReference" wire:model="paymentReference" />
-                    <label class="flex items-center gap-2 text-sm">
-                        <input type="checkbox" class="rounded border-[var(--app-border)]" wire:model="forRetention" />
-                        {{ __('payments.apply_to_retention') }}
-                    </label>
-                    <button type="submit" class="tap-action-primary min-h-11 w-full px-4 text-sm font-semibold" @disabled(! $selectedInvoiceId)>
-                        {{ __('payments.save_payment') }}
-                    </button>
+                        <x-field.input type="date" :label="__('payments.paid_on')" name="paidOn" wire:model="paidOn" />
+                        <x-field.input type="number" step="0.01" min="0.01" :label="__('payments.amount')" name="paymentAmount" wire:model="paymentAmount" />
+                        <x-field.select :label="__('payments.method.label')" name="paymentMethod" wire:model="paymentMethod">
+                            <option value="cash">{{ __('payments.method.cash') }}</option>
+                            <option value="bank">{{ __('payments.method.bank') }}</option>
+                            <option value="card">{{ __('payments.method.card') }}</option>
+                        </x-field.select>
+                        <x-field.input :label="__('payments.reference')" name="paymentReference" wire:model="paymentReference" />
+                        <label class="col-span-full flex min-h-11 items-center gap-2 text-sm">
+                            <input type="checkbox" class="rounded border-[var(--app-border)]" wire:model="forRetention" />
+                            {{ __('payments.apply_to_retention') }}
+                        </label>
+                        <div class="col-span-full pt-1">
+                            <button type="submit" class="tap-action-primary min-h-11 w-full px-4 text-sm font-semibold" @disabled(! $selectedInvoiceId)>
+                                {{ __('payments.save_payment') }}
+                            </button>
+                        </div>
+                    </div>
                 </form>
             </div>
         </section>

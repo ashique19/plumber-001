@@ -134,10 +134,10 @@
         :show="$showForm"
         :title="$editingId ? __('staff_users.edit_title') : __('staff_users.add')"
         close-wire="closeForm"
-        size="lg"
+        size="xl"
     >
         <form class="x-modal-form" wire:submit="save" novalidate data-testid="staff-user-form">
-            <div class="x-modal-form__fields app-admin-form">
+            <div class="x-modal-form__fields x-modal-form__fields--2 app-admin-form">
                 <x-field.input :label="__('staff_users.name')" name="name" wire:model="name" required />
                 <x-field.input type="email" :label="__('staff_users.email')" name="email" wire:model="email" required />
                 <x-field.input
@@ -145,6 +145,7 @@
                     :label="$editingId ? __('staff_users.password_optional') : __('staff_users.password')"
                     name="password"
                     wire:model="password"
+                    wrapper-class="col-span-full"
                     @if(!$editingId) required @endif
                 />
                 <x-field.select :label="__('staff_users.role')" name="role" wire:model="role" required :liveValidate="false">

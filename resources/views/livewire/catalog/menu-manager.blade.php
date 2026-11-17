@@ -165,10 +165,11 @@
             :show="true"
             :title="$editingCategoryId ? __('catalog.edit_category') : __('catalog.add_category')"
             close-wire='$set("showCategoryForm", false)'
+            size="lg"
             data-testid="catalog-category-modal"
         >
             <form id="catalog-category-form" class="x-modal-form" wire:submit="saveCategory">
-                <div class="x-modal-form__fields app-admin-form">
+                <div class="x-modal-form__fields x-modal-form__fields--2 app-admin-form">
                 <x-field.input :label="__('catalog.name_en')" name="categoryNameEn" wire:model="categoryNameEn" required />
                 <x-field.input :label="__('catalog.name_ar')" name="categoryNameAr" wire:model="categoryNameAr" dir="rtl" />
                 @if($categoryBanglaFieldsReady ?? false)
