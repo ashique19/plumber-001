@@ -50,10 +50,23 @@ final class ZatcaResponseDisplay
 
         $errors = self::collectList($raw, ['errors', 'error', 'validation_errors', 'rejection_reasons']);
         $errors = array_merge($fieldErrors, $errors);
+        $fieldErrors = ZHeartApiValidationErrors::presentLines($fieldErrors);
+        $errors = ZHeartApiValidationErrors::presentLines($errors);
 
         $lastError = data_get($invoice->payload, 'zheart_last_error');
+        $summary = is_string($lastError) && trim($lastError) !== '' ? trim($lastError) : null;
         $errors = ZHeartApiValidationErrors::dedupe($errors);
         $messages = ZHeartApiValidationErrors::dedupe($messages);
+
+        $errors = array_values(array_filter(
+            $errors,
+            fn (string $line): bool => ! self::lineRedundantWithSummary($line, $summary),
+        ));
+        $fieldErrors = array_values(array_filter(
+            $fieldErrors,
+            fn (string $line): bool => ! self::lineRedundantWithSummary($line, $summary),
+        ));
+        $errors = array_values(array_diff($errors, $fieldErrors));
         if (is_string($lastError) && $lastError !== '') {
             $summaryLower = mb_strtolower(trim($lastError));
             $errors = array_values(array_filter(
@@ -72,8 +85,6 @@ final class ZatcaResponseDisplay
                     && ! self::isGenericPayloadInvalid($line),
             ));
         }
-
-        $summary = is_string($lastError) && trim($lastError) !== '' ? trim($lastError) : null;
 
         return [
             'summary' => $summary,
@@ -99,6 +110,19 @@ final class ZatcaResponseDisplay
             'field_errors' => ZHeartApiValidationErrors::dedupe($fieldErrors),
             'details' => $raw,
         ];
+    }
+
+    private static function lineRedundantWithSummary(string $line, ?string $summary): bool
+    {
+        if ($summary === null || trim($summary) === '') {
+            return false;
+        }
+
+        $lineLower = mb_strtolower(trim($line));
+        $summaryLower = mb_strtolower(trim($summary));
+
+        return $lineLower === $summaryLower
+            || str_contains($summaryLower, $lineLower);
     }
 
     private static function isGenericPayloadInvalid(string $line): bool

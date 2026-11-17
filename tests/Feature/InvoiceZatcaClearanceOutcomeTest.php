@@ -5,6 +5,7 @@ use App\Enums\InvoiceDocumentType;
 use App\Enums\InvoiceStatus;
 use App\Models\Branch;
 use App\Models\BusinessSetting;
+use App\Models\Customer;
 use App\Models\Invoice;
 use App\Models\StaffUser;
 use App\Http\Controllers\Admin\InvoiceZatcaResubmitController;
@@ -398,4 +399,90 @@ it('renders last z-heart response on invoice view without secrets', function () 
         ->toContain('Buyer VAT invalid')
         ->not->toContain('secret-csid')
         ->not->toContain('123456');
+});
+
+it('posts buyer address country and postal keys expected by z-heart on clear', function () {
+    $postedPayload = null;
+
+    Http::fake([
+        'https://z-heart.test/api/v1/invoices/clear' => function ($request) use (&$postedPayload) {
+            $postedPayload = $request->data();
+
+            return Http::response([
+                'status' => 'ok',
+                'data' => [
+                    'signed_xml' => base64_encode('<Invoice/>'),
+                    'cleared_xml' => base64_encode('<Invoice cleared="1"/>'),
+                    'uuid' => '550e8400-e29b-41d4-a716-446655440077',
+                    'zatca' => [
+                        'ok' => true,
+                        'http_status' => 200,
+                        'body' => ['clearanceStatus' => 'CLEARED'],
+                    ],
+                ],
+            ], 200);
+        },
+    ]);
+
+    $invoice = clearancePendingStandardInvoice('STD-ADDR-KEYS');
+    app(InvoiceZatcaResubmitService::class)->resubmit($invoice);
+
+    Http::assertSentCount(1);
+    expect($postedPayload)->not->toBeNull()
+        ->and(data_get($postedPayload, 'invoice.buyer.address.country'))->toBe('SA')
+        ->and(data_get($postedPayload, 'invoice.buyer.address.postal'))->toBe('12345')
+        ->and(data_get($postedPayload, 'invoice.buyer.address.postalZone'))->toBe('12345')
+        ->and(data_get($postedPayload, 'invoice.buyer.address.buildingNumber'))->toBe('12');
+});
+
+it('persists refreshed buyer postal before posting clear to z-heart', function () {
+    $customer = Customer::query()->where('phone', '0501000001')->firstOrFail();
+    $profile = is_array($customer->profile) ? $customer->profile : [];
+    $profile['national_address'] = array_merge(
+        is_array($profile['national_address'] ?? null) ? $profile['national_address'] : [],
+        [
+            'building' => '9021',
+            'street' => 'Prince Mohammed Bin Abdulaziz Rd',
+            'district' => 'Al Olaya',
+            'city' => 'Riyadh',
+            'postal_code' => '11564',
+            'country' => 'SA',
+        ],
+    );
+    $customer->forceFill(['profile' => $profile])->save();
+
+    $invoice = clearancePendingStandardInvoice('STD-REFRESH-POSTAL');
+    Invoice::withoutEvents(function () use ($invoice, $customer): void {
+        $na = (array) ($invoice->payload['buyer_national_address'] ?? []);
+        unset($na['postal_code']);
+        $invoice->forceFill([
+            'payload' => array_merge($invoice->payload ?? [], [
+                'buyer_customer_id' => $customer->id,
+                'buyer_phone' => $customer->phone,
+                'buyer_national_address' => $na,
+            ]),
+        ])->save();
+    });
+
+    Http::fake([
+        'https://z-heart.test/api/v1/invoices/clear' => Http::response([
+            'status' => 'ok',
+            'data' => [
+                'signed_xml' => base64_encode('<Invoice/>'),
+                'cleared_xml' => base64_encode('<Invoice cleared="1"/>'),
+                'uuid' => '550e8400-e29b-41d4-a716-446655440077',
+                'zatca' => [
+                    'ok' => true,
+                    'http_status' => 200,
+                    'body' => ['clearanceStatus' => 'CLEARED'],
+                ],
+            ],
+        ], 200),
+    ]);
+
+    $result = app(InvoiceZatcaResubmitService::class)->resubmit($invoice->fresh());
+
+    expect($result->ok)->toBeTrue()
+        ->and(data_get($invoice->fresh()->payload, 'buyer_national_address.postal_code'))->toBe('11564');
+    Http::assertSentCount(1);
 });

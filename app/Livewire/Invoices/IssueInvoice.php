@@ -465,6 +465,7 @@ class IssueInvoice extends Component
                 : trim($this->buyerCr);
 
             $payload = array_merge($payload, [
+                'buyer_customer_id' => $this->selectedCustomerId,
                 'buyer_name' => trim($this->buyerName),
                 'buyer_name_ar' => trim($this->buyerNameAr) !== '' ? trim($this->buyerNameAr) : null,
                 'buyer_name_en' => trim($this->buyerName) !== '' ? trim($this->buyerName) : null,

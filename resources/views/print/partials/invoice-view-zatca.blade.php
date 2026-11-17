@@ -90,11 +90,17 @@
                         {{ $zatcaInlineError }}
                     </p>
                 @endif
-                @if (($zatcaResponseDisplay['field_errors'] ?? $zatcaResponseDisplay['errors'] ?? []) !== [])
+                @php
+                    $zatcaDetailLines = $zatcaResponseDisplay['field_errors'] ?? [];
+                    if ($zatcaDetailLines === []) {
+                        $zatcaDetailLines = $zatcaResponseDisplay['errors'] ?? [];
+                    }
+                @endphp
+                @if ($zatcaDetailLines !== [])
                     <div data-testid="invoice-zatca-field-errors">
                         <p class="m-0 mb-1 font-medium text-red-800">{{ __('invoices.zatca_view_field_errors') }}</p>
                         <ul class="m-0 list-disc ps-5 text-red-900">
-                            @foreach ($zatcaResponseDisplay['field_errors'] ?? $zatcaResponseDisplay['errors'] ?? [] as $line)
+                            @foreach ($zatcaDetailLines as $line)
                                 <li>{{ $line }}</li>
                             @endforeach
                         </ul>

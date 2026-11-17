@@ -46,7 +46,46 @@ final class ZHeartApiValidationErrors
             $lines[] = trim($dataMessage);
         }
 
-        return self::dedupe($lines);
+        return self::presentLines(self::dedupe($lines));
+    }
+
+    /**
+     * @param  list<string>  $lines
+     * @return list<string>
+     */
+    public static function presentLines(array $lines): array
+    {
+        $out = [];
+        foreach ($lines as $line) {
+            if (! is_string($line)) {
+                continue;
+            }
+            $presented = self::present($line);
+            if ($presented === '') {
+                continue;
+            }
+            $out[] = $presented;
+        }
+
+        return self::dedupe($out);
+    }
+
+    public static function present(string $line): string
+    {
+        $line = trim($line);
+        if ($line === '') {
+            return '';
+        }
+
+        $line = self::stripNoisePrefixes($line);
+
+        if (str_contains($line, ':')) {
+            [$field, $message] = explode(':', $line, 2);
+
+            return self::humanizeFieldMessage(trim($field), trim($message));
+        }
+
+        return self::humanizeBareMessage($line);
     }
 
     /**
@@ -55,13 +94,14 @@ final class ZHeartApiValidationErrors
     public static function formatFlashMessage(string $summary, array $fieldErrors): string
     {
         $summary = trim($summary);
+        $fieldErrors = self::presentLines($fieldErrors);
+
         if ($fieldErrors === []) {
             return $summary;
         }
 
         $lines = [$summary];
-        foreach ($fieldErrors as $line) {
-            $trimmed = trim($line);
+        foreach ($fieldErrors as $trimmed) {
             if ($trimmed === '' || self::sameMeaning($trimmed, $summary)) {
                 continue;
             }
@@ -166,14 +206,72 @@ final class ZHeartApiValidationErrors
 
     private static function fieldLine(string $field, string $message): string
     {
-        $message = trim($message);
-        $field = trim($field);
+        return self::humanizeFieldMessage(trim($field), trim($message));
+    }
 
-        if ($field === '' || str_contains(mb_strtolower($message), mb_strtolower($field))) {
+    private static function humanizeFieldMessage(string $field, string $message): string
+    {
+        $message = self::stripNoisePrefixes($message);
+        $mapped = self::mapFieldToPrecheckKey($field);
+        if ($mapped !== null) {
+            return __('invoices.zatca_precheck.'.$mapped);
+        }
+
+        if ($message !== '' && (preg_match('/^(the |buyer |invoice\.)/i', $message) || ! str_contains($field, '.'))) {
             return $message;
         }
 
-        return $field.': '.$message;
+        if ($message !== '' && $field !== '' && ! str_contains(mb_strtolower($message), mb_strtolower($field))) {
+            return $message;
+        }
+
+        return $message !== '' ? $message : $field;
+    }
+
+    private static function humanizeBareMessage(string $message): string
+    {
+        $message = self::stripNoisePrefixes($message);
+        $lower = mb_strtolower($message);
+
+        if (str_contains($lower, 'postal') && (str_contains($lower, 'required') || str_contains($lower, 'missing'))) {
+            return __('invoices.zatca_precheck.buyer_postal');
+        }
+        if (str_contains($lower, 'country') && str_contains($lower, 'required')) {
+            return __('invoices.zatca_precheck.buyer_address_country_sa');
+        }
+
+        return $message;
+    }
+
+    private static function mapFieldToPrecheckKey(string $field): ?string
+    {
+        $normalized = strtolower(str_replace(['invoice.', 'buyer.'], '', $field));
+
+        return match (true) {
+            str_contains($normalized, 'address.postal'),
+            str_contains($normalized, 'postal_zone'),
+            str_ends_with($normalized, 'postal'),
+            str_contains($normalized, 'postalzone') => 'buyer_postal',
+            str_contains($normalized, 'address.country') => 'buyer_address_country_sa',
+            str_contains($normalized, 'address.district'),
+            str_contains($normalized, 'subdivision') => 'buyer_district',
+            str_contains($normalized, 'address.street') => 'buyer_street',
+            str_contains($normalized, 'address.building'),
+            str_contains($normalized, 'buildingnumber') => 'buyer_building',
+            str_contains($normalized, 'address.city') => 'buyer_city',
+            str_contains($normalized, 'cr_number') => 'buyer_cr',
+            str_contains($normalized, 'vat_number'),
+            str_contains($normalized, 'vat') => 'buyer_vat',
+            str_contains($normalized, 'supply_date') => 'supply_date',
+            default => null,
+        };
+    }
+
+    private static function stripNoisePrefixes(string $text): string
+    {
+        $text = trim($text);
+
+        return preg_replace('/^(messages|rules):\s*/i', '', $text) ?? $text;
     }
 
     /**

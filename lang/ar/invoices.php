@@ -130,6 +130,7 @@ return array (
       'buyer_city' => 'مدينة المشتري مفقودة',
       'buyer_postal' => 'الرمز البريدي يجب أن يكون 5 أرقام (السعودية)',
       'buyer_country_sa' => 'بلد المشتري يجب أن يكون SA (السعودية)',
+      'buyer_address_country_sa' => 'عنوان المشتري الوطني يجب أن يتضمن الدولة SA (السعودية)',
       'supply_date' => 'تاريخ التوريد مفقود',
   ],
   'zatca_view_warnings' => 'تحذيرات',
