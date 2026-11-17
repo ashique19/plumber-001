@@ -99,6 +99,8 @@ return array (
     'debit_note' => 'ডেবিট নোট',
     'standard_tax' => 'স্ট্যান্ডার্ড ট্যাক্স ইনভয়েস',
     'simplified_tax' => 'সরলীকৃত ট্যাক্স ইনভয়েস',
+    'standard_tax_short' => 'স্ট্যান্ডার্ড ট্যাক্স',
+    'simplified_tax_short' => 'সরলীকৃত ট্যাক্স',
   ),
   'signing' => 
   array (
@@ -125,7 +127,7 @@ return array (
   'add_line' => 'লাইন যোগ',
   'remove_line' => 'লাইন সরান',
   'more_options' => 'আরও বিকল্প',
-  'cash_customer_default' => 'ওয়াক-ইন নগদ গ্রাহক (ঐচ্ছিক — সংরক্ষিত গ্রাহক লিংক করতে খুঁজুন)।',
+  'cash_customer_default' => 'ওয়াক-ইন নগদ গ্রাহক। ঐচ্ছিক: সংরক্ষিত গ্রাহক লিংক করতে খুঁজুন।',
   'document_lines_empty' => 'লাইন তৈরি করতে উপরে পণ্য খুঁজে বেছে নিন।',
   'supply_date' => 'সরবরাহের তারিখ',
   'document_notes' => 'নোট',
@@ -216,7 +218,7 @@ return array (
     'lines_required' => 'ইস্যুর আগে কমপক্ষে একটি লাইন যোগ করুন।',
   ),
   'add_line_product_placeholder_multilingual' => 'নাম (ইংরেজি / আরবি / বাংলা) বা SKU দিয়ে পণ্য খুঁজুন…',
-  'document_number_pending' => 'সংরক্ষণে নির্ধারিত',
+  'document_number_pending' => 'সংরক্ষণের পর',
   'document_meta' => 'ইনভয়েসের বিবরণ',
   'field_document_number' => 'ইনভয়েস নং',
   'invoice_date' => 'ইনভয়েসের তারিখ',

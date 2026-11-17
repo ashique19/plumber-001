@@ -44,8 +44,8 @@
     </x-admin.typeahead-control>
 
     @if ($selectedCustomerId)
-        <p class="invoice-customer-picker__hint mt-1 text-xs text-[var(--app-muted)]">{{ __('invoices.customer_linked') }}</p>
+        <p class="invoice-customer-picker__hint form-field__hint mt-1.5">{{ __('invoices.customer_linked') }}</p>
     @elseif ($showWalkInHint)
-        <p class="mt-1 text-xs text-[var(--app-muted)]">{{ __('invoices.cash_customer_default') }}</p>
+        <p class="form-field__hint mt-1.5 leading-relaxed">{{ __('invoices.cash_customer_default') }}</p>
     @endif
 </div>

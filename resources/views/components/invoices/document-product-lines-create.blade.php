@@ -70,6 +70,7 @@
     @endforeach
 </div>
 
+<div class="document-product-lines-scroll">
 <table class="document-product-lines-table" aria-label="{{ __('invoices.lines_section') }}">
     <thead>
         <tr>
@@ -151,6 +152,7 @@
         @endforeach
     </tbody>
 </table>
+</div>
 
 @if ($filled->isEmpty())
     <p class="rounded-xl border border-dashed border-[var(--app-border)] px-4 py-6 text-center text-sm text-[var(--app-muted)]">

@@ -33,7 +33,7 @@ return array (
   'target_invoice_mode' => 'রূপান্তরের সময় ইনভয়েসের ধরন',
   'invoice_mode_simplified' => 'সরল',
   'invoice_mode_standard' => 'স্ট্যান্ডার্ড',
-  'document_number_pending' => 'সংরক্ষণে নির্ধারিত',
+  'document_number_pending' => 'সংরক্ষণের পর',
   'field_document_number' => 'কোটেশন নং',
   'quotation_date' => 'কোটেশনের তারিখ',
   'terms_and_conditions' => 'শর্তাবলি',

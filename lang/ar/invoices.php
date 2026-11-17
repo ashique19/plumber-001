@@ -104,6 +104,8 @@ return array (
     'debit_note' => 'إشعار مدين',
     'standard_tax' => 'فاتورة ضريبية قياسية',
     'simplified_tax' => 'فاتورة ضريبية مبسطة',
+    'standard_tax_short' => 'قياسية',
+    'simplified_tax_short' => 'مبسطة',
   ),
   'signing' => 
   array (

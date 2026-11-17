@@ -18,10 +18,10 @@
                     <div class="document-create-card__body">
                         <div class="document-meta-grid document-meta-grid--quotation">
                             <div class="document-readonly-field">
-                                <span class="text-xs font-semibold text-[var(--app-muted)]">{{ __('quotations.field_document_number') }}</span>
-                                <div class="document-readonly-field__value">
-                                    <x-app.icon name="lock" class="h-4 w-4 text-[var(--app-muted)]" aria-hidden="true" />
-                                    <span>{{ $documentNumberLabel }}</span>
+                                <span class="document-readonly-field__label">{{ __('quotations.field_document_number') }}</span>
+                                <div class="document-readonly-field__value" title="{{ $documentNumberLabel }}">
+                                    <x-app.icon name="lock" class="h-4 w-4 shrink-0 text-[var(--app-muted)]" aria-hidden="true" />
+                                    <span class="truncate">{{ $documentNumberLabel }}</span>
                                 </div>
                             </div>
                             <x-field.date :label="__('quotations.quotation_date')" name="supplyDate" wire:model.live="supplyDate" required />
