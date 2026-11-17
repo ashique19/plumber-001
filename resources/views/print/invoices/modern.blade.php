@@ -60,7 +60,7 @@
                     ['en' => 'Valid until', 'ar' => 'صالح حتى', 'value' => $t['validity_until'] ?? null],
                 ]
                 : [
-                    ['en' => 'Invoice number', 'ar' => 'رقم الفاتورة', 'value' => $t['document_number'], 'nowrap' => true],
+                    ['en' => 'Invoice No.', 'ar' => 'رقم الفاتورة', 'value' => $t['document_number'], 'nowrap' => true],
                     ['en' => 'Due date', 'ar' => 'تاريخ الاستحقاق', 'value' => $t['due_date'] ?? null],
                 ];
         @endphp
@@ -69,7 +69,7 @@
             :rows="\App\Support\Invoicing\BuyerPrintBlock::rows($t['customer'] ?? null)"
             :split-left="$splitLeft"
             :split-right="[
-                ['en' => 'Date', 'ar' => 'التاريخ', 'value' => $t['issue_date']],
+                ['en' => 'Issue date', 'ar' => 'تاريخ الإصدار', 'value' => $t['issue_date']],
                 ['en' => 'Supply date', 'ar' => 'تاريخ التوريد', 'value' => $t['supply_date'] ?? null],
             ]"
         />
@@ -133,16 +133,16 @@
 
         <footer class="invoice-a4__footer print-tpl-modern__sheet-footer print-only" data-document-number="{{ $t['document_number'] }}">
             <div class="print-tpl-modern__footer-names">
-                <div>{{ $t['seller_en'] }}</div>
-                <div class="invoice-a4__footer-ar invoice-print-ar" dir="rtl">{{ $t['seller_ar'] }}</div>
+                <div class="print-tpl-modern__footer-name-en">{{ $t['seller_en'] }}</div>
+                <div class="print-tpl-modern__footer-name-ar invoice-a4__footer-ar invoice-print-ar" dir="rtl">{{ $t['seller_ar'] }}</div>
             </div>
             <x-invoices.print-page-label :document-number="$t['document_number']" class="print-tpl-modern__footer-page" />
         </footer>
 
         <footer class="print-tpl-modern__sheet-footer print-tpl-modern__sheet-footer--screen no-print" aria-hidden="true">
             <div class="print-tpl-modern__footer-names">
-                <div>{{ $t['seller_en'] }}</div>
-                <div class="invoice-a4__footer-ar invoice-print-ar" dir="rtl">{{ $t['seller_ar'] }}</div>
+                <div class="print-tpl-modern__footer-name-en">{{ $t['seller_en'] }}</div>
+                <div class="print-tpl-modern__footer-name-ar invoice-a4__footer-ar invoice-print-ar" dir="rtl">{{ $t['seller_ar'] }}</div>
             </div>
             <x-invoices.print-page-label :document-number="$t['document_number']" class="print-tpl-modern__footer-page" />
         </footer>

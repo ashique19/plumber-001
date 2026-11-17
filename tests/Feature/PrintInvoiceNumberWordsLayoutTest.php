@@ -17,13 +17,13 @@ beforeEach(function () {
     $this->branchId = Branch::query()->first()?->id;
 });
 
-it('wraps long invoice numbers in print CSS without horizontal overflow scrollbars', function () {
+it('keeps invoice numbers on one line in print CSS', function () {
     $css = (string) file_get_contents(resource_path('css/invoice-print.css'));
 
     expect($css)
         ->toContain('.invoice-a4__buyer-table-value--nowrap')
-        ->toContain('overflow-wrap: anywhere')
-        ->toContain('word-break: break-all')
+        ->toContain('white-space: nowrap')
+        ->toContain('overflow-wrap: normal')
         ->not->toContain('overflow-x: auto');
 });
 
@@ -32,7 +32,7 @@ it('aligns amount-in-words with modern totals and uses a shared baseline row', f
         .(string) file_get_contents(resource_path('css/print-template-modern.css'));
 
     expect($css)
-        ->toContain('align-items: baseline')
+        ->toContain('align-items: flex-start')
         ->toContain('.print-tpl-modern__words')
         ->toContain('max-width: 26rem')
         ->toContain('margin-left: auto');
@@ -80,8 +80,7 @@ it('includes dompdf overlay rules for wrapped invoice numbers and baseline amoun
     );
 
     expect($wrapped)
-        ->toContain('invoice-a4__buyer-table-value--nowrap{white-space:normal!important')
-        ->toContain('word-break:break-all!important')
+        ->toContain('invoice-a4__buyer-table-value--nowrap{white-space:nowrap!important')
         ->toContain('print-tpl-modern__words')
-        ->toContain('align-items:baseline!important');
+        ->toContain('align-items:flex-start!important');
 });
