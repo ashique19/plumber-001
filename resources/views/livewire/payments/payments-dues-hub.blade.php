@@ -19,9 +19,30 @@
             <p class="mt-1 text-xs text-[var(--app-muted)]">{{ __('payments.outstanding_hint') }}</p>
 
             @if ($customers === [])
-                <p class="mt-4 text-sm text-[var(--app-muted)]">{{ __('payments.no_outstanding') }}</p>
+                <p class="mt-4 text-sm text-[var(--app-muted)]" data-testid="dues-customer-empty">{{ __('payments.no_outstanding') }}</p>
             @else
-                <div class="-mx-4 mt-4 overflow-x-auto px-4">
+                <ul class="mt-4 space-y-2 sm:hidden" data-testid="dues-customer-cards">
+                    @foreach ($customers as $row)
+                        <li
+                            wire:key="cust-card-{{ $row['key'] }}"
+                            class="rounded-xl border border-[var(--app-border)] p-3"
+                            wire:click="selectCustomer('{{ $row['key'] }}')"
+                        >
+                            <p class="font-medium">{{ $row['name'] }}</p>
+                            <dl class="mt-2 grid grid-cols-1 gap-1 text-xs">
+                                <div class="flex justify-between gap-2">
+                                    <dt class="text-[var(--app-muted)]">{{ __('payments.due_now') }}</dt>
+                                    <dd class="tabular-nums font-semibold">{{ number_format($row['principal_outstanding'], 2) }}</dd>
+                                </div>
+                                <div class="flex justify-between gap-2">
+                                    <dt class="text-[var(--app-muted)]">{{ __('payments.retention_due') }}</dt>
+                                    <dd class="tabular-nums font-semibold text-amber-800">{{ number_format($row['retention_outstanding'], 2) }}</dd>
+                                </div>
+                            </dl>
+                        </li>
+                    @endforeach
+                </ul>
+                <div class="-mx-4 mt-4 hidden overflow-x-auto overscroll-x-contain px-4 sm:block" data-testid="dues-customer-table">
                     <table class="w-full min-w-[28rem] text-left text-sm">
                         <thead>
                             <tr class="border-b border-[var(--app-border)] text-xs text-[var(--app-muted)]">
