@@ -665,11 +665,27 @@
         overscroll-behavior-x: contain;
     }
 
-    .catalog-product-form__body.x-modal-form__fields {
+    html.admin-app .catalog-product-form__body {
         display: flex;
         flex-direction: column;
         min-height: 0;
+        flex: 1 1 auto;
         overflow: hidden;
+    }
+
+    html.admin-app .catalog-product-form-tabs {
+        position: sticky;
+        top: 0;
+        z-index: 6;
+        flex-shrink: 0;
+        margin: 0;
+        padding: 0.75rem 1.25rem;
+        background: #fff;
+        border-bottom: 1px solid var(--app-border);
+    }
+
+    html.admin-app .catalog-product-form__panels {
+        min-height: 0;
     }
 
     .catalog-admin .app-section-tabs .form-field {

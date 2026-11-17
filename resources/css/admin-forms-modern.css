@@ -274,6 +274,11 @@
         @apply grid min-h-0 flex-1 gap-4 overflow-y-auto overscroll-contain px-5 py-5;
     }
 
+    html.admin-app .catalog-product-form > .x-modal-form__error-summary + .catalog-product-form__body,
+    html.admin-app .catalog-product-form > .catalog-product-form__body {
+        min-height: 0;
+    }
+
     html.admin-app .x-modal-form__error-summary {
         @apply mx-5 mt-5 shrink-0 rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-950;
     }

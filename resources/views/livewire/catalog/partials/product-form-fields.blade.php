@@ -7,7 +7,7 @@
     ];
 @endphp
 
-<nav class="catalog-product-form-tabs app-section-tabs app-section-tabs--scroll shrink-0 -mx-1 mb-4 px-1 pt-5" role="tablist" aria-label="{{ __('catalog.product_form_tabs_label') }}">
+<nav class="catalog-product-form-tabs app-section-tabs app-section-tabs--scroll" role="tablist" aria-label="{{ __('catalog.product_form_tabs_label') }}">
     @foreach ($productTabs as $tabKey => $tabLabel)
         <button
             type="button"
@@ -28,7 +28,7 @@
     @endforeach
 </nav>
 
-<div class="catalog-product-form__panels min-h-0 flex-1 overflow-y-auto overscroll-contain px-0 pb-5">
+<div class="catalog-product-form__panels min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-5">
 <div wire:cloak @class(['space-y-3', 'hidden' => $productFormTab !== 'basic'])">
     <x-form.product-image-upload
         :label="__('catalog.product_image.label')"
