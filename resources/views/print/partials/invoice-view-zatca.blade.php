@@ -117,6 +117,7 @@
             <x-invoices.zatca-resubmit-form
                 :url="$zatcaResubmitUrl"
                 :label="$zatcaResubmitLabel"
+                :return-query="$zatcaResubmitReturn ?? null"
             />
         @endif
     </section>

@@ -16,6 +16,7 @@ use App\Support\Hub\HubQuotationLifecycleTab;
 use App\Support\Hub\HubQuotationPrintLinks;
 use App\Support\Invoicing\InvoiceDocumentTotals;
 use App\Support\Invoicing\IssueInvoicePrefill;
+use App\Support\Invoicing\PrintScreenBackUrl;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\View\View;
@@ -168,7 +169,11 @@ class QuotationHub extends Component
 
         $paginator = $query->paginate($this->adminPerPage());
 
-        $paginator->getCollection()->transform(function (Quotation $quotation): array {
+        $returnQuery = PrintScreenBackUrl::encodeHubState([
+            'lifecycle' => $this->lifecycleTab,
+        ], PrintScreenBackUrl::QUOTATION_HUB_KEYS);
+
+        $paginator->getCollection()->transform(function (Quotation $quotation) use ($returnQuery): array {
             $customer = trim((string) data_get($quotation->payload, 'buyer_name', '')) ?: '—';
             $lines = [];
             foreach ((array) ($quotation->payload['lines'] ?? []) as $row) {
@@ -195,7 +200,7 @@ class QuotationHub extends Component
                 'quotation' => $quotation,
                 'customer' => $customer,
                 'total_inc_vat' => $totals['total_inc_vat'],
-                'print_urls' => HubQuotationPrintLinks::urls($quotation),
+                'print_urls' => HubQuotationPrintLinks::urls($quotation, $returnQuery),
             ];
         });
 

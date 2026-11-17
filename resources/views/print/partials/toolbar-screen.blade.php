@@ -5,12 +5,11 @@
 @endphp
 @if ($screenToolbar)
     <header class="invoice-print-toolbar invoice-print-toolbar--screen no-print flex flex-wrap items-center gap-2 p-2" data-testid="print-screen-toolbar">
-        <button
-            type="button"
-            class="tap-action-muted min-h-11"
-            data-print-back
-            data-fallback-url="{{ $fallbackBackUrl ?? route('admin.invoices') }}"
-        >{{ __('print.back') }}</button>
+        <a
+            href="{{ $fallbackBackUrl ?? route('admin.invoices') }}"
+            class="tap-action-muted min-h-11 inline-flex items-center"
+            data-testid="print-screen-back"
+        >{{ __('print.back') }}</a>
         @if ($canDownloadPdf)
             <button type="button" class="tap-action-primary min-h-11" data-print-trigger>{{ __('pos.print') }}</button>
         @else
@@ -59,6 +58,9 @@
                 onsubmit="const btn=this.querySelector('button[type=submit]');if(btn){btn.disabled=true;}"
             >
                 @csrf
+                @if (filled($zatcaResubmitReturn ?? null))
+                    <input type="hidden" name="return" value="{{ $zatcaResubmitReturn }}">
+                @endif
                 <button type="submit" class="tap-action-primary min-h-11">{{ $zatcaResubmitLabel }}</button>
             </form>
         @endif

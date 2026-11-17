@@ -14,7 +14,7 @@ final class HubInvoiceTableRow
     /**
      * @return array<string, mixed>
      */
-    public static function fromInvoice(Invoice $invoice, InvoiceDuesLedgerService $ledger): array
+    public static function fromInvoice(Invoice $invoice, InvoiceDuesLedgerService $ledger, ?string $returnQuery = null): array
     {
         $totals = InvoicePayloadTotals::forInvoice($invoice);
         $balance = $ledger->balanceFor($invoice);
@@ -25,7 +25,7 @@ final class HubInvoiceTableRow
             $customer = $customerAr;
         }
 
-        $printUrls = HubInvoicePrintLinks::urls($invoice);
+        $printUrls = HubInvoicePrintLinks::urls($invoice, $returnQuery);
         $dueAmount = $balance['principal_outstanding'];
         $actions = HubInvoiceRowActions::forInvoice($invoice, $dueAmount);
         $viewUrl = $actions['edit'] ? (string) $actions['edit_url'] : $printUrls['view'];
