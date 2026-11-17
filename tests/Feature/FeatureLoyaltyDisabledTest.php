@@ -31,7 +31,8 @@ it('hides loyalty UI on the customers hub by default', function () {
         ->call('selectCustomer', $customer->id)
         ->assertSeeHtml('data-testid="customer-modal"')
         ->assertDontSeeHtml('data-testid="customer-modal-loyalty"')
-        ->assertDontSee(__('customers.tab_loyalty'), false);
+        ->assertDontSee(__('customers.tab_loyalty'), false)
+        ->assertDontSee(__('customers.tab_details'), false);
 });
 
 it('does not mint referral codes when loyalty is disabled', function () {

@@ -1,27 +1,29 @@
 @php
     use App\Support\Features;
+
+    $customerModalTabCount = Features::loyaltyEnabled() && $editingCustomerId ? 2 : 0;
 @endphp
 
-@if (Features::loyaltyEnabled() && $editingCustomerId)
-    <div class="customer-hub-modal__tabs shrink-0 border-b border-[var(--app-border)] bg-white px-5 py-3" data-testid="customer-modal-tabs">
-        <div class="app-section-tabs app-section-tabs--scroll min-w-0 max-w-full">
-            <button
-                type="button"
-                wire:click="setCustomerModalTab('details')"
-                @class(['app-segment-tab', 'app-segment-tab--active' => $customerModalTab === 'details'])
-            >
-                {{ __('customers.tab_details') }}
-            </button>
-            <button
-                type="button"
-                wire:click="setCustomerModalTab('loyalty')"
-                @class(['app-segment-tab', 'app-segment-tab--active' => $customerModalTab === 'loyalty'])
-            >
-                {{ __('customers.tab_loyalty') }}
-            </button>
-        </div>
-    </div>
-@endif
+<x-admin.modal-segment-tabs
+    :tab-count="$customerModalTabCount"
+    test-id="customer-modal-tabs"
+    class="customer-hub-modal__tabs"
+>
+    <button
+        type="button"
+        wire:click="setCustomerModalTab('details')"
+        @class(['app-segment-tab', 'app-segment-tab--active' => $customerModalTab === 'details'])
+    >
+        {{ __('customers.tab_details') }}
+    </button>
+    <button
+        type="button"
+        wire:click="setCustomerModalTab('loyalty')"
+        @class(['app-segment-tab', 'app-segment-tab--active' => $customerModalTab === 'loyalty'])
+    >
+        {{ __('customers.tab_loyalty') }}
+    </button>
+</x-admin.modal-segment-tabs>
 
 @if (! Features::loyaltyEnabled() || ! $editingCustomerId || $customerModalTab === 'details')
     <form class="customer-hub-modal x-modal-form" wire:submit="saveCustomer" data-testid="customer-modal">
