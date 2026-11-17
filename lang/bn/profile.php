@@ -1,15 +1,15 @@
 <?php
 
-return array (
-  'title' => 'My profile',
-  'subtitle' => 'Update your name, sign-in email, password, and preferred language.',
-  'nav' => 'Profile',
-  'name' => 'Display name',
-  'email' => 'Email',
-  'password' => 'New password',
-  'password_confirm' => 'Confirm new password',
-  'password_hint' => 'Leave blank to keep your current password.',
-  'language' => 'Language',
-  'saved' => 'Profile updated.',
-  'open' => 'Open profile',
-);
+return [
+    'title' => 'আমার প্রোফাইল',
+    'subtitle' => 'নাম, সাইন-ইন ইমেইল, পাসওয়ার্ড এবং পছন্দের ভাষা আপডেট করুন।',
+    'nav' => 'প্রোফাইল',
+    'name' => 'প্রদর্শন নাম',
+    'email' => 'ইমেইল',
+    'password' => 'নতুন পাসওয়ার্ড',
+    'password_confirm' => 'নতুন পাসওয়ার্ড নিশ্চিত করুন',
+    'password_hint' => 'বর্তমান পাসওয়ার্ড রাখতে খালি রাখুন।',
+    'language' => 'ভাষা',
+    'saved' => 'প্রোফাইল আপডেট হয়েছে।',
+    'open' => 'প্রোফাইল খুলুন',
+];

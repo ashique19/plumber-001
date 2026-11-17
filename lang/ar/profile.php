@@ -1,15 +1,15 @@
 <?php
 
-return array (
-  'title' => 'My profile',
-  'subtitle' => 'Update your name, sign-in email, password, and preferred language.',
-  'nav' => 'Profile',
-  'name' => 'Display name',
-  'email' => 'Email',
-  'password' => 'New password',
-  'password_confirm' => 'Confirm new password',
-  'password_hint' => 'Leave blank to keep your current password.',
-  'language' => 'Language',
-  'saved' => 'Profile updated.',
-  'open' => 'Open profile',
-);
+return [
+    'title' => 'ملفي الشخصي',
+    'subtitle' => 'حدّث اسمك وبريد الدخول وكلمة المرور واللغة المفضلة.',
+    'nav' => 'الملف الشخصي',
+    'name' => 'الاسم المعروض',
+    'email' => 'البريد الإلكتروني',
+    'password' => 'كلمة مرور جديدة',
+    'password_confirm' => 'تأكيد كلمة المرور الجديدة',
+    'password_hint' => 'اتركه فارغاً للإبقاء على كلمة المرور الحالية.',
+    'language' => 'اللغة',
+    'saved' => 'تم تحديث الملف الشخصي.',
+    'open' => 'فتح الملف الشخصي',
+];

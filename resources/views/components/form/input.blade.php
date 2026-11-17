@@ -34,7 +34,7 @@
 @endphp
 <label @class(['form-field', 'form-field--invalid' => $fieldInvalid, $wrapperClass])>
     <span class="form-field__label type-label">
-        {{ $label }}
+        {{ html_entity_decode((string) $label, ENT_QUOTES | ENT_HTML5, 'UTF-8') }}
         @if($required)<span class="text-rose-600" aria-hidden="true">*</span>@endif
     </span>
     @if($hint && $hintPosition === 'before')
