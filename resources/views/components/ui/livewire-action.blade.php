@@ -3,7 +3,7 @@
     'target',
     'type' => 'button',
     'variant' => 'primary',
-    'loading' => 'generic',
+    'loading' => null,
     'disabled' => false,
     'wireClick' => null,
     'form' => null,
@@ -11,20 +11,23 @@
 
 @php
     $variantClass = $variant === 'primary' ? 'tap-action-primary' : 'tap-action-muted';
-    $loadingLabel = __('loading.'.$loading);
+    $loadingKey = filled($loading) ? (string) $loading : (filled($target) ? (string) $target : 'generic');
+    $loadingLabel = \Illuminate\Support\Facades\Lang::has('loading.'.$loadingKey)
+        ? __('loading.'.$loadingKey)
+        : __('loading.saving');
 @endphp
 
 <button
     type="{{ $type }}"
-    {{ $attributes->merge(['class' => $variantClass.' inline-flex items-center justify-center gap-2'])->except('type') }}
+    {{ $attributes->merge(['class' => $variantClass.' x-livewire-action inline-flex items-center justify-center gap-2'])->except('type') }}
     @if ($wireClick) wire:click="{{ $wireClick }}" @endif
     @if ($form) form="{{ $form }}" @endif
     wire:loading.attr="disabled"
     wire:target="{{ $target }}"
     @disabled($disabled)
 >
-    <span wire:loading.remove wire:target="{{ $target }}">{{ $slot }}</span>
-    <span wire:loading wire:target="{{ $target }}" class="inline-flex items-center justify-center gap-2">
+    <span wire:loading.remove wire:target="{{ $target }}" class="x-livewire-action__label">{{ $slot }}</span>
+    <span wire:loading wire:target="{{ $target }}" class="x-livewire-action__loading inline-flex items-center justify-center gap-2">
         <x-ui.spinner />
         <span>{{ $loadingLabel }}</span>
     </span>

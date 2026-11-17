@@ -16,7 +16,7 @@
     size="xl"
 >
     <form class="x-modal-form" wire:submit.prevent="saveQuickSupplier">
-        <x-modal.validation-summary :fields="$quickSupplierFields" />
+        <x-modal.validation-summary :fields="$quickSupplierFields" loading-target="saveQuickSupplier" />
 
         <div class="x-modal-form__fields x-modal-form__fields--3">
             <x-field.input :label="__('suppliers.name')" name="quickSupplierName" wire:model="quickSupplierName" :liveValidate="false" required />
@@ -28,7 +28,7 @@
         <div class="x-modal__footer x-modal__footer--in-form">
             <x-modal.footer
                 cancel-wire="$set('showQuickSupplierModal', false)"
-                submit-wire="saveQuickSupplier"
+                submit-target="saveQuickSupplier"
                 :submit-label="__('suppliers.save_and_select')"
             />
         </div>

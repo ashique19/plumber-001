@@ -20,7 +20,7 @@
     data-testid="quick-product-modal"
 >
     <form class="x-modal-form" wire:submit.prevent="saveQuickProduct">
-        <x-modal.validation-summary :fields="$quickProductFields" />
+        <x-modal.validation-summary :fields="$quickProductFields" loading-target="saveQuickProduct" />
 
         <div class="x-modal-form__fields x-modal-form__fields--2">
             <x-catalog.quick-product-fields :categories="$categories" />
@@ -29,7 +29,7 @@
         <div class="x-modal__footer x-modal__footer--in-form">
             <x-modal.footer
                 cancel-wire="$set('showQuickProductModal', false)"
-                submit-wire="saveQuickProduct"
+                submit-target="saveQuickProduct"
                 :submit-label="__('catalog.save_and_select')"
             />
         </div>

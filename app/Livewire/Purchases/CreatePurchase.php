@@ -144,6 +144,8 @@ class CreatePurchase extends Component
             return;
         }
 
+        $this->resetErrorBag();
+
         $this->validate([
             'quickSupplierName' => ['required', 'string', 'max:160'],
             'quickSupplierNameAr' => ['nullable', 'string', 'max:160'],

@@ -112,6 +112,8 @@ trait ManagesPurchaseCatalogPicker
             abort(403);
         }
 
+        $this->resetErrorBag();
+
         $rules = [
             'quickProductNameEn' => ['required', 'string', 'max:160'],
             'quickProductNameAr' => ['required', 'string', 'max:160'],
