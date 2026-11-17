@@ -23,6 +23,12 @@ it('documents invoice payments sql for live drift', function () {
     expect(base_path('docs/sql/2026-11-15-invoice-payments.sql'))->toBeReadableFile();
 });
 
+it('documents business expense categories sql for live drift', function () {
+    expect(base_path('docs/sql/2026-11-17-business-expense-categories.sql'))->toBeReadableFile();
+    $sql = file_get_contents(base_path('docs/sql/2026-11-17-business-expense-categories.sql'));
+    expect($sql)->toContain('business_expense_categories');
+});
+
 it('documents product units sizes sql for live drift', function () {
     expect(base_path('docs/sql/2026-11-16-product-units-sizes.sql'))->toBeReadableFile();
     $sql = file_get_contents(base_path('docs/sql/2026-11-16-product-units-sizes.sql'));

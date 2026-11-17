@@ -619,6 +619,16 @@ CREATE INDEX "business_expenses_branch_id_spent_on_index" on "business_expenses"
   "branch_id",
   "spent_on"
 );
+CREATE TABLE IF NOT EXISTS "business_expense_categories"(
+  "id" integer primary key autoincrement not null,
+  "slug" varchar not null,
+  "name" varchar not null,
+  "created_at" datetime,
+  "updated_at" datetime
+);
+CREATE UNIQUE INDEX "business_expense_categories_slug_unique" on "business_expense_categories"(
+  "slug"
+);
 
 INSERT INTO migrations VALUES(1,'0001_01_01_000001_create_cache_table',1);
 INSERT INTO migrations VALUES(2,'0001_01_01_000002_create_jobs_table',1);

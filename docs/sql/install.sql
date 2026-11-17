@@ -627,6 +627,16 @@ CREATE INDEX `business_expenses_branch_id_spent_on_index` on `business_expenses`
   `branch_id`,
   `spent_on`
 );
+CREATE TABLE IF NOT EXISTS `business_expense_categories`(
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `slug` VARCHAR(255) NOT NULL,
+  `name` VARCHAR(255) NOT NULL,
+  `created_at` datetime,
+  `updated_at` datetime
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE UNIQUE INDEX `business_expense_categories_slug_unique` on `business_expense_categories`(
+  `slug`
+);
 
 INSERT IGNORE INTO migrations (migration, batch) VALUES
 ('0001_01_01_000001_create_cache_table', 1),
