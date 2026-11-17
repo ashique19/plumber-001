@@ -131,6 +131,7 @@
     <x-admin.hub-fab wire:click="startCreate" :label="__('staff_users.add')" />
 
     <x-admin.hub-sheet
+        class="x-modal--form-sheet"
         :show="$showForm"
         :title="$editingId ? __('staff_users.edit_title') : __('staff_users.add')"
         close-wire="closeForm"

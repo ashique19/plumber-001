@@ -27,6 +27,8 @@ it('lists seeded customers in a sortable table', function () {
     Livewire::actingAs($this->owner, 'staff')
         ->test(CustomerHub::class)
         ->assertSeeHtml('data-testid="customers-table"')
+        ->assertSeeHtml('data-testid="hub-customer-row-actions"')
+        ->assertSeeHtml('data-testid="hub-row-action-more"')
         ->assertSee(__('customers.col_vat'), false)
         ->assertSee(__('customers.col_cr'), false)
         ->assertSee('Regular Customer', false)
@@ -65,6 +67,16 @@ it('handles sort search and startEdit without errors', function () {
 
 it('denies cashier access', function () {
     expect($this->cashier->can('reports.view'))->toBeFalse();
+});
+
+it('renders customer modal as wide form sheet with street textarea', function () {
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(CustomerHub::class)
+        ->call('startCustomer')
+        ->assertSeeHtml('x-modal--form-sheet')
+        ->assertSeeHtml('admin-modal-field-grid--3')
+        ->assertSeeHtml('customer-identity-fields__street')
+        ->assertSeeHtml('<textarea');
 });
 
 it('shows details tab with editable address fields in customer modal', function () {

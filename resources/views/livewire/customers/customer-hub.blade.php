@@ -99,22 +99,7 @@
                                     @endif
                                 </td>
                                 <td class="px-3 py-2.5 text-end">
-                                    <div class="inline-flex flex-wrap items-center justify-end gap-1">
-                                        <button type="button" class="tap-action-muted min-h-9 px-2 text-xs" wire:click="selectCustomer({{ $row->id }})">
-                                            {{ __('customers.action_view') }}
-                                        </button>
-                                        <button type="button" class="tap-action-muted min-h-9 px-2 text-xs" wire:click="startEdit({{ $row->id }})">
-                                            {{ __('customers.action_edit') }}
-                                        </button>
-                                        <button
-                                            type="button"
-                                            class="tap-action-muted min-h-9 px-2 text-xs text-red-700"
-                                            wire:click="deleteCustomer({{ $row->id }})"
-                                            wire:confirm="{{ __('customers.confirm_delete') }}"
-                                        >
-                                            {{ __('customers.action_delete') }}
-                                        </button>
-                                    </div>
+                                    <x-hub.customer-row-actions :customer-id="$row->id" />
                                 </td>
                             </tr>
                         @empty
@@ -139,7 +124,7 @@
     @endphp
 
     <x-admin.hub-sheet
-        class="customer-hub-modal-shell"
+        class="customer-hub-modal-shell x-modal--form-sheet"
         size="xl"
         :show="$showCustomerModal"
         :title="$customerModalTitle"

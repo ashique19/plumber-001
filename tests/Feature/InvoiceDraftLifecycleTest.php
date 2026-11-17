@@ -51,10 +51,10 @@ it('shows draft issue edit and delete actions in the hub more menu', function ()
     Livewire::actingAs($this->owner, 'staff')
         ->test(InvoiceHub::class)
         ->set('search', $draft->document_number)
-        ->assertSee(__('invoices.action_issue_draft'), false)
         ->assertSee(__('invoices.action_continue_editing'), false)
-        ->assertSeeHtml('data-testid="hub-row-action-edit"')
+        ->assertSee(__('invoices.action_issue_draft'), false)
         ->assertSee(__('invoices.action_delete_draft'), false)
+        ->assertSeeHtml('data-testid="hub-row-action-edit"')
         ->assertSeeHtml('data-testid="hub-draft-action-issue"', false);
 });
 

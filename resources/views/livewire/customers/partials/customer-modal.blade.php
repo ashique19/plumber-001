@@ -21,7 +21,7 @@
 
 @if (! $editingCustomerId || $customerModalTab === 'details')
     <form class="customer-hub-modal x-modal-form" wire:submit="saveCustomer" data-testid="customer-modal">
-        <div class="x-modal-form__fields">
+        <div class="x-modal-form__fields x-modal-form__fields--3">
             <x-customers.identity-fields
                 :fields="\App\Support\Customers\CustomerIdentityRules::hubFields()"
                 more-address-prop="customerShowMoreAddress"

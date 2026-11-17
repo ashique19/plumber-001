@@ -86,6 +86,7 @@ return [
     'action_view' => 'عرض',
     'action_edit' => 'تعديل',
     'action_delete' => 'حذف',
+    'action_more' => 'المزيد من الإجراءات',
     'tx_type' => [
         'earn' => 'اكتساب',
         'redeem' => 'استبدال',
