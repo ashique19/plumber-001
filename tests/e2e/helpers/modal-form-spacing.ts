@@ -22,9 +22,9 @@ export async function expectCustomerModalFormSpacing(modal: Locator): Promise<vo
     const innerWidth = modalBox!.width - contentPadding;
     expect(identityBox!.width, 'identity grid uses modal content width').toBeGreaterThanOrEqual(innerWidth * 0.88);
 
-    const firstInput = identity.locator('.form-field__control').first();
-    const firstInputBox = await firstInput.boundingBox();
-    expect(firstInputBox!.width, 'primary input uses grid width').toBeGreaterThanOrEqual(identityBox!.width * 0.9);
+    const fullWidthInput = identity.locator('.form-field.md\\:col-span-2 .form-field__control').first();
+    const fullWidthBox = await fullWidthInput.boundingBox();
+    expect(fullWidthBox!.width, 'full-width row inputs span the grid').toBeGreaterThanOrEqual(identityBox!.width * 0.9);
 
     const vatSegment = identity.locator('.admin-segmented').first();
     await expect(vatSegment).toBeVisible();
