@@ -20,7 +20,7 @@ This document defines how raw Z-Heart / payload fields map to the **ZATCA Status
 
 ## Hub tabs (unchanged)
 
-- **ZATCA success** tab: `HubInvoiceZatcaTab::isSuccess()` — includes simplified **Reported** and standard **Cleared**.
+- **ZATCA success** tab: `HubInvoiceZatcaTab::isSuccess()` — remote-submitted with reporting/clearance status in the success list only (a pending `zheart_zatca` blob is not success).
 - **ZATCA failed** tab: not success and `HubInvoiceZatcaTab::isFailed()`.
 - **Resend / send for clearance** row action + bulk **Retry all pending**: `HubInvoiceZatcaTab::needsZatcaResubmit()` (issued, not ZATCA success) with `canResend()` when Z-Heart is configured — includes **clearance/reporting pending**, stuck remote `pending`, failed, and never-submitted.
 
