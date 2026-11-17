@@ -8,6 +8,7 @@ use App\Models\ProductCategory;
 use App\Models\ProductUnit;
 use App\Support\Catalog\CatalogUnitsSizesSchema;
 use App\Support\Catalog\ProductSkuGenerator;
+use App\Support\Invoicing\DocumentCatalogLineMerge;
 use App\Support\Invoicing\DocumentCreateUiSupport;
 use App\Support\Invoicing\InvoicingCatalogLookup;
 use App\Support\Inventory\ProductStockSchema;
@@ -63,11 +64,24 @@ trait ManagesPurchaseCatalogPicker
             return;
         }
 
+        $existingIndex = DocumentCatalogLineMerge::findPurchaseLineIndex($this->lines, $product);
+        if ($existingIndex !== null) {
+            DocumentCatalogLineMerge::bumpLineQuantity($this->lines, $existingIndex, 1.0);
+            $this->addLineProductSearch = '';
+            $this->dispatch('document-line-merged', lineIndex: $existingIndex);
+            $this->toastInfo(__('invoices.catalog_product_qty_bumped', [
+                'name' => $product->displayName(),
+                'qty' => $this->lines[$existingIndex]['quantity'],
+            ]));
+
+            return;
+        }
+
         foreach ($this->lines as $index => $line) {
             if (! filled($line['product_id'] ?? null)) {
                 $this->fillPurchaseLineFromProduct($index, $product);
-
                 $this->addLineProductSearch = '';
+                $this->dispatch('document-line-added', lineIndex: $index);
 
                 return;
             }
@@ -82,6 +96,7 @@ trait ManagesPurchaseCatalogPicker
         $index = count($this->lines) - 1;
         $this->fillPurchaseLineFromProduct($index, $product);
         $this->addLineProductSearch = '';
+        $this->dispatch('document-line-added', lineIndex: $index);
     }
 
     protected function fillPurchaseLineFromProduct(int $index, Product $product): void

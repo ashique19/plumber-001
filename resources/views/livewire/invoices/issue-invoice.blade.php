@@ -7,7 +7,21 @@
     <form
         id="invoice-issue-form"
         wire:submit="issue"
-        @document-line-added.window="$nextTick(() => document.querySelector('.invoice-document-lines__row:last-child')?.classList.add('invoice-document-lines__row--flash'))"
+        @document-line-added.window="$nextTick(() => {
+            const i = $event.detail?.lineIndex;
+            const row = typeof i === 'number'
+                ? document.querySelector(`[data-document-line-index='${i}']`)
+                : document.querySelector('.invoice-document-lines__row:last-child');
+            row?.classList.add('invoice-document-lines__row--flash');
+            row && setTimeout(() => row.classList.remove('invoice-document-lines__row--flash'), 1600);
+        })"
+        @document-line-merged.window="$nextTick(() => {
+            const i = $event.detail?.lineIndex;
+            document.querySelectorAll(`[data-document-line-index='${i}']`).forEach((row) => {
+                row.classList.add('invoice-document-lines__row--flash');
+                setTimeout(() => row.classList.remove('invoice-document-lines__row--flash'), 1600);
+            });
+        })"
         x-on:document-validation-failed.window="$nextTick(() => document.getElementById('document-validation-summary')?.scrollIntoView({ behavior: 'smooth', block: 'start' }))"
     >
         <x-invoices.document-validation-summary />

@@ -735,6 +735,8 @@ class IssueInvoice extends Component
             'vat_rate' => '15',
             'discount_percent' => '0',
             'product_id' => null,
+            'product_unit_id' => null,
+            'product_size_id' => null,
             'unit_label' => '',
             'product_image_url' => '',
             'track_stock' => false,

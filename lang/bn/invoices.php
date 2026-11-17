@@ -140,6 +140,8 @@ return array (
   'catalog_no_match' => 'কোনো ক্যাটালগ আইটেম মিলছে না।',
   'catalog_product_meta' => ':type · :price SAR (ভ্যাট বাদে) · :vat% ভ্যাট',
   'catalog_product_applied' => 'লাইন পূরণ হয়েছে: “:name”।',
+  'catalog_product_qty_bumped' => '“:name”-এর পরিমাণ বেড়ে :qty হয়েছে।',
+  'catalog_product_qty_capped' => '“:name”-এর জন্য স্টক সীমায় পৌঁছেছে।',
   'product_created_applied' => 'পণ্য সংরক্ষিত হয়েছে ও ডকুমেন্টে যোগ হয়েছে।',
   'catalog_product_missing' => 'ক্যাটালগ আইটেমটি আর উপলব্ধ নেই।',
   'manual_line_hint' => 'ক্যাটালগ থেকে বেছে নিন অথবা নিচে ম্যানুয়াল লাইন লিখুন।',
