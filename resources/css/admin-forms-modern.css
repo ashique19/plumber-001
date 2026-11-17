@@ -262,6 +262,19 @@
             max-width: min(90vw, 75rem);
             max-height: min(90vh, 90dvh);
         }
+
+        html.admin-app .x-modal--form-sheet.x-modal--xl {
+            width: min(90vw, 56rem);
+            max-width: min(90vw, 56rem);
+        }
+    }
+
+    html.admin-app .catalog-entity-form-fields {
+        gap: 0.875rem;
+    }
+
+    html.admin-app .catalog-entity-form-fields .admin-modal-span-3 {
+        grid-column: 1 / -1;
     }
 
     html.admin-app .x-modal__header {

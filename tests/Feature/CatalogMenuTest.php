@@ -85,7 +85,10 @@ it('renders shared x-modal chrome for category and modifier forms', function () 
         ->html();
 
     expect($categoryHtml)->toContain('x-modal-backdrop')
-        ->and($categoryHtml)->toContain('catalog-category-form');
+        ->and($categoryHtml)->toContain('catalog-category-form')
+        ->and($categoryHtml)->toContain('x-modal--form-sheet')
+        ->and($categoryHtml)->toContain('catalog-category-form-fields')
+        ->and($categoryHtml)->toContain('admin-modal-field-grid--3');
 
     $modifierHtml = Livewire::actingAs($this->owner, 'staff')
         ->test(MenuManager::class)
@@ -93,7 +96,9 @@ it('renders shared x-modal chrome for category and modifier forms', function () 
         ->html();
 
     expect($modifierHtml)->toContain('x-modal-backdrop')
-        ->and($modifierHtml)->toContain('catalog-modifier-form');
+        ->and($modifierHtml)->toContain('catalog-modifier-form')
+        ->and($modifierHtml)->toContain('x-modal--xl')
+        ->and($modifierHtml)->toContain('catalog-modifier-form-fields');
 });
 
 it('preserves storefront visibility columns when editing a product', function () {
