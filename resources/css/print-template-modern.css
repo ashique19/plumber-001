@@ -33,10 +33,11 @@
 }
 
 .print-tpl-modern__closing {
-    display: grid;
-    grid-template-columns: minmax(160px, 200px) 1fr;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: flex-start;
     gap: 20px 24px;
-    align-items: start;
     margin-top: 12px;
     page-break-inside: avoid;
     break-inside: avoid;
@@ -65,15 +66,23 @@
 }
 
 .print-tpl-modern__totals {
-    width: 100%;
-    max-width: 340px;
+    display: table !important;
+    width: auto;
+    min-width: 16.5rem;
+    max-width: 22rem;
     margin-left: auto;
+    flex: 0 0 auto;
     border-collapse: collapse;
     font-size: 9pt;
 }
 
+.print-tpl-modern__totals tr {
+    display: table-row !important;
+}
+
 .print-tpl-modern__totals td {
-    padding: 5px 6px;
+    display: table-cell !important;
+    padding: 4px 6px;
     vertical-align: middle;
 }
 
@@ -81,6 +90,7 @@
     text-align: start;
     color: var(--inv-muted);
     font-size: 8.5pt;
+    white-space: nowrap;
 }
 
 .print-tpl-modern__totals-en {
@@ -99,11 +109,14 @@
 .print-tpl-modern__totals-value {
     text-align: end;
     white-space: nowrap;
+    padding-inline-start: 1.25rem;
 }
 
 .print-tpl-modern__totals-total td,
 .print-tpl-modern__totals-net td {
     padding-top: 6px;
+    font-weight: 700;
+    color: #111;
 }
 
 .print-tpl-modern__words {
