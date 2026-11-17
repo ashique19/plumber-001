@@ -25,6 +25,18 @@
         @if ($pdfUrl ?? null)
             <a class="tap-action-muted min-h-11" href="{{ $pdfUrl }}" download>{{ __('invoices.action_download_pdf') }}</a>
         @endif
+        @if ($canResubmitZatca ?? false)
+            <form
+                method="post"
+                action="{{ $zatcaResubmitUrl }}"
+                class="inline"
+                data-testid="invoice-toolbar-zatca-resubmit"
+                onsubmit="const btn=this.querySelector('button[type=submit]');if(btn){btn.disabled=true;}"
+            >
+                @csrf
+                <button type="submit" class="tap-action-primary min-h-11">{{ $zatcaResubmitLabel }}</button>
+            </form>
+        @endif
     </header>
     @vite('resources/js/print-screen-toolbar.js')
 @endif
@@ -32,6 +44,7 @@
 @if ($invoice ?? null)
     @include('print.partials.invoice-draft-lifecycle', ['invoice' => $invoice])
     @include('print.partials.invoice-view-status', ['invoice' => $invoice])
+    @include('print.partials.invoice-view-zatca', ['invoice' => $invoice])
 @endif
 
 @include('print.partials.draft-preview-watermark')

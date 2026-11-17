@@ -88,7 +88,7 @@
                     wire:loading.attr="disabled"
                     wire:target="resubmitInvoice({{ $invoiceId }})"
                 >
-                    {{ __('invoices.action_resend_zatca') }}
+                    {{ $actions['resend_zatca_label'] ?? __('invoices.action_resend_zatca') }}
                 </button>
             @endif
             @if ($actions['delete_draft'] ?? false)

@@ -87,6 +87,9 @@ final class HubInvoiceRowActions
             'record_payment' => self::canRecordPayment($invoice, $dueAmount),
             'delete_draft' => self::canDeleteDraft($invoice),
             'resend_zatca' => self::canResendZatca($invoice),
+            'resend_zatca_label' => self::canResendZatca($invoice)
+                ? HubInvoiceZatcaResubmitCopy::actionLabel($invoice)
+                : null,
         ];
     }
 }
