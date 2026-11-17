@@ -22,6 +22,7 @@ This document defines how raw Z-Heart / payload fields map to the **ZATCA Status
 
 - **ZATCA success** tab: `HubInvoiceZatcaTab::isSuccess()` — includes simplified **Reported** and standard **Cleared**.
 - **ZATCA failed** tab: not success and `HubInvoiceZatcaTab::isFailed()`.
+- **Resend** row action + bulk **Resend all failed**: `HubInvoiceZatcaTab::canResend()` when Z-Heart is configured — any failed-tab invoice (including **Pending** backlog and never-submitted), not only explicit **Rejected**.
 
 ## Print / QR policy
 

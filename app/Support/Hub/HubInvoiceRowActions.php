@@ -6,7 +6,6 @@ use App\Enums\InvoiceDocumentType;
 use App\Enums\InvoiceStatus;
 use App\Models\Invoice;
 use App\Support\Invoicing\InvoicePrintClearance;
-use App\Support\Invoicing\ZatcaSubmissionStatus;
 
 /**
  * Single source of truth for invoice hub row actions (UI + server guards).
@@ -56,25 +55,7 @@ final class HubInvoiceRowActions
 
     public static function canResendZatca(Invoice $invoice): bool
     {
-        if (! $invoice->isIssued() || ! ZatcaSubmissionStatus::canSubmitToZatca()) {
-            return false;
-        }
-
-        if (HubInvoiceZatcaTab::isSuccess($invoice)) {
-            return false;
-        }
-
-        $badge = HubInvoiceZatcaBadge::badgeKey($invoice);
-
-        if (in_array($badge, [
-            HubInvoiceZatcaBadge::Rejected,
-            HubInvoiceZatcaBadge::NotSubmitted,
-        ], true)) {
-            return true;
-        }
-
-        return HubInvoiceZatcaTab::isFailed($invoice)
-            && $badge !== HubInvoiceZatcaBadge::Pending;
+        return HubInvoiceZatcaTab::canResend($invoice);
     }
 
     /**

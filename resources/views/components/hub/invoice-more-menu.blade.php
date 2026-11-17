@@ -5,8 +5,7 @@
 ])
 
 @php
-    $hasMenu = ($actions['resend_zatca'] ?? false)
-        || ($actions['record_payment'] ?? false)
+    $hasMenu = ($actions['record_payment'] ?? false)
         || filled($more['credit_note'] ?? null)
         || filled($more['duplicate'] ?? null)
         || ($actions['delete_draft'] ?? false)
@@ -22,17 +21,6 @@
         <div class="hub-doc-table__more-panel" role="menu">
             @if ($actions['edit'] ?? false)
                 <a class="hub-doc-table__more-item" role="menuitem" href="{{ $actions['edit_url'] }}">{{ __('invoices.action_edit') }}</a>
-            @endif
-            @if ($actions['resend_zatca'] ?? false)
-                <button
-                    type="button"
-                    class="hub-doc-table__more-item"
-                    role="menuitem"
-                    wire:click="resubmitInvoice({{ $invoiceId }})"
-                    wire:loading.attr="disabled"
-                >
-                    {{ __('invoices.more_resend_zatca') }}
-                </button>
             @endif
             @if (($actions['record_payment'] ?? false) && filled($more['record_payment'] ?? null))
                 <a class="hub-doc-table__more-item" role="menuitem" href="{{ $more['record_payment'] }}">{{ __('invoices.more_record_payment') }}</a>
