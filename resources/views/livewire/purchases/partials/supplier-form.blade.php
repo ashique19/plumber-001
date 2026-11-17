@@ -9,7 +9,12 @@
         <x-field.input type="email" :label="__('suppliers.email')" name="formEmail" wire:model.blur="formEmail" icon="mail" />
         <x-field.input :label="__('suppliers.vat')" name="formVat" wire:model.blur="formVat" inputmode="numeric" />
         <x-field.input :label="__('suppliers.cr_number')" name="formCr" wire:model.blur="formCr" />
-        <x-field.input :label="__('suppliers.city')" name="formCity" wire:model.blur="formCity" />
+        <x-field.saudi-country-readonly :label="__('customers.fields.country_code')" />
+        <x-field.saudi-city-combobox
+            :label="__('suppliers.city')"
+            name="formCity"
+            wire-model="formCity"
+        />
         <div class="flex min-h-0 items-end pb-1 lg:pb-0">
             <x-field.toggle :label="__('suppliers.active')" name="formActive" wire:model="formActive" class="w-full" />
         </div>

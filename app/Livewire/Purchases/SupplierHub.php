@@ -8,6 +8,7 @@ use App\Livewire\Concerns\HasAdminHubPagination;
 use App\Livewire\Concerns\ResolvesBusinessContext;
 use App\Livewire\Concerns\ValidatesFieldsLive;
 use App\Models\Supplier;
+use App\Support\Geo\SaudiCities;
 use App\Services\Inventory\SupplierService;
 use App\Support\Inventory\ProductStockSchema;
 use App\Support\StaffBranchContext;
@@ -200,7 +201,7 @@ class SupplierHub extends Component
             'vat_number' => $this->formVat,
             'cr_number' => $this->formCr,
             'address' => $this->formAddress,
-            'city' => $this->formCity,
+            'city' => SaudiCities::normalizeForStorage($this->formCity),
             'notes' => $this->formNotes,
             'is_active' => $this->formActive,
         ];

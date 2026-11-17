@@ -1,12 +1,15 @@
 <?php
 
 return [
-    'title' => 'Customers & loyalty',
-    'subtitle' => 'Guest profiles, referral codes, and points ledger (not a signing service clearance view).',
+    'title' => 'Customers',
+    'title_with_loyalty' => 'Customers & loyalty',
+    'subtitle' => 'Customer profiles for invoicing and ZATCA buyer data.',
+    'subtitle_with_loyalty' => 'Guest profiles, referral codes, and points ledger (not a signing service clearance view).',
     'nav' => 'Customers',
     'add' => 'Add customer',
     'search' => 'Search',
-    'search_placeholder' => 'Name, phone, email, VAT, CR, city, or referral code',
+    'search_placeholder' => 'Name, phone, email, VAT, CR, or city',
+    'search_placeholder_with_loyalty' => 'Name, phone, email, VAT, CR, city, or referral code',
     'empty_list' => 'No customers yet. Add your first customer.',
     'search_empty' => 'No customers match your search.',
     'pick_one' => 'Select a customer to see points and history.',
@@ -29,7 +32,8 @@ return [
     'edit_title' => 'Edit customer',
     'tab_details' => 'Details',
     'tab_loyalty' => 'Loyalty',
-    'confirm_delete' => 'Delete this customer? Loyalty history will be removed. Invoices keep their snapshot.',
+    'confirm_delete' => 'Delete this customer? Invoices keep their buyer snapshot.',
+    'confirm_delete_with_loyalty' => 'Delete this customer? Loyalty history will be removed. Invoices keep their snapshot.',
     'name' => 'Name',
     'email' => 'Email',
     'phone_optional' => 'Phone (optional)',

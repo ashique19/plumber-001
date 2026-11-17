@@ -14,6 +14,7 @@ use App\Services\Loyalty\LoyaltyService;
 use App\Support\Customers\CustomerIdentityPersistence;
 use App\Support\Customers\CustomerIdentityRules;
 use App\Support\Customers\CustomerSchema;
+use App\Support\Features;
 use App\Support\Loyalty\LoyaltyConfig;
 use App\Support\Validation\FieldValidationRules;
 use Illuminate\Database\Eloquent\Builder;
@@ -180,14 +181,22 @@ class CustomerHub extends Component
 
         $this->customer = $customerId;
         $this->hydrateCustomerForm($customer);
-        $this->customerModalTab = $tab === 'loyalty' ? 'loyalty' : 'details';
+        $this->customerModalTab = Features::loyaltyEnabled() && $tab === 'loyalty' ? 'loyalty' : 'details';
         $this->showCustomerModal = true;
         $this->resetAdjustForm();
     }
 
     public function setCustomerModalTab(string $tab): void
     {
-        if (in_array($tab, ['details', 'loyalty'], true) && $this->editingCustomerId !== null) {
+        if ($this->editingCustomerId === null) {
+            return;
+        }
+
+        if ($tab === 'loyalty' && ! Features::loyaltyEnabled()) {
+            return;
+        }
+
+        if (in_array($tab, ['details', 'loyalty'], true)) {
             $this->customerModalTab = $tab;
         }
     }
@@ -234,7 +243,9 @@ class CustomerHub extends Component
             CustomerIdentityPersistence::applyToCustomer($customer, $state);
             $customer->save();
 
-            $loyalty->ensureReferralCode($customer);
+            if (Features::loyaltyEnabled()) {
+                $loyalty->ensureReferralCode($customer);
+            }
             $this->openCustomerModal($customer->id, 'details');
             $this->toastSuccess(__('customers.created'));
         }
@@ -258,6 +269,10 @@ class CustomerHub extends Component
 
     public function saveAdjust(LoyaltyService $loyalty): void
     {
+        if (! Features::loyaltyEnabled()) {
+            abort(404);
+        }
+
         $customer = $this->selectedCustomer();
         if ($customer === null) {
             return;
@@ -282,7 +297,6 @@ class CustomerHub extends Component
 
     public function render(InvoiceDuesLedgerService $ledger): View
     {
-        $config = LoyaltyConfig::for($this->business);
         $customers = $this->customerPage($ledger);
         $customerIds = collect($customers->items())->pluck('id')->all();
         $outstandingById = $ledger->totalOutstandingForCustomerIds($customerIds);
@@ -291,14 +305,9 @@ class CustomerHub extends Component
             'customers' => $customers,
             'outstandingById' => $outstandingById,
             'selected' => $this->selectedCustomer(),
-            'transactions' => $this->transactionFeed(),
-            'loyaltyRates' => [
-                'earn' => $config->earnPointsPerSarExVat(),
-                'redeem' => $config->redemptionSarExVatPerPoint(),
-                'minRedeem' => $config->minimumRedeemPoints(),
-                'maxPercent' => $config->maxRedeemPercentOfOrder(),
-                'referrerBonus' => $config->referrerBonusPoints(),
-            ],
+            'transactions' => Features::loyaltyEnabled() ? $this->transactionFeed() : collect(),
+            'loyaltyRates' => $this->loyaltyRatesForView(),
+            'loyaltyEnabled' => Features::loyaltyEnabled(),
         ]);
     }
 
@@ -359,8 +368,11 @@ class CustomerHub extends Component
                 $q->where('name', 'like', $like)
                     ->orWhere('phone', 'like', $like)
                     ->orWhere('email', 'like', $like)
-                    ->orWhere('vat_number', 'like', $like)
-                    ->orWhere('referral_code', 'like', strtoupper($term).'%');
+                    ->orWhere('vat_number', 'like', $like);
+
+                if (Features::loyaltyEnabled()) {
+                    $q->orWhere('referral_code', 'like', strtoupper($term).'%');
+                }
 
                 if ($hasIdentity) {
                     $q->orWhere('legal_name_ar', 'like', $like)
@@ -412,14 +424,49 @@ class CustomerHub extends Component
             return null;
         }
 
-        return Customer::query()->with('referredBy')->find($this->customer);
+        $query = Customer::query();
+        if (Features::loyaltyEnabled()) {
+            $query->with('referredBy');
+        }
+
+        return $query->find($this->customer);
     }
 
     /**
      * @return Collection<int, \App\Models\LoyaltyTransaction>
      */
+    /**
+     * @return array{earn: float, redeem: float, minRedeem: int, maxPercent: float, referrerBonus: int}
+     */
+    private function loyaltyRatesForView(): array
+    {
+        if (! Features::loyaltyEnabled()) {
+            return [
+                'earn' => 0,
+                'redeem' => 0,
+                'minRedeem' => 0,
+                'maxPercent' => 0,
+                'referrerBonus' => 0,
+            ];
+        }
+
+        $config = LoyaltyConfig::for($this->business);
+
+        return [
+            'earn' => $config->earnPointsPerSarExVat(),
+            'redeem' => $config->redemptionSarExVatPerPoint(),
+            'minRedeem' => $config->minimumRedeemPoints(),
+            'maxPercent' => $config->maxRedeemPercentOfOrder(),
+            'referrerBonus' => $config->referrerBonusPoints(),
+        ];
+    }
+
     private function transactionFeed(): Collection
     {
+        if (! Features::loyaltyEnabled()) {
+            return collect();
+        }
+
         $customer = $this->selectedCustomer();
         if ($customer === null) {
             return collect();
@@ -481,6 +528,10 @@ class CustomerHub extends Component
      */
     protected function liveValidationRules(): array
     {
+        if (! Features::loyaltyEnabled()) {
+            return [];
+        }
+
         return [
             'adjustPoints' => ['nullable', 'integer', 'not_in:0'],
             'adjustNote' => ['nullable', 'string', 'max:200'],

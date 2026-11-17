@@ -8,4 +8,6 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Schedule::command('loyalty:expire-points')->daily();
+if (config('features.loyalty')) {
+    Schedule::command('loyalty:expire-points')->daily();
+}

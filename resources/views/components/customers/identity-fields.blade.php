@@ -12,20 +12,10 @@
     $nameBlocks = app()->getLocale() === 'ar'
         ? [['prop' => $legalAr, 'key' => 'legal_name_ar'], ['prop' => $legalEn, 'key' => 'legal_name_en']]
         : [['prop' => $legalEn, 'key' => 'legal_name_en'], ['prop' => $legalAr, 'key' => 'legal_name_ar']];
-    $countries = [
-        'SA' => __('customers.country.SA'),
-        'AE' => __('customers.country.AE'),
-        'BH' => __('customers.country.BH'),
-        'KW' => __('customers.country.KW'),
-        'OM' => __('customers.country.OM'),
-        'QA' => __('customers.country.QA'),
-        'EG' => __('customers.country.EG'),
-        'JO' => __('customers.country.JO'),
-        'US' => __('customers.country.US'),
-        'GB' => __('customers.country.GB'),
-    ];
+    use App\Support\Geo\SaudiNationalDefaults;
+
     $vatRegistered = (bool) ($this->{$fields['vat_registered']} ?? false);
-    $country = strtoupper((string) ($this->{$fields['country_code']} ?? 'SA'));
+    $country = SaudiNationalDefaults::countryCode();
     $showMore = (bool) ($this->{$moreAddressProp} ?? false);
 @endphp
 
@@ -90,20 +80,12 @@
         icon="mail"
     />
 
-    <x-field.select
-        :label="__('customers.fields.country_code')"
-        :name="$fields['country_code']"
-        wire:model.live="{{ $fields['country_code'] }}"
-    >
-        @foreach ($countries as $code => $label)
-            <option value="{{ $code }}">{{ $code }} — {{ $label }}</option>
-        @endforeach
-    </x-field.select>
+    <x-field.saudi-country-readonly :wire-prop="$fields['country_code']" />
 
-    <x-field.input
+    <x-field.saudi-city-combobox
         :label="__('business.fields.city')"
         :name="$fields['city']"
-        wire:model.blur="{{ $fields['city'] }}"
+        :wire-model="$fields['city']"
     />
 
     <x-field.input

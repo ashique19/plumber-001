@@ -66,7 +66,7 @@ final class CustomerIdentityRules
             ],
             $fields['email'] => FieldValidationRules::emailOptional(),
             $fields['phone'] => $phoneRules,
-            $fields['country_code'] => ['required', 'string', 'size:2'],
+            $fields['country_code'] => ['required', 'string', Rule::in(['SA'])],
             $fields['street_name'] => $relaxedAddress
                 ? ['nullable', 'string', 'max:120']
                 : ['required', 'string', 'max:120'],

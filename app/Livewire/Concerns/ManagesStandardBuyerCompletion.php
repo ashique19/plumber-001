@@ -8,6 +8,7 @@ use App\Support\Customers\CustomerIdentityPersistence;
 use App\Support\Customers\CustomerIdentityRules;
 use App\Support\Invoicing\InvoicingCustomerLookup;
 use App\Support\Invoicing\StandardBuyerFieldGaps;
+use Illuminate\Validation\Rule;
 
 trait ManagesStandardBuyerCompletion
 {
@@ -171,7 +172,7 @@ trait ManagesStandardBuyerCompletion
             $rules['addrDistrict'] = ['nullable', 'string', 'max:120'];
         }
         if (in_array('buyerCountry', $missing, true)) {
-            $rules['buyerCountry'] = ['required', 'string', 'size:2'];
+            $rules['buyerCountry'] = ['required', 'string', Rule::in(['SA'])];
         }
 
         return $rules;

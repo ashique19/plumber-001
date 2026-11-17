@@ -6,7 +6,7 @@ test.describe('customer edit modal', () => {
         await staffLogin(page);
     });
 
-    test('details tab has padded fields and loyalty tab on desktop', async ({ page }) => {
+    test('details form has identity fields on desktop', async ({ page }) => {
         await page.setViewportSize({ width: 1280, height: 900 });
         await page.goto(adminPath('/admin/customers', 'bn'));
         await page.waitForLoadState('networkidle');
@@ -16,14 +16,12 @@ test.describe('customer edit modal', () => {
         await expect(page.locator('[data-testid="customer-identity-fields"]')).toBeVisible();
         await expect(page.locator('input#customerLegalNameEn, input#customerLegalNameAr').first()).toBeVisible();
         await expect(page.locator('input#customerAddrCity')).toBeVisible();
-
-        await page.locator('[data-testid="customer-modal-tabs"] button', { hasText: /লয়্যালটি|Loyalty|الولاء/i }).click();
-        await expect(page.locator('input#adjustPoints')).toBeVisible();
+        await expect(page.locator('[data-testid="customer-modal-tabs"]')).toHaveCount(0);
 
         await page.screenshot({ path: '/opt/cursor/artifacts/customer-modal-1280.png', fullPage: false });
     });
 
-    test('modal scroll and tabs on mobile', async ({ page }) => {
+    test('modal scroll on mobile', async ({ page }) => {
         await page.setViewportSize({ width: 375, height: 812 });
         await page.goto(adminPath('/admin/customers?create=customer', 'bn'));
         await page.waitForLoadState('networkidle');

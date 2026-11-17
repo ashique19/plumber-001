@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\BusinessSetting;
 use App\Models\LoyaltyTransaction;
+use App\Support\Features;
 use App\Support\Loyalty\LoyaltyConfig;
 use Illuminate\Console\Command;
 
@@ -15,6 +16,12 @@ class LoyaltyExpirePointsCommand extends Command
 
     public function handle(): int
     {
+        if (! Features::loyaltyEnabled()) {
+            $this->info('Loyalty feature is disabled; nothing to expire.');
+
+            return self::SUCCESS;
+        }
+
         $business = BusinessSetting::query()->find(1);
         if ($business === null) {
             return self::SUCCESS;

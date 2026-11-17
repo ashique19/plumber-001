@@ -1,25 +1,31 @@
-@if ($editingCustomerId)
-    <div class="customer-hub-modal__tabs shrink-0 border-b border-[var(--app-border)] bg-white px-5 py-3" data-testid="customer-modal-tabs">
-        <div class="app-section-tabs app-section-tabs--scroll min-w-0 max-w-full">
-            <button
-                type="button"
-                wire:click="setCustomerModalTab('details')"
-                @class(['app-segment-tab', 'app-segment-tab--active' => $customerModalTab === 'details'])
-            >
-                {{ __('customers.tab_details') }}
-            </button>
-            <button
-                type="button"
-                wire:click="setCustomerModalTab('loyalty')"
-                @class(['app-segment-tab', 'app-segment-tab--active' => $customerModalTab === 'loyalty'])
-            >
-                {{ __('customers.tab_loyalty') }}
-            </button>
-        </div>
-    </div>
-@endif
+@php
+    use App\Support\Features;
 
-@if (! $editingCustomerId || $customerModalTab === 'details')
+    $customerModalTabCount = Features::loyaltyEnabled() && $editingCustomerId ? 2 : 0;
+@endphp
+
+<x-admin.modal-segment-tabs
+    :tab-count="$customerModalTabCount"
+    test-id="customer-modal-tabs"
+    class="customer-hub-modal__tabs"
+>
+    <button
+        type="button"
+        wire:click="setCustomerModalTab('details')"
+        @class(['app-segment-tab', 'app-segment-tab--active' => $customerModalTab === 'details'])
+    >
+        {{ __('customers.tab_details') }}
+    </button>
+    <button
+        type="button"
+        wire:click="setCustomerModalTab('loyalty')"
+        @class(['app-segment-tab', 'app-segment-tab--active' => $customerModalTab === 'loyalty'])
+    >
+        {{ __('customers.tab_loyalty') }}
+    </button>
+</x-admin.modal-segment-tabs>
+
+@if (! Features::loyaltyEnabled() || ! $editingCustomerId || $customerModalTab === 'details')
     <form class="customer-hub-modal x-modal-form" wire:submit="saveCustomer" data-testid="customer-modal">
         <div class="x-modal-form__fields">
             <x-customers.identity-fields
@@ -37,7 +43,7 @@
         </div>
     </form>
 @else
-    <div class="customer-hub-modal x-modal-form flex min-h-0 flex-1 flex-col" data-testid="customer-modal">
+    <div class="customer-hub-modal x-modal-form flex min-h-0 flex-1 flex-col" data-testid="customer-modal-loyalty">
         <div class="x-modal-form__fields min-h-0 flex-1 gap-5">
             <dl class="customer-hub-modal__summary grid gap-3 rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface-muted)]/50 p-4 text-sm sm:grid-cols-2">
                 <div class="space-y-1">
