@@ -22,8 +22,9 @@ it('shows sidebar brand and page title in admin topbar for dashboard access', fu
         ->getContent();
 
     expect($html)->toContain('admin-sidebar-nav__brand')
-        ->and($html)->toContain('app-topbar__page-title')
-        ->and($html)->not->toContain('app-topbar__brand app-brand-home');
+        ->and($html)->not->toContain('app-topbar__page-title')
+        ->and($html)->toContain('data-testid="app-topbar-mobile-brand"')
+        ->and($html)->toContain('app-page-title');
 });
 
 it('links brand chrome to pos home for cashiers without dashboard access', function () {
