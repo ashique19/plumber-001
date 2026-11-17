@@ -12,6 +12,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->encryptCookies(except: [
+            \App\Support\LocaleCookie::NAME,
+        ]);
+
         $middleware->web(prepend: [
             \App\Http\Middleware\LoadBusinessSettings::class,
         ]);
@@ -34,18 +38,7 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->renderable(function (\Throwable $e, Request $request): void {
-            $requested = $request->query('locale');
-            if (! is_string($requested) || $requested === '') {
-                try {
-                    $requested = $request->hasSession() ? $request->session()->get('locale') : null;
-                } catch (\Throwable) {
-                    $requested = null;
-                }
-            }
-
-            if (is_string($requested) && $requested !== '') {
-                app()->setLocale(\App\Support\EnabledLocales::resolve($requested, app()->getLocale()));
-            }
+            \App\Support\ExceptionLocale::bootstrap($request);
         });
 
         $exceptions->shouldRenderJsonWhen(

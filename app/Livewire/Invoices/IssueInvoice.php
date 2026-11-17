@@ -47,7 +47,6 @@ class IssueInvoice extends Component
     use ResolvesBusinessContext;
     use ValidatesFieldsLive;
 
-    #[Locked]
     public string $mode;
 
     /**
@@ -125,6 +124,30 @@ class IssueInvoice extends Component
         $this->buyerVatRegistered = filter_var($value, FILTER_VALIDATE_BOOLEAN);
     }
 
+    public function updatedMode(string $value): void
+    {
+        if (! in_array($value, ['standard', 'simplified'], true)) {
+            $this->mode = 'simplified';
+
+            return;
+        }
+
+        if ($value === 'standard' && $this->supplyDate === '') {
+            $this->supplyDate = now('Asia/Riyadh')->format('Y-m-d');
+        }
+
+        if ($value === 'standard' && $this->dueDate === '') {
+            $termsDays = max(0, (int) data_get($this->business->settings, 'invoicing.payment_terms_days', 30));
+            $this->dueDate = $this->paymentTerms === 'cash'
+                ? now('Asia/Riyadh')->format('Y-m-d')
+                : now('Asia/Riyadh')->addDays($termsDays)->format('Y-m-d');
+        }
+
+        if ($this->paymentTerms === 'cash') {
+            $this->syncAmountReceivedToGrandTotal();
+        }
+    }
+
     public function mount(string $mode): void
     {
         $this->resolveBusiness();
@@ -164,7 +187,7 @@ class IssueInvoice extends Component
 
     public function updated($propertyName): void
     {
-        if ($propertyName === 'paymentTerms') {
+        if ($propertyName === 'paymentTerms' || $propertyName === 'mode') {
             return;
         }
 

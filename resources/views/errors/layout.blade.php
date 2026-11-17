@@ -8,6 +8,7 @@
     $errorLocale = \App\Support\EnabledLocales::resolve(
         request()->query('locale')
             ?? $sessionLocale
+            ?? \App\Support\LocaleCookie::resolveLocale()
             ?? app()->getLocale()
             ?? \App\Business\BusinessContext::get()?->settings['default_locale']
     );
