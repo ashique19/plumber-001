@@ -11,6 +11,7 @@ use App\Support\Customers\CustomerIdentityPersistence;
 use App\Support\Customers\CustomerIdentityRules;
 use App\Support\Customers\CustomerProfileFields;
 use App\Support\Hub\HubInvoiceRowActions;
+use App\Support\Invoicing\DocumentPaymentTerms;
 use Illuminate\Http\Request;
 
 final class IssueInvoicePrefill
@@ -61,6 +62,7 @@ final class IssueInvoicePrefill
             'buyerNameOptional' => (string) ($payload['buyer_name'] ?? ''),
             'buyerCountry' => (string) ($payload['buyer_country'] ?? 'SA'),
             'dueDate' => (string) ($payload['buyer_due_date'] ?? ''),
+            'paymentTerms' => (string) ($payload['payment_terms'] ?? 'cash'),
         ];
 
         $na = (array) ($payload['buyer_national_address'] ?? []);
@@ -110,6 +112,7 @@ final class IssueInvoicePrefill
             'buyerNameOptional' => (string) ($payload['buyer_name'] ?? ''),
             'buyerCountry' => (string) ($payload['buyer_country'] ?? 'SA'),
             'dueDate' => (string) ($payload['buyer_due_date'] ?? ''),
+            'paymentTerms' => (string) ($payload['payment_terms'] ?? 'net_30'),
         ];
 
         $na = (array) ($payload['buyer_national_address'] ?? []);
@@ -188,6 +191,9 @@ final class IssueInvoicePrefill
         if (filled($prefill['dueDate'] ?? null)) {
             $component->dueDate = (string) $prefill['dueDate'];
         }
+        if (filled($prefill['paymentTerms'] ?? null) && property_exists($component, 'paymentTerms')) {
+            $component->paymentTerms = (string) $prefill['paymentTerms'];
+        }
         $component->addrBuilding = $prefill['addrBuilding'] ?? $component->addrBuilding;
         $component->addrStreet = $prefill['addrStreet'] ?? $component->addrStreet;
         $component->addrDistrict = $prefill['addrDistrict'] ?? $component->addrDistrict;
@@ -255,6 +261,9 @@ final class IssueInvoicePrefill
         $component->buyerCountry = $prefill['buyerCountry'] ?? $component->buyerCountry;
         if (filled($prefill['dueDate'] ?? null)) {
             $component->dueDate = (string) $prefill['dueDate'];
+        }
+        if (filled($prefill['paymentTerms'] ?? null) && property_exists($component, 'paymentTerms')) {
+            $component->paymentTerms = (string) $prefill['paymentTerms'];
         }
         $component->addrBuilding = $prefill['addrBuilding'] ?? $component->addrBuilding;
         $component->addrStreet = $prefill['addrStreet'] ?? $component->addrStreet;

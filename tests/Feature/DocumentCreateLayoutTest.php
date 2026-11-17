@@ -19,9 +19,16 @@ it('renders invoice create layout shell', function (): void {
         ->assertSee(__('invoices.create_heading'))
         ->assertSee(__('invoices.customer_information'))
         ->assertSee(__('invoices.invoice_summary'))
-        ->assertSee(__('invoices.payment_details'))
+        ->assertDontSee(__('invoices.payment_received_section'))
         ->assertSee(__('invoices.document_lines_empty'))
         ->assertDontSee(__('invoices.add_another_product'));
+});
+
+it('renders standard invoice payment received sidebar', function (): void {
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(IssueInvoice::class, ['mode' => 'standard'])
+        ->assertSee(__('invoices.payment_received_section'))
+        ->assertSee(__('invoices.payment_terms_net_30'));
 });
 
 it('renders quotation create layout shell', function (): void {

@@ -8,7 +8,7 @@
         ['en' => 'Invoice Issue Date', 'ar' => 'تاريخ إصدار الفاتورة', 'value' => $t['issue_datetime'] ?? $t['issue_date']],
         ['en' => 'Due Date', 'ar' => 'تاريخ الاستحقاق', 'value' => $isQuotation ? null : ($t['due_date'] ?? null)],
         ['en' => 'Valid until', 'ar' => 'صالح حتى', 'value' => $isQuotation ? ($t['validity_until'] ?? null) : null],
-        ['en' => 'Terms', 'ar' => 'شروط', 'value' => $isQuotation ? 'Quotation' : 'SAR '.($t['payment_display_en'] ?? 'Cash')],
+        ['en' => 'Payment terms', 'ar' => 'شروط الدفع', 'value' => $t['payment_terms_en'] ?? null],
     ], fn (array $row): bool => filled($row['value'] ?? null)));
     $sellerRows = \App\Support\Invoicing\ClassicPartyPrintBlock::sellerRows($t);
     $buyerRows = \App\Support\Invoicing\ClassicPartyPrintBlock::buyerRows($t['customer'] ?? null);

@@ -57,10 +57,12 @@
             $splitLeft = $isQuotation
                 ? [
                     ['en' => 'Quotation number', 'ar' => 'رقم العرض', 'value' => $t['document_number'], 'nowrap' => true],
+                    ['en' => 'Payment terms', 'ar' => 'شروط الدفع', 'value' => $t['payment_terms_en'] ?? null, 'value_ar' => $t['payment_terms_ar'] ?? null],
                     ['en' => 'Valid until', 'ar' => 'صالح حتى', 'value' => $t['validity_until'] ?? null],
                 ]
                 : [
                     ['en' => 'Invoice No.', 'ar' => 'رقم الفاتورة', 'value' => $t['document_number'], 'nowrap' => true],
+                    ['en' => 'Payment terms', 'ar' => 'شروط الدفع', 'value' => $t['payment_terms_en'] ?? null, 'value_ar' => $t['payment_terms_ar'] ?? null],
                     ['en' => 'Due date', 'ar' => 'تاريخ الاستحقاق', 'value' => $t['due_date'] ?? null],
                 ];
         @endphp

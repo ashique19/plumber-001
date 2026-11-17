@@ -55,6 +55,13 @@
                             </div>
                             <x-field.date :label="__('quotations.quotation_date')" name="supplyDate" wire:model.live="supplyDate" required />
                             <x-field.date :label="__('quotations.validity_until')" name="validityUntil" wire:model.live="validityUntil" required />
+                            <x-field.select :label="__('invoices.payment_terms_label')" name="paymentTerms" wire:model.live="paymentTerms">
+                                <option value="cash">{{ __('invoices.payment_terms_cash') }}</option>
+                                <option value="net_7">{{ __('invoices.payment_terms_net_7') }}</option>
+                                <option value="net_15">{{ __('invoices.payment_terms_net_15') }}</option>
+                                <option value="net_30">{{ __('invoices.payment_terms_net_30') }}</option>
+                                <option value="custom">{{ __('invoices.payment_terms_custom') }}</option>
+                            </x-field.select>
                         </div>
                     </div>
                 </div>

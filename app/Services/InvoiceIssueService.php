@@ -238,7 +238,35 @@ class InvoiceIssueService
 
     private function resolveDueDate(Invoice $invoice, Carbon $now, BusinessSetting $business): string
     {
-        $payloadDue = trim((string) ($invoice->payload['buyer_due_date'] ?? ''));
+        $payload = $invoice->payload ?? [];
+        $rawTerms = trim((string) ($payload['payment_terms'] ?? ''));
+        $payloadDue = trim((string) ($payload['buyer_due_date'] ?? ''));
+        $termsCode = \App\Support\Invoicing\DocumentPaymentTerms::normalizeCode(
+            $rawTerms,
+            max(0, (int) data_get($business->settings, 'invoicing.payment_terms_days', 30)),
+        );
+
+        if ($rawTerms === '' && $payloadDue !== '') {
+            try {
+                return Carbon::parse($payloadDue, 'Asia/Riyadh')->toDateString();
+            } catch (\Throwable) {
+                // fall through
+            }
+        }
+
+        if (\App\Support\Invoicing\DocumentPaymentTerms::isImmediate($termsCode)) {
+            $supply = trim((string) ($payload['supply_date'] ?? ''));
+            if ($supply !== '') {
+                try {
+                    return Carbon::parse($supply, 'Asia/Riyadh')->toDateString();
+                } catch (\Throwable) {
+                    // fall through
+                }
+            }
+
+            return $now->copy()->timezone('Asia/Riyadh')->toDateString();
+        }
+
         if ($payloadDue !== '') {
             try {
                 return Carbon::parse($payloadDue, 'Asia/Riyadh')->toDateString();
