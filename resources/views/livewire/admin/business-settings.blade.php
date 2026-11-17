@@ -10,11 +10,7 @@
 
         <nav class="app-section-tabs app-section-tabs--scroll business-settings-page__tabs mt-4 flex min-w-0 w-full" aria-label="{{ __('business.title') }}">
             @php
-                $businessTabKeys = ['brand', 'legal', 'invoicing'];
-                if ($isOwner) {
-                    $businessTabKeys[] = 'zheart';
-                }
-                $businessTabKeys = array_merge($businessTabKeys, ['contact', 'hours', 'branches', 'extras']);
+                $businessTabKeys = ['brand', 'legal', 'invoicing', 'contact', 'hours', 'branches', 'extras'];
             @endphp
             @foreach ($businessTabKeys as $key)
                 <button
@@ -109,108 +105,108 @@
             </div>
         </form>
     @elseif ($section === 'invoicing')
-        <form class="app-card flex flex-col gap-4 p-4" novalidate wire:keydown.enter.prevent>
-            <p class="text-sm text-[var(--app-muted)]">{{ __('business.invoicing.lead') }}</p>
-            @if (\App\Support\Invoicing\ZHeartCredentials::isConfigured($business))
-                <p class="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-950 ring-1 ring-emerald-200">{{ __('business.invoicing.api_key_configured') }}</p>
-            @else
-                <p class="rounded-lg bg-amber-50 p-3 text-sm text-amber-900 ring-1 ring-amber-200">{{ __('business.invoicing.api_key_missing') }}</p>
-            @endif
-            <p class="rounded-lg bg-[var(--app-surface-muted)]/80 p-3 text-sm text-[var(--app-muted)]">
-                <span class="font-medium text-[var(--app-fg)]">{{ __('business.invoicing.server_auto_submit') }}</span>
-                <span class="mt-1 block">
+        <div class="flex flex-col gap-4">
+            <form class="app-card flex flex-col gap-4 p-4" novalidate wire:keydown.enter.prevent>
+                <p class="text-sm leading-snug text-[var(--app-muted)]">{{ __('business.invoicing.lead') }}</p>
+                <p class="text-xs text-[var(--app-muted)]">
                     {{ config('zheart.auto_submit_signed') ? __('business.invoicing.server_auto_submit_on') : __('business.invoicing.server_auto_submit_off') }}
-                </span>
-            </p>
-            <x-field.input type="number" min="0" step="1" :label="__('invoices.payment_terms_days')" name="paymentTermsDays" wire:model.live="paymentTermsDays" />
-            <div class="grid gap-4 sm:grid-cols-2">
-                <div>
-                    <label class="mb-1 block text-sm font-medium text-[var(--app-fg)]" for="invoicePrintTemplate">{{ __('business.print.invoice_template') }}</label>
-                    <select id="invoicePrintTemplate" class="min-h-11 w-full rounded-lg border border-[var(--app-border)] px-3 text-sm" wire:model="invoicePrintTemplate">
-                        @foreach (\App\Enums\PrintDocumentTemplate::cases() as $tpl)
-                            <option value="{{ $tpl->value }}">{{ $tpl->label() }}</option>
-                        @endforeach
-                    </select>
-                    <a class="mt-1 inline-block text-xs text-[var(--app-accent)] underline" href="{{ route('admin.print.template-preview', ['kind' => 'invoice', 'template' => $invoicePrintTemplate]) }}" target="_blank" rel="noopener">{{ __('business.print.preview') }}</a>
-                </div>
-                <div>
-                    <label class="mb-1 block text-sm font-medium text-[var(--app-fg)]" for="quotationPrintTemplate">{{ __('business.print.quotation_template') }}</label>
-                    <select id="quotationPrintTemplate" class="min-h-11 w-full rounded-lg border border-[var(--app-border)] px-3 text-sm" wire:model="quotationPrintTemplate">
-                        @foreach (\App\Enums\PrintDocumentTemplate::cases() as $tpl)
-                            <option value="{{ $tpl->value }}">{{ $tpl->label() }}</option>
-                        @endforeach
-                    </select>
-                    <a class="mt-1 inline-block text-xs text-[var(--app-accent)] underline" href="{{ route('admin.print.template-preview', ['kind' => 'quotation', 'template' => $quotationPrintTemplate]) }}" target="_blank" rel="noopener">{{ __('business.print.preview') }}</a>
-                </div>
-            </div>
-            <p class="text-xs text-[var(--app-muted)]">{{ __('business.print.hint') }}</p>
-            <label class="flex items-start gap-3">
-                <input type="checkbox" class="mt-1 rounded border-gray-300" wire:model="invoicingIntegrationEnabled" />
-                <span>
-                    <span class="font-medium text-[var(--app-fg)]">{{ __('business.invoicing.integration_enabled') }}</span>
-                    <span class="mt-1 block text-xs text-[var(--app-muted)]">{{ __('business.invoicing.integration_hint') }}</span>
-                </span>
-            </label>
-            <div class="flex justify-end">
-                <button type="button" class="tap-action-primary min-h-11 w-full sm:w-auto" wire:click="saveInvoicing" wire:loading.attr="disabled" wire:target="saveInvoicing">{{ __('business.save') }}</button>
-            </div>
-        </form>
-    @elseif ($section === 'zheart' && $isOwner)
-        <form class="app-card flex flex-col gap-4 p-4" novalidate wire:keydown.enter.prevent data-testid="business-zheart-form">
-            <p class="text-sm text-[var(--app-muted)]">{{ __('business.zheart.lead') }}</p>
-            @if ($zheartUsingEnvFallback)
-                <p class="rounded-lg border border-[var(--app-border)] bg-[var(--app-surface-muted)]/60 p-3 text-sm text-[var(--app-muted)]">
-                    {{ __('business.zheart.env_fallback_hint') }}
                 </p>
-            @endif
-            <x-field.input
-                type="url"
-                inputmode="url"
-                autocomplete="off"
-                :label="__('business.zheart.base_url')"
-                name="zheartBaseUrl"
-                wire:model.live="zheartBaseUrl"
-                :liveValidate="false"
-                placeholder="https://z-heart.example.com"
-            />
-            <div class="space-y-2" data-testid="business-zheart-api-key">
-                <span class="type-label">{{ __('business.zheart.api_key') }}</span>
-                @if ($zheartHasStoredKey && ! $zheartReplaceKeyOpen)
-                    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                        <p class="font-mono text-sm tabular-nums" dir="ltr">{{ __('business.zheart.masked_key', ['last4' => $zheartKeyLast4 ?? '????']) }}</p>
-                        <div class="flex flex-wrap gap-2">
-                            <button type="button" class="tap-action-muted min-h-10 px-3 text-sm" wire:click="beginZheartReplaceKey">{{ __('business.zheart.replace_key') }}</button>
-                            <button type="button" class="tap-action-muted min-h-10 px-3 text-sm text-red-700" wire:click="removeZheartKey" wire:confirm="{{ __('business.zheart.remove_confirm') }}">{{ __('business.zheart.remove_key') }}</button>
-                        </div>
+                <x-field.input type="number" min="0" step="1" :label="__('invoices.payment_terms_days')" name="paymentTermsDays" wire:model.live="paymentTermsDays" />
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div class="min-w-0">
+                        <label class="mb-1 block text-sm font-medium text-[var(--app-fg)]" for="invoicePrintTemplate">{{ __('business.print.invoice_template') }}</label>
+                        <select id="invoicePrintTemplate" class="min-h-11 w-full rounded-lg border border-[var(--app-border)] px-3 text-sm" wire:model="invoicePrintTemplate">
+                            @foreach (\App\Enums\PrintDocumentTemplate::cases() as $tpl)
+                                <option value="{{ $tpl->value }}">{{ $tpl->label() }}</option>
+                            @endforeach
+                        </select>
+                        <a class="mt-1 inline-block text-xs text-[var(--app-accent)] underline" href="{{ route('admin.print.template-preview', ['kind' => 'invoice', 'template' => $invoicePrintTemplate]) }}" target="_blank" rel="noopener">{{ __('business.print.preview') }}</a>
                     </div>
-                @else
-                    <x-field.input
-                        type="password"
-                        autocomplete="new-password"
-                        :label="$zheartHasStoredKey ? __('business.zheart.new_api_key') : __('business.zheart.api_key')"
-                        name="zheartApiKeyInput"
-                        wire:model="zheartApiKeyInput"
-                        :liveValidate="false"
-                    />
-                @endif
-            </div>
-            @if ($zheartTestMessage !== '')
-                <p
-                    @class([
-                        'rounded-lg p-3 text-sm',
-                        'bg-emerald-50 text-emerald-950 ring-1 ring-emerald-200' => $zheartTestStatus === 'ok',
-                        'bg-red-50 text-red-950 ring-1 ring-red-200' => $zheartTestStatus === 'error',
-                        'bg-[var(--app-surface-muted)] text-[var(--app-muted)]' => $zheartTestStatus === null,
-                    ])
-                    role="status"
-                    data-testid="business-zheart-test-result"
-                >{{ $zheartTestMessage }}</p>
+                    <div class="min-w-0">
+                        <label class="mb-1 block text-sm font-medium text-[var(--app-fg)]" for="quotationPrintTemplate">{{ __('business.print.quotation_template') }}</label>
+                        <select id="quotationPrintTemplate" class="min-h-11 w-full rounded-lg border border-[var(--app-border)] px-3 text-sm" wire:model="quotationPrintTemplate">
+                            @foreach (\App\Enums\PrintDocumentTemplate::cases() as $tpl)
+                                <option value="{{ $tpl->value }}">{{ $tpl->label() }}</option>
+                            @endforeach
+                        </select>
+                        <a class="mt-1 inline-block text-xs text-[var(--app-accent)] underline" href="{{ route('admin.print.template-preview', ['kind' => 'quotation', 'template' => $quotationPrintTemplate]) }}" target="_blank" rel="noopener">{{ __('business.print.preview') }}</a>
+                    </div>
+                </div>
+                <label class="flex items-start gap-3">
+                    <input type="checkbox" class="mt-1 rounded border-gray-300" wire:model="invoicingIntegrationEnabled" />
+                    <span>
+                        <span class="font-medium text-[var(--app-fg)]">{{ __('business.invoicing.integration_enabled') }}</span>
+                        <span class="mt-1 block text-xs text-[var(--app-muted)]">{{ __('business.invoicing.integration_hint') }}</span>
+                    </span>
+                </label>
+                <div class="flex justify-stretch sm:justify-end">
+                    <button type="button" class="tap-action-primary min-h-11 w-full sm:w-auto" wire:click="saveInvoicing" wire:loading.attr="disabled" wire:target="saveInvoicing">{{ __('business.save') }}</button>
+                </div>
+            </form>
+
+            @if ($isOwner)
+                <form class="app-card flex flex-col gap-4 p-4" novalidate wire:keydown.enter.prevent data-testid="business-zheart-form">
+                    <h2 class="text-sm font-semibold text-[var(--app-fg)]">{{ __('business.zheart.connection_heading') }}</h2>
+                    <p class="text-xs leading-snug text-[var(--app-muted)]">{{ __('business.zheart.lead') }}</p>
+                    <div class="space-y-1">
+                        <x-field.input
+                            type="url"
+                            inputmode="url"
+                            autocomplete="off"
+                            :label="__('business.zheart.base_url')"
+                            name="zheartBaseUrl"
+                            wire:model.live="zheartBaseUrl"
+                            :liveValidate="false"
+                            placeholder="https://z-heart.example.com"
+                        />
+                        @if ($zheartBaseUrlFromEnv)
+                            <p class="text-xs text-[var(--app-muted)]" data-testid="business-zheart-base-env-hint">{{ __('business.zheart.base_url_from_env') }}</p>
+                        @endif
+                    </div>
+                    <div class="space-y-2" data-testid="business-zheart-api-key">
+                        @if ($zheartHasStoredKey && ! $zheartReplaceKeyOpen)
+                            <p class="text-sm text-[var(--app-fg)]" dir="ltr" data-testid="business-zheart-key-status">
+                                {{ __('business.zheart.key_status_saved', ['last4' => $zheartKeyLast4 ?? '????']) }}
+                            </p>
+                            <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+                                <button type="button" class="tap-action-muted min-h-10 w-full px-3 text-sm sm:w-auto" wire:click="beginZheartReplaceKey">{{ __('business.zheart.replace_key') }}</button>
+                                <button type="button" class="tap-action-muted min-h-10 w-full px-3 text-sm text-red-700 sm:w-auto" wire:click="removeZheartKey" wire:confirm="{{ __('business.zheart.remove_confirm') }}">{{ __('business.zheart.remove_key') }}</button>
+                            </div>
+                        @elseif ($zheartUsingEnvFallback && ! $zheartReplaceKeyOpen)
+                            <p class="text-sm text-[var(--app-fg)]" dir="ltr" data-testid="business-zheart-key-status">
+                                {{ __('business.zheart.key_status_env', ['last4' => $zheartKeyLast4 ?? '????']) }}
+                            </p>
+                            <button type="button" class="tap-action-muted min-h-10 w-full px-3 text-sm sm:w-auto" wire:click="beginZheartReplaceKey">{{ __('business.zheart.store_key_in_db') }}</button>
+                        @else
+                            <x-field.input
+                                type="password"
+                                autocomplete="new-password"
+                                :label="$zheartHasStoredKey ? __('business.zheart.new_api_key') : __('business.zheart.api_key')"
+                                name="zheartApiKeyInput"
+                                wire:model="zheartApiKeyInput"
+                                :liveValidate="false"
+                            />
+                        @endif
+                    </div>
+                    @if ($zheartTestMessage !== '')
+                        <p
+                            @class([
+                                'rounded-lg p-3 text-sm',
+                                'bg-emerald-50 text-emerald-950 ring-1 ring-emerald-200' => $zheartTestStatus === 'ok',
+                                'bg-red-50 text-red-950 ring-1 ring-red-200' => $zheartTestStatus === 'error',
+                                'bg-[var(--app-surface-muted)] text-[var(--app-muted)]' => $zheartTestStatus === null,
+                            ])
+                            role="status"
+                            data-testid="business-zheart-test-result"
+                        >{{ $zheartTestMessage }}</p>
+                    @endif
+                    <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-end">
+                        <button type="button" class="tap-action-muted min-h-11 w-full sm:w-auto" wire:click="testZheartConnection" wire:loading.attr="disabled" wire:target="testZheartConnection">{{ __('business.zheart.test_connection') }}</button>
+                        <button type="button" class="tap-action-primary min-h-11 w-full sm:w-auto" wire:click="saveZheart" wire:loading.attr="disabled" wire:target="saveZheart">{{ __('business.save') }}</button>
+                    </div>
+                </form>
             @endif
-            <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-end">
-                <button type="button" class="tap-action-muted min-h-11 w-full sm:w-auto" wire:click="testZheartConnection" wire:loading.attr="disabled" wire:target="testZheartConnection">{{ __('business.zheart.test_connection') }}</button>
-                <button type="button" class="tap-action-primary min-h-11 w-full sm:w-auto" wire:click="saveZheart" wire:loading.attr="disabled" wire:target="saveZheart">{{ __('business.save') }}</button>
-            </div>
-        </form>
+        </div>
     @elseif ($section === 'contact')
         <form class="app-card flex flex-col gap-6 p-4" novalidate wire:keydown.enter.prevent>
             <fieldset class="flex flex-col gap-4 border-0 p-0">

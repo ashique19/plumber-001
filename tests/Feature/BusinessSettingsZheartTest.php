@@ -20,22 +20,53 @@ beforeEach(function () {
     ]);
 });
 
-it('shows zheart tab only to owners', function () {
+it('shows one z-heart tab with connection block for owners only', function () {
+    $html = Livewire::actingAs($this->owner, 'staff')
+        ->test(BusinessSettings::class)
+        ->set('section', 'invoicing')
+        ->assertSeeHtml('data-testid="business-zheart-form"')
+        ->html();
+
+    expect($html)->not->toContain(__('business.sections.zheart'))
+        ->and(substr_count($html, 'wire:click="setSection(\'invoicing\')"'))->toBe(1);
+
+    $manager = StaffUser::query()->firstOrCreate(
+        ['email' => 'manager-zheart-tab@example.test'],
+        [
+            'name' => 'Manager',
+            'password' => bcrypt('TestPassword!2026'),
+            'is_active' => true,
+        ],
+    );
+    $manager->syncRoles(['manager']);
+
+    Livewire::actingAs($manager, 'staff')
+        ->test(BusinessSettings::class)
+        ->set('section', 'invoicing')
+        ->assertDontSeeHtml('data-testid="business-zheart-form"');
+});
+
+it('prefills base url from env when database is empty', function () {
+    config([
+        'zheart.base_url' => 'https://env-zheart.example.test',
+        'zheart.api_key' => 'zh_envonly.ABCDEF',
+    ]);
+
     Livewire::actingAs($this->owner, 'staff')
         ->test(BusinessSettings::class)
-        ->assertSee(__('business.sections.zheart'), false);
-
-    Livewire::actingAs($this->cashier, 'staff')
-        ->test(BusinessSettings::class)
-        ->assertDontSee(__('business.sections.zheart'), false);
+        ->set('section', 'invoicing')
+        ->assertSet('zheartBaseUrl', 'https://env-zheart.example.test')
+        ->assertSet('zheartBaseUrlFromEnv', true)
+        ->assertSeeHtml('data-testid="business-zheart-base-env-hint"')
+        ->assertSee(__('business.zheart.key_status_env', ['last4' => 'CDEF']), false);
 });
 
 it('saves encrypted credentials and masks stored key', function () {
-  $key = 'zh_test1234.AbcdEfGhIjKlMnOpQrStUvWxYz0123456789';
+    $key = 'zh_test1234.AbcdEfGhIjKlMnOpQrStUvWxYz0123456789';
 
     Livewire::actingAs($this->owner, 'staff')
         ->test(BusinessSettings::class)
-        ->set('section', 'zheart')
+        ->set('section', 'invoicing')
         ->set('zheartBaseUrl', 'https://z-heart.example.test')
         ->set('zheartApiKeyInput', $key)
         ->call('saveZheart')
@@ -48,9 +79,9 @@ it('saves encrypted credentials and masks stored key', function () {
 
     Livewire::actingAs($this->owner, 'staff')
         ->test(BusinessSettings::class)
-        ->set('section', 'zheart')
+        ->set('section', 'invoicing')
         ->assertSeeHtml('data-testid="business-zheart-api-key"')
-        ->assertSee('6789', false)
+        ->assertSee(__('business.zheart.key_status_saved', ['last4' => '6789']), false)
         ->assertDontSee($key, false);
 });
 
@@ -64,7 +95,7 @@ it('tests connection without leaking the api key in http payload', function () {
 
     Livewire::actingAs($this->owner, 'staff')
         ->test(BusinessSettings::class)
-        ->set('section', 'zheart')
+        ->set('section', 'invoicing')
         ->set('zheartBaseUrl', 'https://z-heart.example.test')
         ->set('zheartApiKeyInput', $key)
         ->call('testZheartConnection')
@@ -74,6 +105,13 @@ it('tests connection without leaking the api key in http payload', function () {
         return $request->hasHeader('Authorization', 'Bearer '.$key)
             && ! str_contains((string) $request->url(), $key);
     });
+});
+
+it('maps legacy zheart section to invoicing tab', function () {
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(BusinessSettings::class)
+        ->call('setSection', 'zheart')
+        ->assertSet('section', 'invoicing');
 });
 
 it('uses database credentials instead of env when signing client resolves key', function () {
