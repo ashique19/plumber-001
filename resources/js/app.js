@@ -5,6 +5,7 @@ import { registerCatalogProductImageUpload } from './product-image-upload.js';
 import { registerPosQtyStepper } from './pos-qty-stepper.js';
 import { registerInvoiceCatalogPicker } from './invoice-catalog-picker.js';
 import { registerAdminModalScroll, wireAdminModalScrollLivewire } from './admin-modal-scroll-lock.js';
+import { registerHubRowMoreMenu, wireHubRowMoreMenuLivewire } from './hub-row-more-menu.js';
 import {
     registerAdminTypeaheadControl,
     wireAdminCreateQueryDeepLinks,
@@ -33,12 +34,14 @@ registerAdminTheme(Alpine);
 registerAdminPrintPreview(Alpine);
 registerCatalogProductGallery(Alpine);
 registerAdminModalScroll(Alpine);
+registerHubRowMoreMenu(Alpine);
 registerAdminTypeaheadControl(Alpine);
 wireAdminQuickAddDelegation();
 wireAdminCreateQueryDeepLinks();
 
 document.addEventListener('livewire:init', () => {
     wireAdminModalScrollLivewire(Livewire);
+    wireHubRowMoreMenuLivewire(Livewire);
     wireAdminLocationPickerLifecycle();
     wireLivewireRequestFeedback(window.__toastCopy ?? {});
 
