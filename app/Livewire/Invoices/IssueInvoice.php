@@ -352,11 +352,10 @@ class IssueInvoice extends Component
             );
 
             if (! $outcome->signingSucceeded) {
-                $this->toastWarning(
-                    __('invoices.issue_saved_not_sent_zatca', ['number' => $issued->document_number]),
-                    persistent: true,
-                    dedupe: false,
-                );
+                $zatcaMessage = filled($outcome->signingFailureMessage)
+                    ? $outcome->signingFailureMessage
+                    : __('invoices.issue_saved_not_sent_zatca', ['number' => $issued->document_number]);
+                $this->toastWarning($zatcaMessage, persistent: true, dedupe: false);
             }
 
             $this->toastSuccess(__('invoices.issue_success', ['number' => $issued->document_number]));

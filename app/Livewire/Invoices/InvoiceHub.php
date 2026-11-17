@@ -180,11 +180,10 @@ class InvoiceHub extends Component
 
         $issued = $outcome->result->invoice;
         if (! $outcome->result->signingSucceeded) {
-            $this->toastWarning(
-                __('invoices.issue_saved_not_sent_zatca', ['number' => $issued->document_number]),
-                persistent: true,
-                dedupe: false,
-            );
+            $zatcaMessage = filled($outcome->result->signingFailureMessage)
+                ? $outcome->result->signingFailureMessage
+                : __('invoices.issue_saved_not_sent_zatca', ['number' => $issued->document_number]);
+            $this->toastWarning($zatcaMessage, persistent: true, dedupe: false);
         }
 
         $this->toastSuccess(__('invoices.authorize_draft_success', ['number' => $issued->document_number]));
@@ -206,11 +205,10 @@ class InvoiceHub extends Component
 
         $issued = $outcome->result->invoice;
         if (! $outcome->result->signingSucceeded) {
-            $this->toastWarning(
-                __('invoices.issue_saved_not_sent_zatca', ['number' => $issued->document_number]),
-                persistent: true,
-                dedupe: false,
-            );
+            $zatcaMessage = filled($outcome->result->signingFailureMessage)
+                ? $outcome->result->signingFailureMessage
+                : __('invoices.issue_saved_not_sent_zatca', ['number' => $issued->document_number]);
+            $this->toastWarning($zatcaMessage, persistent: true, dedupe: false);
         }
 
         $this->toastSuccess(__('invoices.issue_success', ['number' => $issued->document_number]));

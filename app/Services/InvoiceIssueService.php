@@ -16,9 +16,10 @@ use App\Services\Invoicing\Signing\InvoiceSigningGatewayFactory;
 use App\Services\Invoicing\Signing\InvoiceSigningRequest;
 use App\Support\Invoicing\InvoiceLineDataFactory;
 use App\Support\Invoicing\InvoiceZatcaSubmissionGuard;
-use App\Support\Invoicing\SigningFailureSanitizer;
+use App\Support\Invoicing\StandardInvoiceBuyerSnapshotRefresh;
 use App\Support\Invoicing\StandardInvoiceZatcaPayloadPrecheck;
-use App\Support\Invoicing\ZHeartApiValidationErrors;
+use App\Support\Invoicing\ZatcaSubmissionPayloadPersistence;
+use App\Support\Hub\HubInvoiceZatcaTab;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -104,6 +105,37 @@ class InvoiceIssueService
         $payload = $invoice->payload ?? [];
         $documentDiscount = (float) ($payload['invoice_discount_ex_vat'] ?? 0);
 
+        $dueDate = $this->resolveDueDate($invoice, $now, $business);
+
+        if ($invoiceCategory === 'standard' && $business->invoicingIntegrationEnabled()) {
+            $refreshed = StandardInvoiceBuyerSnapshotRefresh::mergeMissingFromCustomer($invoice);
+            if ($refreshed !== $payload) {
+                Invoice::withoutEvents(function () use ($invoice, $refreshed): void {
+                    $invoice->forceFill(['payload' => $refreshed])->save();
+                });
+                $invoice->refresh();
+                $payload = $refreshed;
+            }
+
+            $precheck = StandardInvoiceZatcaPayloadPrecheck::validatePayload($payload);
+            if ($precheck !== []) {
+                $summary = __('invoices.zatca_precheck.failed');
+
+                return $this->finalizeIssuedAfterZatcaFailure(
+                    $invoice,
+                    $now,
+                    $dueDate,
+                    $invoiceUuid,
+                    $summary,
+                    $precheck,
+                    null,
+                    null,
+                    ZatcaSubmissionPayloadPersistence::flashMessageForFailure($summary, $precheck),
+                    'precheck',
+                );
+            }
+        }
+
         $signingRequest = new InvoiceSigningRequest(
             business: $business,
             documentNumber: $invoice->document_number,
@@ -121,64 +153,68 @@ class InvoiceIssueService
             documentDiscountExVat: $documentDiscount,
         );
 
-        $dueDate = $this->resolveDueDate($invoice, $now, $business);
-
-        if ($invoiceCategory === 'standard' && $business->invoicingIntegrationEnabled()) {
-            $precheck = StandardInvoiceZatcaPayloadPrecheck::validatePayload($payload);
-            if ($precheck !== []) {
-                $message = ZHeartApiValidationErrors::formatFlashMessage(
-                    __('invoices.zatca_precheck.failed'),
-                    $precheck,
-                );
-
-                return $this->finalizeWithoutRemoteSigning(
-                    $invoice,
-                    $now,
-                    $dueDate,
-                    $invoiceUuid,
-                    InvoiceSigningException::signingFailed(context: $message),
-                );
-            }
-        }
-
         InvoiceZatcaSubmissionGuard::markSubmissionInFlight($invoice);
+
+        Log::info('invoice.zatca_issue_request', [
+            'invoice_id' => $invoice->id,
+            'document_number' => $invoice->document_number,
+            'invoice_category' => $invoiceCategory,
+            'submit_path' => $invoiceCategory === 'simplified' ? 'invoices/report' : 'invoices/clear',
+        ]);
 
         try {
             $signed = $this->signingFactory->gateway()->signIssuedInvoice($signingRequest, $invoice);
         } catch (InvoiceSigningException $e) {
             InvoiceZatcaSubmissionGuard::clearSubmissionInFlight($invoice);
 
-            return $this->finalizeWithoutRemoteSigning($invoice, $now, $dueDate, $invoiceUuid, $e);
+            $parsed = ZatcaSubmissionPayloadPersistence::parseSigningException($e);
+
+            return $this->finalizeIssuedAfterZatcaFailure(
+                $invoice,
+                $now,
+                $dueDate,
+                $invoiceUuid,
+                $parsed['user_message'],
+                $parsed['field_errors'],
+                $parsed['http_status'],
+                $parsed['request_id'],
+                ZatcaSubmissionPayloadPersistence::flashMessageForFailure($parsed['user_message'], $parsed['field_errors']),
+                'api_error',
+                $parsed['remote_message'],
+            );
         } catch (\Throwable $e) {
             InvoiceZatcaSubmissionGuard::clearSubmissionInFlight($invoice);
             $wrapped = InvoiceSigningException::signingFailed($e);
+            $parsed = ZatcaSubmissionPayloadPersistence::parseSigningException($wrapped);
 
-            return $this->finalizeWithoutRemoteSigning($invoice, $now, $dueDate, $invoiceUuid, $wrapped);
+            return $this->finalizeIssuedAfterZatcaFailure(
+                $invoice,
+                $now,
+                $dueDate,
+                $invoiceUuid,
+                $parsed['user_message'],
+                $parsed['field_errors'],
+                $parsed['http_status'],
+                $parsed['request_id'],
+                ZatcaSubmissionPayloadPersistence::flashMessageForFailure($parsed['user_message'], $parsed['field_errors']),
+                'api_error',
+                $parsed['remote_message'],
+            );
         }
 
         InvoiceZatcaSubmissionGuard::clearSubmissionInFlight($invoice);
 
+        $clearanceError = InvoiceZatcaSubmissionGuard::standardClearanceErrorMessage($signed, $invoiceCategory);
+
         $payloadMerge = array_merge($invoice->payload ?? [], [
             'lines' => $invoice->payload['lines'] ?? [],
-            'invoice_uuid' => $signed['invoice_uuid'],
-            'signing_submission_status' => ($signed['remote_submitted'] ?? false) ? 'submitted' : 'signed_locally',
         ]);
+        $payloadMerge = ZatcaSubmissionPayloadPersistence::mergeAfterRemoteSubmission(
+            $payloadMerge,
+            $signed,
+            unsetLastError: $clearanceError === null,
+        );
 
-        if (! empty($signed['request_id'])) {
-            $payloadMerge['zheart_request_id'] = $signed['request_id'];
-        }
-
-        if (! empty($signed['remote_submission'])) {
-            $payloadMerge['zheart_zatca'] = $signed['remote_submission'];
-        }
-
-        if (filled($signed['reporting_status'] ?? null)) {
-            $payloadMerge['zheart_reporting_status'] = $signed['reporting_status'];
-        }
-
-        $payloadMerge['zheart_remote_submitted'] = (bool) ($signed['remote_submitted'] ?? false);
-
-        $clearanceError = InvoiceZatcaSubmissionGuard::standardClearanceErrorMessage($signed, $invoiceCategory);
         if ($clearanceError !== null) {
             $payloadMerge['zheart_last_error'] = $clearanceError;
             $payloadMerge['zheart_last_error_at'] = now()->toIso8601String();
@@ -204,33 +240,62 @@ class InvoiceIssueService
         $issued = $invoice->fresh();
         $this->productStock->syncFromIssuedInvoice($issued);
 
-        return new InvoiceIssueResult($issued, true);
+        $signingSucceeded = ZatcaSubmissionPayloadPersistence::remoteSigningSucceeded($business, $issued);
+        $userMessage = $signingSucceeded
+            ? null
+            : $this->issueZatcaUserMessage($issued);
+
+        if (! $signingSucceeded) {
+            Log::warning('invoice.zatca_issue_outcome', [
+                'invoice_id' => $issued->id,
+                'document_number' => $issued->document_number,
+                'request_id' => data_get($issued->payload, 'zheart_request_id'),
+                'http_status' => data_get($issued->payload, 'zheart_zatca_http_status')
+                    ?? data_get($issued->payload, 'zheart_last_http_status'),
+                'reporting_status' => data_get($issued->payload, 'zheart_reporting_status'),
+            ]);
+        }
+
+        return new InvoiceIssueResult($issued, $signingSucceeded, $userMessage);
     }
 
-    private function finalizeWithoutRemoteSigning(
+    /**
+     * @param  list<string>  $fieldErrors
+     */
+    private function finalizeIssuedAfterZatcaFailure(
         Invoice $invoice,
         Carbon $issuedAt,
         string $dueDate,
         string $invoiceUuid,
-        InvoiceSigningException $exception,
+        string $summary,
+        array $fieldErrors,
+        ?int $httpStatus,
+        ?string $requestId,
+        string $flashMessage,
+        string $code,
+        ?string $remoteMessage = null,
     ): InvoiceIssueResult {
-        Log::warning('invoice.signing_deferred', array_merge(
-            SigningFailureSanitizer::logContext($exception),
-            [
-                'invoice_id' => $invoice->id,
-                'document_number' => $invoice->document_number,
-            ],
-        ));
+        Log::warning('invoice.zatca_issue_failed', [
+            'invoice_id' => $invoice->id,
+            'document_number' => $invoice->document_number,
+            'code' => $code,
+            'http_status' => $httpStatus,
+            'request_id' => $requestId,
+            'field_error_count' => count($fieldErrors),
+        ]);
 
         $payloadMerge = array_merge($invoice->payload ?? [], [
             'lines' => $invoice->payload['lines'] ?? [],
             'invoice_uuid' => $invoiceUuid,
-            'signing_submission_status' => 'not_submitted',
-            'zheart_remote_submitted' => false,
-            'zheart_reporting_status' => 'pending',
-            'zheart_last_error' => SigningFailureSanitizer::sanitizeMessage($exception->getMessage()),
-            'zheart_last_error_at' => now()->toIso8601String(),
         ]);
+        $payloadMerge = ZatcaSubmissionPayloadPersistence::mergeAfterValidationFailure(
+            $payloadMerge,
+            $summary,
+            $fieldErrors,
+            $httpStatus,
+            $requestId,
+            $remoteMessage,
+        );
 
         $invoice->forceFill([
             'status' => InvoiceStatus::Issued,
@@ -246,14 +311,28 @@ class InvoiceIssueService
 
         $this->auditService->record($invoice, 'invoice.issued', [
             'signing_deferred' => true,
+            'zatca_issue_failure' => $code,
         ]);
 
         $issued = $invoice->fresh();
         $this->productStock->syncFromIssuedInvoice($issued);
 
-        $userMessage = SigningFailureSanitizer::sanitizeMessage($exception->getMessage());
+        return new InvoiceIssueResult($issued, false, $flashMessage);
+    }
 
-        return new InvoiceIssueResult($issued, false, $userMessage);
+    private function issueZatcaUserMessage(Invoice $issued): string
+    {
+        $fieldErrors = data_get($issued->payload, 'zheart_field_errors');
+        $summary = HubInvoiceZatcaTab::shortError($issued)
+            ?? (string) data_get($issued->payload, 'zheart_last_error', __('invoices.zatca_resubmit_failed'));
+
+        if (is_array($fieldErrors) && $fieldErrors !== []) {
+            return ZatcaSubmissionPayloadPersistence::flashMessageForFailure($summary, $fieldErrors);
+        }
+
+        return $summary !== ''
+            ? $summary
+            : __('invoices.issue_saved_not_sent_zatca', ['number' => $issued->document_number]);
     }
 
     private function resolveDueDate(Invoice $invoice, Carbon $now, BusinessSetting $business): string

@@ -27,7 +27,9 @@ class InvoiceDraftLifecycleController extends Controller
         $issued = $outcome->result->invoice;
         $message = $outcome->result->signingSucceeded
             ? __('invoices.issue_success', ['number' => $issued->document_number])
-            : __('invoices.issue_saved_not_sent_zatca', ['number' => $issued->document_number]);
+            : (filled($outcome->result->signingFailureMessage)
+                ? $outcome->result->signingFailureMessage
+                : __('invoices.issue_saved_not_sent_zatca', ['number' => $issued->document_number]));
 
         return redirect()
             ->route('admin.invoices')
@@ -50,7 +52,9 @@ class InvoiceDraftLifecycleController extends Controller
         $issued = $outcome->result->invoice;
         $message = $outcome->result->signingSucceeded
             ? __('invoices.issue_success', ['number' => $issued->document_number])
-            : __('invoices.issue_saved_not_sent_zatca', ['number' => $issued->document_number]);
+            : (filled($outcome->result->signingFailureMessage)
+                ? $outcome->result->signingFailureMessage
+                : __('invoices.issue_saved_not_sent_zatca', ['number' => $issued->document_number]));
 
         return redirect()
             ->route('admin.invoices')
