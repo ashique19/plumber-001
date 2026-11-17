@@ -10,6 +10,54 @@ use Illuminate\Support\Carbon;
 
 final class DocumentCreateUiSupport
 {
+    /** @var list<float> */
+    public const VAT_SELECT_RATES = [0.0, 5.0, 15.0];
+
+    public static function defaultDocumentVatRate(): float
+    {
+        return 15.0;
+    }
+
+    /**
+     * Normalizes a VAT rate for &lt;select&gt; options (0 / 5 / 15) so UI matches totals.
+     */
+    public static function normalizeLineVatRate(mixed $lineValue, mixed $productVat = null, ?float $fallback = null): string
+    {
+        $fallback ??= self::defaultDocumentVatRate();
+        $raw = trim((string) ($lineValue ?? ''));
+
+        if ($raw === '') {
+            $rate = $productVat !== null && trim((string) $productVat) !== ''
+                ? (float) $productVat
+                : $fallback;
+        } else {
+            $rate = (float) $raw;
+        }
+
+        if ($productVat !== null && trim((string) $productVat) !== '') {
+            $product = (float) $productVat;
+            if ($raw === '' || (abs($rate) < 0.001 && $product > 0)) {
+                $rate = $product;
+            }
+        }
+
+        return self::vatRateOptionValue($rate);
+    }
+
+    public static function vatRateOptionValue(float $rate): string
+    {
+        foreach (self::VAT_SELECT_RATES as $allowed) {
+            if (abs($rate - $allowed) < 0.011) {
+                return (string) (int) $allowed;
+            }
+        }
+
+        if (fmod($rate, 1.0) === 0.0) {
+            return (string) (int) $rate;
+        }
+
+        return rtrim(rtrim(number_format(max(0, $rate), 2, '.', ''), '0'), '.');
+    }
     /**
      * @param  array<string, float>  $previewTotals
      * @return array<string, float>

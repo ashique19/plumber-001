@@ -11,7 +11,7 @@
 @endphp
 
 <section class="invoice-document-lines" aria-label="{{ __('invoices.lines_section') }}">
-<div class="document-product-line-cards">
+<div class="document-product-line-cards lg:hidden">
     @foreach ($lines as $index => $line)
         @continue(! filled($line['product_id'] ?? null))
         @php
@@ -70,7 +70,7 @@
     @endforeach
 </div>
 
-<div class="document-product-lines-scroll">
+<div class="document-product-lines-scroll hidden lg:block">
 <table class="document-product-lines-table" aria-label="{{ __('invoices.lines_section') }}">
     <thead>
         <tr>
