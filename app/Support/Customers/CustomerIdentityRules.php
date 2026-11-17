@@ -63,6 +63,16 @@ final class CustomerIdentityRules
                 'string',
                 'max:64',
                 Rule::requiredIf(fn () => ! (bool) $host->{$fields['vat_registered']}),
+                function (string $attribute, mixed $value, \Closure $fail) use ($host, $fields): void {
+                    $type = strtoupper(trim((string) ($host->{$fields['alt_id_type']} ?? '')));
+                    $number = trim((string) $value);
+                    if ($type !== 'CRN' || $number === '') {
+                        return;
+                    }
+                    if (! preg_match('/^\d{1,10}$/', $number)) {
+                        $fail(__('invoices.zatca_precheck.buyer_cr_invalid'));
+                    }
+                },
             ],
             $fields['email'] => FieldValidationRules::emailOptional(),
             $fields['phone'] => $phoneRules,
@@ -73,7 +83,9 @@ final class CustomerIdentityRules
             $fields['city'] => $relaxedAddress
                 ? ['nullable', 'string', 'max:80']
                 : ['required', 'string', 'max:80'],
-            $fields['addr_district'] => ['nullable', 'string', 'max:120'],
+            $fields['addr_district'] => $saBuyer
+                ? ['required', 'string', 'max:120']
+                : ['nullable', 'string', 'max:120'],
             $fields['addr_additional'] => ['nullable', 'string', 'max:160'],
             $fields['addr_building'] => $saBuyer
                 ? ['required', 'string', 'max:120']

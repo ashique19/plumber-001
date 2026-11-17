@@ -580,8 +580,50 @@
         visibility: hidden;
     }
 
+    html.admin-app .customer-identity-fields--sectioned {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+        width: 100%;
+        min-width: 0;
+    }
+
+    html.admin-app .customer-identity-fields__section {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        width: 100%;
+        min-width: 0;
+    }
+
+    html.admin-app .customer-identity-fields__heading {
+        margin: 0;
+        font-size: 0.8125rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        color: var(--app-muted);
+    }
+
+    html.admin-app .customer-identity-fields__hint {
+        margin: 0;
+        font-size: 0.75rem;
+        line-height: 1.45;
+        color: var(--app-muted);
+    }
+
+    html.admin-app .customer-identity-fields__grid {
+        width: 100%;
+        min-width: 0;
+    }
+
+    html.admin-app .customer-identity-fields__grid.admin-modal-field-grid--2 > .customer-identity-fields__span-full,
+    html.admin-app .customer-identity-fields__grid.admin-modal-field-grid--2 > .form-field--span-2,
+    html.admin-app .customer-identity-fields__grid.admin-modal-field-grid--2 > .admin-modal-span-2 {
+        grid-column: 1 / -1;
+    }
+
     @media (min-width: 1024px) {
-        html.admin-app .customer-identity-fields.admin-modal-field-grid--3,
         html.admin-app .catalog-quick-product-fields.admin-modal-field-grid--2 {
             grid-template-columns: repeat(3, minmax(0, 1fr));
         }

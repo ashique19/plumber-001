@@ -74,8 +74,8 @@ it('renders customer modal as wide form sheet with street textarea', function ()
         ->test(CustomerHub::class)
         ->call('startCustomer')
         ->assertSeeHtml('x-modal--form-sheet')
-        ->assertSeeHtml('admin-modal-field-grid--3')
-        ->assertSeeHtml('customer-identity-fields__street')
+        ->assertSeeHtml('customer-identity-fields--sectioned')
+        ->assertSeeHtml('customer-identity-fields__span-full')
         ->assertSeeHtml('<textarea');
 });
 

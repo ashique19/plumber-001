@@ -58,6 +58,11 @@ return [
     'phone_optional' => 'الجوال (اختياري)',
     'email_optional' => 'البريد (اختياري)',
     'more_address_details' => 'تفاصيل عنوان إضافية',
+    'sections' => [
+        'identity' => 'الهوية',
+        'contact' => 'التواصل',
+        'national_address' => 'العنوان الوطني',
+    ],
     'fields' => [
         'legal_name_ar' => 'الاسم القانوني (عربي)',
         'legal_name_en' => 'الاسم القانوني (إنجليزي)',

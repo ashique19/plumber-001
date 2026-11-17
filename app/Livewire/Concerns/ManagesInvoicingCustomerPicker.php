@@ -144,6 +144,9 @@ trait ManagesInvoicingCustomerPicker
 
         $this->customerQuickEditMode = false;
         $this->resetQuickCustomerForm();
+        if ($this->documentStandardBuyerRequired()) {
+            $this->customerQuickShowMoreAddress = true;
+        }
         $this->showQuickCustomerModal = true;
     }
 

@@ -58,6 +58,11 @@ return [
     'phone_optional' => 'ফোন (ঐচ্ছিক)',
     'email_optional' => 'ইমেইল (ঐচ্ছিক)',
     'more_address_details' => 'আরও ঠিকানার বিবরণ',
+    'sections' => [
+        'identity' => 'পরিচয়',
+        'contact' => 'যোগাযোগ',
+        'national_address' => 'জাতীয় ঠিকানা',
+    ],
     'fields' => [
         'legal_name_ar' => 'আইনি নাম (আরবি)',
         'legal_name_en' => 'আইনি নাম (ইংরেজি)',
