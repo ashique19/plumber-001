@@ -117,7 +117,7 @@ class InvoiceIssueService
                 $payload = $refreshed;
             }
 
-            $precheck = StandardInvoiceZatcaPayloadPrecheck::validatePayload($payload);
+            $precheck = StandardInvoiceZatcaPayloadPrecheck::missingFields($invoice->fresh() ?? $invoice);
             if ($precheck !== []) {
                 $summary = __('invoices.zatca_precheck.failed');
                 Log::warning('invoice.zatca_issue_failed', [

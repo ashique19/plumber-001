@@ -268,3 +268,57 @@ it('sends the same clear payload shape on issue as on resubmit', function () {
     unset($sent['uuid'], $expected['uuid']);
     expect($sent)->toBe($expected);
 });
+
+it('clears on create for vat registered buyer without cr number', function () {
+    Http::fake([
+        'https://z-heart.test/api/v1/invoices/sign' => Http::response(zheartSignResponse(), 200),
+        'https://z-heart.test/api/v1/invoices/clear' => Http::response([
+            'status' => 'ok',
+            'request_id' => 'req-vat-no-cr',
+            'data' => [
+                'signed_xml' => base64_encode('<Invoice/>'),
+                'cleared_xml' => base64_encode('<Invoice cleared="1"/>'),
+                'uuid' => (string) Str::uuid(),
+                'invoice_hash' => 'hash-vat-no-cr',
+                'icv' => 12,
+                'pih' => '',
+                'zatca' => [
+                    'ok' => true,
+                    'http_status' => 200,
+                    'body' => ['clearanceStatus' => 'CLEARED'],
+                ],
+                'reporting_status' => 'cleared',
+            ],
+        ], 200),
+    ]);
+
+    $draft = standardIssueDraft('STD-VAT-NO-CR', [
+        'buyer_cr' => null,
+        'buyer_alt_id_type' => null,
+        'buyer_alt_id_number' => null,
+    ]);
+
+    $outcome = app(InvoiceIssueService::class)->issue($draft);
+
+    expect($outcome->signingSucceeded)->toBeTrue();
+    Http::assertSent(fn ($request) => str_contains($request->url(), '/invoices/clear'));
+    expect(data_get($outcome->invoice->payload, 'zheart_reporting_status'))->toBe('cleared');
+});
+
+it('blocks non vat buyer without identification before calling z heart', function () {
+    Http::fake();
+
+    $draft = standardIssueDraft('STD-NO-BUYER-ID', [
+        'buyer_vat_registered' => false,
+        'buyer_vat' => null,
+        'buyer_cr' => null,
+        'buyer_alt_id_type' => null,
+        'buyer_alt_id_number' => null,
+    ]);
+
+    $outcome = app(InvoiceIssueService::class)->issue($draft);
+
+    expect($outcome->signingSucceeded)->toBeFalse()
+        ->and($outcome->signingFailureMessage)->toContain(__('invoices.zatca_precheck.buyer_vat_or_cr'));
+    Http::assertNothingSent();
+});
