@@ -30,6 +30,28 @@ it('sets line vat_rate to select-friendly value when adding a product', function
         ->assertSet('lines.0.vat_rate', '15');
 });
 
+it('tints selected buyer and product line cards in compiled document create css', function () {
+    $source = file_get_contents(resource_path('css/document-create-layout.css'));
+
+    expect($source)
+        ->toContain('.document-customer-strip')
+        ->toContain('--theme-accent-soft')
+        ->toContain('.document-product-line-card')
+        ->toContain('admin-theme-dark .document-customer-strip');
+
+    $manifestPath = public_path('build/manifest.json');
+    if (! is_file($manifestPath)) {
+        $this->markTestSkipped('Vite build output not present in this environment.');
+    }
+
+    $manifest = json_decode((string) file_get_contents($manifestPath), true, flags: JSON_THROW_ON_ERROR);
+    $cssEntry = $manifest['resources/css/app.css']['file'] ?? null;
+    $css = (string) file_get_contents(public_path('build/'.$cssEntry));
+
+    expect($css)->toContain('document-customer-strip')
+        ->and($css)->toContain('document-product-line-card');
+});
+
 it('includes responsive utility classes in production css bundle', function () {
     $manifestPath = public_path('build/manifest.json');
     if (! is_file($manifestPath)) {
