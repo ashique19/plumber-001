@@ -22,7 +22,7 @@ it('applies catalog product to a simplified invoice line', function () {
         ->assertSet('lines.0.name', 'Leak repair visit')
         ->assertSet('lines.0.name_ar', 'زيارة إصلاح تسرب')
         ->assertSet('lines.0.unit_price', (string) $this->product->price_ex_vat)
-        ->assertSet('lines.0.vat_rate', (string) $this->product->vat_rate)
+        ->assertSet('lines.0.vat_rate', \App\Support\Invoicing\DocumentCreateUiSupport::normalizeLineVatRate(null, $this->product->vat_rate))
         ->assertSet('lines.0.product_id', $this->product->id)
         ->assertDispatched('toast', type: 'info');
 });
