@@ -3,6 +3,8 @@
 namespace App\Support\Customers;
 
 use App\Models\Customer;
+use App\Support\Geo\SaudiCities;
+use App\Support\Geo\SaudiNationalDefaults;
 
 final class CustomerIdentityPersistence
 {
@@ -14,7 +16,8 @@ final class CustomerIdentityPersistence
         $hasIdentityColumns = CustomerSchema::hasIdentityColumns();
         $vatRegistered = (bool) ($state['vat_registered'] ?? false);
         $vatDigits = preg_replace('/\D/', '', (string) ($state['vat_number'] ?? '')) ?? '';
-        $country = strtoupper(trim((string) ($state['country_code'] ?? 'SA'))) ?: 'SA';
+        $country = SaudiNationalDefaults::normalizeCountry($state['country_code'] ?? null);
+        $cityEnglish = SaudiCities::normalizeForStorage((string) ($state['city'] ?? ''));
 
         $legalEn = trim((string) ($state['legal_name_en'] ?? ''));
         $legalAr = trim((string) ($state['legal_name_ar'] ?? ''));
@@ -34,7 +37,7 @@ final class CustomerIdentityPersistence
                 'building' => trim((string) ($state['addr_building'] ?? '')) ?: null,
                 'street' => trim((string) ($state['street_name'] ?? '')) ?: null,
                 'district' => trim((string) ($state['addr_district'] ?? '')) ?: null,
-                'city' => trim((string) ($state['city'] ?? '')) ?: null,
+                'city' => $cityEnglish !== '' ? $cityEnglish : null,
                 'postal_code' => trim((string) ($state['addr_postal'] ?? '')) ?: null,
                 'additional' => trim((string) ($state['addr_additional'] ?? '')) ?: null,
                 'country' => $country,
@@ -58,7 +61,7 @@ final class CustomerIdentityPersistence
                 'alt_id_number' => $altNumber !== '' ? $altNumber : null,
                 'country_code' => $country,
                 'street_name' => trim((string) ($state['street_name'] ?? '')) ?: null,
-                'city' => trim((string) ($state['city'] ?? '')) ?: null,
+                'city' => $cityEnglish !== '' ? $cityEnglish : null,
             ]);
         }
 
@@ -112,9 +115,9 @@ final class CustomerIdentityPersistence
             'alt_id_number' => (string) ($host->{$fields['alt_id_number']} ?? ''),
             'phone' => (string) ($host->{$fields['phone']} ?? ''),
             'email' => (string) ($host->{$fields['email']} ?? ''),
-            'country_code' => (string) ($host->{$fields['country_code']} ?? 'SA'),
+            'country_code' => SaudiNationalDefaults::normalizeCountry($host->{$fields['country_code']} ?? null),
             'street_name' => (string) ($host->{$fields['street_name']} ?? ''),
-            'city' => (string) ($host->{$fields['city']} ?? ''),
+            'city' => SaudiCities::normalizeForStorage((string) ($host->{$fields['city']} ?? '')),
             'addr_building' => (string) ($host->{$fields['addr_building']} ?? ''),
             'addr_postal' => (string) ($host->{$fields['addr_postal']} ?? ''),
             'addr_district' => (string) ($host->{$fields['addr_district']} ?? ''),

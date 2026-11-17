@@ -42,6 +42,16 @@ it('creates updates and deletes a supplier without purchases', function () {
     Livewire::actingAs($this->owner, 'staff')
         ->test(SupplierHub::class)
         ->call('selectSupplier', $supplier->id)
+        ->set('formCity', 'جدة')
+        ->call('saveSupplier')
+        ->assertHasNoErrors();
+
+    $supplier->refresh();
+    expect($supplier->city)->toBe('Jeddah');
+
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(SupplierHub::class)
+        ->call('selectSupplier', $supplier->id)
         ->set('formContactPerson', 'Sara')
         ->call('saveSupplier')
         ->assertHasNoErrors();

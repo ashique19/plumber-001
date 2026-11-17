@@ -21,6 +21,8 @@ use App\Models\Product;
 use App\Services\InvoiceIssueService;
 use App\Services\Invoicing\InvoiceDuesLedgerService;
 use App\Support\Customers\CustomerIdentityRules;
+use App\Support\Geo\SaudiCities;
+use App\Support\Geo\SaudiNationalDefaults;
 use App\Support\Invoicing\DocumentCreateUiSupport;
 use App\Support\Invoicing\InvoiceDocumentTotals;
 use App\Support\Invoicing\IssueInvoicePrefill;
@@ -427,16 +429,16 @@ class IssueInvoice extends Component
                 'buyer_cr' => $buyerCr !== '' ? $buyerCr : null,
                 'buyer_phone' => trim($this->buyerPhone),
                 'buyer_email' => trim($this->buyerEmail),
-                'buyer_country' => strtoupper(trim($this->buyerCountry)) ?: 'SA',
+                'buyer_country' => SaudiNationalDefaults::normalizeCountry($this->buyerCountry),
                 'buyer_due_date' => $this->paymentTerms === 'credit' ? trim($this->dueDate) : '',
                 'buyer_national_address' => [
                     'building' => $this->addrBuilding,
                     'street' => $this->addrStreet,
                     'district' => $this->addrDistrict,
-                    'city' => $this->addrCity,
+                    'city' => SaudiCities::normalizeForStorage($this->addrCity),
                     'postal_code' => $this->addrPostal,
                     'additional' => $this->addrAdditional,
-                    'country' => strtoupper(trim($this->buyerCountry)) ?: 'SA',
+                    'country' => SaudiNationalDefaults::normalizeCountry($this->buyerCountry),
                 ],
             ]);
         } else {

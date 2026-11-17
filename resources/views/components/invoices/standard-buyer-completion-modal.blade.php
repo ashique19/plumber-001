@@ -31,7 +31,7 @@
             @endif
 
             @if (in_array('buyerCountry', $missingKeys, true))
-                <x-field.input :label="__('customers.fields.country_code')" name="buyerCountry" wire:model="buyerCountry" :liveValidate="false" maxlength="2" required wrapper-class="md:col-span-2" />
+                <x-field.saudi-country-readonly wire-prop="buyerCountry" wrapper-class="md:col-span-2" />
             @endif
 
             @if (in_array('addrBuilding', $missingKeys, true))
@@ -44,7 +44,12 @@
                 <x-field.input :label="__('business.fields.district')" name="addrDistrict" wire:model="addrDistrict" :liveValidate="false" />
             @endif
             @if (in_array('addrCity', $missingKeys, true))
-                <x-field.input :label="__('business.fields.city')" name="addrCity" wire:model="addrCity" :liveValidate="false" required />
+                <x-field.saudi-city-combobox
+                    :label="__('business.fields.city')"
+                    name="addrCity"
+                    wire-model="addrCity"
+                    required
+                />
             @endif
             @if (in_array('addrPostal', $missingKeys, true))
                 <x-field.input :label="__('business.fields.postal')" name="addrPostal" wire:model="addrPostal" :liveValidate="false" required />

@@ -614,6 +614,37 @@
         }
     }
 
+    html.admin-app .saudi-city-combobox {
+        position: relative;
+    }
+
+    html.admin-app .saudi-city-combobox__panel {
+        position: absolute;
+        z-index: 40;
+        margin-top: 0.25rem;
+        max-height: 14rem;
+        width: 100%;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        border-radius: 0.75rem;
+        border: 1px solid var(--app-border);
+        background: var(--app-surface);
+        box-shadow: 0 10px 24px rgb(0 0 0 / 0.08);
+    }
+
+    html.admin-app .saudi-city-combobox__option {
+        display: block;
+        width: 100%;
+        padding: 0.55rem 0.75rem;
+        text-align: start;
+        font-size: 0.875rem;
+    }
+
+    html.admin-app .saudi-city-combobox__option:hover,
+    html.admin-app .saudi-city-combobox__option:focus-visible {
+        background: color-mix(in srgb, var(--app-surface-muted) 70%, transparent);
+    }
+
     @media (min-width: 640px) {
         @keyframes x-modal-panel-in {
             from {

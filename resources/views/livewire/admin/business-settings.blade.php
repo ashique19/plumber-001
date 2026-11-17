@@ -91,10 +91,15 @@
                 <x-field.input :label="__('business.legal.na_additional')" name="naAdditional" wire:model.live="naAdditional" :liveValidate="false" />
                 <x-field.input :label="__('business.legal.na_district')" name="naDistrict" wire:model.live="naDistrict" :liveValidate="false" />
                 <x-field.input :label="__('business.legal.na_district_ar')" name="naDistrictAr" wire:model.live="naDistrictAr" :liveValidate="false" dir="rtl" />
-                <x-field.input :label="__('business.legal.na_city')" name="naCity" wire:model.live="naCity" :liveValidate="false" />
+                <x-field.saudi-city-combobox
+                    :label="__('business.legal.na_city')"
+                    name="naCity"
+                    wire-model="naCity"
+                    wire-model-ar="naCityAr"
+                />
                 <x-field.input :label="__('business.legal.na_city_ar')" name="naCityAr" wire:model.live="naCityAr" :liveValidate="false" dir="rtl" />
                 <x-field.input :label="__('business.legal.na_postal')" name="naPostal" wire:model.live="naPostal" :liveValidate="false" />
-                <x-field.input :label="__('business.legal.na_country')" name="naCountry" wire:model.live="naCountry" :liveValidate="false" maxlength="2" />
+                <x-field.saudi-country-readonly :label="__('business.legal.na_country')" wire-prop="naCountry" />
             </div>
             <p class="text-xs text-[var(--app-muted)]">{{ __('business.legal.logo_on_brand') }}</p>
             <div class="flex justify-end">

@@ -132,3 +132,59 @@ it('hydrates host state from customer including legacy profile', function () {
         ->and($host->buyerAltIdNumber)->toBe('1010123456')
         ->and($host->addrStreet)->toBe('King Fahd Rd');
 });
+
+it('forces saudi country and english city on persistence', function () {
+    $customer = Customer::query()->create([
+        'name' => 'Buyer',
+        'referral_code' => '',
+        'points_balance' => 0,
+        'profile' => [],
+    ]);
+
+    CustomerIdentityPersistence::applyToCustomer($customer, [
+        'legal_name_en' => 'Buyer',
+        'legal_name_ar' => '',
+        'vat_registered' => false,
+        'vat_number' => '',
+        'alt_id_type' => '',
+        'alt_id_number' => '',
+        'phone' => '',
+        'email' => '',
+        'country_code' => 'AE',
+        'street_name' => '',
+        'city' => 'Jeddah',
+        'addr_building' => '',
+        'addr_postal' => '',
+        'addr_district' => '',
+        'addr_additional' => '',
+    ]);
+    $customer->save();
+    $customer->refresh();
+
+    expect($customer->country_code)->toBe('SA')
+        ->and(data_get($customer->profile, 'country'))->toBe('SA')
+        ->and($customer->city)->toBe('Jeddah');
+
+    CustomerIdentityPersistence::applyToCustomer($customer, [
+        'legal_name_en' => 'Buyer',
+        'legal_name_ar' => '',
+        'vat_registered' => false,
+        'vat_number' => '',
+        'alt_id_type' => '',
+        'alt_id_number' => '',
+        'phone' => '',
+        'email' => '',
+        'country_code' => 'SA',
+        'street_name' => '',
+        'city' => 'الرياض',
+        'addr_building' => '',
+        'addr_postal' => '',
+        'addr_district' => '',
+        'addr_additional' => '',
+    ]);
+    $customer->save();
+    $customer->refresh();
+
+    expect($customer->city)->toBe('Riyadh')
+        ->and(data_get($customer->profile, 'national_address.city'))->toBe('Riyadh');
+});

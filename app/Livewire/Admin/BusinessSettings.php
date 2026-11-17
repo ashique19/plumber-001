@@ -8,6 +8,8 @@ use App\Models\BusinessSetting;
 use App\Rules\SaudiVatNumber;
 use App\Services\Business\BusinessSettingsService;
 use App\Support\Geo\GeoMapsUrl;
+use App\Support\Geo\SaudiCities;
+use App\Support\Geo\SaudiNationalDefaults;
 use App\Support\BusinessHours;
 use App\Support\BusinessProfile;
 use App\Support\Upload\LogoUploadConstraints;
@@ -376,7 +378,7 @@ class BusinessSettings extends Component
             'naCity' => 'nullable|string|max:80',
             'naCityAr' => 'nullable|string|max:80',
             'naPostal' => 'nullable|digits:5',
-            'naCountry' => 'nullable|string|size:2',
+            'naCountry' => ['nullable', 'string', Rule::in(['SA'])],
             'naAdditional' => 'nullable|string|max:20',
             ], 'legal');
         } catch (ValidationException) {
@@ -402,10 +404,10 @@ class BusinessSettings extends Component
                 'street_ar' => $this->naStreetAr,
                 'district' => $this->naDistrict,
                 'district_ar' => $this->naDistrictAr,
-                'city' => $this->naCity,
+                'city' => SaudiCities::normalizeForStorage($this->naCity),
                 'city_ar' => $this->naCityAr,
                 'postal_code' => $this->naPostal,
-                'country' => $this->naCountry !== '' ? strtoupper($this->naCountry) : 'SA',
+                'country' => SaudiNationalDefaults::normalizeCountry($this->naCountry),
                 'additional' => $this->naAdditional,
             ], static fn (string $v): bool => $v !== ''),
         ], auth('staff')->user());
@@ -660,7 +662,7 @@ class BusinessSettings extends Component
         $this->naCity = (string) ($na['city'] ?? '');
         $this->naCityAr = (string) ($na['city_ar'] ?? '');
         $this->naPostal = (string) ($na['postal_code'] ?? '');
-        $this->naCountry = strtoupper((string) ($na['country'] ?? 'SA')) ?: 'SA';
+        $this->naCountry = SaudiNationalDefaults::normalizeCountry($na['country'] ?? null);
         $this->naAdditional = (string) ($na['additional'] ?? '');
 
         $this->phone = (string) ($contact['phone'] ?? '');
