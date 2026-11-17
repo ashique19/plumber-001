@@ -24,16 +24,16 @@
         <x-field.date :label="__('invoices.supply_date')" name="supplyDate" wire:model.live="supplyDate" />
         <x-field.textarea :label="__('invoices.document_notes')" name="documentNotes" wire:model.live="documentNotes" rows="2" />
 
-        <div class="admin-form-grid admin-form-grid--2 gap-3">
-            <x-field.input :label="__('invoices.buyer_phone')" name="buyerPhone" wire:model.blur="buyerPhone" inputmode="tel" autocomplete="tel" icon="phone" />
-            <x-field.input type="email" :label="__('invoices.buyer_email')" name="buyerEmail" wire:model.blur="buyerEmail" autocomplete="email" icon="mail" />
-        </div>
-
-        <div class="admin-form-grid admin-form-grid--3 gap-3">
-            <x-field.money step="0.01" min="0" :label="__('invoices.invoice_discount_ex_vat')" name="invoiceDiscountExVat" wire:model.live="invoiceDiscountExVat" />
-            <x-field.input type="number" step="0.01" min="0" max="100" inputmode="decimal" :label="__('invoices.retention_percent')" name="retentionPercent" wire:model.live="retentionPercent" />
-            <x-field.money step="0.01" min="0" :label="__('invoices.retention_fixed')" name="retentionFixed" wire:model.live="retentionFixed" />
-        </div>
+        <section class="document-adjustments" aria-labelledby="document-adjustments-heading">
+            <h3 id="document-adjustments-heading" class="document-adjustments__title type-label m-0 mb-2">
+                {{ __('invoices.document_adjustments_heading') }}
+            </h3>
+            <div class="admin-form-grid admin-form-grid--3 gap-3">
+                <x-field.money step="0.01" min="0" :label="__('invoices.invoice_discount_ex_vat')" name="invoiceDiscountExVat" wire:model.live="invoiceDiscountExVat" />
+                <x-field.input type="number" step="0.01" min="0" max="100" inputmode="decimal" :label="__('invoices.retention_percent')" name="retentionPercent" wire:model.live="retentionPercent" />
+                <x-field.money step="0.01" min="0" :label="__('invoices.retention_fixed')" name="retentionFixed" wire:model.live="retentionFixed" />
+            </div>
+        </section>
 
         @unless ($isStandard)
             @foreach ($lines ?? [] as $index => $line)

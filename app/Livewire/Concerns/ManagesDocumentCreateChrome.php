@@ -48,6 +48,9 @@ trait ManagesDocumentCreateChrome
     {
         $this->selectedCustomerId = null;
         $this->customerSearch = '';
+        if (property_exists($this, 'buyerContactOverride')) {
+            $this->buyerContactOverride = false;
+        }
     }
 
     /**

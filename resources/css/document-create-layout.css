@@ -199,6 +199,16 @@ html.admin-app.admin-theme-dark .document-customer-strip {
     line-height: 1.45;
 }
 
+.document-adjustments__title {
+    font-weight: 600;
+    color: var(--app-text);
+}
+
+.document-buyer-contact .form-toggle {
+    width: 100%;
+    align-items: flex-start;
+}
+
 .document-customer-strip__icon {
     flex-shrink: 0;
     color: var(--app-accent, #1b8a8a);

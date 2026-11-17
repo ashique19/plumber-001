@@ -180,6 +180,33 @@ final class DocumentCreateUiSupport
         ];
     }
 
+    public static function shouldInferBuyerContactOverride(?int $customerId, string $buyerPhone, string $buyerEmail): bool
+    {
+        if ($customerId === null) {
+            return false;
+        }
+
+        $customer = Customer::query()->find($customerId);
+        if ($customer === null) {
+            return trim($buyerPhone) !== '' || trim($buyerEmail) !== '';
+        }
+
+        $customerPhone = trim((string) ($customer->phone ?? ''));
+        $customerEmail = trim((string) ($customer->email ?? ''));
+        $phone = trim($buyerPhone);
+        $email = trim($buyerEmail);
+
+        if ($phone !== '' && $phone !== $customerPhone) {
+            return true;
+        }
+
+        if ($email !== '' && $email !== $customerEmail) {
+            return true;
+        }
+
+        return false;
+    }
+
     public static function formatNationalAddress(
         string $building,
         string $street,
