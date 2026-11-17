@@ -40,8 +40,11 @@ export async function expectCustomerModalFormSpacing(modal: Locator): Promise<vo
     expect(firstBox).not.toBeNull();
     expect(vatLabelBox).not.toBeNull();
 
-    const verticalGap = vatLabelBox!.y - (firstBox!.y + firstBox!.height);
-    expect(verticalGap, 'space between prior field control and next label').toBeGreaterThanOrEqual(12);
+    const secondFieldLabel = identity.locator('.form-field__label').nth(1);
+    const secondLabelBox = await secondFieldLabel.boundingBox();
+    expect(secondLabelBox).not.toBeNull();
+    const verticalGap = secondLabelBox!.y - (firstBox!.y + firstBox!.height);
+    expect(verticalGap, 'space between first control and second label').toBeGreaterThanOrEqual(12);
 
     const optionLabels = vatSegment.locator('.admin-segmented__option span');
     const optionCount = await optionLabels.count();
