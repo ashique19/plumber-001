@@ -2,7 +2,7 @@
     'cancelUrl',
     'primaryLabel',
     'primaryTarget',
-    'primaryWireClick',
+    'primaryWireClick' => null,
     'formId',
     'showDraft' => true,
     'showPreview' => true,
@@ -33,7 +33,7 @@
             <x-ui.livewire-action
                 :type="$primaryFormSubmit ? 'submit' : 'button'"
                 :form="$primaryFormSubmit ? $formId : null"
-                wire-click="{{ $primaryWireClick }}"
+                :wire-click="$primaryWireClick"
                 :target="$primaryTarget"
                 :loading="$primaryTarget"
                 class="tap-action-primary document-create-footer__primary document-primary-submit min-h-11 px-5 text-sm font-semibold"

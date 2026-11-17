@@ -11,6 +11,7 @@ use App\Services\Invoicing\Signing\ZHeartInvoiceSigningGateway;
 use App\Support\Hub\HubInvoiceRowActions;
 use App\Support\Hub\HubInvoiceZatcaTab;
 use App\Support\Invoicing\SigningFailureSanitizer;
+use App\Support\Invoicing\InvoiceZatcaSubmissionGuard;
 use App\Support\Invoicing\ZatcaSubmissionStatus;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -32,11 +33,15 @@ final class InvoiceZatcaResubmitService
             return InvoiceZatcaResubmitResult::notEligible();
         }
 
+        if (InvoiceZatcaSubmissionGuard::shouldSkipResubmit($invoice)) {
+            return InvoiceZatcaResubmitResult::alreadySuccess();
+        }
+
         if (! HubInvoiceRowActions::canResendZatca($invoice)) {
             return InvoiceZatcaResubmitResult::notEligible();
         }
 
-        $lock = Cache::lock('invoice-zatca-resubmit:'.$invoice->id, 120);
+        $lock = Cache::lock(InvoiceZatcaSubmissionGuard::lockKey((int) $invoice->id), InvoiceZatcaSubmissionGuard::LOCK_SECONDS);
 
         if (! $lock->get()) {
             return InvoiceZatcaResubmitResult::locked();
@@ -45,14 +50,20 @@ final class InvoiceZatcaResubmitService
         try {
             $invoice->refresh();
 
-            if (HubInvoiceZatcaTab::isSuccess($invoice)) {
+            if (InvoiceZatcaSubmissionGuard::shouldSkipResubmit($invoice)) {
                 return InvoiceZatcaResubmitResult::alreadySuccess();
+            }
+
+            if (InvoiceZatcaSubmissionGuard::submissionInFlight($invoice)) {
+                return InvoiceZatcaResubmitResult::locked();
             }
 
             $business = BusinessContext::require();
             $request = InvoiceSigningRequestFactory::fromIssuedInvoice($invoice, $business);
 
             $preserveChain = filled($invoice->icv) && filled($invoice->invoice_hash);
+
+            InvoiceZatcaSubmissionGuard::markSubmissionInFlight($invoice);
 
             try {
                 if ($preserveChain && filled($invoice->signed_xml)) {
@@ -64,12 +75,24 @@ final class InvoiceZatcaResubmitService
                     $signed = $this->gateway->signIssuedInvoice($request, $invoice);
                 }
             } catch (InvoiceSigningException $e) {
+                InvoiceZatcaSubmissionGuard::clearSubmissionInFlight($invoice);
+
                 return $this->recordFailure($invoice, $e);
             } catch (\Throwable $e) {
+                InvoiceZatcaSubmissionGuard::clearSubmissionInFlight($invoice);
+
                 return $this->recordFailure($invoice, InvoiceSigningException::signingFailed($e));
             }
 
+            InvoiceZatcaSubmissionGuard::clearSubmissionInFlight($invoice);
+
             $merged = $this->mergeSubmissionPayload($invoice, $signed, $preserveChain);
+            $category = (string) ($invoice->payload['invoice_category'] ?? $invoice->document_type->value);
+            $clearanceError = InvoiceZatcaSubmissionGuard::standardClearanceErrorMessage($signed, $category);
+            if ($clearanceError !== null) {
+                $merged['zheart_last_error'] = $clearanceError;
+                $merged['zheart_last_error_at'] = now()->toIso8601String();
+            }
             $attributes = ['payload' => $merged];
 
             if (! $preserveChain) {

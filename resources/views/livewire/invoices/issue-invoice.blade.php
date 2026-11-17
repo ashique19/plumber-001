@@ -91,14 +91,12 @@
             :submit-label="__('invoices.issue_submit')"
             wire-target="issue"
             form="invoice-issue-form"
-            wire-click="issue"
         />
 
         <x-documents.create-footer
             :cancel-url="route('admin.invoices')"
             :primary-label="__('invoices.issue_submit')"
             primary-target="issue"
-            primary-wire-click="issue"
             form-id="invoice-issue-form"
             draft-target="saveDraft"
             preview-target="previewDocument"
