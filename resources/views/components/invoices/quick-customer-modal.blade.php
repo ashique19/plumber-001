@@ -15,15 +15,12 @@
     <form class="x-modal-form" wire:submit.prevent="saveQuickCustomer">
         <x-modal.validation-summary :fields="$quickCustomerFields" loading-target="saveQuickCustomer" />
 
-        <div class="x-modal-form__fields x-modal-form__fields--3">
+        <div class="x-modal-form__fields">
             <x-customers.identity-fields
                 :fields="\App\Support\Customers\CustomerIdentityRules::quickFields()"
                 more-address-prop="customerQuickShowMoreAddress"
                 :sa-standard-buyer="$standardBuyer"
             />
-            @if ($standardBuyer)
-                <p class="col-span-full text-xs text-[var(--app-muted)]">{{ __('invoices.standard_customer_modal_hint') }}</p>
-            @endif
         </div>
 
         <div class="x-modal__footer x-modal__footer--in-form">

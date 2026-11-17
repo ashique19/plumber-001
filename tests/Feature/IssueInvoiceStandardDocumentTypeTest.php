@@ -43,6 +43,7 @@ function completeStandardCustomer(array $overrides = []): Customer
             'national_address' => [
                 'building' => '12',
                 'street' => 'King Fahd Rd',
+                'district' => 'Al Olaya',
                 'city' => 'Riyadh',
                 'postal_code' => '11564',
             ],
@@ -64,6 +65,7 @@ function issueStandardViaLivewire(Customer $customer, bool $viaBuyerModalResume)
             ->set('buyerAltIdNumber', '1010998899')
             ->set('addrBuilding', '12')
             ->set('addrStreet', 'King Fahd Rd')
+            ->set('addrDistrict', 'Al Olaya')
             ->set('addrCity', 'Riyadh')
             ->set('addrPostal', '11564')
             ->set('standardBuyerPersistToCustomer', false)

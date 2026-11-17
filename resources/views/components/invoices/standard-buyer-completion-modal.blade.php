@@ -21,7 +21,7 @@
             {{ __('invoices.standard_buyer_completion_intro', ['name' => $customerName]) }}
         </p>
 
-        <div class="x-modal-form__fields x-modal-form__fields--3 !pt-0">
+        <div class="x-modal-form__fields !pt-0">
             @if ($showIdentity)
                 <x-customers.identity-fields
                     :fields="\App\Support\Customers\CustomerIdentityRules::buyerFields()"

@@ -58,6 +58,11 @@ return [
     'phone_optional' => 'Phone (optional)',
     'email_optional' => 'Email (optional)',
     'more_address_details' => 'More address details',
+    'sections' => [
+        'identity' => 'Identity',
+        'contact' => 'Contact',
+        'national_address' => 'National address',
+    ],
     'fields' => [
         'legal_name_ar' => 'Legal name (Arabic)',
         'legal_name_en' => 'Legal name (English)',
