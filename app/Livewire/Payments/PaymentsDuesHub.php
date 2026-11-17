@@ -11,6 +11,7 @@ use App\Livewire\Concerns\ResolvesBusinessContext;
 use App\Livewire\Concerns\ValidatesFieldsLive;
 use App\Models\Invoice;
 use App\Services\Invoicing\InvoiceDuesLedgerService;
+use App\Support\Hub\HubInvoiceTableRow;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
@@ -59,6 +60,7 @@ class PaymentsDuesHub extends Component
     public function selectCustomer(string $key): void
     {
         $this->customerKey = $key;
+        $this->dispatch('payments-dues-scroll-statement');
     }
 
     public function clearCustomer(): void
@@ -76,6 +78,17 @@ class PaymentsDuesHub extends Component
         $this->selectedInvoiceId = $invoiceId;
         $this->forRetention = false;
         $this->paymentAmount = '';
+        $this->prefillPaymentAmount(app(InvoiceDuesLedgerService::class));
+    }
+
+    public function prepareRecordPayment(int $invoiceId): void
+    {
+        if (! auth('staff')->user()?->can('invoices.issue')) {
+            return;
+        }
+
+        $this->selectInvoice($invoiceId);
+        $this->dispatch('payments-dues-scroll-record');
     }
 
     public function recordPayment(InvoiceDuesLedgerService $ledger): void
@@ -126,9 +139,26 @@ class PaymentsDuesHub extends Component
         if ($this->customerKey !== '') {
             try {
                 $statement = $ledger->customerStatement($this->customerKey);
+                $statement['invoices'] = array_map(
+                    function (array $row) use ($ledger): array {
+                        $hub = HubInvoiceTableRow::fromInvoice($row['invoice'], $ledger);
+
+                        return array_merge($row, [
+                            'actions' => $hub['actions'],
+                            'more' => $hub['more'],
+                            'view_url' => $hub['view_url'],
+                            'print_urls' => $hub['print_urls'],
+                        ]);
+                    },
+                    $statement['invoices'],
+                );
             } catch (\InvalidArgumentException) {
                 $this->customerKey = '';
             }
+        }
+
+        if ($this->selectedInvoiceId !== null && $this->paymentAmount === '') {
+            $this->prefillPaymentAmount($ledger);
         }
 
         $invoicePicklist = Invoice::query()
@@ -185,5 +215,37 @@ class PaymentsDuesHub extends Component
             'paymentReference' => ['nullable', 'string', 'max:128'],
             'forRetention' => ['boolean'],
         ];
+    }
+
+    private function prefillPaymentAmount(InvoiceDuesLedgerService $ledger): void
+    {
+        if ($this->selectedInvoiceId === null) {
+            return;
+        }
+
+        $invoice = Invoice::query()->with('payments')->find($this->selectedInvoiceId);
+        if ($invoice === null) {
+            return;
+        }
+
+        $balance = $ledger->balanceFor($invoice);
+        if ($balance['principal_outstanding'] > 0.005) {
+            $this->paymentAmount = $this->formatPaymentPrefill($balance['principal_outstanding']);
+            $this->forRetention = false;
+
+            return;
+        }
+
+        if ($balance['retention_outstanding'] > 0.005) {
+            $this->paymentAmount = $this->formatPaymentPrefill($balance['retention_outstanding']);
+            $this->forRetention = true;
+        }
+    }
+
+    private function formatPaymentPrefill(float $amount): string
+    {
+        $formatted = number_format($amount, 2, '.', '');
+
+        return rtrim(rtrim($formatted, '0'), '.');
     }
 }

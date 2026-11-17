@@ -10,6 +10,7 @@
     'printLayout' => 'a4',
     'printBackUrl' => '',
     'canResubmitZatca' => false,
+    'recordPaymentOnPage' => false,
 ])
 
 <div {{ $attributes->class(['hub-doc-table__actions', 'hub-doc-table__actions--compact']) }} data-testid="hub-invoice-row-actions">
@@ -67,6 +68,15 @@
             :disabled="true"
             :tooltip="__('invoices.awaiting_zatca_clearance')"
             test-id="hub-row-action-print-disabled"
+        />
+    @endif
+    @if (($actions['record_payment'] ?? false) && $recordPaymentOnPage)
+        <x-hub.row-action-icon
+            icon="payment"
+            :label="__('invoices.more_record_payment')"
+            wire:click="prepareRecordPayment({{ $invoiceId }})"
+            test-id="hub-row-action-record-payment"
+            accent
         />
     @endif
     <x-hub.invoice-more-menu

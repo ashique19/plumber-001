@@ -105,6 +105,23 @@ it('tracks partial payments and splits retention due', function () {
     expect($fullySettled['retention_outstanding'])->toBe(0.0);
 });
 
+it('highlights selected customer and renders statement invoice hub actions', function () {
+    $invoice = issueManualInvoiceWithRetention(0);
+    $ledger = app(InvoiceDuesLedgerService::class);
+    $customerKey = $ledger->customerOutstandingSummary()[0]['key'];
+
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(PaymentsDuesHub::class)
+        ->call('selectCustomer', $customerKey)
+        ->assertSeeHtml('payments-dues-customer-row--selected')
+        ->assertSeeHtml('aria-selected="true"')
+        ->assertSeeHtml('data-testid="payments-statement-invoice"')
+        ->assertSeeHtml('data-testid="hub-invoice-row-actions"')
+        ->call('prepareRecordPayment', $invoice->id)
+        ->assertSet('selectedInvoiceId', $invoice->id)
+        ->assertSet('paymentAmount', '1150');
+});
+
 it('lists customer outstanding and records payment via livewire', function () {
     $invoice = issueManualInvoiceWithRetention(0);
     $ledger = app(InvoiceDuesLedgerService::class);

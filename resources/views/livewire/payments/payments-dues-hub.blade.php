@@ -1,4 +1,19 @@
-<div class="payments-dues min-w-0 max-w-full overflow-x-hidden pb-24 lg:pb-8">
+<div
+    class="payments-dues min-w-0 max-w-full overflow-x-hidden pb-24 lg:pb-8"
+    x-data="{
+        scrollStatementMobile() {
+            if (! window.matchMedia('(max-width: 1023px)').matches) return;
+            this.$nextTick(() => document.getElementById('payments-dues-statement')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+        },
+        scrollRecordSection() {
+            this.$nextTick(() => document.getElementById('payments-dues-record')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+        },
+    }"
+    x-on:payments-dues-scroll-statement.window="scrollStatementMobile()"
+    x-on:payments-dues-scroll-record.window="scrollRecordSection()"
+>
+    @vite(['resources/css/hub-document-table.css', 'resources/css/payments-dues-hub.css'])
+
     <header class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
             <h1 class="app-page-title">{{ __('payments.title') }}</h1>
@@ -23,21 +38,25 @@
             @else
                 <ul class="mt-4 space-y-2 sm:hidden" data-testid="dues-customer-cards">
                     @foreach ($customers as $row)
+                        @php($selected = $customerKey === $row['key'])
                         <li
                             wire:key="cust-card-{{ $row['key'] }}"
-                            class="rounded-xl border border-[var(--app-border)] p-3"
+                            role="button"
+                            tabindex="0"
                             wire:click="selectCustomer('{{ $row['key'] }}')"
+                            @class([
+                                'payments-dues-customer-row rounded-xl border border-[var(--app-border)] p-3',
+                                'payments-dues-customer-row--selected' => $selected,
+                            ])
+                            aria-selected="{{ $selected ? 'true' : 'false' }}"
+                            data-testid="dues-customer-card"
                         >
-                            <p class="font-medium">{{ $row['name'] }}</p>
-                            <dl class="mt-2 grid grid-cols-1 gap-1 text-xs">
-                                <div class="flex justify-between gap-2">
-                                    <dt class="text-[var(--app-muted)]">{{ __('payments.due_now') }}</dt>
-                                    <dd class="tabular-nums font-semibold">{{ number_format($row['principal_outstanding'], 2) }}</dd>
-                                </div>
-                                <div class="flex justify-between gap-2">
-                                    <dt class="text-[var(--app-muted)]">{{ __('payments.retention_due') }}</dt>
-                                    <dd class="tabular-nums font-semibold text-amber-800">{{ number_format($row['retention_outstanding'], 2) }}</dd>
-                                </div>
+                            <p class="payments-dues-customer-row__name font-medium">{{ $row['name'] }}</p>
+                            <dl class="payments-dues-invoice-balance mt-2 text-xs">
+                                <dt>{{ __('payments.due_now') }}</dt>
+                                <dd><x-payments.dues-amount :amount="$row['principal_outstanding']" /></dd>
+                                <dt>{{ __('payments.retention_due') }}</dt>
+                                <dd><x-payments.dues-amount :amount="$row['retention_outstanding']" class="text-amber-800" /></dd>
                             </dl>
                         </li>
                     @endforeach
@@ -53,16 +72,19 @@
                         </thead>
                         <tbody>
                             @foreach ($customers as $row)
+                                @php($selected = $customerKey === $row['key'])
                                 <tr
                                     wire:key="cust-{{ $row['key'] }}"
-                                    @class([
-                                        'border-b border-[var(--app-border)] cursor-pointer hover:bg-[var(--app-surface-muted)]/50',
-                                        'bg-[var(--app-surface-muted)]/80' => $customerKey === $row['key'],
-                                    ])
                                     wire:click="selectCustomer('{{ $row['key'] }}')"
+                                    @class([
+                                        'payments-dues-customer-row border-b border-[var(--app-border)]',
+                                        'payments-dues-customer-row--selected' => $selected,
+                                    ])
+                                    aria-selected="{{ $selected ? 'true' : 'false' }}"
+                                    data-testid="dues-customer-row"
                                 >
                                     <td class="py-2.5 pe-2">
-                                        <p class="font-medium">{{ $row['name'] }}</p>
+                                        <p class="payments-dues-customer-row__name font-medium">{{ $row['name'] }}</p>
                                         <p class="text-xs text-[var(--app-muted)]">
                                             {{ $row['invoice_count'] }} {{ __('payments.invoices') }}
                                             @if ($row['phone'])
@@ -70,8 +92,12 @@
                                             @endif
                                         </p>
                                     </td>
-                                    <td class="py-2.5 px-2 text-end tabular-nums">{{ number_format($row['principal_outstanding'], 2) }}</td>
-                                    <td class="py-2.5 ps-2 text-end tabular-nums text-amber-800">{{ number_format($row['retention_outstanding'], 2) }}</td>
+                                    <td class="py-2.5 px-2 text-end">
+                                        <x-payments.dues-amount :amount="$row['principal_outstanding']" class="text-sm" />
+                                    </td>
+                                    <td class="py-2.5 ps-2 text-end">
+                                        <x-payments.dues-amount :amount="$row['retention_outstanding']" class="text-sm text-amber-800" />
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -81,7 +107,7 @@
             @endif
         </section>
 
-        <section class="app-card p-4" aria-label="{{ __('payments.statement') }}">
+        <section id="payments-dues-statement" class="app-card p-4 scroll-mt-4" aria-label="{{ __('payments.statement') }}">
             <div class="flex items-center justify-between gap-2">
                 <h2 class="text-sm font-semibold">{{ __('payments.statement') }}</h2>
                 @if ($statement)
@@ -104,23 +130,38 @@
                 <h3 class="mt-4 text-xs font-semibold uppercase tracking-wide text-[var(--app-muted)]">{{ __('payments.open_invoices') }}</h3>
                 <ul class="mt-2 space-y-2 text-sm">
                     @foreach ($statement['invoices'] as $row)
-                        <li class="rounded-lg border border-[var(--app-border)] p-3">
-                            <div class="flex flex-wrap items-center justify-between gap-2">
-                                <span class="font-medium">{{ $row['document_number'] }}</span>
-                                <span class="rounded-full bg-[var(--app-surface-muted)] px-2 py-0.5 text-xs font-medium">
-                                    {{ $row['status']->label() }}
-                                </span>
+                        <li class="rounded-lg border border-[var(--app-border)] p-3" wire:key="stmt-inv-{{ $row['invoice']->id }}" data-testid="payments-statement-invoice">
+                            <div class="payments-dues-statement-invoice">
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <span class="font-medium">{{ $row['document_number'] }}</span>
+                                        <span class="rounded-full bg-[var(--app-surface-muted)] px-2 py-0.5 text-xs font-medium">
+                                            {{ $row['status']->label() }}
+                                        </span>
+                                    </div>
+                                    <dl class="payments-dues-invoice-balance">
+                                        <dt>{{ __('payments.due_now') }}</dt>
+                                        <dd><x-payments.dues-amount :amount="$row['principal_outstanding']" /></dd>
+                                        <dt>{{ __('payments.retention_due') }}</dt>
+                                        <dd><x-payments.dues-amount :amount="$row['retention_outstanding']" class="text-amber-800" /></dd>
+                                    </dl>
+                                </div>
+                                <div class="payments-dues-statement-invoice__actions">
+                                    <x-hub.invoice-row-actions
+                                        :invoice-id="$row['invoice']->id"
+                                        :actions="$row['actions']"
+                                        :more="$row['more']"
+                                        :view-url="$row['view_url']"
+                                        :download-url="$row['print_urls']['download']"
+                                        :print-url="$row['print_urls']['print']"
+                                        :print-a4-url="$row['print_urls']['a4'] ?? null"
+                                        :print-cash-url="$row['print_urls']['cash'] ?? null"
+                                        :print-layout="$row['print_urls']['layout'] ?? 'a4'"
+                                        :print-back-url="$row['print_urls']['fallback_back'] ?? route('admin.payments.dues')"
+                                        :record-payment-on-page="$canRecord"
+                                    />
+                                </div>
                             </div>
-                            <dl class="mt-2 grid gap-1 text-xs sm:grid-cols-2">
-                                <div class="flex justify-between gap-2">
-                                    <dt class="text-[var(--app-muted)]">{{ __('payments.due_now') }}</dt>
-                                    <dd class="tabular-nums font-medium">{{ number_format($row['principal_outstanding'], 2) }}</dd>
-                                </div>
-                                <div class="flex justify-between gap-2">
-                                    <dt class="text-[var(--app-muted)]">{{ __('payments.retention_due') }}</dt>
-                                    <dd class="tabular-nums font-medium text-amber-800">{{ number_format($row['retention_outstanding'], 2) }}</dd>
-                                </div>
-                            </dl>
                         </li>
                     @endforeach
                 </ul>
@@ -137,7 +178,10 @@
                                         <span class="text-amber-800">({{ __('payments.retention_payment') }})</span>
                                     @endif
                                 </span>
-                                <span class="tabular-nums font-medium">{{ number_format($p['amount'], 2) }} · {{ $p['paid_on']?->format('Y-m-d') }}</span>
+                                <span class="inline-flex flex-wrap items-center justify-end gap-1">
+                                    <x-payments.dues-amount :amount="$p['amount']" class="text-xs" />
+                                    <span class="text-[var(--app-muted)]">· {{ $p['paid_on']?->format('Y-m-d') }}</span>
+                                </span>
                             </li>
                         @endforeach
                     </ul>
@@ -147,7 +191,7 @@
     </div>
 
     @if ($canRecord)
-        <section class="app-card mt-4 p-4" aria-label="{{ __('payments.record_payment') }}">
+        <section id="payments-dues-record" class="app-card mt-4 scroll-mt-4 p-4" aria-label="{{ __('payments.record_payment') }}">
             <h2 class="text-sm font-semibold">{{ __('payments.record_payment') }}</h2>
             <p class="mt-1 text-xs text-[var(--app-muted)]">{{ __('payments.record_hint') }}</p>
 
@@ -173,10 +217,12 @@
                                 >
                                     <span class="font-medium">{{ $inv['document_number'] }}</span>
                                     <span class="ms-2 text-xs text-[var(--app-muted)]">{{ $inv['status']->label() }}</span>
-                                    <span class="mt-1 block text-xs tabular-nums">
-                                        {{ __('payments.due_now') }} {{ number_format($inv['principal_outstanding'], 2) }}
+                                    <span class="mt-1 block text-xs">
+                                        {{ __('payments.due_now') }}
+                                        <x-payments.dues-amount :amount="$inv['principal_outstanding']" class="text-xs" />
                                         @if ($inv['retention_outstanding'] > 0)
-                                            · {{ __('payments.retention_due') }} {{ number_format($inv['retention_outstanding'], 2) }}
+                                            · {{ __('payments.retention_due') }}
+                                            <x-payments.dues-amount :amount="$inv['retention_outstanding']" class="text-xs text-amber-800" />
                                         @endif
                                     </span>
                                 </button>
@@ -190,8 +236,12 @@
                     <div class="grid gap-4 md:grid-cols-2">
                         @if ($selectedBalance)
                             <div class="col-span-full rounded-lg border border-[var(--app-border)] bg-[var(--app-surface-muted)]/50 p-3 text-xs">
-                                <p>{{ __('payments.due_now') }}: <span class="tabular-nums font-semibold">{{ number_format($selectedBalance['principal_outstanding'], 2) }}</span></p>
-                                <p class="mt-1">{{ __('payments.retention_due') }}: <span class="tabular-nums font-semibold text-amber-800">{{ number_format($selectedBalance['retention_outstanding'], 2) }}</span></p>
+                                <dl class="payments-dues-invoice-balance">
+                                    <dt>{{ __('payments.due_now') }}</dt>
+                                    <dd><x-payments.dues-amount :amount="$selectedBalance['principal_outstanding']" class="font-semibold" /></dd>
+                                    <dt>{{ __('payments.retention_due') }}</dt>
+                                    <dd><x-payments.dues-amount :amount="$selectedBalance['retention_outstanding']" class="font-semibold text-amber-800" /></dd>
+                                </dl>
                             </div>
                         @endif
 
