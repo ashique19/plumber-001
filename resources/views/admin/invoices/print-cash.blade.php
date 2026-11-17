@@ -15,6 +15,10 @@
             @endif
         </header>
 
+        @if ($invoice ?? null)
+            @include('print.partials.invoice-view-status', ['invoice' => $invoice])
+        @endif
+
         @include('print.partials.not-cleared-watermark')
 
         @if ($zatcaNotSent ?? false)

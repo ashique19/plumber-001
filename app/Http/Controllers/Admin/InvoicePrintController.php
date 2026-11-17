@@ -70,6 +70,7 @@ class InvoicePrintController extends Controller
 
         if ($layout === 'cash') {
             return view('admin.invoices.print-cash', [
+                'invoice' => $invoice,
                 't' => $t,
                 'receiptUrl' => $receiptUrl,
                 'cashUrl' => null,
@@ -81,6 +82,7 @@ class InvoicePrintController extends Controller
         $template = PrintTemplateResolver::forInvoice($business, $request)->value;
 
         return view("print.invoices.{$template}", [
+            'invoice' => $invoice,
             't' => $t,
             'receiptUrl' => $receiptUrl,
             'cashUrl' => $printRoute('cash'),
