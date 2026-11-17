@@ -3,6 +3,14 @@
 return [
     'required' => ':attribute আবশ্যক।',
 
+    'attributes' => [
+        'name' => 'নাম',
+        'email' => 'ইমেইল',
+        'password' => 'পাসওয়ার্ড',
+        'role' => 'ভূমিকা',
+        'locale' => 'ভাষা',
+    ],
+
     'quick_attributes' => [
         'customer_name' => 'নাম',
         'customer_name_ar' => 'নাম (আরবি)',

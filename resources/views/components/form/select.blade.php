@@ -16,7 +16,7 @@
             name="{{ $name }}"
             id="{{ $name }}"
             @if($liveValidate)
-                wire:change="validateLiveField('{{ $name }}')"
+                wire:change="touchLiveField('{{ $name }}'); validateLiveField('{{ $name }}')"
             @endif
             {{ $attributes->merge(['class' => 'form-field__control'.($fieldInvalid ? ' form-field__control--invalid' : '')]) }}
         >

@@ -16,6 +16,7 @@
         id="{{ $name }}"
         @if($dir) dir="{{ $dir }}" @endif
         @if($liveValidate)
+            wire:input="touchLiveField('{{ $name }}')"
             wire:blur="validateLiveField('{{ $name }}')"
         @endif
         {{ $attributes->merge(['class' => 'form-field__control'.($fieldInvalid ? ' form-field__control--invalid' : '')]) }}

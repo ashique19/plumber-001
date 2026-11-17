@@ -64,6 +64,7 @@
                 data-admin-prefix-input="1"
             @endif
             @if ($liveValidate)
+                wire:input="touchLiveField('{{ $name }}')"
                 wire:blur="validateLiveField('{{ $name }}')"
             @endif
             {{ $attributes->except('placeholder')->merge(['class' => 'form-field__control'.($fieldInvalid ? ' form-field__control--invalid' : '')]) }}

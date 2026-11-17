@@ -269,12 +269,12 @@
     }
 
     html.admin-app .x-modal__footer {
-        @apply sticky bottom-0 z-10 shrink-0 border-t border-[var(--app-border)] bg-white px-5 py-4;
+        @apply sticky bottom-0 z-10 shrink-0 border-t border-[var(--app-border)] bg-white px-6 py-4;
         padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
     }
 
     html.admin-app .x-modal__footer--in-form {
-        @apply mt-0 w-full shrink-0 border-t border-[var(--app-border)] bg-white px-5 py-4;
+        @apply mt-0 w-full shrink-0 border-t border-[var(--app-border)] bg-white px-6 py-4;
         padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
     }
 
@@ -291,7 +291,7 @@
     }
 
     html.admin-app .x-modal-form__fields {
-        @apply grid min-h-0 w-full flex-1 gap-5 overflow-y-auto overscroll-contain px-5 py-5;
+        @apply grid min-h-0 w-full flex-1 gap-5 overflow-y-auto overscroll-contain px-6 py-5;
         grid-template-columns: minmax(0, 1fr);
     }
 
