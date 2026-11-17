@@ -15,7 +15,7 @@ final class HubQuotationPrintLinks
 
         return [
             'print' => $base,
-            'download' => $base.(str_contains($base, '?') ? '&' : '?').'autoprint=1',
+            'download' => route('admin.quotations.pdf', ['quotation' => $quotation]),
             'view' => $base,
         ];
     }

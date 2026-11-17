@@ -110,7 +110,7 @@
         <section class="print-tpl-modern__closing">
             @if (($t['show_qr'] ?? true) && filled($t['qr_tlv_base64'] ?? null))
                 <div class="print-tpl-modern__qr-wrap">
-                    <x-invoices.print-qr :tlv="$t['qr_tlv_base64']" :fallback="(bool) ($t['qr_phase1_fallback'] ?? false)" />
+                    <x-invoices.print-qr :tlv="$t['qr_tlv_base64']" :png="$t['qr_png'] ?? null" :fallback="(bool) ($t['qr_phase1_fallback'] ?? false)" />
                 </div>
             @else
                 <div class="print-tpl-modern__qr-wrap print-tpl-modern__qr-wrap--empty" aria-hidden="true"></div>
