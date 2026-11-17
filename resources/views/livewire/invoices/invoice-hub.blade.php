@@ -171,6 +171,18 @@
                                     <span class="hub-doc-table__action hub-doc-table__action--disabled" title="{{ __('invoices.awaiting_zatca_clearance') }}">{{ __('invoices.action_download_pdf') }}</span>
                                     <span class="hub-doc-table__action hub-doc-table__action--disabled" title="{{ __('invoices.awaiting_zatca_clearance') }}">{{ __('invoices.action_print') }}</span>
                                 @endif
+                                @if (($a['resend_zatca'] ?? false) && ($canResubmitZatca ?? false))
+                                    <button
+                                        type="button"
+                                        class="hub-doc-table__action hub-doc-table__action--accent"
+                                        wire:click="resubmitInvoice({{ $invoice->id }})"
+                                        wire:loading.attr="disabled"
+                                        wire:target="resubmitInvoice({{ $invoice->id }})"
+                                    >
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                                        {{ __('invoices.action_resend_zatca') }}
+                                    </button>
+                                @endif
                                 <x-hub.invoice-more-menu
                                     :invoice-id="$invoice->id"
                                     :actions="$a"

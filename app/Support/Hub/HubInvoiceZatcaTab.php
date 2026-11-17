@@ -114,13 +114,8 @@ final class HubInvoiceZatcaTab
             return false;
         }
 
-        $badge = HubInvoiceZatcaBadge::badgeKey($invoice);
-
-        if (in_array($badge, [HubInvoiceZatcaBadge::Rejected, HubInvoiceZatcaBadge::NotSubmitted], true)) {
-            return true;
-        }
-
-        return self::isFailed($invoice) && $badge !== HubInvoiceZatcaBadge::Pending;
+        return self::isFailed($invoice)
+            || ZatcaSubmissionStatus::invoiceNotSentToZatca($invoice);
     }
 
     public static function applyTabScope(Builder $query, string $tab): void

@@ -129,7 +129,38 @@ it('allows zatca resend only for failed rejected or not submitted issued invoice
     });
 
     expect(HubInvoiceZatcaBadge::badgeKey($invoice->fresh()))->toBe(HubInvoiceZatcaBadge::Pending)
-        ->and(HubInvoiceRowActions::canResendZatca($invoice->fresh()))->toBeFalse();
+        ->and(HubInvoiceRowActions::canResendZatca($invoice->fresh()))->toBeTrue();
+});
+
+it('shows resend as a primary row action on the failed tab', function () {
+    config([
+        'zheart.base_url' => 'https://z-heart.test',
+        'zheart.api_key' => 'zh_test1234.AbcdEfGhIjKlMnOpQrStUvWxYz0123456789',
+    ]);
+    $business = BusinessSetting::singleton();
+    $business->forceFill([
+        'settings' => array_merge($business->settings ?? [], [
+            'invoicing' => ['integration_enabled' => true],
+        ]),
+    ])->save();
+
+    $invoice = Invoice::query()->firstOrFail();
+    Invoice::withoutEvents(function () use ($invoice): void {
+        $invoice->forceFill([
+            'payload' => array_merge($invoice->payload ?? [], [
+                'signing_submission_status' => 'signed_locally',
+                'zheart_remote_submitted' => false,
+                'zheart_reporting_status' => 'pending',
+            ]),
+            'signed_xml' => '<Invoice/>',
+        ])->save();
+    });
+
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(InvoiceHub::class)
+        ->set('zatcaTab', \App\Support\Hub\HubInvoiceZatcaTab::FAILED)
+        ->assertSee(__('invoices.action_resend_zatca'), false)
+        ->assertSee(__('invoices.zatca_resubmit_all'), false);
 });
 
 it('rejects hub delete draft for issued invoices server-side', function () {
