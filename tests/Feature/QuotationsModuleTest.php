@@ -39,6 +39,8 @@ it('renders quotation totals preview breakdown like invoices', function () {
 it('creates a quotation from the livewire form', function () {
     $product = Product::query()->where('is_active', true)->firstOrFail();
 
+    $countBefore = Quotation::query()->count();
+
     Livewire::actingAs($this->owner, 'staff')
         ->test(ManageQuotation::class)
         ->set('invoiceMode', 'simplified')
@@ -56,7 +58,7 @@ it('creates a quotation from the livewire form', function () {
         ->assertHasNoErrors()
         ->assertRedirect(route('admin.quotations'));
 
-    expect(Quotation::query()->count())->toBe(1);
+    expect(Quotation::query()->count())->toBe($countBefore + 1);
 });
 
 it('prints bilingual quotation title labels without zatca qr markers', function () {
