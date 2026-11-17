@@ -127,7 +127,7 @@
     </div>
 
     <div class="mt-4">
-        {{ $quotations->links() }}
+        <x-admin.hub-pager :paginator="$quotations" />
     </div>
 
     @if ($canManageQuotations ?? false)

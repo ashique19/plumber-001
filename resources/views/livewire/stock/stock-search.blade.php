@@ -67,7 +67,7 @@
                 </tbody>
             </table>
             @if($products instanceof \Illuminate\Contracts\Pagination\LengthAwarePaginator)
-                <div class="border-t border-[var(--app-border)] px-4 py-2">{{ $products->links() }}</div>
+                <x-admin.hub-pager class="border-t border-[var(--app-border)] px-4 py-2" :paginator="$products" />
             @endif
         </section>
 

@@ -37,7 +37,7 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithFileUploads;
-use Livewire\WithPagination;
+use App\Livewire\Concerns\HasAdminHubPagination;
 use Spatie\Permission\PermissionRegistrar;
 
 #[Layout('layouts.pos')]
@@ -49,7 +49,7 @@ class MenuManager extends Component
     use ValidatesFieldsLive;
     use ManagesCatalogUnitsAndSizes;
     use WithFileUploads;
-    use WithPagination;
+    use HasAdminHubPagination;
 
     public string $tab = 'products';
 
@@ -893,7 +893,7 @@ class MenuManager extends Component
             default => $query->orderBy('sort_order')->orderBy('name_en'),
         };
 
-        return $query->paginate(24);
+        return $query->paginate($this->adminPerPage());
     }
 
     private function duplicateSku(?string $sku): ?string

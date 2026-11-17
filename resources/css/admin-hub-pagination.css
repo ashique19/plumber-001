@@ -1,0 +1,77 @@
+.admin-hub-pager {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+@media (min-width: 640px) {
+    .admin-hub-pager {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+}
+
+.admin-hub-pager__per-page {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--app-muted);
+}
+
+.admin-hub-pager__per-page select {
+    min-height: 2.25rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--app-border);
+    background: var(--app-surface, #fff);
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+}
+
+.admin-hub-pager__nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.admin-hub-pager__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    min-height: 2.5rem;
+    min-width: 2.5rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--app-border);
+    background: var(--app-surface-2, #f8fafc);
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.admin-hub-pager__btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.admin-hub-pager__status {
+    font-size: 0.8rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+html[dir='rtl'] .admin-hub-pager__chev--prev,
+[dir='rtl'] .admin-hub-pager__chev--prev {
+    transform: scaleX(-1);
+}
+
+html[dir='rtl'] .admin-hub-pager__chev--next,
+[dir='rtl'] .admin-hub-pager__chev--next {
+    transform: scaleX(-1);
+}

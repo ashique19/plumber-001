@@ -12,6 +12,7 @@ export default defineConfig({
                 'resources/css/receipt.css',
                 'resources/css/invoice-print.css',
                 'resources/css/hub-document-table.css',
+                'resources/css/admin-hub-pagination.css',
                 'resources/css/print-template-modern.css',
                 'resources/css/print-template-classic.css',
                 'resources/js/receipt.js',

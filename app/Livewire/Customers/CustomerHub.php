@@ -4,6 +4,7 @@ namespace App\Livewire\Customers;
 
 use App\Business\BusinessContext;
 use App\Livewire\Concerns\DispatchesToasts;
+use App\Livewire\Concerns\HasAdminHubPagination;
 use App\Livewire\Concerns\ResolvesBusinessContext;
 use App\Livewire\Concerns\ValidatesFieldsLive;
 use App\Models\BusinessSetting;
@@ -22,7 +23,6 @@ use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
-use Livewire\WithPagination;
 use Spatie\Permission\PermissionRegistrar;
 
 #[Layout('layouts.pos')]
@@ -31,7 +31,7 @@ class CustomerHub extends Component
     use DispatchesToasts;
     use ResolvesBusinessContext;
     use ValidatesFieldsLive;
-    use WithPagination;
+    use HasAdminHubPagination;
 
     #[Url]
     public string $search = '';
@@ -311,7 +311,7 @@ class CustomerHub extends Component
         $query = $this->filteredCustomersQuery();
         $this->applySort($query);
 
-        return $query->paginate(20);
+        return $query->paginate($this->adminPerPage());
     }
 
     private function customerPageSortedByOutstanding(InvoiceDuesLedgerService $ledger): LengthAwarePaginator
@@ -329,7 +329,7 @@ class CustomerHub extends Component
         });
 
         $page = max(1, (int) $this->getPage());
-        $perPage = 20;
+        $perPage = $this->adminPerPage();
         $total = count($ids);
         $slice = array_slice($ids, ($page - 1) * $perPage, $perPage);
         $order = array_flip($slice);

@@ -5,6 +5,7 @@ namespace App\Livewire\Quotations;
 use App\Data\InvoiceLineData;
 use App\Enums\InvoiceDocumentType;
 use App\Livewire\Concerns\DispatchesToasts;
+use App\Livewire\Concerns\HasAdminHubPagination;
 use App\Livewire\Concerns\ResolvesBusinessContext;
 use App\Livewire\Concerns\ValidatesFieldsLive;
 use App\Models\BusinessSetting;
@@ -19,7 +20,6 @@ use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
-use Livewire\WithPagination;
 use Spatie\Permission\PermissionRegistrar;
 
 #[Layout('layouts.pos')]
@@ -28,7 +28,7 @@ class QuotationHub extends Component
     use ResolvesBusinessContext;
     use DispatchesToasts;
     use ValidatesFieldsLive;
-    use WithPagination;
+    use HasAdminHubPagination;
 
     #[Url]
     public string $search = '';
@@ -146,7 +146,7 @@ class QuotationHub extends Component
 
         $query->orderByDesc('id');
 
-        $paginator = $query->paginate(15);
+        $paginator = $query->paginate($this->adminPerPage());
 
         $paginator->getCollection()->transform(function (Quotation $quotation): array {
             $customer = trim((string) data_get($quotation->payload, 'buyer_name', '')) ?: '—';

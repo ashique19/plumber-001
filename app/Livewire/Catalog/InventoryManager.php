@@ -3,6 +3,7 @@
 namespace App\Livewire\Catalog;
 
 use App\Livewire\Concerns\DispatchesToasts;
+use App\Livewire\Concerns\HasAdminHubPagination;
 use App\Livewire\Concerns\ValidatesFieldsLive;
 use App\Models\Branch;
 use App\Models\Ingredient;
@@ -23,6 +24,7 @@ class InventoryManager extends Component
     use DispatchesToasts;
     use ResolvesBusinessContext;
     use ValidatesFieldsLive;
+    use HasAdminHubPagination;
 
     public bool $showForm = false;
 
@@ -179,8 +181,8 @@ class InventoryManager extends Component
     public function render(IngredientStockService $stock): View
     {
         $ingredients = $this->schemaReady
-            ? $this->query()->orderedForDisplay()->get()
-            : collect();
+            ? $this->query()->orderedForDisplay()->paginate($this->adminPerPage())
+            : null;
         $movements = IngredientInventorySchema::movementsReady()
             ? InventoryMovement::query()
                 ->latest('id')

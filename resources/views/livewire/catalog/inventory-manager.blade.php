@@ -24,7 +24,7 @@
     @endif
 
     <ul class="space-y-3">
-        @forelse($ingredients as $ing)
+        @forelse($ingredients ?? [] as $ing)
             <li class="app-card flex flex-wrap items-center justify-between gap-3 p-3">
                 <div class="min-w-0">
                     <p class="font-semibold">{{ $ing->displayName() }}</p>
@@ -56,6 +56,10 @@
             <li class="app-empty"><p class="text-sm text-[var(--app-muted)]">{{ __('inventory.empty') }}</p></li>
         @endforelse
     </ul>
+
+    @if ($ingredients !== null && $ingredients->total() > 0)
+        <x-admin.hub-pager :paginator="$ingredients" />
+    @endif
 
     @if($movements->isNotEmpty())
         <section class="app-card mt-6 p-3">

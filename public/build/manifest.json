@@ -343,6 +343,15 @@
     "file": "assets/marker-shadow-f7SaPCxT.png",
     "src": "node_modules/leaflet/dist/images/marker-shadow.png"
   },
+  "resources/css/admin-hub-pagination.css": {
+    "file": "assets/admin-hub-pagination-DBzHBZoj.css",
+    "name": "admin-hub-pagination",
+    "names": [
+      "admin-hub-pagination.css"
+    ],
+    "src": "resources/css/admin-hub-pagination.css",
+    "isEntry": true
+  },
   "resources/css/analytics-dashboard.css": {
     "file": "assets/analytics-dashboard-C5mhIcBl.css",
     "name": "analytics-dashboard",

@@ -40,7 +40,7 @@
 
     @if ($products->hasPages())
         <div class="mt-4">
-            {{ $products->links(data: ['scrollTo' => false]) }}
+            <x-admin.hub-pager :paginator="$products" />
         </div>
     @endif
 </div>

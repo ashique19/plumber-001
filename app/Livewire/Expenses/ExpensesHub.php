@@ -5,6 +5,7 @@ namespace App\Livewire\Expenses;
 use App\Business\BusinessContext;
 use App\Enums\BusinessExpenseCategory;
 use App\Livewire\Concerns\DispatchesToasts;
+use App\Livewire\Concerns\HasAdminHubPagination;
 use App\Livewire\Concerns\ResolvesBusinessContext;
 use App\Models\Branch;
 use App\Models\BusinessExpense;
@@ -14,7 +15,6 @@ use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
-use Livewire\WithPagination;
 use Spatie\Permission\PermissionRegistrar;
 
 #[Layout('layouts.pos')]
@@ -22,7 +22,7 @@ class ExpensesHub extends Component
 {
     use DispatchesToasts;
     use ResolvesBusinessContext;
-    use WithPagination;
+    use HasAdminHubPagination;
 
     #[Url(as: 'from')]
     public string $dateFrom = '';
@@ -161,7 +161,7 @@ class ExpensesHub extends Component
             ->with(['branch', 'recordedBy'])
             ->orderByDesc('spent_on')
             ->orderByDesc('id')
-            ->paginate(20);
+            ->paginate($this->adminPerPage());
     }
 
     private function filteredQuery()

@@ -180,5 +180,5 @@
         </x-hub.document-table-shell>
     </div>
 
-    <div class="mt-4">{{ $invoices->links() }}</div>
+    <x-admin.hub-pager class="mt-4" :paginator="$invoices" />
 </div>
