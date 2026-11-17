@@ -182,12 +182,7 @@
                             @endif
                         </td>
                         <td class="hub-doc-table__status-col">
-                            <div class="hub-doc-table__status-cell">
-                                <x-invoices.hub-invoice-status-pill :invoice="$invoice" kind="invoice" />
-                                @if (\App\Support\Hub\HubInvoiceStatusDisplay::showsClearanceHint($invoice))
-                                    <p class="hub-doc-table__status-hint">{{ __('invoices.zatca_clearance_hint') }}</p>
-                                @endif
-                            </div>
+                            <x-invoices.hub-invoice-status-pill :invoice="$invoice" kind="invoice" />
                         </td>
                         <td class="hub-doc-table__status-col">
                             <div class="hub-doc-table__status-cell">
@@ -196,6 +191,9 @@
                                     kind="zatca"
                                     :zatca-error="$row['zatca_error']"
                                 />
+                                @if (\App\Support\Hub\HubInvoiceStatusDisplay::showsClearanceHint($invoice))
+                                    <p class="hub-doc-table__status-hint">{{ __('invoices.zatca_clearance_hint') }}</p>
+                                @endif
                             </div>
                         </td>
                         <td>

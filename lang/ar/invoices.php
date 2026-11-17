@@ -67,16 +67,20 @@ return array (
   'invoice_status' => 
   array (
     'draft' => 'مسودة',
-    'pending' => 'قيد الانتظار',
     'issued' => 'صادرة',
+    'cancelled' => 'ملغاة',
+    'credited' => 'إشعار دائن',
+    'returned' => 'مرتجع',
   ),
   'zatca_badge' => 
   array (
-    'not_submitted' => 'لم يُرسل',
-    'pending' => 'قيد المعالجة',
-    'cleared' => 'معتمدة',
+    'not_sent' => 'لم يُرسل',
+    'reporting_pending' => 'إبلاغ معلّق',
+    'clearance_pending' => 'اعتماد معلّق',
     'reported' => 'مُبلّغة',
-    'rejected' => 'مرفوضة',
+    'reported_warnings' => 'مُبلّغة (تحذيرات)',
+    'cleared' => 'معتمدة',
+    'rejected' => 'مرفوضة / فشل',
   ),
   'print_not_cleared' => 'غير معتمدة',
   'print_not_cleared_notice' => 'لم تُعتمد هذه الفاتورة الضريبية في زاتكا بعد. رمز QR مخفي حتى الاعتماد. الطباعة والتنزيل من القائمة معطّلان حتى الاعتماد.',

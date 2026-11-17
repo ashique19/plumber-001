@@ -2,6 +2,7 @@
 
 namespace App\Support\Hub;
 
+use App\Enums\InvoiceDocumentType;
 use App\Enums\InvoiceStatus;
 use App\Models\Invoice;
 use App\Models\PosOrder;
@@ -56,20 +57,21 @@ final class HubInvoiceTableRow
             return 'draft';
         }
 
+        if ($invoice->status === InvoiceStatus::Voided) {
+            return 'cancelled';
+        }
+
         if ($invoice->status !== InvoiceStatus::Issued) {
             return 'draft';
         }
 
-        if (! filled($invoice->signed_xml) || HubInvoiceZatcaBadge::badgeKey($invoice) === HubInvoiceZatcaBadge::Pending) {
-            return 'pending';
-        }
-
-        return 'issued';
+        return match ($invoice->document_type) {
+            InvoiceDocumentType::CreditNote => 'credited',
+            InvoiceDocumentType::DebitNote => 'returned',
+            default => 'issued',
+        };
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     /**
      * @param  array<string, mixed>  $actions
      * @return array<string, mixed>

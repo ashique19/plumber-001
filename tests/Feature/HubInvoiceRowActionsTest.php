@@ -117,19 +117,37 @@ it('allows zatca resend only for failed rejected or not submitted issued invoice
 
     expect(HubInvoiceRowActions::canResendZatca($invoice->fresh()))->toBeFalse();
 
-    Invoice::withoutEvents(function () use ($invoice): void {
-        $invoice->forceFill([
-            'payload' => array_merge($invoice->payload ?? [], [
-                'zheart_remote_submitted' => false,
-                'zheart_reporting_status' => 'pending',
-                'zheart_last_error' => null,
-                'signing_submission_status' => 'signed_locally',
-            ]),
-        ])->save();
-    });
+    $standardPending = Invoice::query()->create([
+        'document_number' => 'STD-RESEND-PENDING',
+        'document_type' => \App\Enums\InvoiceDocumentType::Standard,
+        'status' => \App\Enums\InvoiceStatus::Issued,
+        'signed_xml' => '<Invoice/>',
+        'payload' => [
+            'lines' => [],
+            'zheart_remote_submitted' => false,
+            'zheart_reporting_status' => 'pending',
+            'signing_submission_status' => 'signed_locally',
+        ],
+    ]);
 
-    expect(HubInvoiceZatcaBadge::badgeKey($invoice->fresh()))->toBe(HubInvoiceZatcaBadge::Pending)
-        ->and(HubInvoiceRowActions::canResendZatca($invoice->fresh()))->toBeTrue();
+    expect(HubInvoiceZatcaBadge::badgeKey($standardPending))->toBe(HubInvoiceZatcaBadge::ClearancePending)
+        ->and(HubInvoiceRowActions::canResendZatca($standardPending))->toBeTrue();
+
+    $simplifiedPending = Invoice::query()->create([
+        'document_number' => 'SIM-RESEND-PENDING',
+        'document_type' => \App\Enums\InvoiceDocumentType::Simplified,
+        'status' => \App\Enums\InvoiceStatus::Issued,
+        'signed_xml' => '<Invoice/>',
+        'payload' => [
+            'lines' => [],
+            'zheart_remote_submitted' => false,
+            'zheart_reporting_status' => 'pending',
+            'signing_submission_status' => 'signed_locally',
+        ],
+    ]);
+
+    expect(HubInvoiceZatcaBadge::badgeKey($simplifiedPending))->toBe(HubInvoiceZatcaBadge::ReportingPending)
+        ->and(HubInvoiceRowActions::canResendZatca($simplifiedPending))->toBeTrue();
 });
 
 it('shows resend as a primary row action on the failed tab', function () {

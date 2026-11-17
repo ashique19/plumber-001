@@ -7,15 +7,39 @@ use App\Models\Invoice;
 
 final class HubInvoiceZatcaBadge
 {
-    public const NotSubmitted = 'not_submitted';
+    public const NotSent = 'not_sent';
 
-    public const Pending = 'pending';
+    public const ReportingPending = 'reporting_pending';
 
-    public const Cleared = 'cleared';
+    public const ClearancePending = 'clearance_pending';
+
+    /** @deprecated Use ClearancePending or ReportingPending */
+    public const Pending = self::ClearancePending;
 
     public const Reported = 'reported';
 
+    public const ReportedWithWarnings = 'reported_warnings';
+
+    public const Cleared = 'cleared';
+
     public const Rejected = 'rejected';
+
+  /**
+   * @return list<string>
+   */
+    public static function pendingKeys(): array
+    {
+        return [
+            self::ReportingPending,
+            self::ClearancePending,
+            self::NotSent,
+        ];
+    }
+
+    public static function isPendingKey(string $badge): bool
+    {
+        return in_array($badge, self::pendingKeys(), true);
+    }
 
     public static function badgeKey(Invoice $invoice): string
     {
@@ -35,7 +59,7 @@ final class HubInvoiceZatcaBadge
         $submission = (string) data_get($invoice->payload, 'signing_submission_status', '');
 
         if ($submission === 'not_submitted' && ! filled($invoice->signed_xml)) {
-            return self::NotSubmitted;
+            return self::NotSent;
         }
 
         $isSimplified = in_array($invoice->document_type, [InvoiceDocumentType::Simplified], true)
@@ -44,30 +68,42 @@ final class HubInvoiceZatcaBadge
         $remote = data_get($invoice->payload, 'zheart_remote_submitted') === true;
 
         if ($isSimplified) {
-            if ($remote && in_array($raw, ['reported', 'cleared', 'clear', 'accepted', 'warning', 'warnings', ''], true)) {
+            if ($remote && in_array($raw, ['warning', 'warnings'], true)) {
+                return self::ReportedWithWarnings;
+            }
+
+            if ($remote && in_array($raw, ['reported', 'cleared', 'clear', 'accepted', ''], true)) {
                 return self::Reported;
             }
 
             if ($submission === 'signed_locally' || $raw === 'pending' || ($remote && $raw === '')) {
-                return self::Pending;
+                return self::ReportingPending;
             }
 
-            return self::NotSubmitted;
+            return self::NotSent;
         }
 
-        if (in_array($raw, ['cleared', 'clear', 'accepted', 'reported'], true) && $remote) {
+        if (in_array($raw, ['warning', 'warnings'], true) && $remote) {
+            return self::ReportedWithWarnings;
+        }
+
+        if (in_array($raw, ['cleared', 'clear', 'accepted'], true) && $remote) {
             return self::Cleared;
         }
 
+        if ($raw === 'reported' && $remote) {
+            return self::Reported;
+        }
+
         if ($raw === 'pending' || $submission === 'signed_locally' || ! filled($invoice->signed_xml)) {
-            return self::Pending;
+            return self::ClearancePending;
         }
 
         if ($submission === 'not_submitted' || ! $remote) {
-            return self::NotSubmitted;
+            return self::NotSent;
         }
 
-        return self::Pending;
+        return self::ClearancePending;
     }
 
     public static function labelKey(Invoice $invoice): string

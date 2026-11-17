@@ -223,6 +223,26 @@
     }
 }
 
+.pos-status-pill--info {
+    background: color-mix(in srgb, #0ea5e9 18%, var(--app-surface, #fff));
+    color: #0c4a6e;
+}
+
+.pos-status-pill--muted {
+    background: color-mix(in srgb, var(--app-muted, #64748b) 14%, var(--app-surface, #fff));
+    color: var(--app-text, #334155);
+}
+
+.hub-invoice-status-pill--invoice.pos-status-pill--info {
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+.hub-invoice-status-pill--zatca {
+    text-transform: none;
+    letter-spacing: normal;
+}
+
 .hub-invoice-status-pill {
     display: inline-block;
     max-width: 100%;

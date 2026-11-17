@@ -7,7 +7,6 @@
 @php
     use App\Support\Hub\HubInvoiceStatusDisplay;
     use App\Support\Hub\HubInvoiceZatcaBadge;
-    use App\Support\Hub\HubInvoiceTableRow;
 
     $isZatca = $kind === 'zatca';
     $label = $isZatca
@@ -16,21 +15,15 @@
     $variant = $isZatca
         ? HubInvoiceStatusDisplay::zatcaBadgePillVariant($invoice)
         : HubInvoiceStatusDisplay::invoiceStatusPillVariant($invoice);
-    $showClearanceHint = HubInvoiceStatusDisplay::showsClearanceHint($invoice)
-        && (
-            (! $isZatca && HubInvoiceTableRow::invoiceStatusKey($invoice) === 'pending')
-            || ($isZatca && HubInvoiceZatcaBadge::badgeKey($invoice) === HubInvoiceZatcaBadge::Pending)
-        );
-    $awaitingClearance = HubInvoiceStatusDisplay::awaitingStandardClearance($invoice)
-        && (
-            (! $isZatca && HubInvoiceTableRow::invoiceStatusKey($invoice) === 'pending')
-            || ($isZatca && HubInvoiceZatcaBadge::badgeKey($invoice) === HubInvoiceZatcaBadge::Pending)
-        );
-    $tooltip = $awaitingClearance
-        ? HubInvoiceStatusDisplay::awaitingClearanceTooltip()
-        : ($showClearanceHint
-            ? HubInvoiceStatusDisplay::clearanceHint()
-            : ($isZatca && filled($zatcaError) ? $zatcaError : null));
+    $badge = HubInvoiceZatcaBadge::badgeKey($invoice);
+    $tooltip = $isZatca
+        ? match (true) {
+            filled($zatcaError) => $zatcaError,
+            $badge === HubInvoiceZatcaBadge::ClearancePending && HubInvoiceStatusDisplay::awaitingStandardClearance($invoice)
+                => HubInvoiceStatusDisplay::awaitingClearanceTooltip(),
+            default => null,
+        }
+        : null;
 @endphp
 
 <span
