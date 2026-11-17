@@ -11,8 +11,8 @@ it('flattens z-heart errors map into field lines', function () {
         ],
     ]);
 
-    expect($lines)->toContain('buyer.address.district: The district field is required.')
-        ->and($lines)->toContain('supply_date: Supply date is required');
+    expect($lines)->toContain(__('invoices.zatca_precheck.buyer_district'))
+        ->and($lines)->toContain(__('invoices.zatca_precheck.supply_date'));
 });
 
 it('dedupes generic message when formatting flash', function () {
@@ -21,9 +21,12 @@ it('dedupes generic message when formatting flash', function () {
         [
             'The invoice payload is invalid.',
             'buyer.address.district: The district field is required.',
+            'messages: buyer.address.postal is required',
         ],
     );
 
     expect(substr_count($flash, 'The invoice payload is invalid.'))->toBe(1)
-        ->and($flash)->toContain('buyer.address.district');
+        ->and($flash)->toContain(__('invoices.zatca_precheck.buyer_district'))
+        ->and($flash)->toContain(__('invoices.zatca_precheck.buyer_postal'))
+        ->and(substr_count($flash, __('invoices.zatca_precheck.buyer_district')))->toBe(1);
 });

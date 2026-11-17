@@ -67,16 +67,15 @@ final class StandardInvoiceZatcaPayloadPrecheck
             $issues[] = __('invoices.zatca_precheck.buyer_city');
         }
 
-        $postal = preg_replace('/\D/', '', (string) ($address['postal_code'] ?? '')) ?? '';
+        $postal = ZHeartBuyerAddressMapper::postalDigits($address);
         if ($postal === '' || ! preg_match('/^\d{5}$/', $postal)) {
             $issues[] = __('invoices.zatca_precheck.buyer_postal');
         }
 
-        $country = strtoupper(trim((string) ($payload['buyer_country'] ?? 'SA')));
-        if ($country === '') {
-            $country = 'SA';
-        }
-        if ($country !== 'SA') {
+        $buyerCountry = strtoupper(trim((string) ($payload['buyer_country'] ?? '')));
+        $addressCountry = ZHeartBuyerAddressMapper::countryCode($address, $buyerCountry !== '' ? $buyerCountry : 'SA');
+        $resolvedCountry = $buyerCountry !== '' ? $buyerCountry : ($addressCountry !== '' ? $addressCountry : 'SA');
+        if ($resolvedCountry !== 'SA') {
             $issues[] = __('invoices.zatca_precheck.buyer_country_sa');
         }
 

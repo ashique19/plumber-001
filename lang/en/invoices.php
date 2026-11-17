@@ -128,6 +128,7 @@ return [
         'buyer_city' => 'Buyer city is missing',
         'buyer_postal' => 'Buyer postal code must be a 5-digit Saudi code',
         'buyer_country_sa' => 'Buyer country must be SA (Saudi Arabia)',
+        'buyer_address_country_sa' => 'Buyer national address must include country SA (Saudi Arabia)',
         'supply_date' => 'Supply date is missing',
     ],
     'zatca_resubmit_failed' => 'ZATCA submission failed. Try again or check Z-Heart.',

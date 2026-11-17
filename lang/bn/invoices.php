@@ -129,6 +129,7 @@ return array (
       'buyer_city' => 'ক্রেতার শহর নেই',
       'buyer_postal' => 'পোস্টাল কোড ৫ অঙ্কের সৌদি কোড হতে হবে',
       'buyer_country_sa' => 'ক্রেতার দেশ SA (সৌদি আরব) হতে হবে',
+      'buyer_address_country_sa' => 'ক্রেতার জাতীয় ঠিকানায় দেশ SA (সৌদি আরব) থাকতে হবে',
       'supply_date' => 'সরবরাহের তারিখ নেই',
   ],
   'zatca_view_warnings' => 'সতর্কতা',

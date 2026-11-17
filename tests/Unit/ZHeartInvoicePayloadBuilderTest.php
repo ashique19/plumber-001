@@ -33,8 +33,10 @@ it('includes buyer address, vat, and cr for standard invoices', function () {
             'buyer_national_address' => [
                 'building' => '1234',
                 'street' => 'King Fahd Rd',
+                'district' => 'Al Olaya',
                 'city' => 'Riyadh',
                 'postal_code' => '12345',
+                'country' => 'SA',
             ],
         ],
         issueDateTimeUtc: Carbon::parse('2026-01-15 09:00:00', 'UTC'),
@@ -48,7 +50,11 @@ it('includes buyer address, vat, and cr for standard invoices', function () {
 
     expect($payload['buyer']['vat_number'])->toBe('300000000000003')
         ->and($payload['buyer']['cr_number'])->toBe('1234567890')
-        ->and($payload['buyer']['address']['postal_code'])->toBe('12345');
+        ->and($payload['buyer']['address']['country'])->toBe('SA')
+        ->and($payload['buyer']['address']['postal'])->toBe('12345')
+        ->and($payload['buyer']['address']['postalZone'])->toBe('12345')
+        ->and($payload['buyer']['address']['buildingNumber'])->toBe('1234')
+        ->and($payload['buyer']['address']['subdivision'])->toBe('Al Olaya');
 });
 
 it('builds standard invoices with buyer cr only', function () {

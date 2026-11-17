@@ -13,6 +13,7 @@ use App\Support\Hub\HubInvoiceRowActions;
 use App\Support\Hub\HubInvoiceZatcaTab;
 use App\Support\Invoicing\SigningFailureSanitizer;
 use App\Support\Invoicing\InvoiceZatcaSubmissionGuard;
+use App\Support\Invoicing\StandardInvoiceBuyerSnapshotRefresh;
 use App\Support\Invoicing\StandardInvoiceZatcaPayloadPrecheck;
 use App\Support\Invoicing\ZHeartApiValidationErrors;
 use App\Support\Invoicing\ZatcaResponseSanitizer;
@@ -71,6 +72,12 @@ final class InvoiceZatcaResubmitService
             $preserveChain = filled($invoice->icv) && filled($invoice->invoice_hash);
 
             if ($viaZatcaApi) {
+                $refreshedPayload = StandardInvoiceBuyerSnapshotRefresh::mergeMissingFromCustomer($invoice);
+                if ($refreshedPayload !== ($invoice->payload ?? [])) {
+                    $this->persistIssuedInvoice($invoice, ['payload' => $refreshedPayload]);
+                    $invoice->refresh();
+                }
+
                 $precheck = StandardInvoiceZatcaPayloadPrecheck::missingFields($invoice);
                 if ($precheck !== []) {
                     return $this->recordPrecheckFailure($invoice, $precheck);

@@ -6,6 +6,7 @@ use App\Data\InvoiceLineData;
 use App\Rules\SaudiVatNumber;
 use App\Services\Invoicing\Signing\InvoiceSigningRequest;
 use App\Support\Invoicing\InvoiceDocumentTotals;
+use App\Support\Invoicing\ZHeartBuyerAddressMapper;
 use Illuminate\Support\Facades\Validator;
 
 final class ZHeartInvoicePayloadBuilder
@@ -135,30 +136,18 @@ final class ZHeartInvoicePayloadBuilder
             ];
         }
 
-        $normalizedAddress = $this->normalizeAddress($address);
-        if ($normalizedAddress !== []) {
+        $addressCountry = ZHeartBuyerAddressMapper::countryCode($address, $country);
+        $forceCountry = $type === 'standard';
+        $normalizedAddress = ZHeartBuyerAddressMapper::toZHeart($address, $addressCountry, $forceCountry);
+
+        if ($normalizedAddress !== [] || $forceCountry) {
+            if ($forceCountry && ! isset($normalizedAddress['country'])) {
+                $normalizedAddress['country'] = 'SA';
+            }
             $buyer['address'] = $normalizedAddress;
         }
 
         return $buyer;
-    }
-
-    /**
-     * @param  array<string, mixed>  $address
-     * @return array<string, string>
-     */
-    private function normalizeAddress(array $address): array
-    {
-        $out = array_filter([
-            'building' => trim((string) ($address['building'] ?? '')),
-            'street' => trim((string) ($address['street'] ?? '')),
-            'district' => trim((string) ($address['district'] ?? '')),
-            'city' => trim((string) ($address['city'] ?? '')),
-            'postal_code' => preg_replace('/\D/', '', (string) ($address['postal_code'] ?? '')) ?? '',
-            'additional' => trim((string) ($address['additional'] ?? '')),
-        ], static fn (string $v): bool => $v !== '');
-
-        return $out;
     }
 
     /**
