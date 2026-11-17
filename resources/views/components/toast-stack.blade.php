@@ -45,7 +45,8 @@
                 type="button"
                 class="toast-item__dismiss touch-target"
                 @click="dismiss(toast.id)"
-                :aria-label="copy.dismiss"
+                aria-label="{{ __('copy.dismiss') }}"
+                :aria-label="copy.dismiss || @js(__('copy.dismiss'))"
             >
                 <span aria-hidden="true">×</span>
             </button>

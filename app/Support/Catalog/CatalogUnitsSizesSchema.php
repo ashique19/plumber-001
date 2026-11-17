@@ -9,7 +9,6 @@ final class CatalogUnitsSizesSchema
     public static function ready(): bool
     {
         return Schema::hasTable('product_units')
-            && Schema::hasTable('product_sizes')
-            && Schema::hasColumn('products', 'product_unit_id');
+            && Schema::hasTable('product_sizes');
     }
 }

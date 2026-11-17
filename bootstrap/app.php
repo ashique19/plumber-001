@@ -33,6 +33,21 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        $exceptions->renderable(function (\Throwable $e, Request $request): void {
+            $requested = $request->query('locale');
+            if (! is_string($requested) || $requested === '') {
+                try {
+                    $requested = $request->hasSession() ? $request->session()->get('locale') : null;
+                } catch (\Throwable) {
+                    $requested = null;
+                }
+            }
+
+            if (is_string($requested) && $requested !== '') {
+                app()->setLocale(\App\Support\EnabledLocales::resolve($requested, app()->getLocale()));
+            }
+        });
+
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );

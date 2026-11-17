@@ -23,7 +23,13 @@ it('includes toast stack in pos layout', function () {
     $component = file_get_contents(resource_path('views/components/toast-stack.blade.php'));
     expect($layout)->toContain('x-toast-stack')
         ->and($component)->toContain('id="toast-stack"')
-        ->and($component)->toContain('toastStack');
+        ->and($component)->toContain('toastStack')
+        ->and($component)->toContain("__('copy.dismiss')");
+
+    expect(__('copy.dismiss', [], 'en'))->not->toBe('copy.dismiss')
+        ->and(__('copy.dismiss', [], 'bn'))->not->toBe('copy.dismiss')
+        ->and(__('copy.dismiss', [], 'ar'))->not->toBe('copy.dismiss')
+        ->and(__('copy.dismiss', [], 'bn'))->not->toBe(__('copy.dismiss', [], 'en'));
 });
 
 it('dispatches toast events from components', function () {

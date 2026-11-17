@@ -61,27 +61,27 @@
                 >{{ $label }}</button>
             @endforeach
         </div>
-        <div class="flex flex-1 flex-wrap gap-2">
-            <label class="form-field min-w-[9rem] flex-1">
+        <div class="grid w-full min-w-0 grid-cols-1 gap-2 sm:flex sm:flex-1 sm:flex-wrap">
+            <label class="form-field w-full min-w-0 sm:min-w-[9rem] sm:flex-1">
                 <span class="form-field__label">{{ __('reports.from') }}</span>
-                <input type="date" wire:model.live="dateFrom" class="form-field__control">
+                <input type="date" wire:model.live="dateFrom" class="form-field__control w-full min-w-0">
             </label>
-            <label class="form-field min-w-[9rem] flex-1">
+            <label class="form-field w-full min-w-0 sm:min-w-[9rem] sm:flex-1">
                 <span class="form-field__label">{{ __('reports.to') }}</span>
-                <input type="date" wire:model.live="dateTo" class="form-field__control">
+                <input type="date" wire:model.live="dateTo" class="form-field__control w-full min-w-0">
             </label>
-            <label class="form-field min-w-[9rem] flex-1">
+            <label class="form-field w-full min-w-0 sm:min-w-[9rem] sm:flex-1">
                 <span class="form-field__label">{{ __('reports.granularity') }}</span>
-                <select wire:model.live="granularity" class="form-field__control">
+                <select wire:model.live="granularity" class="form-field__control w-full min-w-0">
                     <option value="day">{{ __('reports.grain_day') }}</option>
                     <option value="week">{{ __('reports.grain_week') }}</option>
                     <option value="month">{{ __('reports.grain_month') }}</option>
                 </select>
             </label>
             @if ($showBranchSelector)
-                <label class="form-field min-w-[9rem] flex-1">
+                <label class="form-field w-full min-w-0 sm:min-w-[9rem] sm:flex-1">
                     <span class="form-field__label">{{ __('reports.branch_filter') }}</span>
-                    <select wire:model.live="branchId" class="form-field__control">
+                    <select wire:model.live="branchId" class="form-field__control w-full min-w-0">
                         <option value="">{{ __('reports.all_branches') }}</option>
                         @foreach ($branches as $b)
                             <option value="{{ $b->id }}">{{ $b->name }}</option>
