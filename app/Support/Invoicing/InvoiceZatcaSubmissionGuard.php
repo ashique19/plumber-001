@@ -60,7 +60,14 @@ final class InvoiceZatcaSubmissionGuard
 
     public static function shouldSkipResubmit(Invoice $invoice): bool
     {
-        return self::shouldSkipRemoteSubmission($invoice);
+        return self::alreadyRemoteSubmitted($invoice) && self::remoteSubmissionSucceeded($invoice);
+    }
+
+    public static function shouldResubmitViaZatcaApi(Invoice $invoice): bool
+    {
+        return $invoice->isIssued()
+            && filled($invoice->signed_xml)
+            && filled(data_get($invoice->payload, 'invoice_uuid'));
     }
 
     public static function markSubmissionInFlight(Invoice $invoice): void

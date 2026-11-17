@@ -8,6 +8,7 @@ use App\Models\Invoice;
 use App\Services\InvoiceAuditService;
 use App\Services\Invoicing\Signing\InvoiceSigningRequestFactory;
 use App\Services\Invoicing\Signing\ZHeartInvoiceSigningGateway;
+use App\Services\Invoicing\ZHeart\ZHeartApiException;
 use App\Support\Hub\HubInvoiceRowActions;
 use App\Support\Hub\HubInvoiceZatcaTab;
 use App\Support\Invoicing\SigningFailureSanitizer;
@@ -57,24 +58,32 @@ final class InvoiceZatcaResubmitService
             }
 
             if (InvoiceZatcaSubmissionGuard::submissionInFlight($invoice)) {
-                return InvoiceZatcaResubmitResult::locked();
+                InvoiceZatcaSubmissionGuard::clearSubmissionInFlight($invoice);
+                $invoice->refresh();
             }
 
             $business = BusinessContext::require();
             $request = InvoiceSigningRequestFactory::fromIssuedInvoice($invoice, $business);
 
+            $viaZatcaApi = InvoiceZatcaSubmissionGuard::shouldResubmitViaZatcaApi($invoice);
             $preserveChain = filled($invoice->icv) && filled($invoice->invoice_hash);
 
             InvoiceZatcaSubmissionGuard::markSubmissionInFlight($invoice);
 
             try {
-                if ($preserveChain && filled($invoice->signed_xml)) {
+                Log::info('invoice.zatca_resubmit_request', [
+                    'invoice_id' => $invoice->id,
+                    'document_number' => $invoice->document_number,
+                    'submit_path' => $viaZatcaApi
+                        ? ($request->invoiceCategory === 'simplified' ? 'invoices/report' : 'invoices/clear')
+                        : 'invoices/sign',
+                ]);
+
+                if ($viaZatcaApi) {
                     $signed = $this->gateway->submitInvoiceToZatca($request);
                 } else {
-                    if ($preserveChain) {
-                        return InvoiceZatcaResubmitResult::notEligible();
-                    }
                     $signed = $this->gateway->signIssuedInvoice($request, $invoice);
+                    $preserveChain = false;
                 }
             } catch (InvoiceSigningException $e) {
                 InvoiceZatcaSubmissionGuard::clearSubmissionInFlight($invoice);
@@ -194,21 +203,54 @@ final class InvoiceZatcaResubmitService
     private function recordFailure(Invoice $invoice, InvoiceSigningException $exception): InvoiceZatcaResubmitResult
     {
         $userMessage = SigningFailureSanitizer::sanitizeMessage($exception->getMessage());
+        $httpStatus = null;
+        $requestId = null;
+        $previous = $exception->getPrevious();
+        if ($previous instanceof ZHeartApiException) {
+            $httpStatus = $previous->httpStatus > 0 ? $previous->httpStatus : null;
+            $requestId = $previous->requestId;
+            if ($httpStatus !== null && $httpStatus >= 400) {
+                $userMessage = __('invoices.zatca_resubmit_http_failed', [
+                    'status' => $httpStatus,
+                    'reason' => $userMessage,
+                ]);
+            }
+        }
 
         Log::warning('invoice.zatca_resubmit_failed', array_merge(
             SigningFailureSanitizer::logContext($exception),
-            ['invoice_id' => $invoice->id],
+            [
+                'invoice_id' => $invoice->id,
+                'document_number' => $invoice->document_number,
+                'http_status' => $httpStatus,
+                'request_id' => $requestId,
+            ],
         ));
+
+        $display = ZatcaResponseSanitizer::sanitizeForDisplay([
+            'status' => 'error',
+            'message' => SigningFailureSanitizer::sanitizeMessage($exception->getMessage()),
+            'http_status' => $httpStatus,
+            'request_id' => $requestId,
+        ]);
 
         $payload = array_merge($invoice->payload ?? [], [
             'zheart_last_error' => $userMessage,
             'zheart_last_error_at' => now()->toIso8601String(),
+            'zheart_last_http_status' => $httpStatus,
+            'zheart_zatca_display' => $display,
+            'zheart_zatca_submitted_at' => now()->toIso8601String(),
         ]);
+
+        if ($requestId !== null) {
+            $payload['zheart_request_id'] = $requestId;
+        }
 
         $this->persistIssuedInvoice($invoice, ['payload' => $payload]);
 
         $this->auditService->record($invoice->fresh(), 'invoice.zatca_resubmit_failed', [
             'message' => $userMessage,
+            'http_status' => $httpStatus,
         ]);
 
         return InvoiceZatcaResubmitResult::failure('api_error', $userMessage, $invoice->fresh());

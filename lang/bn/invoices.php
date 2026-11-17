@@ -103,6 +103,8 @@ return array (
   'zatca_view_last_status' => 'সর্বশেষ Z-Heart স্ট্যাটাস',
   'zatca_view_last_submitted' => 'সর্বশেষ জমা',
   'zatca_view_request_id' => 'অনুরোধ আইডি',
+  'zatca_view_http_status' => 'HTTP স্ট্যাটাস',
+  'zatca_resubmit_http_failed' => 'Z-Heart HTTP :status ফেরত দিয়েছে — :reason',
   'zatca_view_errors' => 'ত্রুটি',
   'zatca_view_warnings' => 'সতর্কতা',
   'zatca_resubmit_failed' => 'ZATCA জমা ব্যর্থ। আবার চেষ্টা করুন বা Z-Heart দেখুন।',

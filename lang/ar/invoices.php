@@ -104,6 +104,8 @@ return array (
   'zatca_view_last_status' => 'آخر حالة Z-Heart',
   'zatca_view_last_submitted' => 'آخر إرسال',
   'zatca_view_request_id' => 'معرّف الطلب',
+  'zatca_view_http_status' => 'حالة HTTP',
+  'zatca_resubmit_http_failed' => 'أعاد Z-Heart HTTP :status — :reason',
   'zatca_view_errors' => 'أخطاء',
   'zatca_view_warnings' => 'تحذيرات',
   'zatca_resubmit_failed' => 'فشل الإرسال إلى زاتكا. أعد المحاولة أو راجع Z-Heart.',
