@@ -61,7 +61,13 @@
         <x-admin.hub-fab wire:click="openForm" :label="__('expenses.add')" />
     @endif
 
-    <x-admin.hub-sheet :show="$showForm" :title="__('expenses.add')" close-wire="closeExpenseForm" size="xl">
+    <x-admin.hub-sheet
+        class="x-modal--form-sheet"
+        :show="$showForm"
+        :title="__('expenses.add')"
+        close-wire="closeExpenseForm"
+        size="xl"
+    >
         <form wire:submit="saveExpense" class="x-modal-form">
             <div class="x-modal-form__fields x-modal-form__fields--2">
                 <x-field.date :label="__('expenses.spent_on')" name="spentOn" wire:model="spentOn" />

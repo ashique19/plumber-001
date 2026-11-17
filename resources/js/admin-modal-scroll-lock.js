@@ -120,8 +120,6 @@ export function wireAdminModalScrollLivewire(Livewire) {
 
     document.addEventListener('livewire:navigated', () => {
         resetAdminModalScrollLock();
-        document.querySelectorAll('details.hub-doc-table__more[open]').forEach((el) => {
-            el.removeAttribute('open');
-        });
+        window.Alpine?.store('hubRowMoreMenu')?.closeAll();
     });
 }

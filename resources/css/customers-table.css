@@ -34,7 +34,7 @@
     }
 
     html.admin-app .customer-hub-modal-shell.x-modal {
-        max-height: min(94dvh, 42rem);
+        max-height: min(90vh, 90dvh);
     }
 
     html.admin-app .customer-hub-modal-shell .x-modal__close {

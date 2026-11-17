@@ -27,6 +27,8 @@ it('lists seeded customers in a sortable table', function () {
     Livewire::actingAs($this->owner, 'staff')
         ->test(CustomerHub::class)
         ->assertSeeHtml('data-testid="customers-table"')
+        ->assertSeeHtml('data-testid="hub-customer-row-actions"')
+        ->assertSeeHtml('data-testid="hub-row-action-more"')
         ->assertSee(__('customers.col_vat'), false)
         ->assertSee(__('customers.col_cr'), false)
         ->assertSee('Regular Customer', false)
@@ -67,7 +69,17 @@ it('denies cashier access', function () {
     expect($this->cashier->can('reports.view'))->toBeFalse();
 });
 
-it('shows details tab with editable address fields in customer modal', function () {
+it('renders customer modal as wide form sheet with street textarea', function () {
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(CustomerHub::class)
+        ->call('startCustomer')
+        ->assertSeeHtml('x-modal--form-sheet')
+        ->assertSeeHtml('admin-modal-field-grid--3')
+        ->assertSeeHtml('customer-identity-fields__street')
+        ->assertSeeHtml('<textarea');
+});
+
+it('opens read-only detail on view and edit form on startEdit', function () {
     $customer = Customer::query()
         ->where('phone', '0501000001')
         ->firstOrFail();
@@ -75,10 +87,43 @@ it('shows details tab with editable address fields in customer modal', function 
     Livewire::actingAs($this->owner, 'staff')
         ->test(CustomerHub::class)
         ->call('selectCustomer', $customer->id)
+        ->assertSet('showCustomerDetailModal', true)
+        ->assertSet('showCustomerModal', false)
+        ->assertSeeHtml('data-testid="customer-detail-modal"')
+        ->assertSeeHtml('data-testid="customer-detail-quick-actions"')
+        ->assertDontSeeHtml('data-testid="customer-identity-fields"')
+        ->call('startEdit', $customer->id)
+        ->assertSet('showCustomerModal', true)
+        ->assertSet('showCustomerDetailModal', false)
+        ->assertSeeHtml('data-testid="customer-identity-fields"');
+});
+
+it('shows details tab with editable address fields in edit modal when loyalty is on', function () {
+    if (! config('features.loyalty')) {
+        $this->markTestSkipped('Loyalty feature is disabled.');
+    }
+
+    $customer = Customer::query()
+        ->where('phone', '0501000001')
+        ->firstOrFail();
+
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(CustomerHub::class)
+        ->call('startEdit', $customer->id)
         ->assertSet('showCustomerModal', true)
         ->assertSeeHtml('data-testid="customer-modal-tabs"')
         ->assertSee(__('customers.tab_details'), false)
         ->assertSeeHtml('data-testid="customer-identity-fields"');
+});
+
+it('hides referral copy in hub header when loyalty is disabled', function () {
+    config(['features.loyalty' => false]);
+
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(CustomerHub::class)
+        ->assertSee(__('customers.title_hub'), false)
+        ->assertSee(__('customers.subtitle_hub'), false)
+        ->assertDontSee(__('customers.subtitle_with_loyalty'), false);
 });
 
 it('adjusts points with audit row', function () {

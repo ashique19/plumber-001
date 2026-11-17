@@ -11,9 +11,11 @@ use App\Models\BusinessSetting;
 use App\Models\Customer;
 use App\Services\Invoicing\InvoiceDuesLedgerService;
 use App\Services\Loyalty\LoyaltyService;
+use App\Support\Customers\CustomerHubDetail;
 use App\Support\Customers\CustomerIdentityPersistence;
 use App\Support\Customers\CustomerIdentityRules;
 use App\Support\Customers\CustomerSchema;
+use App\Support\Invoicing\IssueInvoicePrefill;
 use App\Support\Loyalty\LoyaltyConfig;
 use App\Support\Validation\FieldValidationRules;
 use Illuminate\Database\Eloquent\Builder;
@@ -46,6 +48,8 @@ class CustomerHub extends Component
     public string $sortDir = 'asc';
 
     public bool $showCustomerModal = false;
+
+    public bool $showCustomerDetailModal = false;
 
     public string $customerModalTab = 'details';
 
@@ -119,7 +123,7 @@ class CustomerHub extends Component
         }
 
         if ($this->customer !== null) {
-            $this->openCustomerModal($this->customer, 'details');
+            $this->openCustomerDetail($this->customer);
         }
     }
 
@@ -132,7 +136,7 @@ class CustomerHub extends Component
     {
         $this->resetPage();
         $this->customer = null;
-        $this->closeCustomerModal();
+        $this->closeCustomerModals();
     }
 
     public function updatingSort(): void
@@ -163,15 +167,28 @@ class CustomerHub extends Component
 
     public function selectCustomer(int $customerId): void
     {
-        $this->openCustomerModal($customerId, 'details');
+        $this->openCustomerDetail($customerId);
     }
 
     public function startEdit(int $customerId): void
     {
-        $this->openCustomerModal($customerId, 'details');
+        $this->openCustomerEdit($customerId);
     }
 
-    public function openCustomerModal(int $customerId, string $tab = 'details'): void
+    public function openCustomerDetail(int $customerId): void
+    {
+        $customer = Customer::query()->find($customerId);
+        if ($customer === null) {
+            return;
+        }
+
+        $this->customer = $customerId;
+        $this->showCustomerDetailModal = true;
+        $this->showCustomerModal = false;
+        $this->editingCustomerId = $customerId;
+    }
+
+    public function openCustomerEdit(int $customerId, string $tab = 'details'): void
     {
         $customer = Customer::query()->find($customerId);
         if ($customer === null) {
@@ -182,11 +199,68 @@ class CustomerHub extends Component
         $this->hydrateCustomerForm($customer);
         $this->customerModalTab = $tab === 'loyalty' ? 'loyalty' : 'details';
         $this->showCustomerModal = true;
+        $this->showCustomerDetailModal = false;
         $this->resetAdjustForm();
+    }
+
+    public function editFromDetail(): void
+    {
+        if ($this->customer === null) {
+            return;
+        }
+
+        $this->openCustomerEdit($this->customer, 'details');
+    }
+
+    public function closeCustomerDetailModal(): void
+    {
+        $this->showCustomerDetailModal = false;
+    }
+
+    public function closeCustomerModals(): void
+    {
+        $this->showCustomerModal = false;
+        $this->showCustomerDetailModal = false;
+    }
+
+    public function goToNewInvoice(int $customerId): void
+    {
+        $customer = Customer::query()->find($customerId);
+        if ($customer === null) {
+            return;
+        }
+
+        abort_unless(auth('staff')->user()?->can('invoices.issue'), 403);
+
+        IssueInvoicePrefill::stashFromCustomer($customer, 'standard');
+        $this->redirect(route('admin.invoices.issue', ['mode' => 'standard']), navigate: true);
+    }
+
+    public function goToNewQuotation(int $customerId): void
+    {
+        abort_unless(auth('staff')->user()?->can('invoices.issue'), 403);
+
+        $this->redirect(route('admin.quotations.create', ['from_customer' => $customerId]), navigate: true);
+    }
+
+    public function goToRecordPayment(int $customerId): void
+    {
+        abort_unless(auth('staff')->user()?->can('reports.view'), 403);
+
+        $this->redirect(route('admin.payments.dues', ['customerKey' => 'customer:'.$customerId]), navigate: true);
+    }
+
+    public function goToStatement(int $customerId): void
+    {
+        $this->goToRecordPayment($customerId);
     }
 
     public function setCustomerModalTab(string $tab): void
     {
+        if ($tab === 'loyalty' && ! (bool) config('features.loyalty', true)) {
+            return;
+        }
+
         if (in_array($tab, ['details', 'loyalty'], true) && $this->editingCustomerId !== null) {
             $this->customerModalTab = $tab;
         }
@@ -202,6 +276,7 @@ class CustomerHub extends Component
         $this->customer = null;
         $this->editingCustomerId = null;
         $this->customerModalTab = 'details';
+        $this->showCustomerDetailModal = false;
         $this->showCustomerModal = true;
         $this->resetCustomerFormFields();
         $this->resetValidation();
@@ -235,7 +310,7 @@ class CustomerHub extends Component
             $customer->save();
 
             $loyalty->ensureReferralCode($customer);
-            $this->openCustomerModal($customer->id, 'details');
+            $this->openCustomerDetail($customer->id);
             $this->toastSuccess(__('customers.created'));
         }
     }
@@ -249,7 +324,7 @@ class CustomerHub extends Component
 
         if ($this->customer === $customerId) {
             $this->customer = null;
-            $this->closeCustomerModal();
+            $this->closeCustomerModals();
         }
 
         $customer->delete();
@@ -287,10 +362,16 @@ class CustomerHub extends Component
         $customerIds = collect($customers->items())->pluck('id')->all();
         $outstandingById = $ledger->totalOutstandingForCustomerIds($customerIds);
 
+        $selected = $this->selectedCustomer();
+        $detail = $selected !== null
+            ? CustomerHubDetail::build($selected, $ledger, auth('staff')->user())
+            : null;
+
         return view('livewire.customers.customer-hub', [
             'customers' => $customers,
             'outstandingById' => $outstandingById,
-            'selected' => $this->selectedCustomer(),
+            'selected' => $selected,
+            'customerDetail' => $detail,
             'transactions' => $this->transactionFeed(),
             'loyaltyRates' => [
                 'earn' => $config->earnPointsPerSarExVat(),
@@ -299,6 +380,7 @@ class CustomerHub extends Component
                 'maxPercent' => $config->maxRedeemPercentOfOrder(),
                 'referrerBonus' => $config->referrerBonusPoints(),
             ],
+            'loyaltyFeatureEnabled' => (bool) config('features.loyalty', true),
         ]);
     }
 
@@ -359,8 +441,11 @@ class CustomerHub extends Component
                 $q->where('name', 'like', $like)
                     ->orWhere('phone', 'like', $like)
                     ->orWhere('email', 'like', $like)
-                    ->orWhere('vat_number', 'like', $like)
-                    ->orWhere('referral_code', 'like', strtoupper($term).'%');
+                    ->orWhere('vat_number', 'like', $like);
+
+                if ((bool) config('features.loyalty', true)) {
+                    $q->orWhere('referral_code', 'like', strtoupper($term).'%');
+                }
 
                 if ($hasIdentity) {
                     $q->orWhere('legal_name_ar', 'like', $like)
