@@ -5,7 +5,7 @@ namespace App\Support\Invoicing;
 final class DocumentPrintTitles
 {
     /**
-     * @return array{en: string, ar: string, bn?: string}
+     * @return array{en: string, ar: string}
      */
     public static function forContext(array $t): array
     {
@@ -16,7 +16,6 @@ final class DocumentPrintTitles
             return [
                 'en' => trans('quotations.print_title', [], 'en'),
                 'ar' => trans('quotations.print_title', [], 'ar'),
-                'bn' => trans('quotations.print_title', [], 'bn'),
             ];
         }
 

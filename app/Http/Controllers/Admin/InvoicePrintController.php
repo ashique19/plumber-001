@@ -25,7 +25,7 @@ class InvoicePrintController extends Controller
         abort_unless($invoice->isIssued() || $previewDraft, 404);
 
         $business = BusinessSetting::singleton();
-        $locale = EnabledLocales::resolve($request->query('locale', app()->getLocale()));
+        $locale = \App\Support\Invoicing\PrintBodyLocale::resolveFromRequest($request->query('locale'));
         app()->setLocale($locale);
 
         $isStandardDocument = $invoice->document_type === InvoiceDocumentType::Standard;

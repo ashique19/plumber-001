@@ -18,7 +18,7 @@ class QuotationPrintController extends Controller
         abort_unless(auth('staff')->user()?->can('invoices.issue') || auth('staff')->user()?->can('reports.view'), 403);
 
         $business = BusinessSetting::singleton();
-        $locale = EnabledLocales::resolve($request->query('locale', app()->getLocale()));
+        $locale = \App\Support\Invoicing\PrintBodyLocale::resolveFromRequest($request->query('locale'));
         app()->setLocale($locale);
 
         $branch = $quotation->branch;

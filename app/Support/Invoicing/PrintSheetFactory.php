@@ -18,7 +18,7 @@ final class PrintSheetFactory
     public static function invoice(Invoice $invoice, Request $request, bool $forPdf = false): array
     {
         $business = BusinessSetting::singleton();
-        $locale = EnabledLocales::resolve($request->query('locale', app()->getLocale()));
+        $locale = PrintBodyLocale::resolveFromRequest($request->query('locale'));
         app()->setLocale($locale);
 
         $isStandardDocument = $invoice->document_type === InvoiceDocumentType::Standard;
@@ -70,7 +70,7 @@ final class PrintSheetFactory
     public static function quotation(Quotation $quotation, Request $request, bool $forPdf = false): array
     {
         $business = BusinessSetting::singleton();
-        $locale = EnabledLocales::resolve($request->query('locale', app()->getLocale()));
+        $locale = PrintBodyLocale::resolveFromRequest($request->query('locale'));
         app()->setLocale($locale);
 
         $t = QuotationPrintPresenter::fromQuotation($business, $quotation, $quotation->branch);

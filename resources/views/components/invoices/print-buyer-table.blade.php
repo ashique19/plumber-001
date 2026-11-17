@@ -16,7 +16,7 @@
             @foreach ($rows as $row)
                 <tr>
                     <td class="invoice-a4__buyer-table-label">{{ $row['en'] }}</td>
-                    <td class="invoice-a4__buyer-table-value" @if (! empty($row['html'])) dir="auto" @endif>
+                    <td @class(['invoice-a4__buyer-table-value', 'invoice-a4__buyer-table-value--nowrap' => ! empty($row['nowrap'])]) @if (! empty($row['html'])) dir="auto" @endif>
                         @if (! empty($row['html']))
                             {!! $row['html'] !!}
                         @else
@@ -36,7 +36,7 @@
                                     @if (filled($row['value'] ?? null))
                                         <div class="invoice-a4__buyer-table-split-row">
                                             <span class="invoice-a4__buyer-table-label">{{ $row['en'] }}</span>
-                                            <span class="invoice-a4__buyer-table-value">{{ $row['value'] }}</span>
+                                            <span @class(['invoice-a4__buyer-table-value', 'invoice-a4__buyer-table-value--nowrap' => ! empty($row['nowrap'])])>{{ $row['value'] }}</span>
                                             <span class="invoice-a4__buyer-table-label ar invoice-print-ar" dir="rtl">{{ $row['ar'] }}</span>
                                         </div>
                                     @endif
@@ -47,7 +47,7 @@
                                     @if (filled($row['value'] ?? null))
                                         <div class="invoice-a4__buyer-table-split-row">
                                             <span class="invoice-a4__buyer-table-label">{{ $row['en'] }}</span>
-                                            <span class="invoice-a4__buyer-table-value">{{ $row['value'] }}</span>
+                                            <span @class(['invoice-a4__buyer-table-value', 'invoice-a4__buyer-table-value--nowrap' => ! empty($row['nowrap'])])>{{ $row['value'] }}</span>
                                             <span class="invoice-a4__buyer-table-label ar invoice-print-ar" dir="rtl">{{ $row['ar'] }}</span>
                                         </div>
                                     @endif

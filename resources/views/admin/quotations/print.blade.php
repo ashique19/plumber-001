@@ -1,18 +1,17 @@
 <x-layouts.print>
     @push('head')
-        <title>{{ trans('quotations.print_title') }} {{ $t['quotation_number'] }}</title>
+        <title>{{ trans('quotations.print_title', [], 'en') }} {{ $t['quotation_number'] }}</title>
         @vite(['resources/css/invoice-print.css', 'resources/js/receipt.js'])
     @endpush
 
     <div class="invoice-print-root invoice-print-sheet invoice-print-sheet--cash" data-invoice-print data-document-number="{{ $t['quotation_number'] }}">
         <header class="invoice-print-toolbar no-print flex flex-wrap gap-2 p-2">
-            <button type="button" class="tap-action-primary min-h-11" onclick="window.print()">{{ __('pos.print') }}</button>
+            <button type="button" class="tap-action-primary min-h-11" onclick="window.print()">{{ trans('pos.print', [], 'en') }}</button>
         </header>
 
         <h1 class="invoice-a4__title">
-            {{ trans('quotations.print_title', [], 'en') }}
-            <span class="invoice-a4__title-ar block">{{ trans('quotations.print_title', [], 'ar') }}</span>
-            <span class="invoice-a4__title-bn block">{{ trans('quotations.print_title', [], 'bn') }}</span>
+            <span class="invoice-a4__title-en">{{ trans('quotations.print_title', [], 'en') }}</span>
+            <span class="invoice-a4__title-ar invoice-print-ar block" dir="rtl">{{ trans('quotations.print_title', [], 'ar') }}</span>
         </h1>
 
         <section class="invoice-cash__seller">
