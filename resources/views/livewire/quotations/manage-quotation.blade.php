@@ -17,9 +17,8 @@
                     : document.querySelector('.invoice-document-lines__row:last-child'));
             el?.classList.add('invoice-document-lines__row--flash');
             el && setTimeout(() => el.classList.remove('invoice-document-lines__row--flash'), 1600);
-            const stepper = el?.querySelector('.document-qty-stepper');
-            stepper?.querySelector('button')?.focus({ preventScroll: true });
-            stepper?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            el?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            $el.closest('.document-create-page')?.querySelector('.invoice-add-line-search input[data-admin-search-input]')?.focus({ preventScroll: true });
         })"
         @document-line-merged.window="$nextTick(() => {
             const lineId = $event.detail?.lineId ?? null;

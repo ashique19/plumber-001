@@ -178,12 +178,4 @@
         {{ __('invoices.stock_hint', ['qty' => number_format($stockHint['quantity'], 0), 'unit' => $stockHint['unit_label']]) }}
     </p>
 @endif
-
-<button
-    type="button"
-    class="tap-action-outline mt-3 min-h-10 w-full text-sm font-semibold sm:w-auto"
-    x-on:click="$el.closest('.document-create-page')?.querySelector('.invoice-add-line-search input')?.focus()"
->
-    {{ __('invoices.add_another_product') }}
-</button>
 </section>

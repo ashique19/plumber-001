@@ -20,7 +20,8 @@ it('renders invoice create layout shell', function (): void {
         ->assertSee(__('invoices.customer_information'))
         ->assertSee(__('invoices.invoice_summary'))
         ->assertSee(__('invoices.payment_details'))
-        ->assertSee(__('invoices.add_another_product'));
+        ->assertSee(__('invoices.document_lines_empty'))
+        ->assertDontSee(__('invoices.add_another_product'));
 });
 
 it('renders quotation create layout shell', function (): void {
