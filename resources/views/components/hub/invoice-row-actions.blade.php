@@ -5,17 +5,35 @@
     'viewUrl' => null,
     'downloadUrl' => null,
     'printUrl' => null,
+    'printA4Url' => null,
+    'printCashUrl' => null,
+    'printLayout' => 'a4',
+    'printBackUrl' => '',
     'canResubmitZatca' => false,
 ])
 
 <div {{ $attributes->class(['hub-doc-table__actions', 'hub-doc-table__actions--compact']) }} data-testid="hub-invoice-row-actions">
     @if ($actions['view'] ?? false)
-        <x-hub.row-action-icon
-            icon="view"
-            :label="__('invoices.action_view')"
-            :href="$viewUrl"
-            test-id="hub-row-action-view"
-        />
+        @if ($actions['edit'] ?? false)
+            <x-hub.row-action-icon
+                icon="view"
+                :label="__('invoices.action_view')"
+                :href="$viewUrl"
+                test-id="hub-row-action-view"
+            />
+        @else
+            <x-hub.print-preview-trigger
+                icon="view"
+                :label="__('invoices.action_view')"
+                :src="$viewUrl"
+                :a4-url="$printA4Url"
+                :cash-url="$printCashUrl"
+                :pdf-url="$downloadUrl"
+                :layout="$printLayout"
+                :back-url="$printBackUrl"
+                test-id="hub-row-action-view"
+            />
+        @endif
     @endif
     @if ($actions['download'] ?? false)
         <x-hub.row-action-icon
@@ -24,12 +42,15 @@
             :href="$downloadUrl"
             test-id="hub-row-action-download"
         />
-        <x-hub.row-action-icon
+        <x-hub.print-preview-trigger
             icon="print"
             :label="__('invoices.action_print')"
-            :href="$printUrl"
-            target="_blank"
-            rel="noopener"
+            :src="$printUrl"
+            :a4-url="$printA4Url"
+            :cash-url="$printCashUrl"
+            :pdf-url="$downloadUrl"
+            :layout="$printLayout"
+            :back-url="$printBackUrl"
             test-id="hub-row-action-print"
         />
     @elseif ($actions['awaiting_clearance'] ?? false)

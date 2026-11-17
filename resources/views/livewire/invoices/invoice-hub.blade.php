@@ -167,6 +167,10 @@
                                 :view-url="$row['view_url']"
                                 :download-url="$urls['download']"
                                 :print-url="$urls['print']"
+                                :print-a4-url="$urls['a4'] ?? null"
+                                :print-cash-url="$urls['cash'] ?? null"
+                                :print-layout="$urls['layout'] ?? 'a4'"
+                                :print-back-url="$urls['fallback_back'] ?? route('admin.invoices')"
                                 :can-resubmit-zatca="$canResubmitZatca ?? false"
                             />
                         </td>

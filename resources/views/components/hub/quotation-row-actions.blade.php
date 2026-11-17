@@ -2,16 +2,18 @@
     'quotationId',
     'printUrl',
     'downloadUrl',
+    'printBackUrl' => '',
     'canManage' => false,
 ])
 
 <div {{ $attributes->class(['hub-doc-table__actions', 'hub-doc-table__actions--compact']) }} data-testid="hub-quotation-row-actions">
-    <x-hub.row-action-icon
+    <x-hub.print-preview-trigger
         icon="print"
         :label="__('quotations.action_print')"
-        :href="$printUrl"
-        target="_blank"
-        rel="noopener"
+        :src="$printUrl"
+        :pdf-url="$downloadUrl"
+        layout="a4"
+        :back-url="$printBackUrl"
         test-id="hub-row-action-print"
     />
     <x-hub.row-action-icon

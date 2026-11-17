@@ -1,0 +1,1 @@
+function e(e){let t=e?.getAttribute(`data-fallback-url`);window.history.length>1?window.history.back():t&&(window.location.href=t)}document.addEventListener(`click`,t=>{let n=t.target.closest(`[data-print-back]`);n&&(t.preventDefault(),e(n)),t.target.closest(`[data-print-trigger]`)&&(t.preventDefault(),window.print())});

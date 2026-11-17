@@ -230,6 +230,10 @@
         <main class="app-content">{{ $slot }}</main>
     @endif
 
+    @if ($staffUser && $adminSidebar)
+        <x-admin.print-preview-modal />
+    @endif
+
     <x-toast-prime-script />
     @livewireScriptConfig
 </body>

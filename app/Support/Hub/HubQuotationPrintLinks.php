@@ -7,7 +7,7 @@ use App\Models\Quotation;
 final class HubQuotationPrintLinks
 {
     /**
-     * @return array{print: string, download: string, view: string}
+     * @return array{print: string, download: string, view: string, fallback_back: string}
      */
     public static function urls(Quotation $quotation): array
     {
@@ -17,6 +17,7 @@ final class HubQuotationPrintLinks
             'print' => $base,
             'download' => route('admin.quotations.pdf', ['quotation' => $quotation]),
             'view' => $base,
+            'fallback_back' => route('admin.quotations'),
         ];
     }
 }
