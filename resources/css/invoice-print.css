@@ -432,4 +432,34 @@
     .invoice-print-watermark.print-only {
         display: none;
     }
+
+    .invoice-print-watermark--draft {
+        display: block;
+        position: fixed;
+        inset: 38% 10% auto;
+        transform: rotate(-16deg);
+        font-size: clamp(2.5rem, 14vw, 4.5rem);
+        font-weight: 800;
+        text-align: center;
+        letter-spacing: 0.2em;
+        color: color-mix(in srgb, #475569 28%, transparent);
+        pointer-events: none;
+        z-index: 5;
+    }
+}
+
+@media print {
+    .invoice-print-watermark--draft {
+        display: block;
+        position: fixed;
+        inset: 35% 12% auto;
+        transform: rotate(-18deg);
+        font-size: 48pt;
+        font-weight: 800;
+        text-align: center;
+        letter-spacing: 0.18em;
+        color: color-mix(in srgb, #475569 35%, transparent);
+        pointer-events: none;
+        z-index: 5;
+    }
 }

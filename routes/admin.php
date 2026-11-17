@@ -76,6 +76,8 @@ Route::prefix('admin')->middleware('auth:staff')->group(function (): void {
         Route::get('/invoices/{invoice}/pdf', InvoicePdfController::class)->name('admin.invoices.pdf');
         Route::post('/invoices/{invoice}/issue-draft', [\App\Http\Controllers\Admin\InvoiceDraftLifecycleController::class, 'issue'])
             ->name('admin.invoices.drafts.issue');
+        Route::post('/invoices/{invoice}/authorize-draft', [\App\Http\Controllers\Admin\InvoiceDraftLifecycleController::class, 'authorize'])
+            ->name('admin.invoices.drafts.authorize');
         Route::delete('/invoices/{invoice}/draft', [\App\Http\Controllers\Admin\InvoiceDraftLifecycleController::class, 'destroy'])
             ->name('admin.invoices.drafts.destroy');
         Route::get('/quotations', QuotationHub::class)->name('admin.quotations');

@@ -12,6 +12,8 @@
         || ($actions['delete_draft'] ?? false)
         || ($actions['edit'] ?? false)
         || ($actions['issue_draft'] ?? false)
+        || ($actions['preview_draft'] ?? false)
+        || ($actions['authorize_draft'] ?? false)
         || (($actions['resend_zatca'] ?? false) && $canResubmitZatca);
 @endphp
 
@@ -27,6 +29,30 @@
             <span class="sr-only">{{ __('invoices.action_more') }}</span>
         </summary>
         <div class="hub-doc-table__more-panel" role="menu">
+            @if ($actions['preview_draft'] ?? false && filled($actions['preview_draft_url'] ?? null))
+                <a
+                    class="hub-doc-table__more-item"
+                    role="menuitem"
+                    href="{{ $actions['preview_draft_url'] }}"
+                    target="_blank"
+                    rel="noopener"
+                    data-testid="hub-draft-action-preview"
+                >{{ __('invoices.action_preview_draft') }}</a>
+            @endif
+            @if ($actions['authorize_draft'] ?? false)
+                <button
+                    type="button"
+                    class="hub-doc-table__more-item hub-doc-table__more-item--accent"
+                    role="menuitem"
+                    wire:click="authorizeDraft({{ $invoiceId }})"
+                    wire:confirm="{{ __('invoices.authorize_draft_confirm') }}"
+                    wire:loading.attr="disabled"
+                    wire:target="authorizeDraft({{ $invoiceId }})"
+                    data-testid="hub-draft-action-authorize"
+                >
+                    {{ __('invoices.action_authorize_draft') }}
+                </button>
+            @endif
             @if ($actions['issue_draft'] ?? false)
                 <button
                     type="button"

@@ -7,6 +7,7 @@ use App\Models\Invoice;
 use App\Services\Invoicing\HubDraftInvoiceIssueService;
 use App\Support\Hub\HubInvoiceDraftLifecycle;
 use App\Support\Hub\HubInvoiceRowActions;
+use App\Support\Hub\HubInvoiceRowActions;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -18,6 +19,29 @@ class InvoiceDraftLifecycleController extends Controller
         abort_unless(HubInvoiceDraftLifecycle::canIssue($invoice), 403);
 
         $outcome = $service->issueDraft($invoice);
+        if (! $outcome->ok()) {
+            return redirect()
+                ->back()
+                ->with('error', $outcome->message ?? __('invoices.errors.issue_failed'));
+        }
+
+        $issued = $outcome->result->invoice;
+        $message = $outcome->result->signingSucceeded
+            ? __('invoices.issue_success', ['number' => $issued->document_number])
+            : __('invoices.issue_saved_not_sent_zatca', ['number' => $issued->document_number]);
+
+        return redirect()
+            ->route('admin.invoices')
+            ->with($outcome->result->signingSucceeded ? 'success' : 'warning', $message);
+    }
+
+    public function authorize(Request $request, Invoice $invoice, HubDraftInvoiceIssueService $service): RedirectResponse
+    {
+        $user = $request->user('staff');
+        abort_unless($user?->can('invoices.issue'), 403);
+        abort_unless(HubInvoiceDraftLifecycle::canAuthorize($user, $invoice), 403);
+
+        $outcome = $service->authorizeAndIssue($invoice, $user);
         if (! $outcome->ok()) {
             return redirect()
                 ->back()

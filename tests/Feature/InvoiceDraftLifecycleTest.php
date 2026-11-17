@@ -112,7 +112,61 @@ it('renders draft lifecycle bar on draft print preview', function () {
         ->assertOk()
         ->assertSeeHtml('data-testid="invoice-draft-lifecycle"', false)
         ->assertSee(__('invoices.action_issue_draft'), false)
-        ->assertSeeHtml('data-testid="invoice-view-edit-draft"', false);
+        ->assertSeeHtml('data-testid="invoice-view-edit-draft"', false)
+        ->assertSeeHtml('data-testid="invoice-draft-watermark"', false)
+        ->assertSee(__('invoices.print_draft_watermark'), false)
+        ->assertDontSeeHtml('data-tlv=', false)
+        ->assertDontSee('id="receipt-qr"', false);
+});
+
+it('shows preview and authorize actions for owner on draft hub row', function () {
+    $draft = draftInvoiceWithLines('DRAFT-PREV-AUTH');
+
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(InvoiceHub::class)
+        ->set('search', $draft->document_number)
+        ->assertSee(__('invoices.action_preview_draft'), false)
+        ->assertSee(__('invoices.action_authorize_draft'), false)
+        ->assertSeeHtml('data-testid="hub-draft-action-preview"', false)
+        ->assertSeeHtml('data-testid="hub-draft-action-authorize"', false);
+});
+
+it('authorizes and issues a draft for owner', function () {
+    config([
+        'zheart.base_url' => '',
+        'zheart.api_key' => '',
+    ]);
+    $draft = draftInvoiceWithLines('DRAFT-AUTH-1');
+
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(InvoiceHub::class)
+        ->call('authorizeDraft', $draft->id)
+        ->assertHasNoErrors();
+
+    $fresh = $draft->fresh();
+    expect($fresh->status)->toBe(InvoiceStatus::Issued)
+        ->and(data_get($fresh->payload, 'draft_authorized_by'))->toBe($this->owner->id);
+});
+
+it('blocks authorize for accountant role', function () {
+    $accountant = StaffUser::query()->create([
+        'name' => 'Accountant',
+        'email' => 'acct-draft-auth@example.test',
+        'password' => bcrypt('secret'),
+        'branch_id' => $this->owner->branch_id,
+        'is_active' => true,
+    ]);
+    $accountant->assignRole('accountant');
+    $accountant->givePermissionTo('invoices.issue');
+
+    $draft = draftInvoiceWithLines('DRAFT-NO-AUTH');
+
+    expect(HubInvoiceDraftLifecycle::canAuthorize($accountant, $draft))->toBeFalse();
+
+    Livewire::actingAs($accountant, 'staff')
+        ->test(InvoiceHub::class)
+        ->call('authorizeDraft', $draft->id)
+        ->assertForbidden();
 });
 
 it('rejects hub issue for issued invoices', function () {

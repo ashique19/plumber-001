@@ -20,6 +20,8 @@
             @include('print.partials.invoice-view-status', ['invoice' => $invoice])
         @endif
 
+        @include('print.partials.draft-preview-watermark')
+
         @include('print.partials.not-cleared-watermark')
 
         @if ($zatcaNotSent ?? false)
@@ -137,7 +139,9 @@
             <p class="invoice-a4__words">{{ $t['amount_words_en'] }}</p>
         </section>
 
-        <x-invoices.print-qr :tlv="$t['qr_tlv_base64']" :fallback="(bool) ($t['qr_phase1_fallback'] ?? false)" />
+        @if (($t['show_qr'] ?? false) && filled($t['qr_tlv_base64'] ?? null))
+            <x-invoices.print-qr :tlv="$t['qr_tlv_base64']" :fallback="(bool) ($t['qr_phase1_fallback'] ?? false)" />
+        @endif
 
         <footer class="invoice-cash__footer print-only">
             {{ $t['document_number'] }}

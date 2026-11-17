@@ -141,6 +141,33 @@ class InvoiceHub extends Component
         }
     }
 
+    public function authorizeDraft(int $invoiceId, HubDraftInvoiceIssueService $service): void
+    {
+        $user = auth('staff')->user();
+        abort_unless($user?->can('invoices.issue'), 403);
+
+        $invoice = Invoice::query()->whereKey($invoiceId)->firstOrFail();
+        abort_unless(\App\Support\Hub\HubInvoiceDraftLifecycle::canAuthorize($user, $invoice), 403);
+
+        $outcome = $service->authorizeAndIssue($invoice, $user);
+        if (! $outcome->ok()) {
+            $this->toastError($outcome->message ?? __('invoices.errors.issue_failed'));
+
+            return;
+        }
+
+        $issued = $outcome->result->invoice;
+        if (! $outcome->result->signingSucceeded) {
+            $this->toastWarning(
+                __('invoices.issue_saved_not_sent_zatca', ['number' => $issued->document_number]),
+                persistent: true,
+                dedupe: false,
+            );
+        }
+
+        $this->toastSuccess(__('invoices.authorize_draft_success', ['number' => $issued->document_number]));
+    }
+
     public function issueDraft(int $invoiceId, HubDraftInvoiceIssueService $service): void
     {
         abort_unless(auth('staff')->user()?->can('invoices.issue'), 403);

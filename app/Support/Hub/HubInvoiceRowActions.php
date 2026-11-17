@@ -5,6 +5,7 @@ namespace App\Support\Hub;
 use App\Enums\InvoiceDocumentType;
 use App\Enums\InvoiceStatus;
 use App\Models\Invoice;
+use App\Models\StaffUser;
 use App\Support\Invoicing\InvoicePrintClearance;
 
 /**
@@ -66,16 +67,20 @@ final class HubInvoiceRowActions
     /**
      * @return array<string, mixed>
      */
-    public static function forInvoice(Invoice $invoice, float $dueAmount): array
+    public static function forInvoice(Invoice $invoice, float $dueAmount, ?StaffUser $actor = null): array
     {
         $canPrint = self::canDownloadOrPrint($invoice);
         $awaiting = self::showAwaitingClearanceControls($invoice);
+        $actor ??= auth('staff')->user();
 
         return [
             'view' => self::canView($invoice),
             'edit' => self::canEdit($invoice),
             'edit_url' => HubInvoiceDraftLifecycle::editUrl($invoice),
             'issue_draft' => self::canIssueDraft($invoice),
+            'preview_draft' => HubInvoiceDraftLifecycle::canPreview($invoice),
+            'preview_draft_url' => HubInvoiceDraftLifecycle::previewUrl($invoice),
+            'authorize_draft' => HubInvoiceDraftLifecycle::canAuthorize($actor, $invoice),
             'download' => $canPrint,
             'print' => $canPrint,
             'awaiting_clearance' => $awaiting && ! $canPrint,

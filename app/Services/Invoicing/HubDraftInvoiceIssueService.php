@@ -3,6 +3,7 @@
 namespace App\Services\Invoicing;
 
 use App\Models\Invoice;
+use App\Models\StaffUser;
 use App\Services\InvoiceIssueService;
 use App\Support\Hub\HubInvoiceDraftLifecycle;
 
@@ -29,5 +30,16 @@ final class HubDraftInvoiceIssueService
         }
 
         return HubDraftIssueOutcome::issued($outcome);
+    }
+
+    public function authorizeAndIssue(Invoice $invoice, StaffUser $actor): HubDraftIssueOutcome
+    {
+        if (! HubInvoiceDraftLifecycle::canAuthorize($actor, $invoice)) {
+            return HubDraftIssueOutcome::blocked(__('invoices.authorize_draft_forbidden'));
+        }
+
+        HubInvoiceDraftLifecycle::recordAuthorization($invoice, $actor);
+
+        return $this->issueDraft($invoice->fresh());
     }
 }
