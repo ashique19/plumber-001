@@ -94,6 +94,12 @@
 
 .print-tpl-modern__words {
     margin-top: 6px;
+    margin-left: auto;
+    width: 100%;
+    min-width: 18.5rem;
+    max-width: 26rem;
+    border: 1px solid var(--inv-border);
+    padding: 6px 8px;
     page-break-inside: avoid;
 }
 
@@ -132,6 +138,11 @@
 }
 
 @media print {
+    .invoice-a4__buyer-table-value,
+    .invoice-a4__buyer-table-value--nowrap {
+        overflow: visible !important;
+    }
+
     .print-tpl-modern {
         padding-bottom: 20mm;
     }

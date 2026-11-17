@@ -176,10 +176,11 @@
 }
 
 .invoice-a4__buyer-table-value--nowrap {
-    white-space: nowrap;
     font-variant-numeric: tabular-nums;
-    overflow-x: auto;
-    text-overflow: ellipsis;
+    white-space: normal;
+    overflow: visible;
+    overflow-wrap: anywhere;
+    word-break: break-all;
 }
 
 .invoice-a4__buyer-table-label.ar {
@@ -423,20 +424,21 @@
 
 .invoice-print-words-block {
     margin-top: 8px;
-    display: table;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: baseline;
+    gap: 8px;
     width: 100%;
-    table-layout: fixed;
-    border-collapse: collapse;
     line-height: 1.35;
+    box-sizing: border-box;
 }
 
 .invoice-print-words-block__en,
 .invoice-print-words-block__ar {
-    display: table-cell;
-    width: 50%;
+    flex: 1 1 0;
+    min-width: 0;
     margin: 0;
     font-size: 9pt;
-    vertical-align: top;
     padding: 0 4px;
 }
 
