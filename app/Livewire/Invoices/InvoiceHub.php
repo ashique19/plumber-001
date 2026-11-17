@@ -131,11 +131,18 @@ class InvoiceHub extends Component
 
             $result = $service->resubmit($invoice);
 
-            if ($result->ok && $result->invoice) {
+            if ($result->invoice && $result->userMessage) {
                 $fresh = $result->invoice->fresh();
-                $this->toastSuccess(__('invoices.zatca_resubmit_success', ['number' => $fresh->document_number]));
+                match ($result->flashLevel) {
+                    'warning' => $this->toastWarning($result->userMessage),
+                    'info' => $this->toastInfo($result->userMessage),
+                    'error' => $this->toastError($result->userMessage),
+                    default => $result->ok
+                        ? $this->toastSuccess($result->userMessage)
+                        : $this->toastError($result->userMessage),
+                };
 
-                if ($this->zatcaTab === HubInvoiceZatcaTab::FAILED && HubInvoiceZatcaTab::isSuccess($fresh)) {
+                if ($result->ok && $this->zatcaTab === HubInvoiceZatcaTab::FAILED && HubInvoiceZatcaTab::isSuccess($fresh)) {
                     $this->zatcaTab = HubInvoiceZatcaTab::SUCCESS;
                 }
 

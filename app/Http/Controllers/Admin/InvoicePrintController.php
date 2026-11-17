@@ -13,6 +13,7 @@ use App\Support\Invoicing\PrintTemplateResolver;
 use App\Support\Hub\HubInvoiceRowActions;
 use App\Support\Hub\HubInvoiceZatcaResubmitCopy;
 use App\Support\Hub\HubInvoiceZatcaTab;
+use App\Support\Invoicing\ZatcaResponseDisplay;
 use App\Support\Invoicing\ZatcaSubmissionStatus;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -90,6 +91,7 @@ class InvoicePrintController extends Controller
             'zatcaResubmitUrl' => route('admin.invoices.zatca-resubmit', ['invoice' => $invoice]),
             'zatcaResubmitLabel' => HubInvoiceZatcaResubmitCopy::actionLabel($invoice),
             'zatcaInlineError' => HubInvoiceZatcaTab::shortError($invoice),
+            'zatcaResponseDisplay' => ZatcaResponseDisplay::forInvoice($invoice),
         ];
 
         if ($layout === 'cash') {

@@ -24,9 +24,15 @@ final class InvoiceZatcaResubmitController extends Controller
             $back = route('admin.invoices.print', ['invoice' => $invoice, 'layout' => 'a4']);
         }
 
-        if ($result->ok && $result->invoice) {
-            return redirect()->to($back)
-                ->with('success', __('invoices.zatca_resubmit_success', ['number' => $result->invoice->document_number]));
+        if ($result->invoice && $result->userMessage) {
+            $flashKey = match ($result->flashLevel) {
+                'warning' => 'warning',
+                'info' => 'info',
+                'error' => 'error',
+                default => $result->ok ? 'success' : 'error',
+            };
+
+            return redirect()->to($back)->with($flashKey, $result->userMessage);
         }
 
         if ($result->code === 'locked') {

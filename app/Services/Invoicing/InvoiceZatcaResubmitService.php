@@ -12,6 +12,8 @@ use App\Support\Hub\HubInvoiceRowActions;
 use App\Support\Hub\HubInvoiceZatcaTab;
 use App\Support\Invoicing\SigningFailureSanitizer;
 use App\Support\Invoicing\InvoiceZatcaSubmissionGuard;
+use App\Support\Invoicing\ZatcaResponseSanitizer;
+use App\Support\Invoicing\ZatcaSubmissionOutcome;
 use App\Support\Invoicing\ZatcaSubmissionStatus;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -109,13 +111,32 @@ final class InvoiceZatcaResubmitService
 
             $this->persistIssuedInvoice($invoice, $attributes);
 
-            $this->auditService->record($invoice->fresh(), 'invoice.zatca_resubmit', [
-                'request_id' => $signed['request_id'] ?? null,
-                'reporting_status' => $signed['reporting_status'] ?? null,
-                'preserved_chain' => $preserveChain,
-            ]);
+            $fresh = $invoice->fresh();
+            $outcome = ZatcaSubmissionOutcome::fromPersistedInvoice($fresh, $signed, $category);
+            $logContext = $outcome->logContext($fresh, $signed);
 
-            return InvoiceZatcaResubmitResult::success($invoice->fresh());
+            if ($outcome->ok) {
+                Log::info('invoice.zatca_resubmit_outcome', $logContext);
+                $this->auditService->record($fresh, 'invoice.zatca_resubmit', [
+                    'request_id' => $signed['request_id'] ?? null,
+                    'reporting_status' => data_get($fresh->payload, 'zheart_reporting_status'),
+                    'outcome' => $outcome->code,
+                    'preserved_chain' => $preserveChain,
+                ]);
+            } else {
+                Log::warning('invoice.zatca_resubmit_outcome', $logContext);
+                $this->auditService->record($fresh, $outcome->code === ZatcaSubmissionOutcome::REJECTED
+                    ? 'invoice.zatca_resubmit_failed'
+                    : 'invoice.zatca_resubmit_pending', [
+                    'request_id' => $signed['request_id'] ?? null,
+                    'reporting_status' => data_get($fresh->payload, 'zheart_reporting_status'),
+                    'outcome' => $outcome->code,
+                    'message' => $outcome->reason,
+                    'preserved_chain' => $preserveChain,
+                ]);
+            }
+
+            return InvoiceZatcaResubmitResult::fromSubmissionOutcome($fresh, $outcome);
         } finally {
             $lock->release();
         }
@@ -152,12 +173,16 @@ final class InvoiceZatcaResubmitService
         }
 
         if (! empty($signed['remote_submission'])) {
-            $payload['zheart_zatca'] = $signed['remote_submission'];
+            $sanitized = ZatcaResponseSanitizer::sanitizeForDisplay($signed['remote_submission']);
+            $payload['zheart_zatca'] = $sanitized ?? $signed['remote_submission'];
+            $payload['zheart_zatca_display'] = $sanitized;
         }
 
         if (filled($signed['reporting_status'] ?? null)) {
             $payload['zheart_reporting_status'] = $signed['reporting_status'];
         }
+
+        $payload['zheart_zatca_submitted_at'] = now()->toIso8601String();
 
         if (! $preserveChain && filled($signed['invoice_uuid'] ?? null)) {
             $payload['invoice_uuid'] = $signed['invoice_uuid'];

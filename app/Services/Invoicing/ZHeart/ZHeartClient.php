@@ -205,6 +205,17 @@ final class ZHeartClient
                 if ($response->successful() && is_array($json) && ($json['status'] ?? '') === 'ok') {
                     $data = is_array($json['data'] ?? null) ? $json['data'] : [];
 
+                    if ($submitPath) {
+                        Log::info('zheart.invoice_submit', [
+                            'path' => $path,
+                            'invoice_uuid' => $invoicePayload['uuid'] ?? null,
+                            'request_id' => is_string($requestId) ? $requestId : null,
+                            'reporting_status' => is_string($data['reporting_status'] ?? null)
+                                ? $data['reporting_status']
+                                : (is_array($data['zatca'] ?? null) ? ($data['zatca']['status'] ?? null) : null),
+                        ]);
+                    }
+
                     return [
                         'data' => $data,
                         'request_id' => is_string($requestId) ? $requestId : null,

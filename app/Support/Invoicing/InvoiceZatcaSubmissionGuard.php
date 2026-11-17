@@ -114,6 +114,10 @@ final class InvoiceZatcaSubmissionGuard
             }
         }
 
+        if ($status === 'pending') {
+            return null;
+        }
+
         if ($status !== '' && ! in_array($status, HubInvoiceZatcaTab::successReportingStatuses(), true)) {
             return __('invoices.zatca_error_clear_status', ['status' => $status]);
         }
