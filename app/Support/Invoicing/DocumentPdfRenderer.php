@@ -65,12 +65,15 @@ final class DocumentPdfRenderer
         $fontFace = is_file($fontPath)
             ? '@font-face{font-family:AmiriPdf;src:url(\'file://'.$fontPath.'\') format(\'truetype\');font-weight:normal;font-style:normal;}'
             : '';
+        $body = self::shapeArabic($html);
+        $body = self::inlineSarSymbolsForDompdf($body);
+
         $wrapped = '<!DOCTYPE html><html><head><meta charset="utf-8"><style>'
             .$fontFace
             .$css
             .self::pdfOverlayCss()
             .'</style></head><body>'
-            .self::shapeArabic($html)
+            .$body
             .'</body></html>';
 
         return self::localizeAssetUrls($wrapped);
@@ -89,8 +92,12 @@ final class DocumentPdfRenderer
             .'.invoice-print-root--pdf{padding:3mm 5mm 4mm!important;font-size:8.5pt!important}'
             .'.invoice-print-root .invoice-print-ar,.invoice-print-root [dir=rtl],.invoice-print-root .ar,.invoice-a4__title-ar,.invoice-a4__desc-ar,.invoice-a4__footer-ar,.invoice-a4__seller-side--ar,.invoice-print-label__ar,.invoice-a4__buyer-table-label.ar,.invoice-a4__buyer-name-ar,.invoice-a4__table th .ar,.print-tpl-modern__totals-ar,.print-classic__title-ar,.print-classic__cell-label.ar,.classic-party__name-ar,.print-classic__words,.print-classic__lines th .ar{direction:rtl!important;text-align:right!important;unicode-bidi:isolate}'
             .'.invoice-a4__title-bn,.print-classic__title-bn{display:none!important}'
-            .'.invoice-sar-symbol__svg{display:inline-block!important;width:0.85em!important;height:1em!important;vertical-align:-0.12em}'
+            .'.invoice-sar-symbol__svg{display:inline-block!important;width:1em!important;height:1em!important;vertical-align:-0.12em}'
             .'.invoice-sar-symbol__fallback{display:none!important}'
+            .'.invoice-print-root--pdf .print-tpl-modern__totals-ar{display:inline!important;width:auto!important;unicode-bidi:plaintext!important}'
+            .'.invoice-print-root--pdf .print-tpl-modern__totals-en{display:inline!important;margin-inline-end:0.35em!important}'
+            .'.invoice-print-root--pdf .print-tpl-modern__totals-label{white-space:nowrap!important}'
+            .'.invoice-print-root--pdf .invoice-print-ar[dir=rtl],.invoice-print-root--pdf [dir=rtl].invoice-print-ar{unicode-bidi:plaintext!important}'
             .'.invoice-print-root--pdf .invoice-a4__header{display:table!important;width:100%!important;table-layout:fixed;border-bottom:1px solid #1a1a1a;margin-bottom:4px;padding-bottom:4px}'
             .'.invoice-print-root--pdf .invoice-a4__header>div{display:table-cell!important;vertical-align:top;width:33%}'
             .'.invoice-print-root--pdf .invoice-a4__seller-side--ar{text-align:right}'
@@ -149,19 +156,51 @@ final class DocumentPdfRenderer
 
         $xpath = new DOMXPath($dom);
         foreach ($xpath->query('//text()') ?: [] as $node) {
+            $parent = $node->parentNode;
+            if ($parent instanceof \DOMElement && in_array(strtolower($parent->tagName), ['script', 'style'], true)) {
+                continue;
+            }
+
             $text = $node->nodeValue ?? '';
             if ($text === '' || ! preg_match('/\p{Arabic}/u', $text)) {
                 continue;
             }
-            if (preg_match('/\d/u', $text)) {
-                continue;
-            }
+
             $node->nodeValue = $arabic->utf8Glyphs($text, max(80, mb_strlen($text)), false, false);
         }
 
         $out = $dom->saveHTML();
 
         return is_string($out) ? $out : $html;
+    }
+
+    private static function sarSymbolDataUri(): string
+    {
+        static $uri = null;
+        if ($uri !== null) {
+            return $uri;
+        }
+
+        $path = resource_path('images/sar-riyal-symbol.svg');
+        $svg = is_file($path) ? (string) file_get_contents($path) : '';
+        $uri = 'data:image/svg+xml;base64,'.base64_encode($svg);
+
+        return $uri;
+    }
+
+    private static function inlineSarSymbolsForDompdf(string $html): string
+    {
+        if (! str_contains($html, 'invoice-sar-symbol__svg')) {
+            return $html;
+        }
+
+        $img = '<img class="invoice-sar-symbol__svg" alt="" src="'.self::sarSymbolDataUri().'" style="width:1em;height:1em;vertical-align:-0.12em;display:inline-block" />';
+
+        return (string) preg_replace(
+            '/<svg[^>]*class="[^"]*invoice-sar-symbol__svg[^"]*"[^>]*>.*?<\/svg>/s',
+            $img,
+            $html
+        );
     }
 
     private static function localizeAssetUrls(string $html): string
