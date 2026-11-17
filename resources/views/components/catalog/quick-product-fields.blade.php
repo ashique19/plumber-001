@@ -1,6 +1,6 @@
 @props(['categories' => collect()])
 
-<div class="catalog-quick-product-fields admin-modal-field-grid admin-modal-field-grid--2 col-span-full w-full min-w-0" data-testid="quick-product-fields">
+<div class="catalog-quick-product-fields admin-modal-field-grid admin-modal-field-grid--2 admin-modal-field-grid--3 col-span-full w-full min-w-0" data-testid="quick-product-fields">
     <x-field.input
         :label="__('catalog.name_en')"
         name="quickProductNameEn"

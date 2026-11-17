@@ -165,23 +165,13 @@
             :show="true"
             :title="$editingCategoryId ? __('catalog.edit_category') : __('catalog.add_category')"
             close-wire='$set("showCategoryForm", false)'
-            size="lg"
+            size="xl"
+            class="x-modal--form-sheet"
             data-testid="catalog-category-modal"
         >
             <form id="catalog-category-form" class="x-modal-form" wire:submit="saveCategory">
-                <div class="x-modal-form__fields x-modal-form__fields--2 app-admin-form">
-                <x-field.input :label="__('catalog.name_en')" name="categoryNameEn" wire:model="categoryNameEn" required />
-                <x-field.input :label="__('catalog.name_ar')" name="categoryNameAr" wire:model="categoryNameAr" dir="rtl" />
-                @if($categoryBanglaFieldsReady ?? false)
-                    <x-field.input :label="__('catalog.name_bn')" name="categoryNameBn" wire:model="categoryNameBn" />
-                @endif
-                @if($categoryDescriptionFieldsReady ?? false)
-                    <x-field.textarea :label="__('catalog.description_en')" name="categoryDescriptionEn" wire:model="categoryDescriptionEn" />
-                    <x-field.textarea :label="__('catalog.description_ar')" name="categoryDescriptionAr" wire:model="categoryDescriptionAr" dir="rtl" />
-                    <x-field.textarea :label="__('catalog.description_bn')" name="categoryDescriptionBn" wire:model="categoryDescriptionBn" />
-                @endif
-                <x-field.input :label="__('catalog.icon_key')" name="categoryIconKey" wire:model="categoryIconKey" />
-                <x-field.toggle wire:model="categoryActive" name="categoryActive" :label="__('catalog.active')" />
+                <div class="x-modal-form__fields app-admin-form">
+                    @include('livewire.catalog.partials.category-form-fields')
                 </div>
                 <div class="x-modal__footer x-modal__footer--in-form">
                     <x-modal.footer
@@ -274,17 +264,13 @@
             :show="true"
             :title="$editingModifierId ? __('catalog.edit_modifier') : __('catalog.add_modifier')"
             close-wire='$set("showModifierForm", false)'
+            size="xl"
+            class="x-modal--form-sheet"
             data-testid="catalog-modifier-modal"
         >
             <form id="catalog-modifier-form" class="x-modal-form" wire:submit="saveModifier">
                 <div class="x-modal-form__fields app-admin-form">
-                <x-field.input :label="__('catalog.name_en')" name="modifierNameEn" wire:model="modifierNameEn" required />
-                <x-field.input :label="__('catalog.name_ar')" name="modifierNameAr" wire:model="modifierNameAr" dir="rtl" />
-                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <x-field.input type="number" :label="__('catalog.price')" name="modifierPriceInput" wire:model="modifierPriceInput" required inputmode="decimal" />
-                    <x-field.input type="number" :label="__('catalog.vat_rate')" name="modifierVatRate" wire:model="modifierVatRate" inputmode="decimal" />
-                </div>
-                <x-field.toggle wire:model="modifierActive" name="modifierActive" :label="__('catalog.active')" />
+                    @include('livewire.catalog.partials.modifier-form-fields')
                 </div>
                 <div class="x-modal__footer x-modal__footer--in-form">
                     <x-modal.footer

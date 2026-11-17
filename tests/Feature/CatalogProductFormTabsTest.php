@@ -37,6 +37,7 @@ it('renders product form section tabs in the product sheet', function () {
 
     expect($html)->toContain('catalog-product-form-tabs')
         ->and($html)->toContain('catalog-product-form-basic-layout')
+        ->and($html)->toContain('catalog-product-form-basic-fields')
         ->and($html)->toContain('x-modal--xl')
         ->and($html)->toContain(__('catalog.product_tab_basic'))
         ->and($html)->toContain("setProductFormTab('pricing')")
@@ -110,11 +111,12 @@ it('shows unit and size selects on the stock tab for create and edit', function 
     $createHtml = Livewire::actingAs($this->owner, 'staff')
         ->test(MenuManager::class)
         ->call('startProduct')
-        ->set('productFormTab', 'stock')
+        ->set('productFormTab', 'basic')
         ->html();
 
     expect($createHtml)
-        ->toContain('data-testid="product-stock-unit-size"')
+        ->toContain('data-testid="product-basic-unit"')
+        ->toContain('data-testid="product-basic-size"')
         ->toContain('name="productUnitId"')
         ->toContain('name="productSizeId"')
         ->toContain(__('catalog.unit'))
@@ -123,11 +125,12 @@ it('shows unit and size selects on the stock tab for create and edit', function 
     $editHtml = Livewire::actingAs($this->owner, 'staff')
         ->test(MenuManager::class)
         ->call('startProduct', $product->id)
-        ->set('productFormTab', 'stock')
+        ->set('productFormTab', 'basic')
         ->html();
 
     expect($editHtml)
-        ->toContain('data-testid="product-stock-unit-size"')
+        ->toContain('data-testid="product-basic-unit"')
+        ->toContain('data-testid="product-basic-size"')
         ->toContain('name="productUnitId"')
         ->toContain('name="productSizeId"');
 });

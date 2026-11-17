@@ -28,17 +28,18 @@ it('renders product sheet on full page load with create=product deep link', func
     expect(data_get($snapshot, 'data.showProductForm'))->toBeTrue();
 });
 
-it('shows unit and size on the stock tab of the catalog create=product modal', function () {
+it('shows unit and size on the basic tab of the catalog create=product modal', function () {
     $html = Livewire::actingAs($this->owner, 'staff')
         ->withQueryParams(['tab' => 'products', 'create' => 'product'])
         ->test(MenuManager::class)
         ->assertSet('showProductForm', true)
-        ->set('productFormTab', 'stock')
+        ->set('productFormTab', 'basic')
         ->html();
 
     expect($html)
         ->toContain('data-testid="catalog-product-modal"')
-        ->toContain('data-testid="product-stock-unit-size"')
+        ->toContain('data-testid="product-basic-unit"')
+        ->toContain('data-testid="product-basic-size"')
         ->toContain('name="productUnitId"')
         ->toContain('name="productSizeId"')
         ->toContain(__('catalog.unit'))

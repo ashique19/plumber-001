@@ -13,12 +13,12 @@
     :show="$show"
     :title="__('suppliers.quick_add_title')"
     close-wire="$set('showQuickSupplierModal', false)"
-    size="lg"
+    size="xl"
 >
     <form class="x-modal-form" wire:submit.prevent="saveQuickSupplier">
         <x-modal.validation-summary :fields="$quickSupplierFields" />
 
-        <div class="x-modal-form__fields x-modal-form__fields--2">
+        <div class="x-modal-form__fields x-modal-form__fields--3">
             <x-field.input :label="__('suppliers.name')" name="quickSupplierName" wire:model="quickSupplierName" :liveValidate="false" required />
             <x-field.input :label="__('suppliers.name_ar')" name="quickSupplierNameAr" wire:model="quickSupplierNameAr" :liveValidate="false" dir="rtl" />
             <x-field.input :label="__('suppliers.phone')" name="quickSupplierPhone" wire:model="quickSupplierPhone" :liveValidate="false" inputmode="tel" icon="phone" />
