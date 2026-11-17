@@ -4,6 +4,7 @@ namespace App\Livewire\Pos;
 
 use App\Enums\PosOrderStatus;
 use App\Livewire\Concerns\DispatchesToasts;
+use App\Livewire\Concerns\ValidatesFieldsLive;
 use App\Models\Branch;
 use App\Models\PosOrder;
 use App\Models\BusinessSetting;
@@ -18,6 +19,7 @@ use Livewire\WithPagination;
 class OrderHistory extends Component
 {
     use DispatchesToasts;
+    use ValidatesFieldsLive;
     use WithPagination;
 
     public int $branchId;
@@ -142,5 +144,15 @@ class OrderHistory extends Component
         $this->refundReason = '';
         $this->refundOrderNumber = null;
         $this->refundAmount = null;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function liveValidationRules(): array
+    {
+        return [
+            'refundReason' => ['required', 'string', 'max:240'],
+        ];
     }
 }
