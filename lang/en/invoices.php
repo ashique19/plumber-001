@@ -96,6 +96,8 @@ return [
         'debit_note' => 'Debit note',
         'standard_tax' => 'Standard Tax Invoice',
         'simplified_tax' => 'Simplified Tax Invoice',
+        'standard_tax_short' => 'Standard tax',
+        'simplified_tax_short' => 'Simplified tax',
     ],
     'signing' => [
         'none' => 'Not signed',

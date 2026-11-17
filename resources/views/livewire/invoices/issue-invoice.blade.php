@@ -19,17 +19,19 @@
                         <div class="document-meta-grid">
                             <h2 class="sr-only">{{ __('invoices.document_meta') }}</h2>
                             <div class="document-readonly-field">
-                                <span class="text-xs font-semibold text-[var(--app-muted)]">{{ __('invoices.field_document_number') }}</span>
-                                <div class="document-readonly-field__value">
-                                    <x-app.icon name="lock" class="h-4 w-4 text-[var(--app-muted)]" aria-hidden="true" />
-                                    <span>{{ $documentNumberLabel }}</span>
+                                <span class="document-readonly-field__label">{{ __('invoices.field_document_number') }}</span>
+                                <div class="document-readonly-field__value" title="{{ $documentNumberLabel }}">
+                                    <x-app.icon name="lock" class="h-4 w-4 shrink-0 text-[var(--app-muted)]" aria-hidden="true" />
+                                    <span class="truncate">{{ $documentNumberLabel }}</span>
                                 </div>
                             </div>
                             <x-field.date :label="__('invoices.invoice_date')" name="supplyDate" wire:model.live="supplyDate" required />
-                            <x-field.select :label="__('invoices.invoice_type')" name="mode" wire:model.live="mode" required>
-                                <option value="standard">{{ __('invoices.type.standard_tax') }}</option>
-                                <option value="simplified">{{ __('invoices.type.simplified_tax') }}</option>
-                            </x-field.select>
+                            <div class="document-meta-grid__type min-w-0">
+                                <x-field.select :label="__('invoices.invoice_type')" name="mode" wire:model.live="mode" required>
+                                    <option value="standard">{{ __('invoices.type.standard_tax_short') }}</option>
+                                    <option value="simplified">{{ __('invoices.type.simplified_tax_short') }}</option>
+                                </x-field.select>
+                            </div>
                             <x-field.select :label="__('invoices.payment_terms_label')" name="paymentTerms" wire:model.live="paymentTerms">
                                 <option value="cash">{{ __('invoices.payment_terms_cash') }}</option>
                                 <option value="credit">{{ __('invoices.payment_terms_credit') }}</option>

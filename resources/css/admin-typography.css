@@ -94,46 +94,55 @@
         --font-admin-ui: var(--font-admin-en);
 
         --type-display-size: 1.75rem;
-        --type-display-lh: 1.2;
+        --type-display-lh: 1.25;
         --type-display-ls: -0.03em;
         --type-h1-size: 1.375rem;
-        --type-h1-lh: 1.25;
-        --type-h1-ls: -0.025em;
-        --type-h2-size: 1.125rem;
-        --type-h2-lh: 1.35;
-        --type-h2-ls: -0.015em;
-        --type-h3-size: 1rem;
-        --type-h3-lh: 1.4;
-        --type-h3-ls: -0.01em;
-        --type-body-size: 0.9375rem;
-        --type-body-lh: 1.5;
-        --type-small-size: 0.8125rem;
-        --type-small-lh: 1.45;
-        --type-caption-size: 0.6875rem;
-        --type-caption-lh: 1.4;
-        --type-label-size: 0.75rem;
-        --type-label-lh: 1.35;
+        --type-h1-lh: 1.3;
+        --type-h1-ls: -0.02em;
+        --type-h2-size: 1.0625rem;
+        --type-h2-lh: 1.4;
+        --type-h2-ls: -0.01em;
+        --type-h3-size: 1.0625rem;
+        --type-h3-lh: 1.45;
+        --type-h3-ls: -0.008em;
+        --type-body-size: 1rem;
+        --type-body-lh: 1.55;
+        --type-small-size: 0.875rem;
+        --type-small-lh: 1.55;
+        --type-caption-size: 0.75rem;
+        --type-caption-lh: 1.5;
+        --type-label-size: 0.8125rem;
+        --type-label-lh: 1.5;
+        --type-label-weight: 500;
+        --type-input-size: 1rem;
         --type-amount-size: 1.5rem;
         --type-amount-lh: 1.2;
     }
 
     html.admin-app[lang^='bn'] {
         --font-admin-ui: var(--font-admin-bn);
-        --type-body-lh: 1.62;
-        --type-small-lh: 1.55;
-        --type-label-lh: 1.45;
-        --type-h1-lh: 1.32;
-        --type-h2-lh: 1.42;
+        --type-label-size: 0.875rem;
+        --type-label-lh: 1.6;
+        --type-body-size: 1rem;
+        --type-body-lh: 1.6;
+        --type-small-lh: 1.6;
+        --type-input-size: 1rem;
+        --type-h1-lh: 1.35;
+        --type-h2-lh: 1.5;
+        --type-h3-lh: 1.5;
     }
 
     html.admin-app[lang^='ar'],
     html.admin-app[dir='rtl'].admin-app {
         --font-admin-ui: var(--font-admin-ar);
-        --type-body-lh: 1.65;
-        --type-small-lh: 1.58;
-        --type-label-lh: 1.48;
-        --type-h1-lh: 1.35;
-        --type-h2-lh: 1.45;
+        --type-label-size: 0.875rem;
+        --type-label-lh: 1.6;
+        --type-body-lh: 1.6;
+        --type-small-lh: 1.6;
+        --type-input-size: 1rem;
+        --type-h1-lh: 1.38;
+        --type-h2-lh: 1.5;
+        --type-h3-lh: 1.5;
     }
 
     html.admin-app .app-shell {
@@ -162,6 +171,7 @@
     @media (min-width: 640px) {
         html.admin-app .app-page-title {
             font-size: 1.5rem;
+            line-height: 1.3;
         }
     }
 
@@ -208,8 +218,28 @@
     html.admin-app .form-field__label {
         font-size: var(--type-label-size);
         line-height: var(--type-label-lh);
-        font-weight: 600;
+        font-weight: var(--type-label-weight, 500);
         color: var(--app-text);
+    }
+
+    html.admin-app .form-field__control,
+    html.admin-app select.form-field__control,
+    html.admin-app textarea.form-field__control {
+        font-size: var(--type-input-size);
+        line-height: var(--type-body-lh);
+    }
+
+    html.admin-app .form-field__hint,
+    html.admin-app .invoice-customer-picker__hint {
+        font-size: var(--type-small-size);
+        line-height: var(--type-small-lh);
+        font-weight: 400;
+    }
+
+    html.admin-app .document-create-card__head {
+        font-size: var(--type-h3-size);
+        line-height: var(--type-h3-lh);
+        font-weight: 600;
     }
 
     .type-amount,
