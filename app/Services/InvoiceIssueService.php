@@ -144,6 +144,7 @@ class InvoiceIssueService
 
         $payload['invoice_uuid'] = $invoiceUuid;
         $signed = null;
+        $signResult = null;
 
         Log::info('invoice.zatca_issue_request', [
             'invoice_id' => $invoice->id,
@@ -163,7 +164,7 @@ class InvoiceIssueService
                 $dueDate,
                 $payload,
                 $invoiceUuid,
-                &$signed,
+                &$signResult,
             ): void {
                 $invoice->forceFill([
                     'status' => InvoiceStatus::Issued,
@@ -178,17 +179,19 @@ class InvoiceIssueService
 
                 InvoiceZatcaSubmissionGuard::markSubmissionInFlight($invoice);
 
-                $signResult = $autoSubmitZatca
+                $localSign = $autoSubmitZatca
                     ? $gateway->signLocally($request)
                     : $gateway->signIssuedInvoice($request, $invoice);
 
+                $signResult = $localSign;
+
                 $mergedPayload = array_merge($payload, [
-                    'invoice_uuid' => (string) ($signResult['invoice_uuid'] ?? $invoiceUuid),
+                    'invoice_uuid' => (string) ($localSign['invoice_uuid'] ?? $invoiceUuid),
                 ]);
 
                 Invoice::withoutEvents(function () use (
                     $invoice,
-                    $signResult,
+                    $localSign,
                     $mergedPayload,
                     $now,
                     $dueDate,
@@ -197,26 +200,24 @@ class InvoiceIssueService
                         'status' => InvoiceStatus::Issued,
                         'issued_at' => $now,
                         'due_date' => $dueDate,
-                        'icv' => $signResult['icv'],
-                        'invoice_hash' => $signResult['hash'],
-                        'previous_invoice_hash' => $signResult['previous_invoice_hash'],
-                        'signed_xml' => $signResult['xml'],
-                        'qr_tlv_base64' => $signResult['qr'],
+                        'icv' => $localSign['icv'],
+                        'invoice_hash' => $localSign['hash'],
+                        'previous_invoice_hash' => $localSign['previous_invoice_hash'],
+                        'signed_xml' => $localSign['xml'],
+                        'qr_tlv_base64' => $localSign['qr'],
                         'payload' => $mergedPayload,
                     ])->save();
                 });
 
-                if ($autoSubmitZatca) {
-                    $invoiceId = (int) $invoice->id;
-                    DB::afterCommit(function () use ($invoiceId, $business, $gateway, &$signed): void {
-                        $fresh = Invoice::query()->findOrFail($invoiceId);
-                        $clearRequest = InvoiceSigningRequestFactory::fromIssuedInvoice($fresh, $business);
-                        $signed = $gateway->submitInvoiceToZatca($clearRequest);
-                    });
-                } else {
-                    $signed = $signResult;
-                }
             });
+
+            if ($autoSubmitZatca) {
+                $fresh = $invoice->fresh() ?? $invoice;
+                $clearRequest = InvoiceSigningRequestFactory::fromIssuedInvoice($fresh, $business);
+                $signed = $gateway->submitInvoiceToZatca($clearRequest);
+            } else {
+                $signed = $signResult;
+            }
         } catch (InvoiceSigningException $e) {
             $persisted = $invoice->fresh() ?? $invoice;
             InvoiceZatcaSubmissionGuard::clearSubmissionInFlight($persisted);

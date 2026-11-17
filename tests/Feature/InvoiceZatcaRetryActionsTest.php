@@ -31,6 +31,32 @@ beforeEach(function () {
         'zheart.auto_submit_signed' => true,
     ]);
 
+    Http::fake([
+        'https://z-heart.test/api/v1/invoices/sign' => Http::response([
+            'status' => 'ok',
+            'data' => [
+                'signed_xml' => base64_encode('<Invoice/>'),
+                'uuid' => '550e8400-e29b-41d4-a716-446655440099',
+                'invoice_hash' => 'hash-pos',
+                'icv' => 1,
+                'pih' => '',
+                'qr' => 'cXI=',
+            ],
+        ], 200),
+        'https://z-heart.test/api/v1/invoices/report' => Http::response([
+            'status' => 'ok',
+            'data' => [
+                'signed_xml' => base64_encode('<Invoice/>'),
+                'uuid' => '550e8400-e29b-41d4-a716-446655440099',
+                'invoice_hash' => 'hash-pos',
+                'icv' => 1,
+                'qr' => 'cXI=',
+                'zatca' => ['status' => 'reported'],
+                'reporting_status' => 'reported',
+            ],
+        ], 200),
+    ]);
+
     $this->owner = StaffUser::query()->where('email', 'owner@example.test')->firstOrFail();
     BusinessContext::set($business);
 });
