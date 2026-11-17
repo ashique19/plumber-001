@@ -67,4 +67,30 @@ final class ZHeartBuyerAddressMapper
 
         return $country !== '' ? $country : $fallback;
     }
+
+    /**
+     * B2C (simplified) may include buyer.address only when every ZATCA national-address field is present and valid.
+     *
+     * @param  array<string, mixed>  $address
+     */
+    public static function hasCompleteSaudiNationalAddress(array $address): bool
+    {
+        $building = trim((string) ($address['building'] ?? ''));
+        $street = trim((string) ($address['street'] ?? ''));
+        $district = trim((string) ($address['district'] ?? $address['subdivision'] ?? ''));
+        $city = trim((string) ($address['city'] ?? ''));
+        $postal = self::postalDigits($address);
+
+        if ($building === '' || $street === '' || $district === '' || $city === '') {
+            return false;
+        }
+
+        if (! preg_match('/^\d{5}$/', $postal)) {
+            return false;
+        }
+
+        $country = strtoupper(trim((string) ($address['country'] ?? 'SA')));
+
+        return $country === '' || $country === 'SA';
+    }
 }

@@ -2,6 +2,10 @@
 
 Contract reference: **z-heart** `docs/API-CLIENT-CONTRACT.md` (private repo `ashique19/z-heart`).
 
+## Simplified (B2C) `buyer.address`
+
+Plumber **omits** `buyer.address` on simplified invoices unless the buyer snapshot has a **complete** Saudi national address (building, street, district, city, 5-digit postal, country SA). Partial objects (e.g. only `country: SA`) caused Z-Heart **422** because its validator treats every present `buyer.address` as requiring full sub-fields. Standard clearance invoices still send `buyer.address` with at least `country: SA` per #154. If Z-Heart should accept minimal `buyer.address` for simplified only, that belongs in the z-heart API contract — not in plumber partial payloads.
+
 ## Response shape (success)
 
 Top-level:
