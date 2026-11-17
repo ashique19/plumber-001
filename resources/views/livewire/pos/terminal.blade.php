@@ -80,8 +80,8 @@
                         </div>
                         <div class="flex flex-1 flex-col gap-2 p-3">
                             <strong class="text-sm leading-snug">{{ $product->displayName() }}</strong>
-                            @if($product->modifiers->isNotEmpty())
-                                <div class="space-y-1 text-xs">
+                            @if(($modifiersFeatureEnabled ?? false) && $product->modifiers->isNotEmpty())
+                                <div class="space-y-1 text-xs" data-testid="pos-product-modifiers">
                                     @foreach($product->modifiers as $mod)
                                         <label class="flex min-h-10 items-center gap-2 rounded-lg border bg-[var(--app-bg)] px-2" style="border-color: var(--app-border)">
                                             <input type="checkbox" class="h-4 w-4"

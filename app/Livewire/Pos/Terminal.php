@@ -15,6 +15,7 @@ use App\Services\Pos\PosBranchInsights;
 use App\Services\Pos\PosCatalogQuery;
 use App\Services\Pos\PosCheckoutService;
 use App\Services\Pos\PosOrderService;
+use App\Support\Business\PlumberFeatures;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
@@ -81,7 +82,9 @@ class Terminal extends Component
         try {
             $order = $this->currentOrder();
             $product = Product::query()->findOrFail($productId);
-            $modifiers = $this->selectedModifiers[$productId] ?? [];
+            $modifiers = PlumberFeatures::modifiersEnabled()
+                ? ($this->selectedModifiers[$productId] ?? [])
+                : [];
 
             $orders->addProduct($order, $product, 1, $modifiers);
             unset($this->selectedModifiers[$productId]);
@@ -93,6 +96,10 @@ class Terminal extends Component
 
     public function toggleModifier(int $productId, int $modifierId): void
     {
+        if (! PlumberFeatures::modifiersEnabled()) {
+            return;
+        }
+
         try {
             $current = $this->selectedModifiers[$productId] ?? [];
             if (in_array($modifierId, $current, true)) {
@@ -335,6 +342,7 @@ class Terminal extends Component
             'stockStates' => $stockStates,
             'shift' => $insights->todaySnapshot($branch),
             'activeShift' => $activeShift,
+            'modifiersFeatureEnabled' => PlumberFeatures::modifiersEnabled(),
         ]);
     }
 

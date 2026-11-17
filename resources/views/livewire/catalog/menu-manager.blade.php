@@ -13,8 +13,10 @@
             $catalogTabs = [
                 'products' => __('catalog.tab_products'),
                 'categories' => __('catalog.tab_categories'),
-                'modifiers' => __('catalog.tab_modifiers'),
             ];
+            if ($modifiersFeatureEnabled ?? false) {
+                $catalogTabs['modifiers'] = __('catalog.tab_modifiers');
+            }
             if ($catalogUnitsSizesReady ?? false) {
                 $catalogTabs['units'] = __('catalog.tab_units');
                 $catalogTabs['sizes'] = __('catalog.tab_sizes');
@@ -82,7 +84,7 @@
         </section>
     @endif
 
-    @if ($tab === 'modifiers')
+    @if (($modifiersFeatureEnabled ?? false) && $tab === 'modifiers')
         <section class="mt-4">
             @if($canWrite)
                 <x-app.add-button type="button" variant="primary" data-admin-livewire-call="startModifier">{{ __('catalog.add_modifier') }}</x-app.add-button>
@@ -259,7 +261,7 @@
         </x-modal>
     @endif
 
-    @if($showModifierForm && $canWrite)
+    @if(($modifiersFeatureEnabled ?? false) && $showModifierForm && $canWrite)
         <x-modal
             :show="true"
             :title="$editingModifierId ? __('catalog.edit_modifier') : __('catalog.add_modifier')"

@@ -90,6 +90,8 @@ it('renders shared x-modal chrome for category and modifier forms', function () 
         ->and($categoryHtml)->toContain('catalog-category-form-fields')
         ->and($categoryHtml)->toContain('admin-modal-field-grid--3');
 
+    config(['plumber.features.modifiers' => true]);
+
     $modifierHtml = Livewire::actingAs($this->owner, 'staff')
         ->test(MenuManager::class)
         ->call('startModifier')
