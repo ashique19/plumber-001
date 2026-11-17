@@ -9,6 +9,7 @@ use App\Livewire\Concerns\ManagesDocumentCreateChrome;
 use App\Livewire\Concerns\ManagesInvoicingCatalogPicker;
 use App\Livewire\Concerns\ManagesInvoicingCustomerPicker;
 use App\Support\Invoicing\DocumentCreateUiSupport;
+use App\Support\Invoicing\DocumentPaymentTerms;
 use App\Livewire\Concerns\ResolvesBusinessContext;
 use App\Livewire\Concerns\ValidatesFieldsLive;
 use App\Models\Customer;
@@ -93,6 +94,8 @@ class ManageQuotation extends Component
 
   public string $termsAndConditions = '';
 
+  public string $paymentTerms = 'net_30';
+
   public string $displayQuotationNumber = '';
 
   #[Locked]
@@ -107,6 +110,8 @@ class ManageQuotation extends Component
 
       $this->validityUntil = now('Asia/Riyadh')->addDays(30)->format('Y-m-d');
       $this->supplyDate = now('Asia/Riyadh')->format('Y-m-d');
+      $defaultDays = max(0, (int) data_get($this->business->settings, 'invoicing.payment_terms_days', 30));
+      $this->paymentTerms = DocumentPaymentTerms::defaultCreditTermCode($defaultDays);
 
       $this->termsAndConditions = DocumentCreateUiSupport::defaultQuotationTerms($this->business);
 
@@ -158,6 +163,11 @@ class ManageQuotation extends Component
       $this->addrCity = (string) ($na['city'] ?? 'Riyadh');
       $this->addrPostal = (string) ($na['postal_code'] ?? '');
       $this->addrAdditional = (string) ($na['additional'] ?? '');
+
+      $this->paymentTerms = DocumentPaymentTerms::normalizeCode(
+          (string) ($payload['payment_terms'] ?? $this->paymentTerms),
+          max(0, (int) data_get($this->business->settings, 'invoicing.payment_terms_days', 30)),
+      );
 
       $rawLines = is_array($payload['lines'] ?? null) ? $payload['lines'] : [];
       $this->lines = [];
@@ -380,6 +390,11 @@ class ManageQuotation extends Component
           $payload['retention_percent'] = round($retentionPercent, 2);
       }
 
+      $payload['payment_terms'] = DocumentPaymentTerms::normalizeCode(
+          $this->paymentTerms,
+          max(0, (int) data_get($this->business->settings, 'invoicing.payment_terms_days', 30)),
+      );
+
       return $payload;
   }
 
@@ -570,6 +585,7 @@ class ManageQuotation extends Component
           'documentNotes' => ['nullable', 'string', 'max:2000'],
           'termsAndConditions' => ['nullable', 'string', 'max:6000'],
           'buyerName' => ['nullable', 'string', 'max:200'],
+          'paymentTerms' => ['required', \Illuminate\Validation\Rule::in(DocumentPaymentTerms::codes())],
       ];
 
       return $lineRules;

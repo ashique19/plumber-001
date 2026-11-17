@@ -71,6 +71,10 @@ final class QuotationPrintPresenter
         }
 
         $amountWords = SarAmountInWords::format($totals['total_inc_vat']);
+        $paymentTermsCode = DocumentPaymentTerms::normalizeCode(
+            (string) ($payload['payment_terms'] ?? ''),
+            max(0, (int) data_get($business->settings, 'invoicing.payment_terms_days', 30)),
+        );
 
         return [
             'document_kind' => 'quotation',
@@ -83,6 +87,8 @@ final class QuotationPrintPresenter
             'issue_datetime' => $issueAt?->format('Y/m/d h:i A'),
             'due_date' => null,
             'supply_date' => null,
+            'payment_terms_en' => DocumentPaymentTerms::label($paymentTermsCode, 'en'),
+            'payment_terms_ar' => DocumentPaymentTerms::label($paymentTermsCode, 'ar'),
             'seller_en' => $legal['name_en'] ?? $business->name,
             'seller_ar' => $legal['name_ar'] ?? $business->name,
             'logo_url' => filled($theme['logo_url'] ?? null) ? $theme['logo_url'] : null,

@@ -63,15 +63,23 @@
                             </div>
                             <x-field.select :label="__('invoices.payment_terms_label')" name="paymentTerms" wire:model.live="paymentTerms">
                                 <option value="cash">{{ __('invoices.payment_terms_cash') }}</option>
-                                <option value="credit">{{ __('invoices.payment_terms_credit') }}</option>
+                                <option value="net_7">{{ __('invoices.payment_terms_net_7') }}</option>
+                                <option value="net_15">{{ __('invoices.payment_terms_net_15') }}</option>
+                                <option value="net_30">{{ __('invoices.payment_terms_net_30') }}</option>
+                                <option value="custom">{{ __('invoices.payment_terms_custom') }}</option>
                             </x-field.select>
                             <x-field.date
                                 :label="__('invoices.due_date')"
                                 name="dueDate"
                                 wire:model.live="dueDate"
-                                :disabled="$paymentTerms === 'cash'"
-                                :required="$isStandard && $paymentTerms === 'credit'"
+                                :disabled="$paymentTermsDueDateReadOnly"
+                                :required="$isStandard && ! $paymentTermsIsImmediate"
                             />
+                            @if ($paymentTermsIsImmediate)
+                                <p class="document-meta-grid__hint m-0 text-xs text-[var(--app-muted)] lg:col-span-2">
+                                    {{ __('invoices.due_date_same_as_invoice') }}
+                                </p>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -112,6 +120,8 @@
                 <x-invoices.document-payment-details
                     :payment-method-options="$paymentMethodOptions"
                     :due-amount="$paymentDueAmount"
+                    :payment-method-required="$paymentMethodRequired"
+                    :show-payment-fields="$isStandard"
                 />
             </aside>
         </div>

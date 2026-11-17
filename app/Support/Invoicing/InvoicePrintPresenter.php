@@ -110,6 +110,12 @@ final class InvoicePrintPresenter
 
         $paymentMethod = (string) ($meta['payment_method'] ?? 'cash');
         $paymentLabels = self::paymentLabels($paymentMethod);
+        $paymentTermsCode = \App\Support\Invoicing\DocumentPaymentTerms::normalizeCode(
+            (string) ($payload['payment_terms'] ?? ''),
+            max(0, (int) data_get($business->settings, 'invoicing.payment_terms_days', 30)),
+        );
+        $paymentTermsEn = \App\Support\Invoicing\DocumentPaymentTerms::label($paymentTermsCode, 'en');
+        $paymentTermsAr = \App\Support\Invoicing\DocumentPaymentTerms::label($paymentTermsCode, 'ar');
 
         $trn = $legal['vat_number'] ?? null;
         $cr = $legal['cr_number'] ?? null;
@@ -194,6 +200,8 @@ final class InvoicePrintPresenter
             'payment_method' => $paymentMethod,
             'payment_display_en' => $paymentLabels['en'],
             'payment_display_ar' => $paymentLabels['ar'],
+            'payment_terms_en' => $paymentTermsEn,
+            'payment_terms_ar' => $paymentTermsAr,
             'qr_tlv_base64' => $qr,
             'qr_phase1_fallback' => $qrFallback,
             'print_watermark' => $printWatermark,

@@ -13,7 +13,9 @@ use App\Livewire\Concerns\ManagesDocumentBuyerContact;
 use App\Livewire\Concerns\ManagesDocumentCreateChrome;
 use App\Livewire\Concerns\ManagesInvoicingCatalogPicker;
 use App\Livewire\Concerns\ManagesInvoicingCustomerPicker;
+use App\Livewire\Concerns\ManagesInvoicePaymentTerms;
 use App\Livewire\Concerns\ManagesStandardBuyerCompletion;
+use App\Support\Invoicing\DocumentPaymentTerms;
 use App\Livewire\Concerns\ResolvesBusinessContext;
 use App\Livewire\Concerns\ValidatesFieldsLive;
 use App\Models\Invoice;
@@ -47,6 +49,7 @@ class IssueInvoice extends Component
     use ManagesDocumentCreateChrome;
     use ManagesInvoicingCatalogPicker;
     use ManagesInvoicingCustomerPicker;
+    use ManagesInvoicePaymentTerms;
     use ManagesStandardBuyerCompletion;
     use ResolvesBusinessContext;
     use ValidatesFieldsLive;
@@ -143,15 +146,8 @@ class IssueInvoice extends Component
             $this->supplyDate = now('Asia/Riyadh')->format('Y-m-d');
         }
 
-        if ($value === 'standard' && $this->dueDate === '') {
-            $termsDays = max(0, (int) data_get($this->business->settings, 'invoicing.payment_terms_days', 30));
-            $this->dueDate = $this->paymentTerms === 'cash'
-                ? now('Asia/Riyadh')->format('Y-m-d')
-                : now('Asia/Riyadh')->addDays($termsDays)->format('Y-m-d');
-        }
-
-        if ($this->paymentTerms === 'cash') {
-            $this->syncAmountReceivedToGrandTotal();
+        if ($value === 'standard') {
+            $this->bootstrapDocumentPaymentTerms();
         }
     }
 
@@ -166,8 +162,6 @@ class IssueInvoice extends Component
 
         abort_unless(auth('staff')->user()?->can('invoices.issue'), 403);
 
-        $termsDays = max(0, (int) data_get($business->settings, 'invoicing.payment_terms_days', 30));
-        $this->dueDate = now('Asia/Riyadh')->addDays($termsDays)->format('Y-m-d');
         $this->supplyDate = now('Asia/Riyadh')->format('Y-m-d');
 
         IssueInvoicePrefill::applyIfPresent($this, $mode, request());
@@ -178,7 +172,7 @@ class IssueInvoice extends Component
         }
 
         $this->paymentMethod = InvoiceArPaymentMethod::Cash->value;
-        $this->syncAmountReceivedToGrandTotal();
+        $this->bootstrapDocumentPaymentTerms();
         $this->issueSubmissionToken = (string) Str::uuid();
 
         DocumentCreateUiSupport::assignMissingLineIds($this->lines);
@@ -190,29 +184,17 @@ class IssueInvoice extends Component
         DocumentCreateUiSupport::assignMissingLineIds($this->lines);
     }
 
-    public function updatedPaymentTerms(): void
-    {
-        if ($this->paymentTerms === 'cash') {
-            $this->syncAmountReceivedToGrandTotal();
-            $this->dueDate = now('Asia/Riyadh')->format('Y-m-d');
-        } else {
-            $termsDays = max(0, (int) data_get($this->business->settings, 'invoicing.payment_terms_days', 30));
-            $this->dueDate = now('Asia/Riyadh')->addDays($termsDays)->format('Y-m-d');
-        }
-    }
-
     public function updated($propertyName): void
     {
-        if ($propertyName === 'paymentTerms' || $propertyName === 'mode') {
+        if (in_array($propertyName, ['paymentTerms', 'mode', 'supplyDate', 'dueDate', 'amountReceived'], true)) {
             return;
         }
 
         if (
-            $this->paymentTerms === 'cash'
-            && (str_starts_with((string) $propertyName, 'lines')
-                || in_array($propertyName, ['invoiceDiscountExVat', 'retentionPercent', 'retentionFixed'], true))
+            str_starts_with((string) $propertyName, 'lines')
+            || in_array($propertyName, ['invoiceDiscountExVat', 'retentionPercent', 'retentionFixed'], true)
         ) {
-            $this->syncAmountReceivedToGrandTotal();
+            $this->syncPaymentAmountsAfterTotalsChange();
         }
     }
 
@@ -480,7 +462,7 @@ class IssueInvoice extends Component
                 'buyer_phone' => trim($this->buyerPhone),
                 'buyer_email' => trim($this->buyerEmail),
                 'buyer_country' => strtoupper(trim($this->buyerCountry)) ?: 'SA',
-                'buyer_due_date' => $this->paymentTerms === 'credit' ? trim($this->dueDate) : '',
+                'buyer_due_date' => DocumentPaymentTerms::isCredit($this->paymentTerms) ? trim($this->dueDate) : '',
                 'buyer_national_address' => [
                     'building' => $this->addrBuilding,
                     'street' => $this->addrStreet,
@@ -617,6 +599,10 @@ class IssueInvoice extends Component
                 InvoiceArPaymentMethod::Bank->value => InvoiceArPaymentMethod::Bank->label(),
                 InvoiceArPaymentMethod::Card->value => InvoiceArPaymentMethod::Card->label(),
             ],
+            'paymentTermsIsImmediate' => $this->paymentTermsIsImmediate(),
+            'paymentMethodRequired' => $this->paymentMethodRequiredOnForm(),
+            'paymentTermsDueDateReadOnly' => $this->paymentTermsIsImmediate()
+                || $this->paymentTerms !== DocumentPaymentTerms::CUSTOM,
             'zatcaNotReady' => ! ZatcaSubmissionStatus::canSubmitToZatca($this->business),
         ])->layout('layouts.pos', ['pageTitle' => __('invoices.create_heading')]);
     }
@@ -783,16 +769,24 @@ class IssueInvoice extends Component
 
         $buyerFields = CustomerIdentityRules::buyerFields();
 
+        $grand = (float) ($this->previewTotals()['total_inc_vat'] ?? 0);
+        $received = max(0, (float) $this->amountReceived);
+
+        $paymentRules = $relaxedDueDate
+            ? []
+            : DocumentPaymentTerms::issueValidationRules(
+                $this->paymentTerms,
+                $this->effectiveSupplyDate(),
+                $grand,
+                $received,
+                true,
+            );
+
         return array_merge($lineRules, CustomerIdentityRules::forHost($this, $buyerFields, [
             'sa_standard_buyer' => true,
         ]), [
             'selectedCustomerId' => ['required', 'integer', 'exists:customers,id'],
-            'dueDate' => $relaxedDueDate || $this->paymentTerms === 'cash'
-                ? ['nullable', 'date']
-                : ['required', 'date'],
-            'paymentMethod' => ['required', Rule::in(array_map(fn (InvoiceArPaymentMethod $m) => $m->value, InvoiceArPaymentMethod::cases()))],
-            'amountReceived' => ['nullable', 'numeric', 'min:0'],
-        ]);
+        ], $paymentRules);
     }
 
     private function pruneEmptyDocumentLines(): void
@@ -844,6 +838,9 @@ class IssueInvoice extends Component
             'addrPostal' => __('business.fields.postal'),
             'addrAdditional' => __('business.fields.additional'),
             'dueDate' => __('invoices.due_date'),
+            'paymentTerms' => __('invoices.payment_terms_label'),
+            'paymentMethod' => __('invoices.payment_received_method'),
+            'amountReceived' => __('invoices.payment_received_amount'),
             'buyerCountry' => __('invoices.buyer_country'),
             'lines.*.name' => __('invoices.line_name'),
             'lines.*.quantity' => __('invoices.line_qty'),
