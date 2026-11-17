@@ -29,7 +29,7 @@
 </nav>
 
 <div class="catalog-product-form__panels min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-5">
-<div @class(['admin-modal-field-stack', 'hidden' => $productFormTab !== 'basic'])">
+<div @class(['admin-modal-field-stack', 'hidden' => $productFormTab !== 'basic'])>
     <x-form.product-image-upload
         :label="__('catalog.product_image.label')"
         wire-model="productImageUpload"
@@ -132,9 +132,8 @@
 </div>
 
 <div @class(['admin-modal-field-stack', 'hidden' => $productFormTab !== 'stock'])>
-    @if($catalogUnitsSizesReady ?? false)
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2" data-testid="product-stock-unit-size">
-            <x-field.select :label="__('catalog.unit')" name="productUnitId" wire:model="productUnitId" required>
+            <x-field.select :label="__('catalog.unit')" name="productUnitId" wire:model="productUnitId" :required="($catalogUnitsSizesReady ?? false)">
                 <option value="">{{ __('catalog.none') }}</option>
                 @foreach($activeUnitsForPicker as $unit)
                     <option value="{{ $unit->id }}">{{ $unit->displayName() }} ({{ $unit->code }})</option>
@@ -147,7 +146,6 @@
                 @endforeach
             </x-field.select>
         </div>
-    @endif
     @if($productStockReady ?? false)
         <x-field.toggle wire:model.live="productTrackStock" name="productTrackStock" :label="__('stock.track_stock')" />
         @if($productTrackStock && ! $editingProductId)

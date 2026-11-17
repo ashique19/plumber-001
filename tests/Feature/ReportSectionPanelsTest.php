@@ -69,3 +69,14 @@ it('renders customer dues panel when section is customers', function () {
         ->assertDontSee(__('reports.sales_over_time'), false)
         ->assertDontSee(__('reports.inventory_heading'), false);
 });
+
+it('stacks report date filters full width on small screens', function () {
+    $html = Livewire::actingAs($this->owner, 'staff')
+        ->test(OwnerAnalytics::class)
+        ->html();
+
+    expect($html)
+        ->toContain('grid w-full min-w-0 grid-cols-1')
+        ->toContain('wire:model.live="dateFrom"')
+        ->toContain('form-field__control w-full min-w-0');
+});

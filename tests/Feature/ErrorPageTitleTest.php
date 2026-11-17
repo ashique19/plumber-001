@@ -10,6 +10,21 @@ beforeEach(function () {
     $this->business = BusinessSetting::singleton();
 });
 
+it('renders 404 copy in the session locale instead of always Bangla', function () {
+    $enHeading = trans('errors.not_found_heading', [], 'en');
+    $bnHeading = trans('errors.not_found_heading', [], 'bn');
+
+    $html = $this->withSession(['locale' => 'en'])
+        ->get('/this-route-does-not-exist-xyz')
+        ->assertNotFound()
+        ->getContent();
+
+    expect($html)
+        ->toContain($enHeading)
+        ->toContain('lang="en"')
+        ->not->toContain($bnHeading);
+});
+
 it('uses a translated heading and business name in error page titles', function () {
     app()->setLocale('en');
     $name = BusinessSettingDisplayName::for($this->business, 'en');
