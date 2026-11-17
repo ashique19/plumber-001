@@ -159,6 +159,8 @@ class BusinessSettings extends Component
 
     public string $zheartTestMessage = '';
 
+    public ?int $zheartTestHttpStatus = null;
+
     /** @var list<string> */
     public array $tabsWithErrors = [];
 
@@ -674,11 +676,18 @@ class BusinessSettings extends Component
         }
 
         $result = $client->testConnection($base, $key);
-        $this->zheartTestStatus = $result['ok'] ? 'ok' : 'error';
+        $this->zheartTestStatus = match ($result['severity'] ?? 'error') {
+            'ok' => 'ok',
+            'warn' => 'warn',
+            default => 'error',
+        };
         $this->zheartTestMessage = $result['message'];
+        $this->zheartTestHttpStatus = $result['http_status'] ?? null;
 
         if ($result['ok']) {
             $this->toastSuccess($result['message']);
+        } elseif (($result['severity'] ?? 'error') === 'warn') {
+            $this->toastWarning($result['message']);
         } else {
             $this->toastError($result['message']);
         }
@@ -869,6 +878,7 @@ class BusinessSettings extends Component
         $this->zheartReplaceKeyOpen = false;
         $this->zheartTestStatus = null;
         $this->zheartTestMessage = '';
+        $this->zheartTestHttpStatus = null;
 
         $this->sanitizeLegacyFieldFormats();
     }

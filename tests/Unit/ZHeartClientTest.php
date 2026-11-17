@@ -91,10 +91,70 @@ it('does not retry report on 503 even when retry_times is high', function () {
 it('health checks the remote service', function () {
     Http::fake([
         'https://z-heart.test/api/v1/health' => Http::response(['status' => 'ok'], 200),
-        'https://z-heart.test/api/v1/auth' => Http::response(['status' => 'ok'], 200),
+        'https://z-heart.test/api/v1/auth' => Http::response([
+            'status' => 'ok',
+            'client' => ['name' => 'Demo', 'environment' => 'sandbox', 'onboarded' => true],
+        ], 200),
     ]);
 
     expect(app(ZHeartClient::class)->health())->toBeTrue();
+});
+
+it('reports client details on successful auth check', function () {
+    Http::fake([
+        'https://z-heart.test/api/v1/health' => Http::response(['status' => 'ok'], 200),
+        'https://z-heart.test/api/v1/auth' => Http::response([
+            'status' => 'ok',
+            'client' => ['name' => 'Acme Plumbing', 'environment' => 'production', 'onboarded' => false],
+        ], 200),
+    ]);
+
+    $result = app(ZHeartClient::class)->testConnection();
+
+    expect($result['ok'])->toBeTrue()
+        ->and($result['http_status'])->toBe(200)
+        ->and($result['message'])->toContain('Acme Plumbing')
+        ->and($result['message'])->toContain('production');
+});
+
+it('treats auth 404 as z-heart upgrade needed', function () {
+    Http::fake([
+        'https://z-heart.test/api/v1/health' => Http::response(['status' => 'ok'], 200),
+        'https://z-heart.test/api/v1/auth' => Http::response(['message' => 'Not Found'], 404),
+    ]);
+
+    $result = app(ZHeartClient::class)->testConnection();
+
+    expect($result['ok'])->toBeFalse()
+        ->and($result['severity'])->toBe('warn')
+        ->and($result['http_status'])->toBe(404)
+        ->and($result['message'])->toContain('/api/v1/auth');
+});
+
+it('treats auth 401 as key or allowlist failure', function () {
+    Http::fake([
+        'https://z-heart.test/api/v1/health' => Http::response(['status' => 'ok'], 200),
+        'https://z-heart.test/api/v1/auth' => Http::response(['status' => 'error'], 401),
+    ]);
+
+    $result = app(ZHeartClient::class)->testConnection();
+
+    expect($result['ok'])->toBeFalse()
+        ->and($result['severity'])->toBe('error')
+        ->and($result['http_status'])->toBe(401)
+        ->and($result['message'])->toContain('allowlist');
+});
+
+it('treats auth 403 like 401 for connection test', function () {
+    Http::fake([
+        'https://z-heart.test/api/v1/health' => Http::response(['status' => 'ok'], 200),
+        'https://z-heart.test/api/v1/auth' => Http::response(['status' => 'error'], 403),
+    ]);
+
+    $result = app(ZHeartClient::class)->testConnection();
+
+    expect($result['http_status'])->toBe(403)
+        ->and($result['message'])->toContain('allowlist');
 });
 
 function minimalZHeartInvoicePayload(string $type = 'simplified'): array
