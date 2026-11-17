@@ -100,7 +100,7 @@ final class ClassicPartyPrintBlock
         }
 
         if ($nameAr !== '' && $nameEn !== '' && $nameAr !== $nameEn) {
-            return '<span class="classic-party__name-ar" dir="rtl">'.$nameAr.'</span>'
+            return '<span class="classic-party__name-ar invoice-print-ar" dir="rtl">'.$nameAr.'</span>'
                 .'<span class="classic-party__name-en">'.$nameEn.'</span>';
         }
 
@@ -114,7 +114,7 @@ final class ClassicPartyPrintBlock
                 'en' => 'Name',
                 'ar' => 'الاسم',
                 'html' => '<span class="classic-party__name-en">'.$nameEn.'</span>'
-                    .'<span class="classic-party__name-ar" dir="rtl">'.$nameAr.'</span>',
+                    .'<span class="classic-party__name-ar invoice-print-ar" dir="rtl">'.$nameAr.'</span>',
             ];
         }
 

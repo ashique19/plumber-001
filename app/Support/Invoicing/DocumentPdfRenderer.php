@@ -87,7 +87,7 @@ final class DocumentPdfRenderer
             .'html,body,.invoice-print-root,.invoice-print-root *{font-family:AmiriPdf,DejaVu Sans,sans-serif!important}'
             .'.invoice-print-root{padding:3mm 5mm;font-size:8.5pt;max-width:none}'
             .'.invoice-print-root--pdf{padding:3mm 5mm 4mm!important;font-size:8.5pt!important}'
-            .'.invoice-print-root [dir=rtl],.invoice-print-root .ar,.invoice-a4__title-ar,.invoice-a4__desc-ar,.invoice-a4__footer-ar,.invoice-a4__seller-side--ar,.invoice-print-label__ar,.print-tpl-modern__totals-ar,.print-classic__title-ar,.classic-party__name-ar,.print-classic__words{direction:rtl;text-align:right;unicode-bidi:isolate}'
+            .'.invoice-print-root .invoice-print-ar,.invoice-print-root [dir=rtl],.invoice-print-root .ar,.invoice-a4__title-ar,.invoice-a4__desc-ar,.invoice-a4__footer-ar,.invoice-a4__seller-side--ar,.invoice-print-label__ar,.invoice-a4__buyer-table-label.ar,.invoice-a4__buyer-name-ar,.invoice-a4__table th .ar,.print-tpl-modern__totals-ar,.print-classic__title-ar,.print-classic__cell-label.ar,.classic-party__name-ar,.print-classic__words,.print-classic__lines th .ar{direction:rtl!important;text-align:right!important;unicode-bidi:isolate}'
             .'.invoice-a4__title-bn,.print-classic__title-bn{display:none!important}'
             .'.invoice-sar-symbol__svg{display:inline-block!important;width:0.85em!important;height:1em!important;vertical-align:-0.12em}'
             .'.invoice-sar-symbol__fallback{display:none!important}'

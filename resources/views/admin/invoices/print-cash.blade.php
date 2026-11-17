@@ -27,12 +27,12 @@
 
         <section class="invoice-cash__seller">
             <strong>{{ $t['seller_en'] }}</strong>
-            <div class="invoice-cash__seller-ar">{{ $t['seller_ar'] }}</div>
+            <div class="invoice-cash__seller-ar invoice-print-ar" dir="rtl">{{ $t['seller_ar'] }}</div>
             @if ($t['address_en'])
                 <p class="m-0">{{ $t['address_en'] }}</p>
             @endif
             @if ($t['address_ar'])
-                <p class="m-0 invoice-cash__seller-ar">{{ $t['address_ar'] }}</p>
+                <p class="m-0 invoice-cash__seller-ar invoice-print-ar" dir="rtl">{{ $t['address_ar'] }}</p>
             @endif
             @if ($t['trn'])
                 <p class="m-0"><x-invoices.print-label en="VAT No." ar="الرقم الضريبي" />: {{ $t['trn'] }}</p>
@@ -128,7 +128,7 @@
                     <span><x-invoices.sar-symbol /> {{ number_format($t['net_due_inc_vat'], 2) }}</span>
                 </div>
             @endif
-            <p class="invoice-a4__words mt-2" dir="rtl">{{ $t['amount_words_ar'] }}</p>
+            <p class="invoice-a4__words invoice-print-ar mt-2" dir="rtl">{{ $t['amount_words_ar'] }}</p>
             <p class="invoice-a4__words">{{ $t['amount_words_en'] }}</p>
         </section>
 

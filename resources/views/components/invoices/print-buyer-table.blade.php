@@ -23,7 +23,7 @@
                             {{ $row['value'] ?? '' }}
                         @endif
                     </td>
-                    <td class="invoice-a4__buyer-table-label ar" dir="rtl">{{ $row['ar'] }}</td>
+                    <td class="invoice-a4__buyer-table-label ar invoice-print-ar" dir="rtl">{{ $row['ar'] }}</td>
                 </tr>
             @endforeach
 
@@ -37,7 +37,7 @@
                                         <div class="invoice-a4__buyer-table-split-row">
                                             <span class="invoice-a4__buyer-table-label">{{ $row['en'] }}</span>
                                             <span class="invoice-a4__buyer-table-value">{{ $row['value'] }}</span>
-                                            <span class="invoice-a4__buyer-table-label ar" dir="rtl">{{ $row['ar'] }}</span>
+                                            <span class="invoice-a4__buyer-table-label ar invoice-print-ar" dir="rtl">{{ $row['ar'] }}</span>
                                         </div>
                                     @endif
                                 @endforeach
@@ -48,7 +48,7 @@
                                         <div class="invoice-a4__buyer-table-split-row">
                                             <span class="invoice-a4__buyer-table-label">{{ $row['en'] }}</span>
                                             <span class="invoice-a4__buyer-table-value">{{ $row['value'] }}</span>
-                                            <span class="invoice-a4__buyer-table-label ar" dir="rtl">{{ $row['ar'] }}</span>
+                                            <span class="invoice-a4__buyer-table-label ar invoice-print-ar" dir="rtl">{{ $row['ar'] }}</span>
                                         </div>
                                     @endif
                                 @endforeach

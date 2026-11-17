@@ -30,7 +30,7 @@
                     <img src="{{ asset($t['logo_url']) }}" alt="" class="invoice-a4__logo">
                 @endif
             </div>
-            <div class="invoice-a4__seller-side invoice-a4__seller-side--ar">
+            <div class="invoice-a4__seller-side invoice-a4__seller-side--ar invoice-print-ar" dir="rtl">
                 <strong>{{ $t['seller_ar'] }}</strong>
                 @if ($t['address_ar'])
                     <p class="m-0">{{ $t['address_ar'] }}</p>
@@ -74,13 +74,13 @@
         <table class="invoice-a4__table print-tpl-modern__lines">
             <thead>
                 <tr>
-                    <th>#<span class="ar">م</span></th>
-                    <th>Description<span class="ar">الوصف</span></th>
-                    <th>Qty<span class="ar">الكمية</span></th>
-                    <th>Price<span class="ar">السعر</span></th>
-                    <th>Taxable amount<span class="ar">المبلغ الخاضع للضريبة</span></th>
-                    <th>VAT amount (+%)<span class="ar">القيمة المضافة</span></th>
-                    <th>Line amount<span class="ar">المجموع</span></th>
+                    <th>#<span class="ar invoice-print-ar" dir="rtl">م</span></th>
+                    <th>Description<span class="ar invoice-print-ar" dir="rtl">الوصف</span></th>
+                    <th>Qty<span class="ar invoice-print-ar" dir="rtl">الكمية</span></th>
+                    <th>Price<span class="ar invoice-print-ar" dir="rtl">السعر</span></th>
+                    <th>Taxable amount<span class="ar invoice-print-ar" dir="rtl">المبلغ الخاضع للضريبة</span></th>
+                    <th>VAT amount (+%)<span class="ar invoice-print-ar" dir="rtl">القيمة المضافة</span></th>
+                    <th>Line amount<span class="ar invoice-print-ar" dir="rtl">المجموع</span></th>
                 </tr>
             </thead>
             <tbody>
@@ -90,7 +90,7 @@
                         <td>
                             <div class="invoice-a4__desc-en">{{ $line['name_en'] }}</div>
                             @if ($line['name_ar'])
-                                <div class="invoice-a4__desc-ar">{{ $line['name_ar'] }}</div>
+                                <div class="invoice-a4__desc-ar invoice-print-ar" dir="rtl">{{ $line['name_ar'] }}</div>
                             @endif
                         </td>
                         <td class="tabular-nums">{{ $line['quantity_display'] }}</td>
@@ -119,7 +119,7 @@
                 <tr>
                     <td class="print-tpl-modern__totals-label">
                         <span class="print-tpl-modern__totals-en">Subtotal</span>
-                        <span class="print-tpl-modern__totals-ar" dir="rtl">المجموع الفرعي</span>
+                        <span class="print-tpl-modern__totals-ar invoice-print-ar" dir="rtl">المجموع الفرعي</span>
                     </td>
                     <td class="print-tpl-modern__totals-value"><x-invoices.sar-symbol /> {{ number_format($tot['subtotal_ex_vat'], 2) }}</td>
                 </tr>
@@ -127,7 +127,7 @@
                     <tr>
                         <td class="print-tpl-modern__totals-label">
                             <span class="print-tpl-modern__totals-en">Discount</span>
-                            <span class="print-tpl-modern__totals-ar" dir="rtl">الخصم</span>
+                            <span class="print-tpl-modern__totals-ar invoice-print-ar" dir="rtl">الخصم</span>
                         </td>
                         <td class="print-tpl-modern__totals-value">- <x-invoices.sar-symbol /> {{ number_format($tot['invoice_discount_ex_vat'], 2) }}</td>
                     </tr>
@@ -135,7 +135,7 @@
                 <tr>
                     <td class="print-tpl-modern__totals-label">
                         <span class="print-tpl-modern__totals-en">Total VAT</span>
-                        <span class="print-tpl-modern__totals-ar" dir="rtl">إجمالي ضريبة القيمة المضافة</span>
+                        <span class="print-tpl-modern__totals-ar invoice-print-ar" dir="rtl">إجمالي ضريبة القيمة المضافة</span>
                     </td>
                     <td class="print-tpl-modern__totals-value"><x-invoices.sar-symbol /> {{ number_format($tot['total_vat'], 2) }}</td>
                 </tr>
@@ -143,7 +143,7 @@
                     <td class="print-tpl-modern__totals-label">
                         <strong>
                             <span class="print-tpl-modern__totals-en">Total</span>
-                            <span class="print-tpl-modern__totals-ar" dir="rtl">المجموع شامل القيمة المضافة</span>
+                            <span class="print-tpl-modern__totals-ar invoice-print-ar" dir="rtl">المجموع شامل القيمة المضافة</span>
                         </strong>
                     </td>
                     <td class="print-tpl-modern__totals-value"><strong><x-invoices.sar-symbol /> {{ number_format($tot['total_inc_vat'], 2) }}</strong></td>
@@ -152,7 +152,7 @@
                     <tr>
                         <td class="print-tpl-modern__totals-label">
                             <span class="print-tpl-modern__totals-en">Retention</span>
-                            <span class="print-tpl-modern__totals-ar" dir="rtl">حجز حسن التنفيذ</span>
+                            <span class="print-tpl-modern__totals-ar invoice-print-ar" dir="rtl">حجز حسن التنفيذ</span>
                         </td>
                         <td class="print-tpl-modern__totals-value">- <x-invoices.sar-symbol /> {{ number_format($tot['retention_amount'], 2) }}</td>
                     </tr>
@@ -161,7 +161,7 @@
                     <td class="print-tpl-modern__totals-label">
                         <strong>
                             <span class="print-tpl-modern__totals-en">Net due</span>
-                            <span class="print-tpl-modern__totals-ar" dir="rtl">المبلغ المستحق</span>
+                            <span class="print-tpl-modern__totals-ar invoice-print-ar" dir="rtl">المبلغ المستحق</span>
                         </strong>
                     </td>
                     <td class="print-tpl-modern__totals-value"><strong><x-invoices.sar-symbol /> {{ number_format($t['net_due_inc_vat'], 2) }}</strong></td>
@@ -170,7 +170,7 @@
         </section>
 
         @if (filled($t['amount_words_ar'] ?? null))
-            <p class="invoice-a4__words print-tpl-modern__words" dir="rtl">{{ $t['amount_words_ar'] }}</p>
+            <p class="invoice-a4__words print-tpl-modern__words invoice-print-ar" dir="rtl">{{ $t['amount_words_ar'] }}</p>
         @endif
         @if (filled($t['amount_words_en'] ?? null))
             <p class="invoice-a4__words print-tpl-modern__words">{{ $t['amount_words_en'] }}</p>
@@ -179,7 +179,7 @@
         <footer class="invoice-a4__footer print-tpl-modern__sheet-footer print-only" data-document-number="{{ $t['document_number'] }}">
             <div class="print-tpl-modern__footer-names">
                 <div>{{ $t['seller_en'] }}</div>
-                <div class="invoice-a4__footer-ar">{{ $t['seller_ar'] }}</div>
+                <div class="invoice-a4__footer-ar invoice-print-ar" dir="rtl">{{ $t['seller_ar'] }}</div>
             </div>
             <x-invoices.print-page-label :document-number="$t['document_number']" class="print-tpl-modern__footer-page" />
         </footer>
@@ -187,7 +187,7 @@
         <footer class="print-tpl-modern__sheet-footer print-tpl-modern__sheet-footer--screen no-print" aria-hidden="true">
             <div class="print-tpl-modern__footer-names">
                 <div>{{ $t['seller_en'] }}</div>
-                <div class="invoice-a4__footer-ar">{{ $t['seller_ar'] }}</div>
+                <div class="invoice-a4__footer-ar invoice-print-ar" dir="rtl">{{ $t['seller_ar'] }}</div>
             </div>
             <x-invoices.print-page-label :document-number="$t['document_number']" class="print-tpl-modern__footer-page" />
         </footer>
