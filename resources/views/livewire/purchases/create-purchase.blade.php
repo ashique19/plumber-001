@@ -12,6 +12,9 @@
             wire:submit="save"
             class="app-admin-form space-y-4"
             x-on:document-validation-failed.window="$nextTick(() => document.getElementById('document-validation-summary')?.scrollIntoView({ behavior: 'smooth', block: 'start' }))"
+            @document-line-added.window="$nextTick(() => {
+                $el.closest('.document-create-page')?.querySelector('.purchase-add-line-search input[data-admin-search-input]')?.focus({ preventScroll: true });
+            })"
         >
             <x-invoices.document-validation-summary />
             <x-field.section :title="__('purchases.supplier_heading')">
