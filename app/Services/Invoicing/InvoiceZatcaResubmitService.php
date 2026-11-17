@@ -191,6 +191,14 @@ final class InvoiceZatcaResubmitService
             $payload['zheart_reporting_status'] = $signed['reporting_status'];
         }
 
+        if (filled($signed['zatca_delivery'] ?? null)) {
+            $payload['zheart_zatca_delivery'] = $signed['zatca_delivery'];
+        }
+
+        if (filled($signed['zatca_http_status'] ?? null)) {
+            $payload['zheart_zatca_http_status'] = $signed['zatca_http_status'];
+        }
+
         $payload['zheart_zatca_submitted_at'] = now()->toIso8601String();
 
         if (! $preserveChain && filled($signed['invoice_uuid'] ?? null)) {

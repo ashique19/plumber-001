@@ -32,3 +32,7 @@ This document defines how raw Z-Heart / payload fields map to the **ZATCA Status
 | **Simplified** | Z-Heart `qr` from sign/report (stored in `qr_tlv_base64`); Phase-1 fallback only if unsigned POS receipt |
 
 QR bytes are taken from the API `data.qr` field after clear/report, not parsed from `cleared_xml`.
+
+## Clear response parsing
+
+See [zheart-clear-response.md](./zheart-clear-response.md) for `data.zatca.body.clearanceStatus`, delivery hints, and idempotent replay behaviour.

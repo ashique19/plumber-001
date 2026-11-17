@@ -61,6 +61,40 @@ function clearancePendingStandardInvoice(string $number = 'STD-CLEAR-OUT-1'): In
     ]);
 }
 
+it('parses z-heart contract clearanceStatus CLEARED without legacy zatca.status', function () {
+    Http::fake([
+        'https://z-heart.test/api/v1/invoices/clear' => Http::response([
+            'status' => 'ok',
+            'request_id' => '7457f736-4eda-455f-8b26-1c31da54c2f3',
+            'data' => [
+                'signed_xml' => base64_encode('<Invoice/>'),
+                'cleared_xml' => base64_encode('<Invoice cleared="1"/>'),
+                'uuid' => '550e8400-e29b-41d4-a716-446655440077',
+                'invoice_hash' => 'hash-42',
+                'zatca' => [
+                    'ok' => true,
+                    'http_status' => 200,
+                    'body' => [
+                        'clearanceStatus' => 'CLEARED',
+                        'validationResults' => ['status' => 'PASS'],
+                    ],
+                ],
+            ],
+        ], 200),
+    ]);
+
+    $invoice = clearancePendingStandardInvoice('STD-CLEAR-CONTRACT');
+
+    app(InvoiceZatcaResubmitService::class)->resubmit($invoice);
+    $fresh = $invoice->fresh();
+
+    expect(HubInvoiceZatcaBadge::badgeKey($fresh))->toBe(HubInvoiceZatcaBadge::Cleared)
+        ->and(data_get($fresh->payload, 'zheart_reporting_status'))->toBe('cleared')
+        ->and(data_get($fresh->payload, 'zheart_zatca_display.clearance_status'))->toBe('CLEARED')
+        ->and(data_get($fresh->payload, 'zheart_zatca_http_status'))->toBe(200)
+        ->and(data_get($fresh->payload, 'zheart_zatca_delivery'))->toBe('sync');
+});
+
 it('flashes cleared and updates badge when z-heart clears a standard invoice', function () {
     Http::fake([
         'https://z-heart.test/api/v1/invoices/clear' => Http::response([
