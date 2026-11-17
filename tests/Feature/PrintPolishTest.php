@@ -106,7 +106,7 @@ it('titles quotations without tax-invoice wording, type badges, or QR', function
             ->assertOk()
             ->assertSee(trans('quotations.print_title', [], 'en'), false)
             ->assertSee(trans('quotations.print_title', [], 'ar'), false)
-            ->assertSee(trans('quotations.print_title', [], 'bn'), false)
+            ->assertDontSee(trans('quotations.print_title', [], 'bn'), false)
             ->getContent();
 
         assertNoQuotationInvoiceTypeLeaks($html, $leaks);
@@ -123,7 +123,8 @@ it('titles quotations without tax-invoice wording, type badges, or QR', function
 
     expect($pdfHtml)
         ->toContain(trans('quotations.print_title', [], 'en'))
-        ->toContain(trans('quotations.print_title', [], 'ar'));
+        ->toContain(trans('quotations.print_title', [], 'ar'))
+        ->not->toContain(trans('quotations.print_title', [], 'bn'));
     assertNoQuotationInvoiceTypeLeaks($pdfHtml, $leaks);
 
     $hub = Livewire::actingAs($this->owner, 'staff')

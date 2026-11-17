@@ -84,7 +84,7 @@ it('prints bilingual quotation title labels without zatca qr markers', function 
     $response->assertOk()
         ->assertSee('Quotation', false)
         ->assertSee('عرض سعر', false)
-        ->assertSee('কোটেশন', false)
+        ->assertDontSee('কোটেশন', false)
         ->assertSee('Valid until', false)
         ->assertSee('صالح حتى', false)
         ->assertDontSee('SIMPLIFIED TAX INVOICE', false)

@@ -52,11 +52,11 @@
             $isQuotation = ($t['document_kind'] ?? 'invoice') === 'quotation';
             $splitLeft = $isQuotation
                 ? [
-                    ['en' => 'Quotation number', 'ar' => 'رقم العرض', 'value' => $t['document_number']],
+                    ['en' => 'Quotation number', 'ar' => 'رقم العرض', 'value' => $t['document_number'], 'nowrap' => true],
                     ['en' => 'Valid until', 'ar' => 'صالح حتى', 'value' => $t['validity_until'] ?? null],
                 ]
                 : [
-                    ['en' => 'Invoice number', 'ar' => 'رقم الفاتورة', 'value' => $t['document_number']],
+                    ['en' => 'Invoice number', 'ar' => 'رقم الفاتورة', 'value' => $t['document_number'], 'nowrap' => true],
                     ['en' => 'Due date', 'ar' => 'تاريخ الاستحقاق', 'value' => $t['due_date'] ?? null],
                 ];
         @endphp

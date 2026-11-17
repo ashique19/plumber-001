@@ -129,9 +129,7 @@
 
 .invoice-a4__title-bn,
 .print-classic__title-bn {
-    display: block;
-    font-size: 11pt;
-    font-weight: 700;
+    display: none !important;
 }
 
 .invoice-a4__buyer-table {
@@ -150,18 +148,25 @@
 }
 
 .invoice-a4__buyer-table-label {
-    width: 22%;
+    width: 20%;
     font-weight: 600;
     color: var(--inv-muted);
 }
 
 .invoice-a4__buyer-table-value {
-    width: 56%;
+    width: 60%;
     text-align: center;
 }
 
+.invoice-a4__buyer-table-value--nowrap {
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    overflow-x: auto;
+    text-overflow: ellipsis;
+}
+
 .invoice-a4__buyer-table-label.ar {
-    width: 22%;
+    width: 20%;
     font-family: Tajawal, sans-serif;
     text-align: right;
 }
@@ -197,7 +202,7 @@
 
 .invoice-a4__buyer-table-split-row {
     display: grid;
-    grid-template-columns: 22% 56% 22%;
+    grid-template-columns: minmax(4.5rem, 18%) minmax(0, 1fr) minmax(4.25rem, 20%);
     align-items: center;
     border-bottom: 1px solid var(--inv-border);
     min-height: 1.75rem;

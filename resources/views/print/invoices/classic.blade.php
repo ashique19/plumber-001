@@ -3,8 +3,8 @@
     $tClassic = array_merge($t, ['classic_title_stack' => true]);
     $isQuotation = ($t['document_kind'] ?? 'invoice') === 'quotation';
     $metaRows = array_values(array_filter([
-        ['en' => 'Invoice number', 'ar' => 'رقم الفاتورة', 'value' => $isQuotation ? null : $t['document_number']],
-        ['en' => 'Quotation number', 'ar' => 'رقم العرض', 'value' => $isQuotation ? $t['document_number'] : null],
+        ['en' => 'Invoice number', 'ar' => 'رقم الفاتورة', 'value' => $isQuotation ? null : $t['document_number'], 'nowrap' => ! $isQuotation],
+        ['en' => 'Quotation number', 'ar' => 'رقم العرض', 'value' => $isQuotation ? $t['document_number'] : null, 'nowrap' => $isQuotation],
         ['en' => 'Invoice Issue Date', 'ar' => 'تاريخ إصدار الفاتورة', 'value' => $t['issue_datetime'] ?? $t['issue_date']],
         ['en' => 'Due Date', 'ar' => 'تاريخ الاستحقاق', 'value' => $isQuotation ? null : ($t['due_date'] ?? null)],
         ['en' => 'Valid until', 'ar' => 'صالح حتى', 'value' => $isQuotation ? ($t['validity_until'] ?? null) : null],
@@ -46,7 +46,7 @@
                 @foreach ($metaRows as $row)
                     <tr>
                         <td class="print-classic__cell-label">{{ $row['en'] }}</td>
-                        <td class="print-classic__cell-value">{{ $row['value'] }}</td>
+                        <td @class(['print-classic__cell-value', 'invoice-a4__buyer-table-value--nowrap' => ! empty($row['nowrap'])])>{{ $row['value'] }}</td>
                         <td class="print-classic__cell-label ar invoice-print-ar" dir="rtl">{{ $row['ar'] }}</td>
                     </tr>
                 @endforeach
