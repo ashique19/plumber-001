@@ -9,6 +9,7 @@ use App\Services\Invoicing\ZHeart\ZHeartApiException;
 use App\Services\Invoicing\ZHeart\ZHeartClient;
 use App\Services\Invoicing\ZHeart\ZHeartInvoicePayloadBuilder;
 use App\Support\Invoicing\ZHeartApiUserMessage;
+use App\Support\Invoicing\ZHeartZatcaPayloadNormalizer;
 
 final class ZHeartInvoiceSigningGateway implements InvoiceSigningGateway
 {
@@ -43,30 +44,7 @@ final class ZHeartInvoiceSigningGateway implements InvoiceSigningGateway
             throw InvoiceSigningException::signingFailed(context: 'Z-Heart response missing signed XML.');
         }
 
-        $zatca = is_array($data['zatca'] ?? null)
-            ? $data['zatca']
-            : (is_array($data['submission'] ?? null) ? $data['submission'] : null);
-
-        $reportingStatus = null;
-        if (is_array($zatca) && isset($zatca['status'])) {
-            $reportingStatus = (string) $zatca['status'];
-        } elseif (isset($data['reporting_status'])) {
-            $reportingStatus = (string) $data['reporting_status'];
-        }
-
-        return [
-            'xml' => $xml,
-            'hash' => (string) ($data['invoice_hash'] ?? ''),
-            'qr' => isset($data['qr']) ? (string) $data['qr'] : null,
-            'icv' => (int) ($data['icv'] ?? 0),
-            'previous_invoice_hash' => (string) ($data['pih'] ?? ''),
-            'invoice_uuid' => (string) ($data['uuid'] ?? $request->invoiceUuid),
-            'remote_submitted' => $autoSubmitSigned,
-            'remote_submission' => $zatca,
-            'reporting_status' => $reportingStatus,
-            'cleared_xml' => isset($data['cleared_xml']) ? $this->decodeSignedXml((string) $data['cleared_xml']) : null,
-            'request_id' => $result['request_id'] ?? null,
-        ];
+        return $this->mapZatcaSubmissionResponse($result, $request->invoiceUuid, $autoSubmitSigned);
     }
 
   /**
@@ -125,16 +103,11 @@ final class ZHeartInvoiceSigningGateway implements InvoiceSigningGateway
     private function mapZatcaSubmissionResponse(array $result, string $invoiceUuid, bool $remoteSubmitted): array
     {
         $data = $result['data'];
+        $normalized = ZHeartZatcaPayloadNormalizer::normalize($data);
+        $remoteSubmission = $normalized['remote_submission'];
 
-        $zatca = is_array($data['zatca'] ?? null)
-            ? $data['zatca']
-            : (is_array($data['submission'] ?? null) ? $data['submission'] : null);
-
-        $reportingStatus = null;
-        if (is_array($zatca) && isset($zatca['status'])) {
-            $reportingStatus = (string) $zatca['status'];
-        } elseif (isset($data['reporting_status'])) {
-            $reportingStatus = (string) $data['reporting_status'];
+        if ($remoteSubmission === [] && is_array($data['zatca'] ?? null)) {
+            $remoteSubmission = $data['zatca'];
         }
 
         $xml = isset($data['signed_xml']) ? $this->decodeSignedXml((string) $data['signed_xml']) : null;
@@ -147,8 +120,10 @@ final class ZHeartInvoiceSigningGateway implements InvoiceSigningGateway
             'previous_invoice_hash' => isset($data['pih']) ? (string) $data['pih'] : null,
             'invoice_uuid' => (string) ($data['uuid'] ?? $invoiceUuid),
             'remote_submitted' => $remoteSubmitted,
-            'remote_submission' => $zatca,
-            'reporting_status' => $reportingStatus,
+            'remote_submission' => $remoteSubmission,
+            'reporting_status' => $normalized['reporting_status'],
+            'zatca_delivery' => $normalized['delivery'],
+            'zatca_http_status' => $normalized['zatca_http_status'],
             'cleared_xml' => isset($data['cleared_xml']) ? $this->decodeSignedXml((string) $data['cleared_xml']) : null,
             'request_id' => $result['request_id'] ?? null,
         ];

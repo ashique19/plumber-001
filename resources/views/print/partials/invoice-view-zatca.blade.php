@@ -41,6 +41,18 @@
                         <span dir="ltr">{{ $zatcaResponseDisplay['status'] }}</span>
                     </p>
                 @endif
+                @if (filled($zatcaResponseDisplay['clearance_status'] ?? null))
+                    <p class="m-0 text-xs text-[var(--app-muted)]">
+                        {{ __('invoices.zatca_view_clearance_status') }}:
+                        <span dir="ltr">{{ $zatcaResponseDisplay['clearance_status'] }}</span>
+                    </p>
+                @endif
+                @if (filled($zatcaResponseDisplay['delivery'] ?? null))
+                    <p class="m-0 text-xs text-[var(--app-muted)]">
+                        {{ __('invoices.zatca_view_delivery') }}:
+                        <span dir="ltr">{{ __('invoices.zatca_delivery.'.$zatcaResponseDisplay['delivery']) }}</span>
+                    </p>
+                @endif
                 @if (filled($zatcaResponseDisplay['submitted_at'] ?? null))
                     <p class="m-0 text-xs text-[var(--app-muted)]">
                         {{ __('invoices.zatca_view_last_submitted') }}:
@@ -57,6 +69,12 @@
                     <p class="m-0 text-xs text-[var(--app-muted)]" data-testid="invoice-zatca-http-status">
                         {{ __('invoices.zatca_view_http_status') }}:
                         <span dir="ltr">{{ $zatcaResponseDisplay['http_status'] }}</span>
+                    </p>
+                @endif
+                @if (filled($zatcaResponseDisplay['zatca_http_status'] ?? null))
+                    <p class="m-0 text-xs text-[var(--app-muted)]" data-testid="invoice-zatca-zatca-http-status">
+                        {{ __('invoices.zatca_view_zatca_http_status') }}:
+                        <span dir="ltr">{{ $zatcaResponseDisplay['zatca_http_status'] }}</span>
                     </p>
                 @endif
                 @if (($zatcaResponseDisplay['messages'] ?? []) !== [])

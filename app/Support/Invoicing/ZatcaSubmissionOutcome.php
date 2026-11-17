@@ -117,6 +117,19 @@ final class ZatcaSubmissionOutcome
             }
         }
 
+        $errors = $remote['errors'] ?? null;
+        if (is_array($errors) && $errors !== []) {
+            $first = $errors[0] ?? null;
+            if (is_string($first) && trim($first) !== '') {
+                return trim($first);
+            }
+        }
+
+        $clearance = $remote['clearance_status'] ?? null;
+        if (is_string($clearance) && trim($clearance) !== '') {
+            return trim($clearance);
+        }
+
         return null;
     }
 

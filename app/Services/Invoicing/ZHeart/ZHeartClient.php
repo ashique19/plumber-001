@@ -9,6 +9,7 @@ use App\Support\Invoicing\ZHeartCredentials;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use App\Business\BusinessContext;
+use App\Support\Invoicing\ZHeartZatcaPayloadNormalizer;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -206,13 +207,16 @@ final class ZHeartClient
                     $data = is_array($json['data'] ?? null) ? $json['data'] : [];
 
                     if ($submitPath) {
+                        $normalized = ZHeartZatcaPayloadNormalizer::normalize($data);
                         Log::info('zheart.invoice_submit', [
                             'path' => $path,
                             'invoice_uuid' => $invoicePayload['uuid'] ?? null,
                             'request_id' => is_string($requestId) ? $requestId : null,
-                            'reporting_status' => is_string($data['reporting_status'] ?? null)
-                                ? $data['reporting_status']
-                                : (is_array($data['zatca'] ?? null) ? ($data['zatca']['status'] ?? null) : null),
+                            'reporting_status' => $normalized['reporting_status'],
+                            'clearance_status' => $normalized['remote_submission']['clearance_status'] ?? null,
+                            'zatca_ok' => $normalized['zatca_ok'],
+                            'zatca_http_status' => $normalized['zatca_http_status'],
+                            'delivery' => $normalized['delivery'],
                         ]);
                     }
 
