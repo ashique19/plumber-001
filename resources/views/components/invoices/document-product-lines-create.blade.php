@@ -143,7 +143,7 @@
                             <span class="text-xs font-medium">{{ $line['unit_label'] ?: 'PCS' }}</span>
                         </td>
                         <td class="min-w-[6.5rem]">
-                            <x-field.money step="0.01" min="0" :label="__('invoices.line_price_ex_vat')" name="lines.{{ $index }}.unit_price" wire:model.live="lines.{{ $index }}.unit_price" wrapper-class="!mb-0 [&_.form-field__label]:sr-only" />
+                            <x-field.money step="0.01" min="0" :label="__('invoices.line_price_ex_vat')" name="lines.{{ $index }}.unit_price" wire:model.live="lines.{{ $index }}.unit_price" wrapper-class="!mb-0" />
                         </td>
                         <td class="min-w-[5rem]">
                             <select class="form-field__control w-full" wire:model.live="lines.{{ $index }}.discount_percent">

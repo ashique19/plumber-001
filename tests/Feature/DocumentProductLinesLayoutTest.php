@@ -69,3 +69,12 @@ it('includes responsive utility classes in production css bundle', function () {
     $css = (string) file_get_contents(public_path('build/'.$cssEntry));
     expect($css)->toContain('lg\\:hidden')->and($css)->toContain('lg\\:block');
 });
+
+it('hides duplicate in-cell labels on desktop product line tables and suppresses price spinners', function () {
+    $css = file_get_contents(resource_path('css/document-create-layout.css'));
+
+    expect($css)
+        ->toContain('.document-product-lines-table .form-field > .form-field__label')
+        ->toContain('appearance: textfield')
+        ->toContain('::-webkit-inner-spin-button');
+});
