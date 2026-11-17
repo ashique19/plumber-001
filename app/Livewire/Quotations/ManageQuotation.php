@@ -187,7 +187,7 @@ class ManageQuotation extends Component
 
   protected function documentStandardBuyerRequired(): bool
   {
-      return $this->invoiceMode === 'standard';
+      return false;
   }
 
   public function save(): void
@@ -234,7 +234,7 @@ class ManageQuotation extends Component
 
       $quotation->forceFill([
           'branch_id' => $branch->id,
-          'invoice_mode' => $this->invoiceMode,
+          'invoice_mode' => 'simplified',
           'validity_until' => $this->validityUntil,
           'payload' => $payload,
       ])->save();
@@ -347,7 +347,7 @@ class ManageQuotation extends Component
 
   public function render(): View
   {
-      $isStandard = $this->invoiceMode === 'standard';
+      $isStandard = false;
       $isEdit = $this->quotationId !== null;
 
       return view('livewire.quotations.manage-quotation', [

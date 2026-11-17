@@ -2,6 +2,7 @@
 
 return [
     'title' => 'Quotations',
+    'print_title' => 'Quotation',
     'subtitle' => 'Draft price offers before issuing a tax invoice.',
     'nav' => 'Quotations',
     'create' => 'New quotation',

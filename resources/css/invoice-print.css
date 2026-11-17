@@ -25,8 +25,10 @@
 .invoice-sar-symbol__svg {
     display: inline-block;
     width: 0.95em;
-    height: 1.05em;
-    object-fit: contain;
+    height: 1em;
+    fill: currentColor;
+    flex-shrink: 0;
+    vertical-align: -0.12em;
 }
 
 .invoice-sar-symbol__fallback {
@@ -36,7 +38,7 @@
     letter-spacing: 0.03em;
 }
 
-@supports not (object-fit: contain) {
+@supports not (display: inline-flex) {
     .invoice-sar-symbol__svg {
         display: none;
     }
@@ -44,6 +46,20 @@
     .invoice-sar-symbol__fallback {
         display: inline;
     }
+}
+
+.invoice-print-root [dir='rtl'],
+.invoice-print-root .ar,
+.invoice-print-root .invoice-a4__desc-ar,
+.invoice-print-root .invoice-a4__title-ar,
+.invoice-print-root .invoice-a4__footer-ar,
+.invoice-print-root .invoice-a4__seller-side--ar,
+.invoice-print-root .invoice-print-label__ar,
+.invoice-print-root .invoice-a4__buyer-name-ar,
+.invoice-print-root .invoice-a4__words[dir='rtl'] {
+    direction: rtl;
+    text-align: right;
+    unicode-bidi: isolate;
 }
 
 .invoice-print-label__ar {
@@ -75,16 +91,17 @@
 }
 
 .invoice-a4__seller-side--ar {
-    text-align: left;
+    text-align: right;
     direction: rtl;
     font-family: Tajawal, sans-serif;
 }
 
 .invoice-a4__logo {
-    max-height: 56px;
-    max-width: 140px;
+    max-height: 96px;
+    max-width: 200px;
     margin: 0 auto;
     display: block;
+    object-fit: contain;
 }
 
 .invoice-a4__title {
@@ -97,6 +114,13 @@
 .invoice-a4__title-ar {
     direction: rtl;
     font-family: Tajawal, sans-serif;
+}
+
+.invoice-a4__title-bn,
+.print-classic__title-bn {
+    display: block;
+    font-size: 11pt;
+    font-weight: 700;
 }
 
 .invoice-a4__buyer-table {

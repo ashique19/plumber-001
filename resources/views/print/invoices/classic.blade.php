@@ -24,10 +24,11 @@
         @include('print.partials.toolbar-invoice')
 
         <header class="print-classic__top">
-            @if ($t['logo_url'])
-                <img src="{{ asset($t['logo_url']) }}" alt="" class="print-classic__logo">
-            @endif
+            <div></div>
             <div class="print-classic__top-center">
+                @if ($t['logo_url'])
+                    <img src="{{ asset($t['logo_url']) }}" alt="" class="print-classic__logo">
+                @endif
                 <x-invoices.print-document-title :t="$tClassic" />
             </div>
             <div class="print-classic__top-right">

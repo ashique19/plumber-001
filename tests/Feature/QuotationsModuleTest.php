@@ -85,10 +85,14 @@ it('prints bilingual quotation title labels without zatca qr markers', function 
     $response->assertOk()
         ->assertSee('Quotation', false)
         ->assertSee('عرض سعر', false)
+        ->assertSee('কোটেশন', false)
         ->assertSee('Valid until', false)
         ->assertSee('صالح حتى', false)
+        ->assertDontSee('SIMPLIFIED TAX INVOICE', false)
+        ->assertDontSee('STANDARD TAX INVOICE', false)
         ->assertDontSee('ZATCA', false)
-        ->assertDontSee('qr_tlv', false);
+        ->assertDontSee('qr_tlv', false)
+        ->assertDontSee('receipt-qr', false);
 });
 
 it('prefills issue invoice from quotation convert action using default mode', function () {

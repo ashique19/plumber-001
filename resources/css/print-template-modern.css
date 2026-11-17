@@ -11,6 +11,7 @@
 .print-tpl-modern__lines thead th .ar {
     display: block;
     direction: rtl;
+    text-align: right;
     font-family: Tajawal, sans-serif;
     font-size: 7.5pt;
     font-weight: 600;
@@ -87,6 +88,9 @@
 }
 
 .print-tpl-modern__totals-ar {
+    display: block;
+    direction: rtl;
+    text-align: right;
     font-family: Tajawal, sans-serif;
     font-size: 8pt;
 }
