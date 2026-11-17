@@ -23,6 +23,7 @@ return array_replace_recursive($en, [
     'movement_delta' => 'تغير الكمية',
     'no_movements' => 'لا توجد حركات بعد.',
     'movement_types' => [
+        'opening' => 'رصيد افتتاحي',
         'purchase' => 'شراء',
         'invoice_issue' => 'إصدار فاتورة',
         'credit_note' => 'إشعار دائن',

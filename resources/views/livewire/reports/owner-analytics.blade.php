@@ -8,7 +8,7 @@
     $inventory = $extended['inventory'] ?? [];
     $dues = $extended['dues_aging'] ?? [];
 @endphp
-<div class="owner-analytics pb-24 lg:pb-8">
+<div class="owner-analytics min-w-0 max-w-full overflow-x-hidden pb-24 lg:pb-8">
     @vite(['resources/css/analytics-dashboard.css', 'resources/css/reports-print.css', 'resources/js/analytics-dashboard.js'])
 
     <header class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -239,6 +239,10 @@
                 'branches' => __('reports.chart_branches'),
                 'cashiers' => __('reports.chart_cashiers'),
                 'topProducts' => __('reports.top_products'),
+                'heatmap_zero' => __('reports.heatmap_zero'),
+                'heatmap_low' => __('reports.heatmap_low'),
+                'heatmap_mid' => __('reports.heatmap_mid'),
+                'heatmap_high' => __('reports.heatmap_high'),
                 'dow' => [
                     __('reports.dow_mon'),
                     __('reports.dow_tue'),

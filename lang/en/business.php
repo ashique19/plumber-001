@@ -14,11 +14,14 @@ return [
         'extras' => 'Extras',
     ],
     'invoicing' => [
-        'lead' => 'Control whether issued invoices are reported/cleared through Z-Heart when ZHEART_SUBMIT_TO_ZATCA is enabled on the server.',
+        'lead' => 'Control whether issued invoices are sent to ZATCA through Z-Heart after issue.',
+        'server_auto_submit' => 'Server auto-submit to ZATCA',
+        'server_auto_submit_on' => 'Enabled — the server will submit after issue when credentials are present.',
+        'server_auto_submit_off' => 'Disabled — invoices stay signed locally until you enable server submission.',
         'integration_enabled' => 'Enable Z-Heart report/clear after issue',
         'integration_hint' => 'When off, invoices are signed locally only even if the server is configured to submit.',
-        'api_key_configured' => 'Server API key is configured (:prefix).',
-        'api_key_missing' => 'No ZHEART_API_KEY is set on the server — signing service calls will fail until deploy env is configured.',
+        'api_key_configured' => 'Signing API key: Configured',
+        'api_key_missing' => 'Signing API key is not configured on the server. Set it in your deploy environment before live submission.',
         'saved' => 'Invoicing settings saved.',
     ],
     'print' => [

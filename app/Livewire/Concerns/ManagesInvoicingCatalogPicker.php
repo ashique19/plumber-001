@@ -54,6 +54,13 @@ trait ManagesInvoicingCatalogPicker
         return InvoicingCatalogLookup::productsForAddLine($this->addLineProductSearch);
     }
 
+    public function updatedAddLineProductSearch(string $value): void
+    {
+        if (trim($value) !== '' && property_exists($this, 'customerSearch')) {
+            $this->customerSearch = '';
+        }
+    }
+
     public function canCreateProductsFromDocument(): bool
     {
         $user = auth('staff')->user();

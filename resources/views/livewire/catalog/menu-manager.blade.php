@@ -202,7 +202,13 @@
             data-testid="catalog-product-modal"
         >
             <form id="catalog-product-form" class="x-modal-form catalog-product-form" wire:submit="saveProduct">
-                @include('livewire.catalog.partials.product-form-fields')
+                <x-modal.validation-summary :fields="[
+                    'productNameEn', 'productNameAr', 'productNameBn', 'productCategoryId', 'productUnitId', 'productSizeId',
+                    'productCostInput', 'productPriceInput', 'productVatRate', 'productVatZatcaCategory', 'productOpeningStock', 'productImageUpload',
+                ]" />
+                <div class="catalog-product-form__body x-modal-form__fields min-h-0 flex-1 flex-col gap-0 overflow-hidden py-0">
+                    @include('livewire.catalog.partials.product-form-fields')
+                </div>
                 <div class="x-modal__footer x-modal__footer--in-form">
                     <x-modal.footer
                         cancel-wire='$set("showProductForm", false)'

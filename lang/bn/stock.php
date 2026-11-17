@@ -23,6 +23,7 @@ return array_replace_recursive($en, [
     'movement_delta' => 'পরিমাণ পরিবর্তন',
     'no_movements' => 'এখনও কোনো চলাচল লগ হয়নি।',
     'movement_types' => [
+        'opening' => 'আরম্ভিক স্টক',
         'purchase' => 'ক্রয়',
         'invoice_issue' => 'ইনভয়েস',
         'credit_note' => 'ক্রেডিট নোট',

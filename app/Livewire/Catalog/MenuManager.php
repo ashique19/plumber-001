@@ -491,11 +491,7 @@ class MenuManager extends Component
             'productModifierIds' => ['array'],
             'productItemType' => ['required', Rule::in(array_map(fn (ProductItemType $t) => $t->value, ProductItemType::cases()))],
         ];
-        if (CatalogI18n::columnsExist()) {
-            $rules['productNameBn'] = ['required', 'string', 'max:160'];
-        } else {
-            $rules['productNameBn'] = ['nullable', 'string', 'max:160'];
-        }
+        $rules['productNameBn'] = ['nullable', 'string', 'max:160'];
 
         if (CatalogUnitsSizesSchema::ready()) {
             $rules['productCategoryId'] = ['required', 'integer', 'exists:product_categories,id'];
@@ -520,9 +516,10 @@ class MenuManager extends Component
         }
 
         try {
-            $validated = $this->validate($rules, ProductImageConstraints::validationMessages());
+            $validated = $this->validate($rules, ProductImageConstraints::validationMessages(), $this->productValidationAttributes());
         } catch (ValidationException $e) {
             $this->focusProductFormTabForErrors(array_keys($e->validator->errors()->messages()));
+            $this->toastError(__('catalog.modal_error_summary'), persistent: true);
             throw $e;
         }
 
@@ -578,7 +575,9 @@ class MenuManager extends Component
         }
 
         if (CatalogI18n::columnsExist()) {
-            $payload['name_bn'] = $validated['productNameBn'] ?: null;
+            $payload['name_bn'] = filled($validated['productNameBn'] ?? '')
+                ? $validated['productNameBn']
+                : $validated['productNameEn'];
             $payload['description_en'] = $validated['productDescriptionEn'] ?: null;
             $payload['description_ar'] = $validated['productDescriptionAr'] ?: null;
             $payload['description_bn'] = $validated['productDescriptionBn'] ?: null;
@@ -986,6 +985,27 @@ class MenuManager extends Component
     /**
      * @param  list<string>  $errorKeys
      */
+    /**
+     * @return array<string, string>
+     */
+    private function productValidationAttributes(): array
+    {
+        return [
+            'productNameEn' => __('catalog.name_en'),
+            'productNameAr' => __('catalog.name_ar'),
+            'productNameBn' => __('catalog.name_bn'),
+            'productCostInput' => __('catalog.purchase_price'),
+            'productPriceInput' => __('catalog.selling_price'),
+            'productVatRate' => __('catalog.vat_rate'),
+            'productCategoryId' => __('catalog.category'),
+            'productUnitId' => __('catalog.unit'),
+            'productSizeId' => __('catalog.size'),
+            'productVatZatcaCategory' => __('catalog.vat_zatca_category'),
+            'productOpeningStock' => __('catalog.opening_stock'),
+            'productImageUpload' => __('catalog.product_image.label'),
+        ];
+    }
+
     private function focusProductFormTabForErrors(array $errorKeys): void
     {
         foreach (['basic', 'pricing', 'stock'] as $tab) {

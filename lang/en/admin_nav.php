@@ -32,6 +32,7 @@ return [
         'inventory_reports' => 'Inventory Reports',
         'customer_reports' => 'Customer Reports',
         'staff_management' => 'Staff Management',
+        'profile' => 'My profile',
         'settings' => 'Settings',
     ],
 ];

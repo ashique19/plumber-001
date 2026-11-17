@@ -1,5 +1,14 @@
+.owner-analytics .app-card,
+.owner-analytics .app-kpi-grid,
+.owner-analytics .reports-print-block {
+    min-width: 0;
+    max-width: 100%;
+}
+
 .analytics-chart {
     min-height: 220px;
+    max-width: 100%;
+    overflow-x: auto;
 }
 
 .analytics-chart--tall {

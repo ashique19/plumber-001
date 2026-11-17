@@ -9,7 +9,7 @@
             <p class="app-page-lead">{{ __('quotations.subtitle') }}</p>
         </div>
         @if ($canManageQuotations ?? false)
-            <a href="{{ route('admin.quotations.create') }}" class="tap-action-primary min-h-11 px-4 text-sm font-semibold">
+            <a href="{{ route('admin.quotations.create') }}" wire:navigate class="tap-action-primary mb-0 hidden min-h-11 px-4 text-sm font-semibold sm:inline-flex">
                 {{ __('quotations.create') }}
             </a>
         @endif
@@ -111,4 +111,8 @@
     <div class="mt-4">
         {{ $quotations->links() }}
     </div>
+
+    @if ($canManageQuotations ?? false)
+        <x-admin.hub-fab :href="route('admin.quotations.create')" :label="__('quotations.create')" />
+    @endif
 </div>

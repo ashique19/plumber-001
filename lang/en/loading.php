@@ -4,6 +4,7 @@ return [
     'generic' => 'Working…',
     'issue' => 'Issuing…',
     'saving' => 'Saving…',
+    'saveProduct' => 'Saving product…',
     'processing_payment' => 'Processing payment…',
     'new_order' => 'Starting new order…',
     'refund' => 'Issuing refund…',

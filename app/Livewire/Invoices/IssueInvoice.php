@@ -543,7 +543,7 @@ class IssueInvoice extends Component
                 InvoiceArPaymentMethod::Card->value => InvoiceArPaymentMethod::Card->label(),
             ],
             'zatcaNotReady' => ! ZatcaSubmissionStatus::canSubmitToZatca($this->business),
-        ]);
+        ])->layout('layouts.pos', ['pageTitle' => __('invoices.create_heading')]);
     }
 
     /**

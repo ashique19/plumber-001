@@ -124,6 +124,7 @@ final class AdminSidebarMenu
             $name === 'admin.reports' => 'sales_reports',
             $name === 'admin.team', str_starts_with($name, 'admin.team') => 'staff_management',
             $name === 'admin.business' => 'settings',
+            $name === 'admin.profile' => 'profile',
             default => null,
         };
     }
@@ -283,6 +284,13 @@ final class AdminSidebarMenu
                 'label_key' => 'staff_management',
                 'permissions' => ['staff.manage'],
                 'route' => ['admin.team', []],
+            ],
+            [
+                'id' => 'profile',
+                'type' => 'link',
+                'label_key' => 'profile',
+                'permissions' => [],
+                'route' => ['admin.profile', []],
             ],
             [
                 'id' => 'settings',

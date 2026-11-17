@@ -48,11 +48,29 @@
     }
 }
 
+.document-create-card .admin-typeahead--open,
+.document-create-card .invoice-customer-picker__results {
+    position: relative;
+    z-index: 12;
+}
+
+.document-meta-grid .form-field__control {
+    min-width: 0;
+}
+
+.document-meta-grid select.form-field__control {
+    text-overflow: ellipsis;
+}
+
 .document-create-card {
     border: 1px solid var(--app-border);
     border-radius: 1rem;
     background: var(--app-surface);
-    overflow: hidden;
+    overflow: visible;
+}
+
+.document-create-card:has(.admin-typeahead[data-typeahead-results-open='1']) {
+    overflow: visible;
 }
 
 .document-create-card__head {

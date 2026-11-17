@@ -22,6 +22,7 @@ return [
     'no_movements' => 'No movements logged yet.',
     'schema_missing' => 'Stock tables are not installed yet. Run migrations or apply docs/sql patch.',
     'movement_types' => [
+        'opening' => 'Opening stock',
         'purchase' => 'Purchase',
         'invoice_issue' => 'Invoice issue',
         'credit_note' => 'Credit note',

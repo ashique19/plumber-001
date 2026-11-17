@@ -11,6 +11,7 @@ use App\Http\Middleware\EnsureBusinessManageAccess;
 use App\Http\Middleware\EnsurePosAccess;
 use App\Livewire\Admin\AdminDashboard;
 use App\Livewire\Admin\BusinessSettings;
+use App\Livewire\Admin\StaffProfile;
 use App\Livewire\Catalog\InventoryManager;
 use App\Livewire\Catalog\MenuManager;
 use App\Livewire\Customers\CustomerHub;
@@ -34,6 +35,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->middleware('auth:staff')->group(function (): void {
     Route::post('/logout', [LoginController::class, 'destroy'])->name('admin.logout');
+    Route::get('/profile', StaffProfile::class)->name('admin.profile');
 
     Route::middleware('reports.access')->group(function (): void {
         Route::get('/dashboard', AdminDashboard::class)->name('admin.dashboard');
