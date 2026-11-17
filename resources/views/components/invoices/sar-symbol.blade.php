@@ -1,7 +1,17 @@
 @props(['class' => 'invoice-sar-symbol'])
 
 <span {{ $attributes->merge(['class' => $class]) }} role="img" aria-label="{{ __('invoices.riyal_symbol') }}">
-    <svg class="invoice-sar-symbol__svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1124.14 1256.39" aria-hidden="true" focusable="false">
+    <svg
+        class="invoice-sar-symbol__svg"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 1124.14 1256.39"
+        width="1em"
+        height="1em"
+        fill="currentColor"
+        aria-hidden="true"
+        focusable="false"
+        style="display:inline-block;width:auto;height:1em;vertical-align:-0.125em;fill:currentColor;flex-shrink:0"
+    >
         <path fill="currentColor" d="M699.62,1113.02h0c-20.06,44.48-33.32,92.75-38.4,143.37l424.51-90.24c20.06-44.47,33.31-92.75,38.4-143.37l-424.51,90.24Z"/>
         <path fill="currentColor" d="M1085.73,895.8c20.06-44.47,33.32-92.75,38.4-143.37l-330.68,70.33v-135.2l292.27-62.11c20.06-44.47,33.32-92.75,38.4-143.37l-330.68,70.27V66.13c-50.67,28.45-95.67,66.32-132.25,110.8v799.97l-60.38,12.88v-500.47c-14.64-14.88-30.05-28.52-46.15-40.75-37.26-27.76-79.57-47.64-124.18-58.76v587.44l-92.62,19.72V168.04l-0.11-0.02V0.02l-92.63,19.72v387.44l-60.38,12.88V55.03C55.29,91.61,17.43,136.61-11.02,187.28v831.04c0,107.36,87,194.36,194.36,194.36h739.39c107.36,0,194.36-87,194.36-194.36,0-0.12,0-0.24-0.01-0.36v0Z"/>
     </svg>
