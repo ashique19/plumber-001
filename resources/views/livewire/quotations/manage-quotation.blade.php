@@ -76,7 +76,6 @@
             :total="$summaryTotals['grand_total_inc_vat']"
             :submit-label="__('quotations.create_submit')"
             wire-target="save"
-            wire-click="save"
             form="quotation-save-form"
         />
 
@@ -84,7 +83,6 @@
             :cancel-url="route('admin.quotations')"
             :primary-label="__('quotations.create_submit')"
             primary-target="save"
-            primary-wire-click="save"
             form-id="quotation-save-form"
             draft-target="saveDraft"
             preview-target="previewDocument"

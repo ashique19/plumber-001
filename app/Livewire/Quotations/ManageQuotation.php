@@ -14,10 +14,13 @@ use App\Models\ProductCategory;
 use App\Models\Product;
 use App\Models\Quotation;
 use App\Support\Invoicing\InvoiceDocumentTotals;
+use App\Support\Hub\HubFormSubmissionIdempotency;
 use App\Support\StaffBranchContext;
 use App\Business\BusinessContext;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Spatie\Permission\PermissionRegistrar;
 
@@ -88,6 +91,9 @@ class ManageQuotation extends Component
 
   public string $displayQuotationNumber = '';
 
+  #[Locked]
+  public string $formSubmissionToken = '';
+
   public function mount(?Quotation $quotation = null): void
   {
       $this->resolveBusiness();
@@ -106,6 +112,8 @@ class ManageQuotation extends Component
       } else {
           $this->displayQuotationNumber = DocumentCreateUiSupport::pendingQuotationNumberLabel();
       }
+
+      $this->formSubmissionToken = (string) Str::uuid();
   }
 
   private function hydrateFromQuotation(Quotation $quotation): void
@@ -184,7 +192,42 @@ class ManageQuotation extends Component
 
   public function save(): void
   {
-      $this->persistQuotation(redirect: true, successKey: 'quotations.save_success');
+      $actorId = auth('staff')->id();
+      $scope = 'quotation_save';
+
+      if (HubFormSubmissionIdempotency::storedResourceId($scope, $this->formSubmissionToken, $actorId) !== null) {
+          $this->redirect(route('admin.quotations'), navigate: true);
+
+          return;
+      }
+
+      $lock = HubFormSubmissionIdempotency::acquireLock($scope, $this->formSubmissionToken, $actorId);
+      if ($lock === null) {
+          if (HubFormSubmissionIdempotency::waitForStoredResourceId($scope, $this->formSubmissionToken, $actorId) !== null) {
+              $this->redirect(route('admin.quotations'), navigate: true);
+          }
+
+          return;
+      }
+
+      try {
+          if (HubFormSubmissionIdempotency::storedResourceId($scope, $this->formSubmissionToken, $actorId) !== null) {
+              $this->redirect(route('admin.quotations'), navigate: true);
+
+              return;
+          }
+
+          $quotation = $this->persistQuotation(redirect: false, successKey: null);
+          if ($quotation === null) {
+              return;
+          }
+
+          HubFormSubmissionIdempotency::rememberResourceId($scope, $this->formSubmissionToken, $actorId, (int) $quotation->id);
+          $this->toastSuccess(__('quotations.save_success', ['number' => $quotation->quotation_number]));
+          $this->redirect(route('admin.quotations'), navigate: true);
+      } finally {
+          $lock->release();
+      }
   }
 
   private function persistQuotation(bool $redirect, ?string $successKey): ?Quotation

@@ -52,7 +52,7 @@
             </x-field.section>
 
             <x-field.actions>
-                <x-ui.livewire-action type="submit" wire-click="save" target="save" loading="save" class="tap-action-primary min-h-12 w-full flex-1 text-base font-semibold" variant="primary">
+                <x-ui.livewire-action type="submit" target="save" loading="save" class="tap-action-primary min-h-12 w-full flex-1 text-base font-semibold" variant="primary">
                     {{ __('purchases.submit') }}
                 </x-ui.livewire-action>
             </x-field.actions>
