@@ -7,6 +7,7 @@ return array_replace_recursive($en, [
     'create_subtitle' => 'সরবরাহকারীর কাছ থেকে স্টক গ্রহণ ও গড় খরচ আপডেট।',
     'supplier_heading' => 'সরবরাহকারী',
     'supplier_search' => 'সাপ্লায়ার খুঁজুন',
+    'clear_supplier' => 'সাপ্লায়ার মুছুন',
     'supplier_selected' => 'নির্বাচিত: :name',
     'supplier' => 'বিদ্যমান সরবরাহকারী',
     'supplier_new' => 'নতুন সরবরাহকারী',

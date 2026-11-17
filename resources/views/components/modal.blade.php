@@ -12,6 +12,7 @@
         'sm' => 'x-modal--sm',
         'lg' => 'x-modal--lg',
         'xl' => 'x-modal--xl',
+        'identity' => 'x-modal--identity',
         default => 'x-modal--md',
     };
 @endphp

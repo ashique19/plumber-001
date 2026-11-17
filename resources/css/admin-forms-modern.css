@@ -256,6 +256,14 @@
         }
     }
 
+    @media (min-width: 640px) {
+        html.admin-app .x-modal--identity {
+            width: min(90vw, 56rem);
+            max-width: min(90vw, 56rem);
+            max-height: min(90vh, 90dvh);
+        }
+    }
+
     @media (min-width: 1024px) {
         html.admin-app .x-modal--xl {
             width: min(90vw, 75rem);
@@ -266,6 +274,12 @@
         html.admin-app .x-modal--form-sheet.x-modal--xl {
             width: min(90vw, 75rem);
             max-width: min(90vw, 75rem);
+        }
+
+        html.admin-app .x-modal--form-sheet.x-modal--identity,
+        html.admin-app .x-modal--identity {
+            width: min(90vw, 56rem);
+            max-width: min(90vw, 56rem);
         }
     }
 

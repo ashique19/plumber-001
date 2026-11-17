@@ -13,7 +13,8 @@
     :show="$show"
     :title="__('suppliers.quick_add_title')"
     close-wire="$set('showQuickSupplierModal', false)"
-    size="xl"
+    size="identity"
+    class="x-modal--identity"
 >
     <form class="x-modal-form" wire:submit.prevent="saveQuickSupplier">
         <x-modal.validation-summary :fields="$quickSupplierFields" loading-target="saveQuickSupplier" />

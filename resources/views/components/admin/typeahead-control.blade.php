@@ -8,10 +8,12 @@
     'showAdd' => false,
     'addLabel' => null,
     'resultsOpen' => false,
+    'clearLabel' => null,
 ])
 
 @php
     $hasAdd = $showAdd && filled($addAction);
+    $clearLabel = $clearLabel ?? __('payments.clear_statement');
 @endphp
 
 <div
@@ -41,7 +43,13 @@
                 {{ $attributes->merge(['class' => 'form-field__control admin-typeahead__input']) }}
             />
             @if ($clearable && $clearAction)
-                <button type="button" class="admin-field-clear tap-action-muted" wire:click="{{ $clearAction }}" aria-label="{{ __('payments.clear_statement') }}">
+                <button
+                    type="button"
+                    class="admin-field-clear tap-action-muted"
+                    wire:click="{{ $clearAction }}"
+                    aria-label="{{ $clearLabel }}"
+                    title="{{ $clearLabel }}"
+                >
                     <x-app.icon name="x" class="h-5 w-5" />
                 </button>
             @endif

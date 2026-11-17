@@ -60,15 +60,15 @@ it('shows issued lifecycle and clearance pending zatca as separate hub pills', f
     $invoice = makeStandardAwaitingClearanceInvoice();
     $clearance = __('invoices.zatca_badge.clearance_pending');
     $issued = __('invoices.invoice_status.issued');
-    $full = __('invoices.awaiting_zatca_clearance');
     $hint = __('invoices.zatca_clearance_hint');
+    $pdfBlocked = __('invoices.pdf_available_after_clearance');
 
     Livewire::actingAs($this->owner, 'staff')
         ->test(InvoiceHub::class)
         ->set('search', $invoice->document_number)
         ->assertSee($issued, false)
         ->assertSee($clearance, false)
-        ->assertSeeHtml('title="'.e($full).'"', false)
+        ->assertSeeHtml('title="'.e($pdfBlocked).'"', false)
         ->assertSee($hint, false)
         ->assertSeeHtml('data-testid="hub-invoice-status-pill-invoice"', false)
         ->assertSeeHtml('data-testid="hub-invoice-status-pill-zatca"', false)

@@ -120,9 +120,22 @@ class CreatePurchase extends Component
         $this->supplierSearch = '';
     }
 
+    public function clearSupplierPicker(): void
+    {
+        if ($this->supplierId !== null) {
+            $this->clearSelectedSupplier();
+
+            return;
+        }
+
+        $this->supplierSearch = '';
+    }
+
     public function clearSelectedSupplier(): void
     {
         $this->supplierId = null;
+        $this->supplierSearch = '';
+        $this->resetErrorBag();
     }
 
     public function clearSupplierSearch(): void

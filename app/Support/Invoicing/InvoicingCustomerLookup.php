@@ -79,6 +79,38 @@ final class InvoicingCustomerLookup
         }
     }
 
+    public static function resetBuyerIdentity(object $host): void
+    {
+        $fields = CustomerIdentityRules::buyerFields();
+        foreach ($fields as $key => $property) {
+            if (! property_exists($host, $property)) {
+                continue;
+            }
+            $host->{$property} = match ($key) {
+                'vat_registered' => false,
+                'city' => 'Riyadh',
+                'country_code' => 'SA',
+                default => '',
+            };
+        }
+
+        if (property_exists($host, 'buyerCr')) {
+            $host->buyerCr = '';
+        }
+
+        if (property_exists($host, 'buyerNameOptional')) {
+            $host->buyerNameOptional = '';
+        }
+
+        if (property_exists($host, 'selectedCustomerId')) {
+            $host->selectedCustomerId = null;
+        }
+
+        if (property_exists($host, 'buyerContactOverride')) {
+            $host->buyerContactOverride = false;
+        }
+    }
+
     public static function typeaheadMetaLine(Customer $customer): string
     {
         $segments = [];

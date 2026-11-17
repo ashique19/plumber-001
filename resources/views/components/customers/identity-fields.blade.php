@@ -27,6 +27,8 @@
     $vatRegistered = (bool) ($this->{$fields['vat_registered']} ?? false);
     $country = strtoupper((string) ($this->{$fields['country_code']} ?? 'SA'));
     $showMore = (bool) ($this->{$moreAddressProp} ?? false);
+    $saBuyer = $saStandardBuyer && $country === 'SA';
+    $countryLabel = $countries[$country] ?? $country;
 @endphp
 
 <div class="customer-identity-fields admin-modal-field-grid admin-modal-field-grid--3 col-span-full w-full min-w-0" data-testid="customer-identity-fields">
@@ -90,15 +92,27 @@
         icon="mail"
     />
 
-    <x-field.select
-        :label="__('customers.fields.country_code')"
-        :name="$fields['country_code']"
-        wire:model.live="{{ $fields['country_code'] }}"
-    >
-        @foreach ($countries as $code => $label)
-            <option value="{{ $code }}">{{ $code }} — {{ $label }}</option>
-        @endforeach
-    </x-field.select>
+    @if ($saStandardBuyer)
+        <div class="form-field min-w-0" data-testid="customer-country-readonly">
+            <span class="form-field__label type-label">{{ __('customers.fields.country_code') }}</span>
+            <div class="admin-field-wrap">
+                <p class="form-field__control m-0 flex min-h-12 items-center rounded-xl border border-[var(--app-border)] bg-[var(--app-surface-muted)]/60 px-3 text-sm font-medium text-[var(--app-text)]" dir="auto">
+                    {{ $countryLabel }}
+                </p>
+            </div>
+            <input type="hidden" name="{{ $fields['country_code'] }}" wire:model="{{ $fields['country_code'] }}" />
+        </motion.div>
+    @else
+        <x-field.select
+            :label="__('customers.fields.country_code')"
+            :name="$fields['country_code']"
+            wire:model.live="{{ $fields['country_code'] }}"
+        >
+            @foreach ($countries as $code => $label)
+                <option value="{{ $code }}">{{ $code }} — {{ $label }}</option>
+            @endforeach
+        </x-field.select>
+    @endif
 
     <x-field.input
         :label="__('business.fields.city')"
@@ -106,41 +120,64 @@
         wire:model.blur="{{ $fields['city'] }}"
     />
 
+    @if ($saBuyer)
+        <x-field.input
+            :label="__('business.fields.building')"
+            :name="$fields['addr_building']"
+            wire:model.blur="{{ $fields['addr_building'] }}"
+            required
+        />
+    @endif
+
     <x-field.textarea
         :label="__('business.fields.street')"
         :name="$fields['street_name']"
         wire:model.blur="{{ $fields['street_name'] }}"
         rows="2"
+        :required="$saBuyer"
         wrapper-class="customer-identity-fields__street admin-modal-span-2"
     />
 
-    <div class="customer-identity-fields__span-full">
-        <button
-            type="button"
-            class="tap-action-muted text-xs font-semibold text-[var(--app-accent)]"
-            wire:click="$toggle('{{ $moreAddressProp }}')"
-        >
-            {{ __('customers.more_address_details') }}
-        </button>
-    </div>
+    @if ($saBuyer && ! $showMore)
+        <div class="customer-identity-fields__span-full">
+            <button
+                type="button"
+                class="tap-action-muted text-xs font-semibold text-[var(--app-accent)]"
+                wire:click="$set('{{ $moreAddressProp }}', true)"
+            >
+                {{ __('customers.more_address_details') }}
+            </button>
+        </div>
+    @elseif (! $saBuyer)
+        <div class="customer-identity-fields__span-full">
+            <button
+                type="button"
+                class="tap-action-muted text-xs font-semibold text-[var(--app-accent)]"
+                wire:click="$toggle('{{ $moreAddressProp }}')"
+            >
+                {{ __('customers.more_address_details') }}
+            </button>
+        </div>
+    @endif
 
     @if ($showMore)
+        @if (! $saBuyer)
+            <x-field.input
+                :label="__('business.fields.building')"
+                :name="$fields['addr_building']"
+                wire:model.blur="{{ $fields['addr_building'] }}"
+            />
+        @endif
         <x-field.input
-            :label="__('business.fields.building')"
-            :name="$fields['addr_building']"
-            wire:model.blur="{{ $fields['addr_building'] }}"
-            :required="$saStandardBuyer && $country === 'SA'"
+            :label="__('business.fields.district')"
+            :name="$fields['addr_district']"
+            wire:model.blur="{{ $fields['addr_district'] }}"
         />
         <x-field.input
             :label="__('business.fields.postal')"
             :name="$fields['addr_postal']"
             wire:model.blur="{{ $fields['addr_postal'] }}"
-            :required="$saStandardBuyer && $country === 'SA'"
-        />
-        <x-field.input
-            :label="__('business.fields.district')"
-            :name="$fields['addr_district']"
-            wire:model.blur="{{ $fields['addr_district'] }}"
+            :required="$saBuyer"
         />
         <x-field.input
             :label="__('business.fields.additional')"

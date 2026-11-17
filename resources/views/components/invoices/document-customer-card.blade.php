@@ -32,6 +32,16 @@
         />
         @if ($customerStrip !== null)
             <div class="document-customer-strip" wire:key="customer-strip-{{ $selectedCustomerId }}-{{ md5($customerStrip['legal_name'] ?? '') }}">
+                <div class="document-customer-strip__actions">
+                    <button
+                        type="button"
+                        class="document-customer-strip__clear tap-action-muted text-xs font-semibold text-[var(--app-accent)]"
+                        wire:click="clearSelectedCustomer"
+                        data-testid="document-customer-clear"
+                    >
+                        {{ __('invoices.clear_customer') }}
+                    </button>
+                </div>
                 <div class="document-customer-strip__col">
                     <x-app.icon name="building" class="document-customer-strip__icon h-5 w-5" aria-hidden="true" />
                     <div class="min-w-0">

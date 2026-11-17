@@ -252,6 +252,12 @@ html.admin-app.admin-theme-dark .document-create-card--products .document-create
     gap: 0.75rem;
 }
 
+.document-customer-strip__actions {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: flex-end;
+}
+
 html.admin-app.admin-theme-dark .document-customer-strip {
     background: color-mix(in srgb, var(--app-accent, #0f5c6e) 28%, var(--app-surface));
     border-color: color-mix(in srgb, var(--app-accent, #0f5c6e) 40%, var(--app-border));

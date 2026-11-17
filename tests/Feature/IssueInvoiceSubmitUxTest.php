@@ -42,6 +42,22 @@ it('opens completion modal when an incomplete customer is selected for standard 
         ->assertSee(__('invoices.standard_buyer_completion_title'));
 });
 
+it('renders wide standard buyer completion modal with readonly sa country and visible building', function () {
+    $customer = incompleteStandardCustomer();
+
+    $html = Livewire::actingAs($this->owner, 'staff')
+        ->test(IssueInvoice::class, ['mode' => 'standard'])
+        ->call('selectDocumentCustomer', $customer->id)
+        ->html();
+
+    expect($html)
+        ->toContain('x-modal--identity')
+        ->toContain('data-testid="customer-country-readonly"')
+        ->toContain(__('customers.country.SA'))
+        ->toContain('name="addrBuilding"', false)
+        ->not->toContain(__('customers.country.AE'));
+});
+
 it('opens completion modal on issue when buyer fields are still missing', function () {
     $customer = incompleteStandardCustomer();
 

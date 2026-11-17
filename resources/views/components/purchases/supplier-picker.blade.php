@@ -11,8 +11,9 @@
         name="supplierSearch"
         wire:model.live.debounce.350ms="supplierSearch"
         :placeholder="__('suppliers.search_placeholder')"
-        :clearable="trim($search) !== ''"
-        clear-action="clearSupplierSearch"
+        :clearable="$selectedSupplierId !== null || trim($search) !== ''"
+        clear-action="clearSupplierPicker"
+        :clear-label="__('purchases.clear_supplier')"
         :show-add="true"
         add-action="openQuickSupplierModal"
         :add-label="__('suppliers.quick_add_title')"
@@ -40,9 +41,18 @@
     </x-admin.typeahead-control>
 
     @if ($selectedSupplierId && $selectedLabel)
-        <p class="mt-2 rounded-xl border border-[var(--app-accent)]/30 bg-[var(--app-accent)]/5 px-3 py-2 text-sm font-medium">
-            {{ __('purchases.supplier_selected', ['name' => $selectedLabel]) }}
-            <button type="button" class="ms-2 text-xs font-semibold text-rose-600" wire:click="clearSelectedSupplier">{{ __('payments.clear_statement') }}</button>
-        </p>
+        <div class="purchase-supplier-selected mt-2 rounded-xl border border-[var(--app-accent)]/30 bg-[var(--app-accent)]/5 px-3 py-2 text-sm font-medium" data-testid="purchase-supplier-selected">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+                <span>{{ __('purchases.supplier_selected', ['name' => $selectedLabel]) }}</span>
+                <button
+                    type="button"
+                    class="tap-action-muted text-xs font-semibold text-[var(--app-accent)]"
+                    wire:click="clearSelectedSupplier"
+                    data-testid="purchase-supplier-clear"
+                >
+                    {{ __('purchases.clear_supplier') }}
+                </button>
+            </div>
+        </div>
     @endif
 </div>

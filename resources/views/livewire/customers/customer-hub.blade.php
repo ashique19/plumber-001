@@ -146,8 +146,8 @@
     </x-admin.hub-sheet>
 
     <x-admin.hub-sheet
-        class="customer-hub-modal-shell x-modal--form-sheet"
-        size="xl"
+        class="customer-hub-modal-shell x-modal--form-sheet x-modal--identity"
+        size="identity"
         :show="$showCustomerModal"
         :title="$customerModalTitle"
         close-wire="closeCustomerModal"
