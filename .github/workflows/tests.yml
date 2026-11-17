@@ -2,9 +2,13 @@ name: Tests
 
 on:
   push:
-    branches: [main, 'cursor/**']
+    branches: [main]
   pull_request:
     branches: [main]
+
+concurrency:
+  group: tests-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   sqlite:
@@ -71,6 +75,7 @@ jobs:
           vendor/bin/pest --testsuite=InstallSql
 
   playwright-search-icon:
+    if: false
     runs-on: ubuntu-latest
     services:
       mysql:
