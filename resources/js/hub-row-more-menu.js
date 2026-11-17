@@ -40,7 +40,14 @@ export function registerHubRowMoreMenu(Alpine) {
                 }
                 this.isOpen = nextOpen;
                 if (nextOpen) {
-                    this.$nextTick(() => this.schedulePosition());
+                    this.$nextTick(() => {
+                        if (! this.isTriggerVisible()) {
+                            this.$store.hubRowMoreMenu.requestClose(this.menuId);
+
+                            return;
+                        }
+                        this.schedulePosition();
+                    });
                 }
             };
 
@@ -85,10 +92,24 @@ export function registerHubRowMoreMenu(Alpine) {
             });
         },
 
+        isTriggerVisible() {
+            const trigger = this.$refs.trigger;
+            if (! trigger) {
+                return false;
+            }
+            const style = window.getComputedStyle(trigger);
+            if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
+                return false;
+            }
+            const rect = trigger.getBoundingClientRect();
+
+            return rect.width > 0 && rect.height > 0;
+        },
+
         positionPanel() {
             const trigger = this.$refs.trigger;
             const panel = this.$refs.panel;
-            if (! trigger || ! panel) {
+            if (! trigger || ! panel || ! this.isTriggerVisible()) {
                 return;
             }
 

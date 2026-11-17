@@ -56,6 +56,7 @@
             :print-layout="$urls['layout'] ?? 'a4'"
             :print-back-url="$urls['fallback_back'] ?? route('admin.invoices')"
             :can-resubmit-zatca="$canResubmitZatca ?? false"
+            menu-viewport="card"
         />
     </div>
 </li>

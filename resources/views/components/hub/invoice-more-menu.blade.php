@@ -4,6 +4,7 @@
     'more' => [],
     'canResubmitZatca' => false,
     'draftToolbar' => false,
+    'menuViewport' => 'table',
 ])
 
 @php
@@ -23,7 +24,7 @@
 @endphp
 
 @if ($hasMenu)
-    <x-hub.more-menu :menu-id="'invoice-'.$invoiceId">
+    <x-hub.more-menu :menu-id="'invoice-'.$invoiceId.'-'.$menuViewport">
         @if ($draftToolbar)
             @if ($actions['authorize_draft'] ?? false)
                 <button
