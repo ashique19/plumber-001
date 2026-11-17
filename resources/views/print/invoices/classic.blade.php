@@ -121,14 +121,14 @@
                                 <div class="invoice-print-ar" dir="rtl">{{ $line['name_ar'] }}</div>
                             @endif
                         </td>
-                        <td>{{ $line['line_no'] }}</td>
-                        <td class="tabular-nums">{{ number_format($line['unit_price_ex_vat'], 2) }}</td>
-                        <td class="tabular-nums">{{ $line['quantity_display'] }}</td>
-                        <td class="tabular-nums">{{ number_format($line['taxable_ex_vat'], 2) }}</td>
-                        <td class="tabular-nums">{{ number_format($line['discount_ex_vat'] ?? 0, 2) }}</td>
-                        <td class="tabular-nums">{{ number_format($line['vat_rate'], 0) }} %</td>
-                        <td class="tabular-nums">{{ number_format($line['vat_amount'], 2) }}</td>
-                        <td class="tabular-nums">{{ number_format($line['line_amount_inc_vat'], 2) }}</td>
+                        <td class="col-index tabular-nums">{{ $line['line_no'] }}</td>
+                        <td class="col-num tabular-nums">{{ number_format($line['unit_price_ex_vat'], 2) }}</td>
+                        <td class="col-num tabular-nums">{{ $line['quantity_display'] }}</td>
+                        <td class="col-num tabular-nums">{{ number_format($line['taxable_ex_vat'], 2) }}</td>
+                        <td class="col-num tabular-nums">{{ number_format($line['discount_ex_vat'] ?? 0, 2) }}</td>
+                        <td class="col-num tabular-nums">{{ number_format($line['vat_rate'], 0) }} %</td>
+                        <td class="col-num tabular-nums">{{ number_format($line['vat_amount'], 2) }}</td>
+                        <td class="col-num tabular-nums">{{ number_format($line['line_amount_inc_vat'], 2) }}</td>
                     </tr>
                 @endforeach
             </tbody>

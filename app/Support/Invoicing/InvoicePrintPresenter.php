@@ -288,7 +288,13 @@ final class InvoicePrintPresenter
      */
     public static function customerFromPayload(array $payload): ?array
     {
+        $na = (array) ($payload['buyer_national_address'] ?? []);
         $address = self::formatBuyerAddress($payload);
+        $countryCode = strtoupper(trim((string) ($na['country'] ?? 'SA'))) ?: 'SA';
+        $countryName = CountryPrintName::english($countryCode);
+        if ($address !== null && $countryName !== '' && ! str_contains($address, $countryName)) {
+            $address = $address.', '.$countryName;
+        }
 
         $vat = preg_replace('/\D/', '', (string) ($payload['buyer_vat'] ?? '')) ?? '';
         $nameEn = trim((string) ($payload['buyer_name_en'] ?? $payload['buyer_name'] ?? ''));
@@ -313,6 +319,10 @@ final class InvoicePrintPresenter
             'vat_number' => $vat !== '' ? $vat : null,
             'cr_number' => $cr !== '' ? $cr : null,
             'address' => $address,
+            'address_print' => $address,
+            'address_parts' => $na !== [] ? $na : null,
+            'country_code' => $countryCode,
+            'city' => trim((string) ($na['city'] ?? '')) ?: null,
         ]) ?: null;
     }
 
@@ -341,8 +351,14 @@ final class InvoicePrintPresenter
     private static function formatBuyerAddress(array $payload): ?string
     {
         $addr = (array) ($payload['buyer_national_address'] ?? []);
+        $fromNational = BusinessProfile::formatNationalAddressEn($addr);
+        if ($fromNational !== null && $fromNational !== '') {
+            return $fromNational;
+        }
 
-        return self::formatShortNational($addr) ?: null;
+        $line = trim((string) ($payload['buyer_address'] ?? $payload['buyer_address_line'] ?? ''));
+
+        return self::formatShortNational($addr) ?: ($line !== '' ? $line : null);
     }
 
     /**

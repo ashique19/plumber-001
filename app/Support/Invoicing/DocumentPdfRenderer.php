@@ -153,7 +153,7 @@ final class DocumentPdfRenderer
             ? (self::amiriAvailable() ? 'amiri, dejavusans, sans-serif' : 'dejavusans, sans-serif')
             : (self::amiriAvailable() ? 'AmiriPdf,DejaVu Sans,sans-serif' : 'DejaVu Sans,sans-serif');
 
-        $arSelectors = '.invoice-print-root .invoice-print-ar,.invoice-print-root [dir=rtl],.invoice-print-root .ar,.invoice-a4__title-ar,.invoice-a4__desc-ar,.invoice-a4__footer-ar,.invoice-a4__seller-side--ar,.invoice-print-label__ar,.invoice-a4__buyer-table-label.ar,.invoice-a4__buyer-name-ar,.invoice-a4__table th .ar,.invoice-print-totals__ar,.print-classic__title-ar,.print-classic__cell-label.ar,.classic-party__name-ar,.invoice-print-words-block__ar,.print-classic__lines th .ar';
+        $arSelectors = '.invoice-print-root .invoice-print-ar,.invoice-print-root [dir=rtl],.invoice-print-root .ar,.invoice-a4__title-ar,.invoice-a4__desc-ar,.invoice-a4__footer-ar,.invoice-a4__seller-side--ar,.invoice-print-label__ar,.invoice-print-labeled-row__ar,.invoice-a4__buyer-table-label.ar,.invoice-a4__buyer-name-ar,.invoice-a4__table th .ar,.invoice-print-th-label__ar,.invoice-print-totals__ar,.print-classic__title-ar,.print-classic__cell-label.ar,.classic-party__name-ar,.invoice-print-words-block__ar,.print-classic__lines th .ar';
 
         return '.invoice-print-toolbar,.no-print{display:none!important}'
             .'html,body,.invoice-print-root,.invoice-print-root *{font-family:'.$latin.'!important;font-size:9.5pt;line-height:1.35;color:#111}'
@@ -189,10 +189,25 @@ final class DocumentPdfRenderer
             .'.invoice-print-root--pdf .invoice-a4__buyer-table-split-row .invoice-a4__buyer-table-label{display:inline-block!important;width:38%!important;vertical-align:top!important}'
             .'.invoice-print-root--pdf .invoice-a4__buyer-table-split-row .invoice-a4__buyer-table-value{display:inline-block!important;width:32%!important;vertical-align:top!important}'
             .'.invoice-print-root--pdf .invoice-a4__buyer-table-split-row .invoice-a4__buyer-table-label.ar{display:inline-block!important;width:28%!important;text-align:right!important;vertical-align:top!important}'
-            .'.invoice-a4__buyer-table-value--nowrap{white-space:normal!important;overflow:visible!important;overflow-wrap:anywhere!important;word-break:break-all!important}'
+            .'.invoice-a4__buyer-table-value--nowrap{white-space:nowrap!important;overflow:visible!important;overflow-wrap:normal!important;word-break:normal!important;font-size:8.5pt!important}'
+            .'.invoice-a4__buyer-table-split-row .invoice-a4__buyer-table-label{white-space:nowrap!important;font-size:8pt!important}'
+            .'.invoice-a4__buyer-table-split-row{grid-template-columns:24% 1fr 26%!important;align-items:center!important}'
+            .'.print-tpl-modern__footer-names{display:grid!important;grid-template-columns:1fr 1fr!important;text-align:start!important}'
+            .'.print-tpl-modern__footer-names .invoice-a4__footer-ar{text-align:right!important}'
+            .'.print-tpl-modern__words{align-items:flex-start!important}'
+            .'.print-tpl-modern__vat-pct{text-align:right!important}'
             .'.invoice-print-root--pdf .print-tpl-modern__lines{font-size:9pt;margin-bottom:5px;width:100%!important}'
             .'.invoice-print-root--pdf .print-tpl-modern__lines th,.invoice-print-root--pdf .print-tpl-modern__lines td{padding:4px 5px!important}'
             .'.invoice-print-root--pdf .print-tpl-modern__lines thead th .ar{font-size:8pt!important}'
+            .'.invoice-print-labeled-row{display:grid!important;grid-template-columns:22% 1fr 24%!important;align-items:center!important;width:100%!important;gap:4px 6px!important}'
+            .'.invoice-print-labeled-row__en{text-align:left!important;font-family:'.$latin.'!important;font-weight:600!important}'
+            .'.invoice-print-labeled-row__value{text-align:center!important;font-family:'.$latin.'!important}'
+            .'.invoice-print-labeled-row__ar{text-align:right!important}'
+            .'.invoice-print-meta-grid{width:100%!important;border-collapse:collapse!important;margin-bottom:6px!important}'
+            .'.invoice-print-meta-grid td{width:50%!important;padding:2px 4px!important;vertical-align:middle!important}'
+            .'.invoice-a4__table--product-lines th.col-index,.invoice-a4__table--product-lines td.col-index{text-align:center!important}'
+            .'.invoice-a4__table--product-lines th.col-num,.invoice-a4__table--product-lines td.col-num{text-align:right!important}'
+            .'.invoice-a4__table--product-lines th.col-desc,.invoice-a4__table--product-lines td.col-desc{text-align:left!important}'
             .'.invoice-print-root--pdf td.tabular-nums{white-space:nowrap!important}'
             .'.invoice-print-root--pdf .print-tpl-modern__words{margin-top:4px;margin-left:auto!important;width:100%!important;min-width:240px!important;max-width:360px!important;border:1px solid #1a1a1a!important;padding:6px 8px!important;box-sizing:border-box!important;font-size:8.5pt;line-height:1.35;page-break-inside:avoid}'
             .'.invoice-print-root--pdf .print-tpl-modern__sheet-footer,.invoice-print-root--pdf .invoice-a4__footer.print-only{display:none!important}'
@@ -207,7 +222,7 @@ final class DocumentPdfRenderer
             .'.print-classic__totals-wrap{display:flex;justify-content:flex-end}'
             .'.print-classic__totals{display:table!important;min-width:62%;margin-left:auto}'
             .'.print-classic__closing{display:table!important;width:100%!important}'
-            .'.invoice-print-words-block{display:flex!important;align-items:baseline!important;flex-wrap:nowrap!important;gap:8px!important}'
+            .'.invoice-print-words-block{display:flex!important;align-items:flex-start!important;flex-wrap:nowrap!important;gap:8px 12px!important}'
             .'.invoice-print-words-block__en,.invoice-print-words-block__ar{display:block!important;flex:1 1 0!important;min-width:0!important;margin:0!important}'
             .'.invoice-a4__qr-img,.print-tpl-modern__qr-wrap img,.print-classic__top-right img.invoice-a4__qr-img{width:96px!important;height:96px!important}'
             .'.invoice-a4__qr canvas{display:none!important}'

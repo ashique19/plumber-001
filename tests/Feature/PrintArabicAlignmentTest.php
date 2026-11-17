@@ -63,7 +63,11 @@ it('marks Arabic print labels with invoice-print-ar, dir rtl, and right-align CS
         ->assertOk()
         ->getContent();
 
-    expect($cashHtml)->toMatch('/invoice-print-ar[^>]*dir="rtl"/');
+    expect($cashHtml)
+        ->toMatch('/invoice-print-ar[^>]*dir="rtl"/')
+        ->toContain('invoice-print-labeled-row')
+        ->toContain('invoice-print-meta-grid')
+        ->not->toMatch('/print-label[^>]+>:/');
 
     $quotation = Quotation::query()->create([
         'branch_id' => $this->branchId,

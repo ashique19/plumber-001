@@ -8,13 +8,19 @@
     border-bottom: none;
 }
 
-.print-tpl-modern__lines thead th .ar {
-    display: block;
-    direction: rtl;
+.print-tpl-modern__seller .invoice-a4__seller-side {
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
+    hyphens: auto;
+}
+
+.print-tpl-modern__seller .invoice-a4__seller-side--ar {
     text-align: right;
-    font-family: Tajawal, sans-serif;
+    direction: rtl;
+}
+
+.print-tpl-modern__lines thead th .invoice-print-th-label__ar {
     font-size: 7.5pt;
-    font-weight: 600;
 }
 
 .print-tpl-modern__lines tbody tr {
@@ -22,7 +28,7 @@
 }
 
 .print-tpl-modern__vat-cell {
-    text-align: center;
+    text-align: end;
     line-height: 1.25;
 }
 
@@ -30,6 +36,7 @@
     display: block;
     font-size: 8pt;
     color: var(--inv-muted);
+    text-align: end;
 }
 
 .print-tpl-modern__closing {
@@ -101,6 +108,15 @@
     border: 1px solid var(--inv-border);
     padding: 6px 8px;
     page-break-inside: avoid;
+    align-items: flex-start;
+}
+
+.print-tpl-modern__words .invoice-print-words-block__en {
+    text-align: start;
+}
+
+.print-tpl-modern__words .invoice-print-words-block__ar {
+    text-align: end;
 }
 
 .print-tpl-modern__sheet-footer {
@@ -117,12 +133,18 @@
 }
 
 .print-tpl-modern__footer-names {
-    text-align: center;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: baseline;
+    gap: 8px 16px;
     line-height: 1.35;
+    width: 100%;
+    max-width: 100%;
+    text-align: start;
 }
 
 .print-tpl-modern__footer-names .invoice-a4__footer-ar {
-    text-align: center;
+    text-align: end;
     direction: rtl;
 }
 
@@ -187,8 +209,8 @@
     }
 
     .print-tpl-modern__footer-names {
-        padding-right: 28%;
-        padding-left: 28%;
+        padding-right: 0;
+        padding-left: 0;
     }
 
     @page {
