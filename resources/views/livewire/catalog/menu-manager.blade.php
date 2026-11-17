@@ -206,7 +206,7 @@
                     'productNameEn', 'productNameAr', 'productNameBn', 'productCategoryId', 'productUnitId', 'productSizeId',
                     'productCostInput', 'productPriceInput', 'productVatRate', 'productVatZatcaCategory', 'productOpeningStock', 'productImageUpload',
                 ]" />
-                <div class="catalog-product-form__body x-modal-form__fields min-h-0 flex-1 flex-col gap-0 overflow-hidden py-0">
+                <div class="catalog-product-form__body min-h-0 flex flex-1 flex-col overflow-hidden">
                     @include('livewire.catalog.partials.product-form-fields')
                 </div>
                 <div class="x-modal__footer x-modal__footer--in-form">
