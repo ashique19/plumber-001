@@ -27,6 +27,7 @@
                 type="button"
                 wire:click="setTab('{{ $key }}')"
                 @class(['app-chip', 'app-chip--active' => $tab === $key])
+                @if ($key === 'modifiers') data-testid="catalog-tab-modifiers" @endif
             >{{ $label }}</button>
         @endforeach
         <label class="form-field ms-auto w-full min-w-0 sm:w-auto sm:max-w-xs">

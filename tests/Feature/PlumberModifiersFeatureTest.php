@@ -26,7 +26,8 @@ it('hides catalog modifier UI when the feature flag is off', function () {
         ->html();
 
     expect($html)
-        ->not->toContain(__('catalog.tab_modifiers'))
+        ->not->toContain('data-testid="catalog-tab-modifiers"')
+        ->not->toContain("wire:click=\"setTab('modifiers')\"")
         ->not->toContain('data-testid="catalog-modifier-modal"')
         ->not->toContain('data-testid="catalog-product-modifiers"');
 });
@@ -39,7 +40,7 @@ it('shows catalog modifier UI when the feature flag is on', function () {
         ->html();
 
     expect($html)
-        ->toContain(__('catalog.tab_modifiers'));
+        ->toContain('data-testid="catalog-tab-modifiers"');
 });
 
 it('hides POS modifier checkboxes when the feature flag is off', function () {
