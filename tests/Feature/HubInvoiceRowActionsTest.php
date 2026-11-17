@@ -79,7 +79,7 @@ it('allows record payment only when due amount is positive', function () {
         ->and(HubInvoiceRowActions::canRecordPayment($invoice, 12.5))->toBeTrue();
 });
 
-it('allows zatca resend only for failed rejected or not submitted issued invoices', function () {
+it('allows zatca resend for any issued invoice that is not yet zatca-success when configured', function () {
     config([
         'zheart.base_url' => 'https://z-heart.test',
         'zheart.api_key' => 'zh_test1234.AbcdEfGhIjKlMnOpQrStUvWxYz0123456789',
@@ -148,6 +148,22 @@ it('allows zatca resend only for failed rejected or not submitted issued invoice
 
     expect(HubInvoiceZatcaBadge::badgeKey($simplifiedPending))->toBe(HubInvoiceZatcaBadge::ReportingPending)
         ->and(HubInvoiceRowActions::canResendZatca($simplifiedPending))->toBeTrue();
+
+    $remotePending = Invoice::query()->create([
+        'document_number' => 'STD-REMOTE-ZATCA',
+        'document_type' => InvoiceDocumentType::Standard,
+        'status' => InvoiceStatus::Issued,
+        'signed_xml' => '<Invoice/>',
+        'payload' => [
+            'lines' => [],
+            'zheart_remote_submitted' => true,
+            'zheart_reporting_status' => 'pending',
+            'signing_submission_status' => 'submitted',
+        ],
+    ]);
+
+    expect(\App\Support\Hub\HubInvoiceZatcaTab::isFailed($remotePending))->toBeFalse()
+        ->and(HubInvoiceRowActions::canResendZatca($remotePending))->toBeTrue();
 });
 
 it('shows resend as a primary row action on the failed tab', function () {
@@ -177,7 +193,7 @@ it('shows resend as a primary row action on the failed tab', function () {
     Livewire::actingAs($this->owner, 'staff')
         ->test(InvoiceHub::class)
         ->set('zatcaTab', \App\Support\Hub\HubInvoiceZatcaTab::FAILED)
-        ->assertSee(__('invoices.action_send_report_zatca'), false)
+        ->assertSeeHtml('data-testid="hub-row-action-zatca-resubmit"', false)
         ->assertSee(__('invoices.zatca_resubmit_all_pending'), false);
 });
 

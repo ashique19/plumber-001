@@ -101,6 +101,7 @@ return array (
   'zatca_resubmit_not_eligible' => 'لا يمكن إعادة إرسال هذه الفاتورة بعد.',
   'zatca_resubmit_bulk_done' => 'اكتمل الإرسال الجماعي: :ok ناجحة، :fail فاشلة.',
   'zatca_resubmit_bulk_empty' => 'لا توجد فواتير فاشلة لإعادة الإرسال.',
+  'zatca_resubmit_disabled_no_zheart' => 'اضبط Z-Heart في إعدادات النشاط لإرسال الفواتير إلى زاتكا.',
   'zatca_error_not_sent' => 'لم يُرسل إلى زاتكا',
   'zatca_error_clear_failed' => 'لم تعتمد زاتكا هذه الفاتورة الضريبية. راجع سجلات Z-Heart والبيانات ثم أعد الإرسال.',
   'zatca_error_clear_status' => 'حالة الاعتماد من زاتكا: :status',

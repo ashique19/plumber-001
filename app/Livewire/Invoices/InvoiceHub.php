@@ -225,9 +225,13 @@ class InvoiceHub extends Component
     {
         abort_unless(auth('staff')->user()?->can('invoices.issue'), 403);
 
-        $query = Invoice::query()->where('status', 'issued');
-        HubInvoiceZatcaTab::applyFailedScope($query);
-        $invoices = $query->orderBy('id')->limit(40)->get();
+        $invoices = Invoice::query()
+            ->where('status', 'issued')
+            ->orderBy('id')
+            ->limit(200)
+            ->get()
+            ->filter(fn (Invoice $invoice) => HubInvoiceRowActions::canResendZatca($invoice))
+            ->take(40);
 
         $ok = 0;
         $failed = 0;
@@ -272,6 +276,7 @@ class InvoiceHub extends Component
             'draftCount' => HubInvoiceLifecycleTab::countDrafts(),
             'zatcaFailedCount' => HubInvoiceZatcaTab::countFailed(),
             'zatcaSuccessCount' => HubInvoiceZatcaTab::countSuccess(),
+            'zatcaPendingResubmitCount' => HubInvoiceZatcaTab::countPendingResubmit(),
         ]);
     }
 

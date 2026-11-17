@@ -89,8 +89,9 @@ final class HubInvoiceRowActions
             'awaiting_clearance' => $awaiting && ! $canPrint,
             'record_payment' => self::canRecordPayment($invoice, $dueAmount),
             'delete_draft' => self::canDeleteDraft($invoice),
-            'resend_zatca' => self::canResendZatca($invoice),
-            'resend_zatca_label' => self::canResendZatca($invoice)
+            'resend_zatca' => HubInvoiceZatcaTab::needsZatcaResubmit($invoice),
+            'resend_zatca_enabled' => self::canResendZatca($invoice),
+            'resend_zatca_label' => HubInvoiceZatcaTab::needsZatcaResubmit($invoice)
                 ? HubInvoiceZatcaResubmitCopy::actionLabel($invoice)
                 : null,
         ];

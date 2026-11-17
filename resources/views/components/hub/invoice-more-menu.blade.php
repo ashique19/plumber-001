@@ -19,7 +19,7 @@
             || ($actions['issue_draft'] ?? false)
             || ($actions['preview_draft'] ?? false)
             || ($actions['authorize_draft'] ?? false)
-            || (($actions['resend_zatca'] ?? false) && $canResubmitZatca));
+            || (($actions['resend_zatca'] ?? false) && ($actions['resend_zatca_enabled'] ?? false) && $canResubmitZatca));
 @endphp
 
 @if ($hasMenu)
@@ -116,7 +116,7 @@
             @if (filled($more['duplicate'] ?? null))
                 <a class="hub-doc-table__more-item" role="menuitem" href="{{ $more['duplicate'] }}">{{ __('invoices.more_duplicate') }}</a>
             @endif
-            @if (($actions['resend_zatca'] ?? false) && $canResubmitZatca)
+            @if (($actions['resend_zatca'] ?? false) && ($actions['resend_zatca_enabled'] ?? false) && $canResubmitZatca)
                 <button
                     type="button"
                     class="hub-doc-table__more-item hub-doc-table__more-item--accent"

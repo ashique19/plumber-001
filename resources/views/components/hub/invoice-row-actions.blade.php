@@ -90,6 +90,28 @@
                 test-id="hub-row-action-print-disabled"
             />
         @endif
+        @if ($actions['resend_zatca'] ?? false)
+            @if (($canResubmitZatca ?? false) && ($actions['resend_zatca_enabled'] ?? false))
+                <x-hub.row-action-icon
+                    icon="resend"
+                    accent
+                    :label="$actions['resend_zatca_label'] ?? __('invoices.action_resend_zatca')"
+                    :tooltip="$actions['resend_zatca_label'] ?? __('invoices.action_resend_zatca')"
+                    wire:click="resubmitInvoice({{ $invoiceId }})"
+                    wire:loading.attr="disabled"
+                    wire:target="resubmitInvoice({{ $invoiceId }})"
+                    test-id="hub-row-action-zatca-resubmit"
+                />
+            @else
+                <x-hub.row-action-icon
+                    icon="resend"
+                    :label="$actions['resend_zatca_label'] ?? __('invoices.action_resend_zatca')"
+                    :tooltip="__('invoices.zatca_resubmit_disabled_no_zheart')"
+                    :disabled="true"
+                    test-id="hub-row-action-zatca-resubmit-disabled"
+                />
+            @endif
+        @endif
         @if (($actions['record_payment'] ?? false) && $recordPaymentOnPage)
             <x-hub.row-action-icon
                 icon="payment"
