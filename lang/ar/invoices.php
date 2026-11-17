@@ -222,6 +222,7 @@ return array (
   'customer_linked' => 'مرتبط بعميل محفوظ.',
   'customer_name_ar' => 'الاسم (عربي)',
   'add_customer' => 'عميل جديد',
+  'add_customer_optional' => '+ إضافة عميل',
   'add_product' => 'منتج جديد',
   'add_line_product_search' => 'إضافة بند من الكتالوج',
   'add_line_product_placeholder' => 'ابحث عن منتج بالاسم أو SKU…',

@@ -126,15 +126,22 @@ it('renders customer and product pickers on quotation create', function () {
 });
 
 it('shows inline customer and product search on simplified issue', function () {
-    $html = Livewire::actingAs($this->owner, 'staff')
-        ->test(IssueInvoice::class, ['mode' => 'simplified'])
-        ->html();
+  $component = Livewire::actingAs($this->owner, 'staff')
+    ->test(IssueInvoice::class, ['mode' => 'simplified']);
 
-    expect($html)->toContain('invoice-customer-picker')
-        ->and($html)->toContain('wire:model.live.debounce.350ms="customerSearch"')
-        ->and($html)->toContain('addLineProductSearch')
-        ->and($html)->toContain(__('invoices.search_catalog_products'))
-        ->and($html)->toContain(__('invoices.cash_customer_default'));
+  $collapsed = $component->html();
+
+  expect($collapsed)
+    ->not->toContain('invoice-customer-picker')
+    ->toContain(__('invoices.add_customer_optional'))
+    ->toContain(__('invoices.cash_customer_default'))
+    ->toContain('addLineProductSearch')
+    ->toContain(__('invoices.search_catalog_products'));
+
+  $html = $component->call('expandSimplifiedCustomerSection')->html();
+
+  expect($html)->toContain('invoice-customer-picker')
+    ->and($html)->toContain('wire:model.live.debounce.350ms="customerSearch"');
 });
 
 it('hides quick create buttons for staff without catalog write access', function () {

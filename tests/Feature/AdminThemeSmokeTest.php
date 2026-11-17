@@ -111,7 +111,7 @@ it('renders key livewire admin components', function () {
         ->assertSee(__('dashboard.subtitle'), false);
 
     Livewire::test(\App\Livewire\Invoices\IssueInvoice::class, ['mode' => 'simplified'])
-        ->assertSee(__('invoices.customer_search'), false);
+        ->assertSee(__('invoices.add_customer_optional'), false);
 
     Livewire::test(\App\Livewire\Invoices\IssueInvoice::class, ['mode' => 'standard'])
         ->assertOk();

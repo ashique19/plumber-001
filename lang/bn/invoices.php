@@ -212,6 +212,7 @@ return array (
   'customer_linked' => 'সংরক্ষিত গ্রাহকের সাথে লিংক।',
   'customer_name_ar' => 'নাম (আরবি)',
   'add_customer' => 'নতুন গ্রাহক',
+  'add_customer_optional' => '+ গ্রাহক যোগ করুন',
   'add_product' => 'নতুন পণ্য',
   'add_line_product_search' => 'ক্যাটালগ থেকে লাইন যোগ',
   'add_line_product_placeholder' => 'নাম বা SKU দিয়ে পণ্য খুঁজুন…',

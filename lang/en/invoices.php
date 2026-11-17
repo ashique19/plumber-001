@@ -258,6 +258,7 @@ return [
     'customer_profile_updated' => 'Customer updated.',
     'customer_name_ar' => 'Name (Arabic)',
     'add_customer' => 'New customer',
+    'add_customer_optional' => '+ Add customer',
     'add_product' => 'New product',
     'add_line_product_search' => 'Add line from catalog',
     'add_line_product_placeholder' => 'Search product by name or SKU…',

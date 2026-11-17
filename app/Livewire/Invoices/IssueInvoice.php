@@ -129,6 +129,13 @@ class IssueInvoice extends Component
     #[Locked]
     public string $issueSubmissionToken = '';
 
+    public bool $simplifiedCustomerExpanded = false;
+
+    public function expandSimplifiedCustomerSection(): void
+    {
+        $this->simplifiedCustomerExpanded = true;
+    }
+
     public function updatedBuyerVatRegistered(mixed $value): void
     {
         $this->buyerVatRegistered = filter_var($value, FILTER_VALIDATE_BOOLEAN);
@@ -148,6 +155,9 @@ class IssueInvoice extends Component
 
         if ($value === 'standard') {
             $this->bootstrapDocumentPaymentTerms();
+            $this->simplifiedCustomerExpanded = true;
+        } elseif ($this->selectedCustomerId === null) {
+            $this->simplifiedCustomerExpanded = false;
         }
     }
 
@@ -177,6 +187,10 @@ class IssueInvoice extends Component
 
         DocumentCreateUiSupport::assignMissingLineIds($this->lines);
         $this->applyBuyerContactOverrideFromState($this->selectedCustomerId);
+
+        if ($this->mode === 'simplified' && $this->selectedCustomerId !== null) {
+            $this->simplifiedCustomerExpanded = true;
+        }
     }
 
     public function hydrate(): void

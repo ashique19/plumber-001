@@ -17,7 +17,7 @@ it('renders invoice create layout shell', function (): void {
     Livewire::actingAs($this->owner, 'staff')
         ->test(IssueInvoice::class, ['mode' => 'simplified'])
         ->assertSee(__('invoices.create_heading'))
-        ->assertSee(__('invoices.customer_information'))
+        ->assertSee(__('invoices.add_customer_optional'))
         ->assertSee(__('invoices.invoice_summary'))
         ->assertDontSee(__('invoices.payment_received_section'))
         ->assertSee(__('invoices.document_lines_empty'))
