@@ -68,6 +68,7 @@
         <x-admin.hub-fab wire:click="startCreate" :label="__('suppliers.add')" />
 
         <x-admin.hub-sheet
+            class="x-modal--form-sheet"
             :show="$showFormModal"
             :title="$selected ? __('suppliers.edit_title') : __('suppliers.add')"
             close-wire="closeFormModal"

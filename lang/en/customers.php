@@ -86,6 +86,7 @@ return [
     'action_view' => 'View',
     'action_edit' => 'Edit',
     'action_delete' => 'Delete',
+    'action_more' => 'More actions',
     'tx_type' => [
         'earn' => 'Earned',
         'redeem' => 'Redeemed',

@@ -86,6 +86,7 @@ return [
     'action_view' => 'দেখুন',
     'action_edit' => 'সম্পাদনা',
     'action_delete' => 'মুছুন',
+    'action_more' => 'আরও কাজ',
     'tx_type' => [
         'earn' => 'অর্জিত',
         'redeem' => 'রিডিম হয়েছে',

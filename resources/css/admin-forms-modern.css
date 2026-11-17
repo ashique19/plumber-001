@@ -264,8 +264,8 @@
         }
 
         html.admin-app .x-modal--form-sheet.x-modal--xl {
-            width: min(90vw, 56rem);
-            max-width: min(90vw, 56rem);
+            width: min(90vw, 75rem);
+            max-width: min(90vw, 75rem);
         }
     }
 
@@ -567,7 +567,7 @@
     }
 
     @media (min-width: 1024px) {
-        html.admin-app .customer-identity-fields.admin-modal-field-grid--2,
+        html.admin-app .customer-identity-fields.admin-modal-field-grid--3,
         html.admin-app .catalog-quick-product-fields.admin-modal-field-grid--2 {
             grid-template-columns: repeat(3, minmax(0, 1fr));
         }
@@ -576,12 +576,6 @@
     html.admin-app .customer-identity-fields__span-full,
     html.admin-app .catalog-quick-product-fields__span-full {
         grid-column: 1 / -1;
-    }
-
-    @media (min-width: 768px) {
-        html.admin-app .customer-identity-fields__street {
-            grid-column: 1 / -1;
-        }
     }
 
     html.admin-app .customer-identity-fields__vat .admin-segmented {

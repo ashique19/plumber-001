@@ -29,7 +29,7 @@
     $showMore = (bool) ($this->{$moreAddressProp} ?? false);
 @endphp
 
-<div class="customer-identity-fields admin-modal-field-grid admin-modal-field-grid--2 col-span-full w-full min-w-0" data-testid="customer-identity-fields">
+<div class="customer-identity-fields admin-modal-field-grid admin-modal-field-grid--3 col-span-full w-full min-w-0" data-testid="customer-identity-fields">
     @foreach ($nameBlocks as $block)
         <x-field.input
             :label="__('customers.fields.'.$block['key'])"
@@ -106,11 +106,12 @@
         wire:model.blur="{{ $fields['city'] }}"
     />
 
-    <x-field.input
+    <x-field.textarea
         :label="__('business.fields.street')"
         :name="$fields['street_name']"
         wire:model.blur="{{ $fields['street_name'] }}"
-        wrapper-class="customer-identity-fields__street"
+        rows="2"
+        wrapper-class="customer-identity-fields__street admin-modal-span-2"
     />
 
     <div class="customer-identity-fields__span-full">

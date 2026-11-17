@@ -8,7 +8,9 @@
 
 @php
     $hasMenu = $draftToolbar
-        ? (($actions['issue_draft'] ?? false) || ($actions['delete_draft'] ?? false))
+        ? (($actions['issue_draft'] ?? false)
+            || ($actions['delete_draft'] ?? false)
+            || ($actions['authorize_draft'] ?? false))
         : (($actions['record_payment'] ?? false)
             || filled($more['credit_note'] ?? null)
             || filled($more['duplicate'] ?? null)
@@ -23,6 +25,20 @@
 @if ($hasMenu)
     <x-hub.more-menu :menu-id="'invoice-'.$invoiceId">
         @if ($draftToolbar)
+            @if ($actions['authorize_draft'] ?? false)
+                <button
+                    type="button"
+                    class="hub-doc-table__more-item hub-doc-table__more-item--accent"
+                    role="menuitem"
+                    wire:click="authorizeDraft({{ $invoiceId }})"
+                    wire:confirm="{{ __('invoices.authorize_draft_confirm') }}"
+                    wire:loading.attr="disabled"
+                    wire:target="authorizeDraft({{ $invoiceId }})"
+                    data-testid="hub-draft-action-authorize"
+                >
+                    {{ __('invoices.action_authorize_draft') }}
+                </button>
+            @endif
             @if ($actions['issue_draft'] ?? false)
                 <button
                     type="button"
