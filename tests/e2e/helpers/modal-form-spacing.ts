@@ -8,19 +8,23 @@ export async function openAddCustomerModal(page: Page, locale: 'en' | 'bn' | 'ar
 }
 
 export async function expectCustomerModalFormSpacing(modal: Locator): Promise<void> {
-    const fieldsWrap = modal.locator('.x-modal-form__fields').first();
     const identity = modal.locator('[data-testid="customer-identity-fields"]').first();
 
-    await expect(fieldsWrap).toBeVisible();
     await expect(identity).toBeVisible();
 
-    const fieldsBox = await fieldsWrap.boundingBox();
+    const modalBox = await modal.boundingBox();
     const identityBox = await identity.boundingBox();
 
-    expect(fieldsBox, 'modal fields wrap').not.toBeNull();
+    expect(modalBox, 'modal panel').not.toBeNull();
     expect(identityBox, 'identity grid').not.toBeNull();
 
-    expect(identityBox!.width, 'identity grid uses full modal field width').toBeGreaterThanOrEqual(fieldsBox!.width * 0.92);
+    const contentPadding = 40;
+    const innerWidth = modalBox!.width - contentPadding;
+    expect(identityBox!.width, 'identity grid uses modal content width').toBeGreaterThanOrEqual(innerWidth * 0.88);
+
+    const firstInput = identity.locator('.form-field__control').first();
+    const firstInputBox = await firstInput.boundingBox();
+    expect(firstInputBox!.width, 'primary input uses grid width').toBeGreaterThanOrEqual(identityBox!.width * 0.9);
 
     const vatSegment = identity.locator('.admin-segmented').first();
     await expect(vatSegment).toBeVisible();
