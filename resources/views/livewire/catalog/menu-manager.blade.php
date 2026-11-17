@@ -165,7 +165,7 @@
             :show="true"
             :title="$editingCategoryId ? __('catalog.edit_category') : __('catalog.add_category')"
             close-wire='$set("showCategoryForm", false)'
-            size="lg"
+            size="xl"
             data-testid="catalog-category-modal"
         >
             <form id="catalog-category-form" class="x-modal-form" wire:submit="saveCategory">
