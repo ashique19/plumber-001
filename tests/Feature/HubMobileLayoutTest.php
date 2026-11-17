@@ -26,18 +26,17 @@ it('renders quotations hub fab as a link to create', function () {
         ->toContain('href="'.route('admin.quotations.create').'"');
 });
 
-it('keeps invoice resend in the sticky invoice-number cell', function () {
+it('exposes invoice hub mobile cards and compact row actions', function () {
     $css = (string) file_get_contents(resource_path('css/hub-document-table.css'));
-
     expect($css)
-        ->toContain('.hub-doc-table__resend-inline')
-        ->toContain('z-index: 4')
-        ->toContain('z-index: 1');
+        ->toContain('.hub-doc-mobile-card')
+        ->toContain('.hub-doc-table__action--icon')
+        ->toContain('z-index: 4');
 
     $blade = (string) file_get_contents(resource_path('views/livewire/invoices/invoice-hub.blade.php'));
     expect($blade)
-        ->toContain('hub-doc-table__id-cell')
-        ->toContain('hub-doc-table__resend-inline');
+        ->toContain('hub-invoice-cards')
+        ->toContain('x-hub.invoice-row-actions');
 });
 
 it('stacks dues customer balances on mobile and keeps a scrollable table', function () {
