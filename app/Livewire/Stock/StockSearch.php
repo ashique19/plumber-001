@@ -3,6 +3,7 @@
 namespace App\Livewire\Stock;
 
 use App\Business\BusinessContext;
+use App\Livewire\Concerns\HasAdminHubPagination;
 use App\Livewire\Concerns\ResolvesBusinessContext;
 use App\Models\Product;
 use App\Models\ProductStockMovement;
@@ -12,14 +13,13 @@ use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
-use Livewire\WithPagination;
 use Spatie\Permission\PermissionRegistrar;
 
 #[Layout('layouts.pos')]
 class StockSearch extends Component
 {
     use ResolvesBusinessContext;
-    use WithPagination;
+    use HasAdminHubPagination;
 
     #[Url]
     public string $search = '';
@@ -63,7 +63,7 @@ class StockSearch extends Component
 
     public function render(): View
     {
-        $products = $this->schemaReady ? $this->productQuery()->paginate(20) : null;
+        $products = $this->schemaReady ? $this->productQuery()->paginate($this->adminPerPage()) : null;
 
         $movements = $this->schemaReady
             ? $this->movementQuery()->limit(40)->get()

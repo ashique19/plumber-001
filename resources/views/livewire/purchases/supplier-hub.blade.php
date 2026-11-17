@@ -60,7 +60,7 @@
                 </ul>
 
                 @if ($suppliers)
-                    <div>{{ $suppliers->links() }}</div>
+                    <x-admin.hub-pager :paginator="$suppliers" />
                 @endif
         @endif
         </section>

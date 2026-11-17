@@ -123,6 +123,6 @@
     </div>
 
     <div class="mt-4">
-        {{ $expenses->links() }}
+        <x-admin.hub-pager :paginator="$expenses" />
     </div>
 </div>

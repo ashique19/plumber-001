@@ -3,6 +3,7 @@
 namespace App\Livewire\Invoices;
 
 use App\Livewire\Concerns\DispatchesToasts;
+use App\Livewire\Concerns\HasAdminHubPagination;
 use App\Livewire\Concerns\ResolvesBusinessContext;
 use App\Livewire\Concerns\ValidatesFieldsLive;
 use App\Models\Invoice;
@@ -21,7 +22,6 @@ use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
-use Livewire\WithPagination;
 use Spatie\Permission\PermissionRegistrar;
 
 #[Layout('layouts.pos')]
@@ -30,7 +30,7 @@ class InvoiceHub extends Component
     use ResolvesBusinessContext;
     use DispatchesToasts;
     use ValidatesFieldsLive;
-    use WithPagination;
+    use HasAdminHubPagination;
 
     #[Url]
     public string $search = '';
@@ -303,7 +303,7 @@ class InvoiceHub extends Component
 
         $query->orderByDesc('id');
 
-        $paginator = $query->paginate(15);
+        $paginator = $query->paginate($this->adminPerPage());
 
         $ledger = app(InvoiceDuesLedgerService::class);
 

@@ -18,7 +18,7 @@
             <h2 class="text-sm font-semibold">{{ __('payments.outstanding_customers') }}</h2>
             <p class="mt-1 text-xs text-[var(--app-muted)]">{{ __('payments.outstanding_hint') }}</p>
 
-            @if ($customers === [])
+            @if ($customers->total() === 0)
                 <p class="mt-4 text-sm text-[var(--app-muted)]" data-testid="dues-customer-empty">{{ __('payments.no_outstanding') }}</p>
             @else
                 <ul class="mt-4 space-y-2 sm:hidden" data-testid="dues-customer-cards">
@@ -77,6 +77,7 @@
                         </tbody>
                     </table>
                 </div>
+                <x-admin.hub-pager :paginator="$customers" />
             @endif
         </section>
 
@@ -182,6 +183,7 @@
                             </li>
                         @endforeach
                     </ul>
+                    <x-admin.hub-pager :paginator="$invoicePicklist" />
                 </div>
 
                 <form class="space-y-3" wire:submit="recordPayment">

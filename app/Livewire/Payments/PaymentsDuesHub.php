@@ -6,6 +6,7 @@ use App\Business\BusinessContext;
 use App\Enums\InvoiceArPaymentMethod;
 use App\Enums\InvoiceStatus;
 use App\Livewire\Concerns\DispatchesToasts;
+use App\Livewire\Concerns\HasAdminHubPagination;
 use App\Livewire\Concerns\ResolvesBusinessContext;
 use App\Models\Invoice;
 use App\Services\Invoicing\InvoiceDuesLedgerService;
@@ -19,6 +20,7 @@ use Spatie\Permission\PermissionRegistrar;
 class PaymentsDuesHub extends Component
 {
     use DispatchesToasts;
+    use HasAdminHubPagination;
     use ResolvesBusinessContext;
 
     #[Url]
@@ -60,6 +62,11 @@ class PaymentsDuesHub extends Component
     public function clearCustomer(): void
     {
         $this->customerKey = '';
+    }
+
+    public function updatingInvoiceSearch(): void
+    {
+        $this->resetPage('invoicesPage');
     }
 
     public function selectInvoice(int $invoiceId): void
@@ -111,7 +118,7 @@ class PaymentsDuesHub extends Component
 
     public function render(InvoiceDuesLedgerService $ledger): View
     {
-        $customers = $ledger->customerOutstandingSummary();
+        $customers = $this->paginateArray($ledger->customerOutstandingSummary(), 'customersPage');
         $statement = null;
 
         if ($this->customerKey !== '') {
@@ -130,9 +137,8 @@ class PaymentsDuesHub extends Component
                 $q->where('document_number', 'like', $like);
             })
             ->orderByDesc('issued_at')
-            ->limit(25)
-            ->get()
-            ->map(function (Invoice $invoice) use ($ledger): array {
+            ->paginate($this->adminPerPage(), ['*'], 'invoicesPage')
+            ->through(function (Invoice $invoice) use ($ledger): array {
                 $balance = $ledger->balanceFor($invoice);
 
                 return [

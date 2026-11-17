@@ -126,7 +126,7 @@
                 </table>
             </div>
 
-            <div>{{ $customers->links() }}</div>
+            <x-admin.hub-pager :paginator="$customers" />
         </section>
     @endif
 

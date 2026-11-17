@@ -37,6 +37,7 @@
                     </li>
                 @endforeach
             </ul>
+            <x-admin.hub-pager :paginator="$staff" />
         </section>
     @endif
 
@@ -92,6 +93,7 @@
                     </li>
                 @endforeach
             </ul>
+            <x-admin.hub-pager :paginator="$branches" />
         </section>
     @endif
 
@@ -101,7 +103,7 @@
                 <label class="block text-xs font-medium text-[var(--app-muted)]">
                     {{ __('operations.shift_branch') }}
                     <select wire:model.live="shiftBranchId" class="app-toolbar-select mt-1 w-full">
-                        @foreach ($branches as $branch)
+                        @foreach ($allBranches as $branch)
                             <option value="{{ $branch->id }}">{{ $branch->name }}</option>
                         @endforeach
                     </select>
@@ -173,7 +175,7 @@
                 <x-field.input type="password" :label="__('operations.password')" name="staffPassword" wire:model="staffPassword" @if(!$editingStaffId) required @endif />
                 <x-field.select :label="__('operations.branch_assign')" name="staffBranchId" wire:model="staffBranchId">
                     <option value="">{{ __('operations.no_branch') }}</option>
-                    @foreach ($branches as $branch)
+                    @foreach ($allBranches as $branch)
                         <option value="{{ $branch->id }}">{{ $branch->name }}</option>
                     @endforeach
                 </x-field.select>

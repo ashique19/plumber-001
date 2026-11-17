@@ -4,6 +4,7 @@ namespace App\Livewire\Purchases;
 
 use App\Business\BusinessContext;
 use App\Livewire\Concerns\DispatchesToasts;
+use App\Livewire\Concerns\HasAdminHubPagination;
 use App\Livewire\Concerns\ResolvesBusinessContext;
 use App\Livewire\Concerns\ValidatesFieldsLive;
 use App\Models\Supplier;
@@ -16,7 +17,6 @@ use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
-use Livewire\WithPagination;
 use Spatie\Permission\PermissionRegistrar;
 
 #[Layout('layouts.pos')]
@@ -25,7 +25,7 @@ class SupplierHub extends Component
     use DispatchesToasts;
     use ResolvesBusinessContext;
     use ValidatesFieldsLive;
-    use WithPagination;
+    use HasAdminHubPagination;
 
     #[Url]
     public string $search = '';
@@ -285,7 +285,7 @@ class SupplierHub extends Component
                 });
             }
 
-            $page = $query->orderBy('name')->paginate(20);
+            $page = $query->orderBy('name')->paginate($this->adminPerPage());
         }
 
         return view('livewire.purchases.supplier-hub', [

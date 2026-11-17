@@ -3,6 +3,7 @@
 namespace App\Livewire\Operations;
 
 use App\Livewire\Concerns\DispatchesToasts;
+use App\Livewire\Concerns\HasAdminHubPagination;
 use App\Livewire\Concerns\ValidatesFieldsLive;
 use App\Support\Geo\GeoMapsUrl;
 use App\Support\StaffBranchContext;
@@ -30,7 +31,7 @@ class TeamHub extends Component
     use ResolvesBusinessContext;
     use DispatchesToasts;
     use ValidatesFieldsLive;
-
+    use HasAdminHubPagination;
 
     #[Url]
     public string $tab = 'staff';
@@ -88,6 +89,12 @@ class TeamHub extends Component
     public string $closingCounted = '';
 
     public string $closeNotes = '';
+
+    public function updatingTab(): void
+    {
+        $this->resetPage();
+        $this->resetPage('branchesPage');
+    }
 
     public function mount(): void
     {
@@ -351,8 +358,9 @@ class TeamHub extends Component
 
     public function render(ShiftService $shifts): View
     {
-        $staff = $this->staffQuery()->with('roles', 'branch')->orderBy('name')->get();
-        $branches = $this->branchQuery()->orderBy('name')->get();
+        $staff = $this->staffQuery()->with('roles', 'branch')->orderBy('name')->paginate($this->adminPerPage());
+        $allBranches = $this->branchQuery()->orderBy('name')->get();
+        $branches = $this->branchQuery()->orderBy('name')->paginate($this->adminPerPage(), ['*'], 'branchesPage');
         $shiftBranch = $this->shiftBranchId
             ? $this->branchQuery()->find($this->shiftBranchId)
             : null;
@@ -368,13 +376,14 @@ class TeamHub extends Component
 
         $branchAdmin = app(BranchAdminService::class);
         $branchDeletable = [];
-        foreach ($branches as $branch) {
+        foreach ($allBranches as $branch) {
             $branchDeletable[$branch->id] = $branchAdmin->canDelete($branch);
         }
 
         return view('livewire.operations.team-hub', [
             'staff' => $staff,
             'branches' => $branches,
+            'allBranches' => $allBranches,
             'branchDeletable' => $branchDeletable,
             'openShift' => $openShift,
             'recentShifts' => $recentShifts,
