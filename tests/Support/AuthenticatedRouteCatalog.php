@@ -30,6 +30,7 @@ final class AuthenticatedRouteCatalog
         return [
             ['admin.dashboard', [], 200],
             ['admin.payments.dues', [], 200],
+            ['admin.payments.received', [], 200],
             ['admin.expenses', [], 200],
             ['admin.business', [], 200],
             ['admin.pos.home', [], $posHomeStatus],

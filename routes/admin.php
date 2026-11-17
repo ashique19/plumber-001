@@ -26,6 +26,7 @@ use App\Livewire\Quotations\QuotationHub;
 use App\Livewire\Operations\TeamHub;
 use App\Livewire\Ops\BranchDashboard;
 use App\Livewire\Payments\PaymentsDuesHub;
+use App\Livewire\Payments\ReceivedPaymentsHub;
 use App\Livewire\Pos\EndOfDay;
 use App\Livewire\Pos\Home;
 use App\Livewire\Pos\OrderHistory;
@@ -43,6 +44,7 @@ Route::prefix('admin')->middleware('auth:staff')->group(function (): void {
     Route::middleware('reports.access')->group(function (): void {
         Route::get('/dashboard', AdminDashboard::class)->name('admin.dashboard');
         Route::get('/payments/dues', PaymentsDuesHub::class)->name('admin.payments.dues');
+        Route::get('/payments/received', ReceivedPaymentsHub::class)->name('admin.payments.received');
         Route::get('/expenses', ExpensesHub::class)->name('admin.expenses');
     });
 

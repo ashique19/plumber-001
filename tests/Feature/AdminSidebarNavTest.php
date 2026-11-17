@@ -35,6 +35,13 @@ it('highlights invoices when viewing the invoice hub', function () {
         ->and($html)->toContain('app-nav-link--active');
 });
 
+it('highlights received payments when viewing the hub', function () {
+    $html = $this->get(route('admin.payments.received', ['locale' => 'en']))->assertOk()->getContent();
+
+    expect($html)->toContain(__('admin_nav.items.received_payments', [], 'en'))
+        ->and($html)->toContain('app-nav-link--active');
+});
+
 it('shows catalog categories as an active nested item', function () {
     $html = $this->get(route('admin.catalog', ['tab' => 'categories', 'locale' => 'en']))->assertOk()->getContent();
 

@@ -42,4 +42,19 @@ return [
     'errors' => [
         'amount_exceeds_outstanding' => 'Amount exceeds the outstanding balance for this invoice.',
     ],
+    'received' => [
+        'title' => 'Received payments',
+        'subtitle' => 'Cash, bank, and card receipts recorded against invoices.',
+        'from' => 'From',
+        'to' => 'To',
+        'all_methods' => 'All methods',
+        'customer_search' => 'Customer / invoice',
+        'customer_placeholder' => 'Name, phone, or invoice no.',
+        'total' => 'Total received',
+        'empty' => 'No payments in this period.',
+        'invoice_no' => 'Invoice no.',
+        'actions' => 'Actions',
+        'view_invoice' => 'View invoice',
+        'print_receipt' => 'Print receipt',
+    ],
 ];
