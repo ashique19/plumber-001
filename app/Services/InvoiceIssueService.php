@@ -17,6 +17,8 @@ use App\Services\Invoicing\Signing\InvoiceSigningRequest;
 use App\Support\Invoicing\InvoiceLineDataFactory;
 use App\Support\Invoicing\InvoiceZatcaSubmissionGuard;
 use App\Support\Invoicing\SigningFailureSanitizer;
+use App\Support\Invoicing\StandardInvoiceZatcaPayloadPrecheck;
+use App\Support\Invoicing\ZHeartApiValidationErrors;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -120,6 +122,24 @@ class InvoiceIssueService
         );
 
         $dueDate = $this->resolveDueDate($invoice, $now, $business);
+
+        if ($invoiceCategory === 'standard' && $business->invoicingIntegrationEnabled()) {
+            $precheck = StandardInvoiceZatcaPayloadPrecheck::validatePayload($payload);
+            if ($precheck !== []) {
+                $message = ZHeartApiValidationErrors::formatFlashMessage(
+                    __('invoices.zatca_precheck.failed'),
+                    $precheck,
+                );
+
+                return $this->finalizeWithoutRemoteSigning(
+                    $invoice,
+                    $now,
+                    $dueDate,
+                    $invoiceUuid,
+                    InvoiceSigningException::signingFailed(context: $message),
+                );
+            }
+        }
 
         InvoiceZatcaSubmissionGuard::markSubmissionInFlight($invoice);
 

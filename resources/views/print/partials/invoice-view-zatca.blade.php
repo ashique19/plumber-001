@@ -21,6 +21,7 @@
                         'border border-red-200 bg-red-50 text-red-950' => $flashKey === 'error',
                     ])
                     role="status"
+                    @if ($flashKey === 'error' || $flashKey === 'warning') style="white-space: pre-line" @endif
                 >{{ session($flashKey) }}</p>
             @endif
         @endforeach
@@ -28,10 +29,6 @@
         <div class="flex flex-wrap items-start gap-2 mb-2">
             <x-invoices.hub-invoice-status-pill :invoice="$invoice" kind="zatca" />
         </div>
-
-        @if (filled($zatcaInlineError ?? null))
-            <p class="m-0 mb-2 text-sm leading-snug text-red-800" data-testid="invoice-zatca-inline-error">{{ $zatcaInlineError }}</p>
-        @endif
 
         @if (filled($zatcaResponseDisplay ?? null))
             <div class="mb-2 space-y-2 text-sm" data-testid="invoice-zatca-last-response">
@@ -84,11 +81,20 @@
                         @endforeach
                     </ul>
                 @endif
-                @if (($zatcaResponseDisplay['errors'] ?? []) !== [])
-                    <div>
-                        <p class="m-0 mb-1 font-medium text-red-800">{{ __('invoices.zatca_view_errors') }}</p>
+                @if (filled($zatcaResponseDisplay['summary'] ?? null))
+                    <p class="m-0 text-sm font-medium text-red-900" data-testid="invoice-zatca-error-summary">
+                        {{ $zatcaResponseDisplay['summary'] }}
+                    </p>
+                @elseif (filled($zatcaInlineError ?? null))
+                    <p class="m-0 text-sm font-medium text-red-900" data-testid="invoice-zatca-error-summary">
+                        {{ $zatcaInlineError }}
+                    </p>
+                @endif
+                @if (($zatcaResponseDisplay['field_errors'] ?? $zatcaResponseDisplay['errors'] ?? []) !== [])
+                    <div data-testid="invoice-zatca-field-errors">
+                        <p class="m-0 mb-1 font-medium text-red-800">{{ __('invoices.zatca_view_field_errors') }}</p>
                         <ul class="m-0 list-disc ps-5 text-red-900">
-                            @foreach ($zatcaResponseDisplay['errors'] as $line)
+                            @foreach ($zatcaResponseDisplay['field_errors'] ?? $zatcaResponseDisplay['errors'] ?? [] as $line)
                                 <li>{{ $line }}</li>
                             @endforeach
                         </ul>

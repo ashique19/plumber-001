@@ -121,6 +121,15 @@ it('surfaces standard clear failure on the invoice payload', function () {
         'payload' => array_merge($draft->payload ?? [], [
             'buyer_name' => 'Buyer',
             'buyer_vat' => '300000000000003',
+            'buyer_cr' => '1012345678',
+            'supply_date' => '2026-11-18',
+            'buyer_national_address' => [
+                'building' => '12',
+                'street' => 'King Fahd Road',
+                'district' => 'Olaya',
+                'city' => 'Riyadh',
+                'postal_code' => '12345',
+            ],
         ]),
     ])->save();
 

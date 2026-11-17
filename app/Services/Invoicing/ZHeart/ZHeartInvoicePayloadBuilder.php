@@ -30,7 +30,7 @@ final class ZHeartInvoicePayloadBuilder
             'invoice_number' => $request->documentNumber,
             'issue_date' => $issued->format('Y-m-d'),
             'issue_time' => $issued->format('H:i:s'),
-            'supply_date' => $issued->format('Y-m-d'),
+            'supply_date' => self::resolveSupplyDate($request->invoicePayload, $issued),
             'currency' => 'SAR',
             'type' => $type,
             'document_type' => $documentType,
@@ -208,5 +208,15 @@ final class ZHeartInvoicePayloadBuilder
             'tax' => $computed['total_vat'],
             'tax_inclusive' => $computed['total_inc_vat'],
         ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $invoicePayload
+     */
+    private static function resolveSupplyDate(array $invoicePayload, \Illuminate\Support\Carbon $issued): string
+    {
+        $supply = trim((string) ($invoicePayload['supply_date'] ?? ''));
+
+        return $supply !== '' ? $supply : $issued->format('Y-m-d');
     }
 }
