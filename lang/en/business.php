@@ -98,6 +98,7 @@ return [
     'branches' => [
         'intro' => 'Manage branch locations, phones, and hours in Team hub.',
         'open_team' => 'Open branch management',
+        'open_users' => 'Manage admin users',
     ],
     'extras' => [
         'delivery_apps' => 'Delivery app links (one URL per line)',

@@ -50,6 +50,7 @@ final class AuthenticatedRouteCatalog
             ['admin.purchases.create', [], 200],
             ['admin.suppliers', [], 200],
             ['admin.team', [], 200],
+            ['admin.users', [], 200],
         ];
     }
 

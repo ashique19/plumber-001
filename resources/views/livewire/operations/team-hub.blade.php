@@ -6,7 +6,7 @@
 
     <div class="flex min-w-0 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
         <div class="app-section-tabs app-section-tabs--scroll min-w-0 max-w-full">
-        @foreach (['staff' => __('operations.tab_staff'), 'branches' => __('operations.tab_branches'), 'shifts' => __('operations.tab_shifts')] as $key => $label)
+        @foreach (['branches' => __('operations.tab_branches'), 'shifts' => __('operations.tab_shifts')] as $key => $label)
             <button type="button" wire:click="setTab('{{ $key }}')" @class([
                 'app-segment-tab',
                 'app-segment-tab--active' => $tab === $key,
@@ -14,32 +14,6 @@
         @endforeach
         </div>
     </div>
-
-    @if ($tab === 'staff')
-        <section class="mt-4">
-            <x-app.add-button type="button" wire:click="startStaff()">{{ __('operations.add_staff') }}</x-app.add-button>
-            <ul class="space-y-2">
-                @foreach ($staff as $member)
-                    <li class="app-card flex flex-wrap items-center justify-between gap-2 p-3">
-                        <div>
-                            <p class="font-medium">{{ $member->name }}</p>
-                            <p class="text-xs text-[var(--app-muted)]">{{ $member->email }} · {{ $member->branch?->name ?? '—' }}</p>
-                            <p class="mt-1 flex flex-wrap gap-1">
-                                @foreach ($member->getRoleNames() as $role)
-                                    <span class="pos-status-pill pos-status-pill--paid">{{ $role }}</span>
-                                @endforeach
-                                @unless ($member->is_active)
-                                    <span class="pos-status-pill pos-status-pill--cancelled">{{ __('operations.inactive') }}</span>
-                                @endunless
-                            </p>
-                        </div>
-                        <button type="button" class="tap-action-muted text-xs" wire:click="startStaff({{ $member->id }})">{{ __('operations.edit') }}</button>
-                    </li>
-                @endforeach
-            </ul>
-            <x-admin.hub-pager :paginator="$staff" />
-        </section>
-    @endif
 
     @if ($tab === 'branches')
         <section class="mt-4">
@@ -157,42 +131,6 @@
                 </ul>
             </section>
         </section>
-    @endif
-
-    @if ($showStaffForm)
-        <div class="app-sheet-backdrop" wire:click="$set('showStaffForm', false)"></div>
-        <x-ui.admin-sheet
-            :title="$editingStaffId ? __('operations.edit_staff') : __('operations.add_staff')"
-            close-wire='$set("showStaffForm", false)'
-            form-id="team-staff-form"
-            submit-target="saveStaff"
-            :submit-label="__('operations.save')"
-            wide
-        >
-            <form id="team-staff-form" class="app-admin-form" wire:submit="saveStaff">
-                <x-field.input :label="__('operations.name')" name="staffName" wire:model="staffName" required />
-                <x-field.input type="email" :label="__('operations.email')" name="staffEmail" wire:model="staffEmail" required />
-                <x-field.input type="password" :label="__('operations.password')" name="staffPassword" wire:model="staffPassword" @if(!$editingStaffId) required @endif />
-                <x-field.select :label="__('operations.branch_assign')" name="staffBranchId" wire:model="staffBranchId">
-                    <option value="">{{ __('operations.no_branch') }}</option>
-                    @foreach ($allBranches as $branch)
-                        <option value="{{ $branch->id }}">{{ $branch->name }}</option>
-                    @endforeach
-                </x-field.select>
-                <fieldset>
-                    <legend class="text-xs font-medium leading-snug">{{ __('operations.roles') }}</legend>
-                    <div class="mt-2 flex flex-wrap gap-2">
-                        @foreach ($roleOptions as $role)
-                            <label class="app-admin-form__modifier-chip text-sm">
-                                <input type="checkbox" class="h-4 w-4" value="{{ $role }}" wire:model="staffRoles">
-                                <span>{{ $role }}</span>
-                            </label>
-                        @endforeach
-                    </div>
-                </fieldset>
-                <x-field.toggle wire:model="staffActive" name="staffActive" :label="__('operations.active')" />
-            </form>
-        </x-ui.admin-sheet>
     @endif
 
     @if ($showBranchForm)

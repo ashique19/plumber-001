@@ -30,7 +30,7 @@ for (const profile of VIEW_PROFILES) {
             productForm.getByRole('button', { name: /save|حفظ/i }).click(),
         );
 
-        await page.goto(tenantPath('/team?tab=staff', profile.locale));
+        await page.goto(tenantPath('/users', profile.locale));
 
         await page.goto(tenantPath('/customers', profile.locale));
         await expect(page.getByText(/regular guest|ضيف/i).first()).toBeVisible();

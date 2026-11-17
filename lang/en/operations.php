@@ -1,8 +1,8 @@
 <?php
 
 return [
-    'title' => 'Team & branches',
-    'subtitle' => 'Staff roles, branches, and cashier shifts with opening float.',
+    'title' => 'Branches & shifts',
+    'subtitle' => 'Manage branch locations and cashier shifts with opening float.',
     'nav' => 'Team',
     'tab_staff' => 'Staff',
     'tab_branches' => 'Branches',

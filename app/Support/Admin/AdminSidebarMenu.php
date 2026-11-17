@@ -122,7 +122,8 @@ final class AdminSidebarMenu
             $name === 'admin.reports' && $section === 'inventory' => 'inventory_reports',
             $name === 'admin.reports' && $section === 'customers' => 'customer_reports',
             $name === 'admin.reports' => 'sales_reports',
-            $name === 'admin.team', str_starts_with($name, 'admin.team') => 'staff_management',
+            $name === 'admin.users', str_starts_with($name, 'admin.users') => 'staff_management',
+            $name === 'admin.team', str_starts_with($name, 'admin.team') => 'team_branches',
             $name === 'admin.business' => 'settings',
             $name === 'admin.profile' => 'profile',
             default => null,
@@ -282,6 +283,13 @@ final class AdminSidebarMenu
                 'id' => 'staff_management',
                 'type' => 'link',
                 'label_key' => 'staff_management',
+                'roles' => ['owner'],
+                'route' => ['admin.users', []],
+            ],
+            [
+                'id' => 'team_branches',
+                'type' => 'link',
+                'label_key' => 'team_branches',
                 'permissions' => ['staff.manage'],
                 'route' => ['admin.team', []],
             ],
@@ -309,6 +317,13 @@ final class AdminSidebarMenu
     {
         if ($user === null) {
             return false;
+        }
+
+        $roles = $entry['roles'] ?? [];
+        foreach ($roles as $role) {
+            if (! $user->hasRole($role)) {
+                return false;
+            }
         }
 
         $permissions = $entry['permissions'] ?? [];

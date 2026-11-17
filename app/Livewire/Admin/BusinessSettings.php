@@ -558,10 +558,13 @@ class BusinessSettings extends Component
     {
         $business = $this->business();
 
+        $staffUser = auth('staff')->user();
+
         return view('livewire.admin.business-settings', [
             'business' => $business,
             'colorOptions' => BusinessProfile::brandColorOptions($business),
             'teamUrl' => route('admin.team'),
+            'usersUrl' => ($staffUser && $staffUser->hasRole('owner')) ? route('admin.users') : null,
         ]);
     }
 

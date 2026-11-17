@@ -32,6 +32,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'reports.access' => \App\Http\Middleware\EnsureReportsAccess::class,
             'inventory.access' => \App\Http\Middleware\EnsureInventoryAccess::class,
             'team.access' => \App\Http\Middleware\EnsureStaffManageAccess::class,
+            'owner.access' => \App\Http\Middleware\EnsureOwnerAccess::class,
             'invoices.access' => \App\Http\Middleware\EnsureInvoicesAccess::class,
             'business.manage' => \App\Http\Middleware\EnsureBusinessManageAccess::class,
         ]);

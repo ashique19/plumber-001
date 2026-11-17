@@ -13,10 +13,8 @@ use App\Models\BusinessSetting;
 use App\Models\StaffUser;
 use App\Services\Operations\BranchAdminService;
 use App\Services\Operations\ShiftService;
-use App\Services\Operations\StaffAdminService;
 use App\Business\BusinessContext;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
@@ -34,27 +32,10 @@ class TeamHub extends Component
     use HasAdminHubPagination;
 
     #[Url]
-    public string $tab = 'staff';
+    public string $tab = 'branches';
 
     #[Url(as: 'branch')]
     public ?int $shiftBranchId = null;
-
-    public bool $showStaffForm = false;
-
-    public ?int $editingStaffId = null;
-
-    public string $staffName = '';
-
-    public string $staffEmail = '';
-
-    public string $staffPassword = '';
-
-    public ?int $staffBranchId = null;
-
-    /** @var list<string> */
-    public array $staffRoles = ['cashier'];
-
-    public bool $staffActive = true;
 
     public bool $showBranchForm = false;
 
@@ -117,76 +98,9 @@ class TeamHub extends Component
 
     public function setTab(string $tab): void
     {
-        if (in_array($tab, ['staff', 'branches', 'shifts'], true)) {
+        if (in_array($tab, ['branches', 'shifts'], true)) {
             $this->tab = $tab;
         }
-    }
-
-    public function startStaff(?int $id = null): void
-    {
-        $this->resetStaffForm();
-        $this->showStaffForm = true;
-        if ($id === null && ! StaffBranchContext::selectorVisible()) {
-            $only = StaffBranchContext::resolve();
-            if ($only !== null) {
-                $this->staffBranchId = $only->id;
-            }
-        }
-        if ($id !== null) {
-            $user = $this->staffQuery()->with('roles')->findOrFail($id);
-            $this->editingStaffId = $user->id;
-            $this->staffName = $user->name;
-            $this->staffEmail = $user->email;
-            $this->staffBranchId = $user->branch_id;
-            $this->staffActive = (bool) $user->is_active;
-            $this->staffRoles = $user->getRoleNames()->all();
-        }
-    }
-
-    public function saveStaff(StaffAdminService $staffAdmin): void
-    {
-        $rules = [
-            'staffName' => ['required', 'string', 'max:120'],
-            'staffEmail' => ['required', 'email', 'max:255', Rule::unique('staff_users', 'email')->ignore($this->editingStaffId)],
-            'staffBranchId' => ['nullable', 'integer'],
-            'staffRoles' => ['required', 'array', 'min:1'],
-            'staffActive' => ['boolean'],
-        ];
-        if ($this->editingStaffId === null) {
-            $rules['staffPassword'] = ['required', 'string', 'min:12'];
-        } else {
-            $rules['staffPassword'] = ['nullable', 'string', 'min:12'];
-        }
-
-        $validated = $this->validate($rules);
-
-        if ($this->editingStaffId) {
-            $user = $this->staffQuery()->findOrFail($this->editingStaffId);
-            $user->update([
-                'name' => $validated['staffName'],
-                'email' => $validated['staffEmail'],
-                'branch_id' => $validated['staffBranchId'] ?: null,
-            ]);
-            if ($validated['staffPassword'] !== '') {
-                $user->update(['password' => Hash::make($validated['staffPassword'])]);
-            }
-            $staffAdmin->setActive($user, $validated['staffActive']);
-            $staffAdmin->syncRoles($this->business, $user, $validated['staffRoles']);
-            $this->toastSuccess(__('operations.staff_updated'));
-        } else {
-            $staffAdmin->createUser(
-                $this->business,
-                $validated['staffName'],
-                $validated['staffEmail'],
-                $validated['staffPassword'],
-                $validated['staffBranchId'] ?: null,
-                $validated['staffRoles'],
-            );
-            $this->toastSuccess(__('operations.staff_created'));
-        }
-
-        $this->showStaffForm = false;
-        $this->resetStaffForm();
     }
 
     public function startBranch(?int $id = null): void
@@ -358,7 +272,6 @@ class TeamHub extends Component
 
     public function render(ShiftService $shifts): View
     {
-        $staff = $this->staffQuery()->with('roles', 'branch')->orderBy('name')->paginate($this->adminPerPage());
         $allBranches = $this->branchQuery()->orderBy('name')->get();
         $branches = $this->branchQuery()->orderBy('name')->paginate($this->adminPerPage(), ['*'], 'branchesPage');
         $shiftBranch = $this->shiftBranchId
@@ -381,37 +294,19 @@ class TeamHub extends Component
         }
 
         return view('livewire.operations.team-hub', [
-            'staff' => $staff,
             'branches' => $branches,
             'allBranches' => $allBranches,
             'branchDeletable' => $branchDeletable,
             'openShift' => $openShift,
             'recentShifts' => $recentShifts,
-            'roleOptions' => ['owner', 'manager', 'cashier', 'accountant'],
             'showShiftBranchSelector' => StaffBranchContext::selectorVisible(),
             'shiftBranchResolved' => StaffBranchContext::resolve(),
         ]);
     }
 
-    private function staffQuery()
-    {
-        return StaffUser::query();
-    }
-
     private function branchQuery()
     {
         return Branch::query();
-    }
-
-    private function resetStaffForm(): void
-    {
-        $this->editingStaffId = null;
-        $this->staffName = '';
-        $this->staffEmail = '';
-        $this->staffPassword = '';
-        $this->staffBranchId = null;
-        $this->staffRoles = ['cashier'];
-        $this->staffActive = true;
     }
 
     private function resetBranchForm(): void
@@ -437,9 +332,6 @@ class TeamHub extends Component
     protected function liveValidationRules(): array
     {
         return [
-            'staffName' => ['required', 'string', 'max:120'],
-            'staffEmail' => FieldValidationRules::emailRequired(),
-            'staffPassword' => ['nullable', 'string', 'min:12'],
             'branchCode' => ['required', 'string', 'max:32'],
             'branchName' => ['required', 'string', 'max:160'],
             'openingFloat' => ['nullable', 'numeric', 'min:0'],
