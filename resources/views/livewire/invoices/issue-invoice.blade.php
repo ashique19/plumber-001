@@ -87,7 +87,7 @@
                     :show-walk-in-contact-fields="! $isStandard && $selectedCustomerId === null"
                 />
 
-                <div class="document-create-card">
+                <div class="document-create-card document-create-card--products">
                     <div class="document-create-card__head">
                         <x-app.icon name="package" class="h-5 w-5" aria-hidden="true" />
                         <span>{{ __('invoices.add_products') }}</span>

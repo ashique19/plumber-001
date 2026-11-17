@@ -109,6 +109,79 @@
     padding: 1rem;
 }
 
+/* Customer block: high-visibility brand panel (invoice + quotation create) */
+.document-create-card--customer {
+    border-color: color-mix(in srgb, var(--app-accent, #0f5c6e) 38%, var(--app-border));
+    border-inline-start-width: 4px;
+    border-inline-start-style: solid;
+    border-inline-start-color: var(--app-accent, #0f5c6e);
+    background: color-mix(in srgb, var(--app-accent, #0f5c6e) 17%, var(--app-surface));
+    box-shadow:
+        0 1px 2px color-mix(in srgb, var(--app-accent, #0f5c6e) 14%, transparent),
+        inset 0 1px 0 color-mix(in srgb, #fff 42%, transparent);
+}
+
+.document-create-card--customer .document-create-card__head {
+    background: color-mix(in srgb, var(--app-accent, #0f5c6e) 22%, var(--app-surface));
+    border-bottom-color: color-mix(in srgb, var(--app-accent, #0f5c6e) 28%, var(--app-border));
+    font-weight: 600;
+}
+
+.document-create-card--customer .document-create-card__body {
+    background: color-mix(in srgb, var(--app-accent, #0f5c6e) 14%, var(--app-surface));
+}
+
+.document-create-card--customer .form-field__control,
+.document-create-card--customer select.form-field__control,
+.document-create-card--customer textarea.form-field__control {
+    background: var(--app-surface);
+    border-color: color-mix(in srgb, var(--app-border) 75%, var(--app-text) 12%);
+}
+
+.document-create-card--customer .invoice-customer-picker__hint,
+.document-create-card--customer .form-field__hint {
+    color: color-mix(in srgb, var(--app-text) 72%, var(--app-muted));
+}
+
+html.admin-app.admin-theme-dark .document-create-card--customer {
+    border-color: color-mix(in srgb, var(--app-accent, #0f5c6e) 48%, var(--app-border));
+    background: color-mix(in srgb, var(--app-accent, #0f5c6e) 24%, var(--app-surface));
+    box-shadow:
+        0 1px 2px color-mix(in srgb, #000 35%, transparent),
+        inset 0 1px 0 color-mix(in srgb, #fff 7%, transparent);
+}
+
+html.admin-app.admin-theme-dark .document-create-card--customer .document-create-card__head {
+    background: color-mix(in srgb, var(--app-accent, #0f5c6e) 30%, var(--app-surface));
+    border-bottom-color: color-mix(in srgb, var(--app-accent, #0f5c6e) 36%, var(--app-border));
+}
+
+html.admin-app.admin-theme-dark .document-create-card--customer .document-create-card__body {
+    background: color-mix(in srgb, var(--app-accent, #0f5c6e) 20%, var(--app-surface));
+}
+
+html.admin-app.admin-theme-dark .document-create-card--customer .form-field__control,
+html.admin-app.admin-theme-dark .document-create-card--customer select.form-field__control,
+html.admin-app.admin-theme-dark .document-create-card--customer textarea.form-field__control {
+    background: color-mix(in srgb, var(--app-surface) 92%, #fff 8%);
+    border-color: color-mix(in srgb, var(--app-border) 80%, var(--app-text) 10%);
+}
+
+/* Products block: lighter neutral panel so it does not merge with customer */
+.document-create-card--products {
+    border-color: var(--app-border);
+    background: var(--app-surface);
+}
+
+.document-create-card--products .document-create-card__head {
+    background: color-mix(in srgb, var(--app-muted) 5%, var(--app-surface));
+    border-bottom-color: var(--app-border);
+}
+
+html.admin-app.admin-theme-dark .document-create-card--products .document-create-card__head {
+    background: color-mix(in srgb, var(--app-muted) 10%, var(--app-surface));
+}
+
 .document-meta-grid {
     display: grid;
     gap: 0.75rem;
@@ -171,17 +244,17 @@
     border-radius: 0.875rem;
     background: var(
         --theme-accent-soft,
-        color-mix(in srgb, var(--app-accent, #0f5c6e) 11%, var(--app-surface))
+        color-mix(in srgb, var(--app-accent, #0f5c6e) 22%, var(--app-surface))
     );
-    border: 1px solid color-mix(in srgb, var(--app-accent, #0f5c6e) 20%, var(--app-border));
-    box-shadow: inset 0 1px 0 color-mix(in srgb, #fff 55%, transparent);
+    border: 1px solid color-mix(in srgb, var(--app-accent, #0f5c6e) 32%, var(--app-border));
+    box-shadow: inset 0 1px 0 color-mix(in srgb, #fff 48%, transparent);
     display: grid;
     gap: 0.75rem;
 }
 
 html.admin-app.admin-theme-dark .document-customer-strip {
-    background: color-mix(in srgb, var(--app-accent, #0f5c6e) 16%, var(--app-surface));
-    border-color: color-mix(in srgb, var(--app-accent, #0f5c6e) 32%, var(--app-border));
+    background: color-mix(in srgb, var(--app-accent, #0f5c6e) 28%, var(--app-surface));
+    border-color: color-mix(in srgb, var(--app-accent, #0f5c6e) 40%, var(--app-border));
     box-shadow: inset 0 1px 0 color-mix(in srgb, #fff 6%, transparent);
 }
 
@@ -207,6 +280,10 @@ html.admin-app.admin-theme-dark .document-customer-strip {
 .document-buyer-contact .form-toggle {
     width: 100%;
     align-items: flex-start;
+}
+
+.document-create-card--customer .document-buyer-contact {
+    border-top-color: color-mix(in srgb, var(--app-accent, #0f5c6e) 26%, var(--app-border));
 }
 
 .document-customer-strip__icon {

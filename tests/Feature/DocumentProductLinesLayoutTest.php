@@ -39,9 +39,12 @@ it('tints selected buyer and product line cards in compiled document create css'
 
     expect($source)
         ->toContain('.document-customer-strip')
-        ->toContain('--theme-accent-soft')
+        ->toContain('.document-create-card--customer')
+        ->toContain('.document-create-card--products')
+        ->toContain('border-inline-start-color')
         ->toContain('.document-product-line-card')
-        ->toContain('admin-theme-dark .document-customer-strip');
+        ->toContain('admin-theme-dark .document-customer-strip')
+        ->toContain('admin-theme-dark .document-create-card--customer');
 
     $manifestPath = public_path('build/manifest.json');
     if (! is_file($manifestPath)) {
