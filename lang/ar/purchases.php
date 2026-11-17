@@ -7,6 +7,7 @@ return array_replace_recursive($en, [
     'create_subtitle' => 'استلام مخزون من المورد وتحديث متوسط التكلفة.',
     'supplier_heading' => 'المورد',
     'supplier_search' => 'البحث عن مورد',
+    'clear_supplier' => 'إزالة المورد',
     'supplier_selected' => 'المحدد: :name',
     'supplier' => 'مورد موجود',
     'supplier_new' => 'مورد جديد',

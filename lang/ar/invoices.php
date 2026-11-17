@@ -177,6 +177,7 @@ return array (
   'customer_search' => 'العميل',
   'customer_search_placeholder' => 'ابحث بالاسم أو الجوال أو الرقم الضريبي أو السجل…',
   'customer_no_match' => 'لا يوجد عملاء مطابقون.',
+  'clear_customer' => 'إزالة العميل',
   'customer_selected' => 'تم تعبئة بيانات المشتري من «:name».',
   'customer_created_selected' => 'تم حفظ العميل واختياره.',
   'customer_linked' => 'مرتبط بعميل محفوظ.',

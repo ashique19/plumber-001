@@ -201,6 +201,7 @@ return [
     'customer_search' => 'Customer',
     'customer_search_placeholder' => 'Search by name, phone, VAT, or CR…',
     'customer_no_match' => 'No customers match your search.',
+    'clear_customer' => 'Clear customer',
     'customer_selected' => 'Buyer filled from “:name”.',
     'customer_created_selected' => 'Customer saved and selected.',
     'customer_linked' => 'Linked to a saved customer.',

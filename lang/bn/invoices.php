@@ -167,6 +167,7 @@ return array (
   'customer_search' => 'গ্রাহক',
   'customer_search_placeholder' => 'নাম, ফোন, ভ্যাট বা সিআর দিয়ে খুঁজুন…',
   'customer_no_match' => 'কোনো গ্রাহক মিলছে না।',
+  'clear_customer' => 'গ্রাহক মুছুন',
   'customer_selected' => '“:name” থেকে ক্রেতা তথ্য পূরণ হয়েছে।',
   'customer_created_selected' => 'গ্রাহক সংরক্ষিত ও নির্বাচিত।',
   'customer_linked' => 'সংরক্ষিত গ্রাহকের সাথে লিংক।',

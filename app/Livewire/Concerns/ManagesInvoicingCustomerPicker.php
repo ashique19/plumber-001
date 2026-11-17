@@ -73,6 +73,37 @@ trait ManagesInvoicingCustomerPicker
         return auth('staff')->user()?->can('reports.view') ?? false;
     }
 
+    public function clearCustomerPicker(): void
+    {
+        if ($this->selectedCustomerId !== null) {
+            $this->clearSelectedCustomer();
+
+            return;
+        }
+
+        $this->customerSearch = '';
+    }
+
+    public function clearSelectedCustomer(): void
+    {
+        InvoicingCustomerLookup::resetBuyerIdentity($this);
+        $this->customerSearch = '';
+        $this->customerQuickEditMode = false;
+
+        if (property_exists($this, 'showStandardBuyerCompletionModal')) {
+            $this->showStandardBuyerCompletionModal = false;
+            $this->standardBuyerCompletionFieldKeys = [];
+            $this->resumeIssueAfterBuyerCompletion = false;
+        }
+
+        if (property_exists($this, 'standardBuyerShowMoreAddress')) {
+            $this->standardBuyerShowMoreAddress = false;
+        }
+
+        $this->resetErrorBag();
+        $this->resetValidation();
+    }
+
     public function selectDocumentCustomer(int $customerId): void
     {
         $customer = Customer::query()->find($customerId);

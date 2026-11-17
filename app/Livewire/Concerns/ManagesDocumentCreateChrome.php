@@ -44,15 +44,6 @@ trait ManagesDocumentCreateChrome
         $this->amountReceived = number_format($total, 2, '.', '');
     }
 
-    public function clearSelectedCustomer(): void
-    {
-        $this->selectedCustomerId = null;
-        $this->customerSearch = '';
-        if (property_exists($this, 'buyerContactOverride')) {
-            $this->buyerContactOverride = false;
-        }
-    }
-
     /**
      * @param  array<string, mixed>  $line
      */
