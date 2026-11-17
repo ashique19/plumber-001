@@ -35,6 +35,6 @@ return array (
     'customer_reports' => 'تقارير العملاء',
     'staff_management' => 'إدارة الموظفين',
     'settings' => 'الإعدادات',
-    'profile' => 'My profile',
+    'profile' => 'ملفي الشخصي',
   ),
 );

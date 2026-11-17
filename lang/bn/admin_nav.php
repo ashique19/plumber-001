@@ -35,6 +35,6 @@ return array (
     'customer_reports' => 'গ্রাহক রিপোর্ট',
     'staff_management' => 'স্টাফ ব্যবস্থাপনা',
     'settings' => 'সেটিংস',
-    'profile' => 'My profile',
+    'profile' => 'আমার প্রোফাইল',
   ),
 );

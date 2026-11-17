@@ -35,7 +35,7 @@ return [
     'document_number_pending' => 'Assigned on save',
     'field_document_number' => 'Quotation No.',
     'quotation_date' => 'Quotation date',
-    'terms_and_conditions' => 'Terms & conditions',
+    'terms_and_conditions' => 'Terms and conditions',
     'notes_placeholder' => 'Enter any additional notes…',
     'summary' => 'Quotation summary',
     'information' => 'Quotation information',
