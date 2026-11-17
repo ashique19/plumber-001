@@ -70,6 +70,15 @@
         @apply focus-visible:outline-plumber-safety;
     }
 
+    .tap-action-ghost {
+        @apply inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold;
+        @apply active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2;
+        color: var(--app-muted);
+        background: transparent;
+        border: 1px solid transparent;
+        @apply transition-colors duration-150 hover:bg-[var(--app-surface-muted)] hover:text-[var(--app-fg)] focus-visible:outline-plumber-safety;
+    }
+
     .tap-action-muted {
         @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold;
         @apply active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2;

@@ -645,6 +645,11 @@
         @apply flex w-full items-stretch gap-0;
     }
 
+    html.admin-app .admin-typeahead__control--with-add .admin-typeahead__input-wrap .form-field__control,
+    html.admin-app .admin-typeahead__control--with-add .admin-typeahead__input {
+        min-height: 3rem;
+    }
+
     html.admin-app .admin-typeahead__control--with-add .admin-typeahead__input-wrap .form-field__control {
         border-start-end-radius: 0;
         border-end-end-radius: 0;
