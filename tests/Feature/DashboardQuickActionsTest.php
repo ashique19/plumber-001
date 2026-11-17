@@ -32,12 +32,14 @@ it('redirects staff login to the dashboard when reports access is granted', func
     $this->assertAuthenticatedAs($this->owner, 'staff');
 });
 
-it('shows eight dashboard action tiles for the owner in grid order', function () {
+it('shows seven dashboard action tiles for the owner in grid order', function () {
   $defaultMode = $this->business->defaultInvoiceDocumentType()->value;
 
     Livewire::actingAs($this->owner, 'staff')
         ->test(AdminDashboard::class)
         ->assertSee(__('dashboard.tiles.create_invoice'), false)
+        ->assertDontSee(__('dashboard.tiles.subtitles.invoice_drafts'), false)
+        ->assertDontSee('lifecycle=drafts', false)
         ->assertSee(__('dashboard.tiles.create_quotation'), false)
         ->assertSee(__('dashboard.tiles.add_product'), false)
         ->assertSee(__('dashboard.tiles.add_customer'), false)

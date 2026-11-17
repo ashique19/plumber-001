@@ -3,7 +3,6 @@
 use App\Business\BusinessContext;
 use App\Enums\InvoiceDocumentType;
 use App\Enums\InvoiceStatus;
-use App\Livewire\Admin\AdminDashboard;
 use App\Livewire\Invoices\InvoiceHub;
 use App\Models\BusinessSetting;
 use App\Models\Invoice;
@@ -67,16 +66,3 @@ it('renders draft row tools and payment dash', function () {
         ->toContain('data-testid="hub-invoice-mobile-row-link"');
 });
 
-it('links dashboard drafts tile to the drafts lifecycle tab', function () {
-    Invoice::query()->create([
-        'document_number' => 'SIMP-20261117-203333',
-        'document_type' => InvoiceDocumentType::Simplified,
-        'status' => InvoiceStatus::Draft,
-        'payload' => ['buyer_name' => 'Dash Draft', 'lines' => []],
-    ]);
-
-    Livewire::actingAs($this->owner, 'staff')
-        ->test(AdminDashboard::class)
-        ->assertSee(__('dashboard.tiles.invoice_drafts', ['count' => 1]), false)
-        ->assertSeeHtml('lifecycle=drafts');
-});
