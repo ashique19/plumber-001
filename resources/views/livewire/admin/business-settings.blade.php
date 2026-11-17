@@ -254,7 +254,12 @@
     @elseif ($section === 'branches')
         <section class="app-card flex flex-col gap-4 p-4">
             <p class="text-sm text-[var(--app-muted)]">{{ __('business.branches.intro') }}</p>
-            <a href="{{ $teamUrl }}" class="tap-action-primary min-h-11 w-full text-center sm:w-auto">{{ __('business.branches.open_team') }}</a>
+            <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+                @if ($usersUrl ?? null)
+                    <a href="{{ $usersUrl }}" class="tap-action-primary min-h-11 w-full text-center sm:w-auto">{{ __('business.branches.open_users') }}</a>
+                @endif
+                <a href="{{ $teamUrl }}" class="tap-action-muted min-h-11 w-full text-center sm:w-auto">{{ __('business.branches.open_team') }}</a>
+            </div>
         </section>
     @else
         <form class="app-card flex flex-col gap-4 p-4" novalidate wire:keydown.enter.prevent>

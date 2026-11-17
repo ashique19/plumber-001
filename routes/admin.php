@@ -14,6 +14,7 @@ use App\Http\Middleware\EnsurePosAccess;
 use App\Livewire\Admin\AdminDashboard;
 use App\Livewire\Admin\BusinessSettings;
 use App\Livewire\Admin\StaffProfile;
+use App\Livewire\Admin\StaffUsersHub;
 use App\Livewire\Catalog\InventoryManager;
 use App\Livewire\Catalog\MenuManager;
 use App\Livewire\Customers\CustomerHub;
@@ -43,6 +44,10 @@ Route::prefix('admin')->middleware('auth:staff')->group(function (): void {
         Route::get('/dashboard', AdminDashboard::class)->name('admin.dashboard');
         Route::get('/payments/dues', PaymentsDuesHub::class)->name('admin.payments.dues');
         Route::get('/expenses', ExpensesHub::class)->name('admin.expenses');
+    });
+
+    Route::middleware('owner.access')->group(function (): void {
+        Route::get('/users', StaffUsersHub::class)->name('admin.users');
     });
 
     Route::middleware('team.access')->group(function (): void {

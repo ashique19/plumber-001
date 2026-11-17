@@ -21,6 +21,7 @@ class StaffUser extends Authenticatable
     'email',
     'password',
     'is_active',
+    'locale',
   ];
 
   protected $hidden = [

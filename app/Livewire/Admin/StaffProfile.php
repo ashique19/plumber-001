@@ -37,7 +37,7 @@ class StaffProfile extends Component
         $this->name = $user->name;
         $this->email = (string) $user->email;
         $this->locale = EnabledLocales::resolve(
-            session('locale') ?? config('locales.default', 'bn'),
+            $user->locale ?? session('locale') ?? config('locales.default', 'bn'),
         );
     }
 
@@ -55,6 +55,7 @@ class StaffProfile extends Component
         $user->forceFill([
             'name' => $validated['name'],
             'email' => $validated['email'],
+            'locale' => $validated['locale'],
         ]);
 
         if (filled($validated['password'] ?? null)) {

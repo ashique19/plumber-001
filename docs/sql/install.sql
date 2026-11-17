@@ -107,6 +107,7 @@ CREATE TABLE IF NOT EXISTS `staff_users`(
   `email_verified_at` datetime,
   `password` VARCHAR(255) NOT NULL,
   `is_active` tinyint(1) not null default '1',
+  `locale` VARCHAR(8) not null default 'bn',
   `remember_token` VARCHAR(100),
   `created_at` datetime,
   `updated_at` datetime,

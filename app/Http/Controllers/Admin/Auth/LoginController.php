@@ -6,6 +6,7 @@ use App\Business\BusinessContext;
 use App\Http\Controllers\Controller;
 use App\Models\BusinessSetting;
 use App\Models\StaffUser;
+use App\Support\EnabledLocales;
 use App\Support\StaffLandingRoute;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -43,6 +44,10 @@ class LoginController extends Controller
         Auth::guard('staff')->login($user, $request->boolean('remember'));
 
         $request->session()->regenerate();
+        $request->session()->put(
+            'locale',
+            EnabledLocales::resolve(filled($user->locale ?? null) ? (string) $user->locale : null),
+        );
 
         $business = BusinessSetting::query()->find(1) ?? BusinessSetting::query()->firstOrFail();
         BusinessContext::set($business);

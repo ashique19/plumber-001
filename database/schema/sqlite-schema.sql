@@ -99,6 +99,7 @@ CREATE TABLE IF NOT EXISTS "staff_users"(
   "email_verified_at" datetime,
   "password" varchar not null,
   "is_active" tinyint(1) not null default '1',
+  "locale" varchar not null default 'bn',
   "remember_token" varchar,
   "created_at" datetime,
   "updated_at" datetime,

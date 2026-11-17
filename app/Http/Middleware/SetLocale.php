@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Business\BusinessContext;
+use App\Models\StaffUser;
 use App\Support\EnabledLocales;
 use App\Support\LocaleCookie;
 use Closure;
@@ -15,8 +16,14 @@ class SetLocale
 {
     public function handle(Request $request, Closure $next): Response
     {
+        $staffUser = $request->user('staff');
+        $userLocale = $staffUser instanceof StaffUser && filled($staffUser->locale ?? null)
+            ? (string) $staffUser->locale
+            : null;
+
         $requested = $request->query('locale')
             ?? $request->session()->get('locale')
+            ?? $userLocale
             ?? BusinessContext::get()?->settings['default_locale']
             ?? config('locales.default', 'bn');
 
