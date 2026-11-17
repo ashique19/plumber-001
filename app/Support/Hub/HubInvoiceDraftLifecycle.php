@@ -4,6 +4,7 @@ namespace App\Support\Hub;
 
 use App\Enums\InvoiceStatus;
 use App\Models\Invoice;
+use App\Models\StaffUser;
 
 /**
  * Draft-only invoice actions for hub and print views (UI + server guards).
@@ -60,5 +61,43 @@ final class HubInvoiceDraftLifecycle
         $mode = $invoice->document_type->value === 'standard' ? 'standard' : 'simplified';
 
         return route('admin.invoices.issue', ['mode' => $mode, 'draft' => $invoice->id]);
+    }
+
+    public static function canPreview(Invoice $invoice): bool
+    {
+        return $invoice->status === InvoiceStatus::Draft;
+    }
+
+    public static function previewUrl(Invoice $invoice): ?string
+    {
+        if (! self::canPreview($invoice)) {
+            return null;
+        }
+
+        $layout = HubInvoicePrintLinks::layout($invoice);
+
+        return route('admin.invoices.print', [
+            'invoice' => $invoice,
+            'layout' => $layout,
+            'preview' => 1,
+        ]);
+    }
+
+    public static function canAuthorize(?StaffUser $user, Invoice $invoice): bool
+    {
+        if ($user === null || ! self::canIssue($invoice)) {
+            return false;
+        }
+
+        return $user->hasAnyRole(['owner', 'manager']);
+    }
+
+    public static function recordAuthorization(Invoice $invoice, StaffUser $user): void
+    {
+        $payload = $invoice->payload ?? [];
+        $payload['draft_authorized_at'] = now('UTC')->toIso8601String();
+        $payload['draft_authorized_by'] = $user->id;
+
+        $invoice->forceFill(['payload' => $payload])->save();
     }
 }

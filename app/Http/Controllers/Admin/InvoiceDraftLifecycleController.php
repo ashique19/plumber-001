@@ -34,6 +34,29 @@ class InvoiceDraftLifecycleController extends Controller
             ->with($outcome->result->signingSucceeded ? 'success' : 'warning', $message);
     }
 
+    public function authorize(Request $request, Invoice $invoice, HubDraftInvoiceIssueService $service): RedirectResponse
+    {
+        $user = $request->user('staff');
+        abort_unless($user?->can('invoices.issue'), 403);
+        abort_unless(HubInvoiceDraftLifecycle::canAuthorize($user, $invoice), 403);
+
+        $outcome = $service->authorizeAndIssue($invoice, $user);
+        if (! $outcome->ok()) {
+            return redirect()
+                ->back()
+                ->with('error', $outcome->message ?? __('invoices.errors.issue_failed'));
+        }
+
+        $issued = $outcome->result->invoice;
+        $message = $outcome->result->signingSucceeded
+            ? __('invoices.issue_success', ['number' => $issued->document_number])
+            : __('invoices.issue_saved_not_sent_zatca', ['number' => $issued->document_number]);
+
+        return redirect()
+            ->route('admin.invoices')
+            ->with($outcome->result->signingSucceeded ? 'success' : 'warning', $message);
+    }
+
     public function destroy(Request $request, Invoice $invoice): RedirectResponse
     {
         abort_unless($request->user('staff')?->can('invoices.issue'), 403);

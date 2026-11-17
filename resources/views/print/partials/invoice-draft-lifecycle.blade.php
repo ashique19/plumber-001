@@ -12,6 +12,28 @@
         data-testid="invoice-draft-lifecycle"
     >
         <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+            @if ($actions['preview_draft'] ?? false && filled($actions['preview_draft_url'] ?? null))
+                <a
+                    class="tap-action-muted min-h-10 px-3 text-sm font-semibold"
+                    href="{{ $actions['preview_draft_url'] }}"
+                    target="_blank"
+                    rel="noopener"
+                    data-testid="invoice-view-preview-draft"
+                >{{ __('invoices.action_preview_draft') }}</a>
+            @endif
+            @if ($actions['authorize_draft'] ?? false)
+                <form
+                    method="post"
+                    action="{{ route('admin.invoices.drafts.authorize', $invoice) }}"
+                    class="inline"
+                    onsubmit="return confirm(@js(__('invoices.authorize_draft_confirm')))"
+                >
+                    @csrf
+                    <button type="submit" class="tap-action-primary min-h-10 px-3 text-sm font-semibold" data-testid="invoice-view-authorize-draft">
+                        {{ __('invoices.action_authorize_draft') }}
+                    </button>
+                </form>
+            @endif
             @if ($actions['issue_draft'] ?? false)
                 <form
                     method="post"

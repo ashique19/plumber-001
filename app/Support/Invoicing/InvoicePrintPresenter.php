@@ -4,6 +4,7 @@ namespace App\Support\Invoicing;
 
 use App\Data\InvoiceLineData;
 use App\Enums\InvoiceDocumentType;
+use App\Enums\InvoiceStatus;
 use App\Models\Branch;
 use App\Models\BusinessSetting;
 use App\Models\Invoice;
@@ -122,8 +123,14 @@ final class InvoicePrintPresenter
         $cleared = InvoicePrintClearance::isZatcaCleared($invoice);
         $printWatermark = false;
         $officialPrintBlocked = false;
+        $draftPreview = $invoice->status === InvoiceStatus::Draft;
 
-        if ($isSimplified) {
+        if ($draftPreview) {
+            $qr = null;
+            $qrFallback = false;
+            $printWatermark = false;
+            $officialPrintBlocked = true;
+        } elseif ($isSimplified) {
             $qr = $qrSigned;
             if ($qr === null) {
                 $timestamp = $issueAt
@@ -190,11 +197,12 @@ final class InvoicePrintPresenter
             'qr_tlv_base64' => $qr,
             'qr_phase1_fallback' => $qrFallback,
             'print_watermark' => $printWatermark,
+            'draft_preview' => $draftPreview,
             'official_print_blocked' => $officialPrintBlocked,
             'receipt_number' => $meta['receipt_number'],
             'branch' => $meta['branch'],
             'document_kind' => 'invoice',
-            'show_qr' => true,
+            'show_qr' => ! $draftPreview && (($isSimplified && $qr !== null) || (! $isSimplified && $cleared && $qrSigned !== null)),
             'issue_datetime' => $issueAt?->timezone(config('app.timezone'))->format('Y/m/d h:i A'),
         ];
     }

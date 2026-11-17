@@ -18,6 +18,7 @@
     @include('print.partials.invoice-view-status', ['invoice' => $invoice])
 @endif
 
+@include('print.partials.draft-preview-watermark')
 @include('print.partials.not-cleared-watermark')
 
 @if ($zatcaNotSent ?? false)
