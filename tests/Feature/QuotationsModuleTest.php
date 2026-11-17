@@ -43,7 +43,6 @@ it('creates a quotation from the livewire form', function () {
 
     Livewire::actingAs($this->owner, 'staff')
         ->test(ManageQuotation::class)
-        ->set('invoiceMode', 'simplified')
         ->set('validityUntil', now('Asia/Riyadh')->addDays(14)->format('Y-m-d'))
         ->set('lines', [[
             'name' => 'Pipe fitting',
@@ -90,6 +89,8 @@ it('prints bilingual quotation title labels without zatca qr markers', function 
         ->assertSee('صالح حتى', false)
         ->assertDontSee('SIMPLIFIED TAX INVOICE', false)
         ->assertDontSee('STANDARD TAX INVOICE', false)
+        ->assertDontSee('Simplified Tax Invoice', false)
+        ->assertDontSee('Standard Tax Invoice', false)
         ->assertDontSee('ZATCA', false)
         ->assertDontSee('qr_tlv', false)
         ->assertDontSee('receipt-qr', false);

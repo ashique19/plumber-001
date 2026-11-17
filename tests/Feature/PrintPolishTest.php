@@ -64,19 +64,73 @@ it('titles quotations without tax-invoice wording, type badges, or QR', function
         'created_by_staff_user_id' => $this->owner->id,
     ]);
 
-    $this->actingAs($this->owner, 'staff')
-        ->get(route('admin.quotations.print', ['quotation' => $quotation, 'template' => 'classic', 'locale' => 'en']))
-        ->assertOk()
-        ->assertSee(trans('quotations.print_title', [], 'en'), false)
-        ->assertSee(trans('quotations.print_title', [], 'ar'), false)
-        ->assertDontSee('SIMPLIFIED TAX INVOICE', false)
-        ->assertDontSee('receipt-qr', false);
+    $leaks = quotationInvoiceTypeLeaks();
+
+    foreach (['classic', 'modern'] as $template) {
+        $html = $this->actingAs($this->owner, 'staff')
+            ->get(route('admin.quotations.print', ['quotation' => $quotation, 'template' => $template, 'locale' => 'en']))
+            ->assertOk()
+            ->assertSee(trans('quotations.print_title', [], 'en'), false)
+            ->assertSee(trans('quotations.print_title', [], 'ar'), false)
+            ->assertSee(trans('quotations.print_title', [], 'bn'), false)
+            ->getContent();
+
+        assertNoQuotationInvoiceTypeLeaks($html, $leaks);
+    }
+
+    $pdfHtml = view(
+        'print.invoices.modern',
+        \App\Support\Invoicing\PrintSheetFactory::quotation(
+            $quotation,
+            \Illuminate\Http\Request::create('/', 'GET', ['template' => 'modern']),
+            true,
+        )['data'],
+    )->render();
+
+    expect($pdfHtml)
+        ->toContain(trans('quotations.print_title', [], 'en'))
+        ->toContain(trans('quotations.print_title', [], 'ar'));
+    assertNoQuotationInvoiceTypeLeaks($pdfHtml, $leaks);
 
     $hub = Livewire::actingAs($this->owner, 'staff')
         ->test(QuotationHub::class)
         ->html();
+    assertNoQuotationInvoiceTypeLeaks($hub, $leaks);
 
-    expect($hub)
-        ->not->toContain(__('quotations.col_type'))
-        ->not->toContain(__('quotations.invoice_mode_simplified'));
+    $create = Livewire::actingAs($this->owner, 'staff')
+        ->test(\App\Livewire\Quotations\ManageQuotation::class)
+        ->html();
+    assertNoQuotationInvoiceTypeLeaks($create, $leaks);
+
+    $edit = Livewire::actingAs($this->owner, 'staff')
+        ->test(\App\Livewire\Quotations\ManageQuotation::class, ['quotation' => $quotation])
+        ->html();
+    assertNoQuotationInvoiceTypeLeaks($edit, $leaks);
 });
+
+function quotationInvoiceTypeLeaks(): array
+{
+    return [
+        'Simplified tax invoice',
+        'Standard tax invoice',
+        'SIMPLIFIED TAX INVOICE',
+        'STANDARD TAX INVOICE',
+        'simplified/standard',
+        trans('invoices.type.simplified_tax', [], 'en'),
+        trans('invoices.type.standard_tax', [], 'en'),
+        trans('quotations.target_invoice_mode', [], 'en'),
+        trans('quotations.invoice_mode_simplified', [], 'en'),
+        trans('quotations.invoice_mode_standard', [], 'en'),
+        trans('invoices.invoice_type', [], 'en'),
+        'receipt-qr',
+        'qr_tlv',
+        'ZATCA',
+    ];
+}
+
+function assertNoQuotationInvoiceTypeLeaks(string $html, array $leaks): void
+{
+    foreach ($leaks as $leak) {
+        expect($html)->not->toContain($leak);
+    }
+}

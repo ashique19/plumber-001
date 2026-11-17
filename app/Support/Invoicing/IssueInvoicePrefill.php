@@ -94,7 +94,6 @@ final class IssueInvoicePrefill
 
         $prefill = [
             'quotation_id' => $quotation->id,
-            'mode' => $quotation->invoice_mode,
             'lines' => $mappedLines,
             'invoiceDiscountExVat' => (string) ($payload['invoice_discount_ex_vat'] ?? '0'),
             'retentionPercent' => isset($payload['retention_percent']) ? (string) $payload['retention_percent'] : '',
@@ -197,7 +196,7 @@ final class IssueInvoicePrefill
             return;
         }
 
-        if (($prefill['mode'] ?? $mode) !== $mode) {
+        if (! isset($prefill['quotation_id']) && ($prefill['mode'] ?? $mode) !== $mode) {
             return;
         }
 
