@@ -17,6 +17,7 @@ return [
         'record_purchase' => 'تسجيل مشتريات',
         'payments_dues' => 'المدفوعات والمستحقات',
         'view_reports' => 'عرض التقارير',
+        'invoice_drafts' => 'مسودات (:count)',
         'subtitles' => [
             'create_invoice' => 'إنشاء فاتورة مبيعات جديدة',
             'create_quotation' => 'إعداد عرض سعر للعملاء',

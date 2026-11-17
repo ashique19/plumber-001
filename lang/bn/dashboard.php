@@ -17,6 +17,7 @@ return [
         'record_purchase' => 'ক্রয় রেকর্ড',
         'payments_dues' => 'পেমেন্ট ও বকেয়া',
         'view_reports' => 'রিপোর্ট দেখুন',
+        'invoice_drafts' => 'ড্রাফট (:count)',
         'subtitles' => [
             'create_invoice' => 'নতুন বিক্রয় ইনভয়েস তৈরি করুন',
             'create_quotation' => 'গ্রাহকের জন্য কোটেশন প্রস্তুত করুন',
@@ -26,6 +27,7 @@ return [
             'record_purchase' => 'সাপ্লায়ার ক্রয় যোগ করে স্টক আপডেট করুন',
             'payments_dues' => 'পেমেন্ট রেকর্ড ও বকেয়া দেখুন',
             'view_reports' => 'বিক্রয়, লাভ ও ইনভেন্টরি রিপোর্ট',
+            'invoice_drafts' => 'ড্রাফট ইনভয়েস খুলে সম্পাদনা চালিয়ে যান',
         ],
     ],
     'open_analytics' => 'সম্পূর্ণ বিশ্লেষণ',
