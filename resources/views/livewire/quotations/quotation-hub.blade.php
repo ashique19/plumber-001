@@ -45,7 +45,6 @@
                             {{ __('quotations.col_customer') }}
                         </button>
                     </th>
-                    <th scope="col">{{ __('quotations.col_type') }}</th>
                     <th scope="col">
                         <button type="button" class="hub-doc-table__sort" wire:click="sortByColumn('validity_until')" @if ($sortBy === 'validity_until') aria-sort="{{ $sortDir === 'asc' ? 'ascending' : 'descending' }}" @endif>
                             {{ __('quotations.col_valid_until') }}
@@ -60,19 +59,11 @@
                     @php
                         $quotation = $row['quotation'];
                         $urls = $row['print_urls'];
-                        $isStandard = $quotation->invoice_mode === 'standard';
                     @endphp
                     <tr wire:key="quotation-{{ $quotation->id }}">
                         <td class="hub-doc-table__sticky font-semibold tabular-nums">{{ $quotation->quotation_number }}</td>
                         <td class="tabular-nums whitespace-nowrap">{{ $quotation->created_at?->format('Y-m-d') ?? '—' }}</td>
                         <td class="max-w-[12rem] truncate" title="{{ $row['customer'] }}">{{ $row['customer'] }}</td>
-                        <td>
-                            <span @class([
-                                'pos-status-pill',
-                                'pos-status-pill--paid' => $isStandard,
-                                'pos-status-pill--warning' => ! $isStandard,
-                            ])>{{ __('quotations.invoice_mode_'.$quotation->invoice_mode) }}</span>
-                        </td>
                         <td class="tabular-nums whitespace-nowrap">{{ $quotation->validity_until?->format('Y-m-d') ?? '—' }}</td>
                         <td class="hub-doc-table__amount">
                             <x-invoices.sar-symbol /> {{ number_format($row['total_inc_vat'], 2) }}
@@ -102,7 +93,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="p-6 text-center text-sm text-[var(--app-muted)]">{{ __('quotations.empty') }}</td>
+                        <td colspan="6" class="p-6 text-center text-sm text-[var(--app-muted)]">{{ __('quotations.empty') }}</td>
                     </tr>
                 @endforelse
             </tbody>

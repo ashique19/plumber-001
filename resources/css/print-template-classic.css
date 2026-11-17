@@ -30,15 +30,18 @@
 
 .print-classic__top {
     display: grid;
-    grid-template-columns: 120px 1fr 160px;
+    grid-template-columns: 1fr 1.6fr 1fr;
     gap: 8px;
     align-items: start;
     margin-bottom: 8px;
 }
 
 .print-classic__logo {
-    max-height: 56px;
-    max-width: 110px;
+    display: block;
+    max-height: 96px;
+    max-width: 200px;
+    margin: 0 auto 6px;
+    object-fit: contain;
 }
 
 .print-classic__title {
@@ -53,6 +56,7 @@
     display: block;
     font-family: Tajawal, sans-serif;
     direction: rtl;
+    text-align: right;
 }
 
 .print-classic__title-en {
