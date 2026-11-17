@@ -56,6 +56,7 @@
                             :quotation-id="$quotation->id"
                             :print-url="$urls['print']"
                             :download-url="$urls['download']"
+                            :print-back-url="$urls['fallback_back'] ?? route('admin.quotations')"
                             :can-manage="$canManageQuotations ?? false"
                         />
                     </div>
@@ -113,6 +114,7 @@
                                 :quotation-id="$quotation->id"
                                 :print-url="$urls['print']"
                                 :download-url="$urls['download']"
+                                :print-back-url="$urls['fallback_back'] ?? route('admin.quotations')"
                                 :can-manage="$canManageQuotations ?? false"
                             />
                         </td>

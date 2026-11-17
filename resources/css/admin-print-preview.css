@@ -1,0 +1,77 @@
+.admin-print-preview {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    display: flex;
+    flex-direction: column;
+    background: var(--app-bg, #f4f8fc);
+    color: var(--app-text);
+}
+
+.admin-print-preview__bar {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 0.75rem;
+    padding-top: max(0.65rem, env(safe-area-inset-top, 0px));
+    border-bottom: 1px solid var(--app-border);
+    background: color-mix(in srgb, var(--app-surface) 94%, transparent);
+    backdrop-filter: blur(10px);
+}
+
+[dir='rtl'] .admin-print-preview__bar {
+    flex-direction: row-reverse;
+}
+
+.admin-print-preview__bar-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-inline-start: auto;
+}
+
+[dir='rtl'] .admin-print-preview__bar-actions {
+    margin-inline-start: 0;
+    margin-inline-end: auto;
+}
+
+.admin-print-preview__frame-wrap {
+    flex: 1;
+    min-height: 0;
+    background: #e8edf2;
+}
+
+.admin-print-preview__frame {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: #fff;
+}
+
+body.admin-print-preview-open {
+    overflow: hidden;
+}
+
+.admin-print-preview__layout-toggle {
+    display: inline-flex;
+    border-radius: 999px;
+    border: 1px solid var(--app-border);
+    overflow: hidden;
+}
+
+.admin-print-preview__layout-toggle button {
+    min-height: 2.75rem;
+    padding: 0 0.85rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.admin-print-preview__layout-toggle button[aria-pressed='true'] {
+    background: var(--app-accent, #1b8a8a);
+    color: #fff;
+}

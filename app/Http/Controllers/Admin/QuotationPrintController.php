@@ -32,6 +32,8 @@ class QuotationPrintController extends Controller
             'cashUrl' => null,
             'a4Url' => null,
             'zatcaNotSent' => false,
+            'fallbackBackUrl' => route('admin.quotations'),
+            'pdfUrl' => route('admin.quotations.pdf', ['quotation' => $quotation]),
         ]);
     }
 }

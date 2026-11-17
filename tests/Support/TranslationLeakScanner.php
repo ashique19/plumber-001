@@ -22,6 +22,7 @@ final class TranslationLeakScanner
         'team.',
         'operations.',
         'staff_users.',
+        'print.',
     ];
 
     public static function assertHtmlHasNoLeakedKeys(string $html, string $context): void

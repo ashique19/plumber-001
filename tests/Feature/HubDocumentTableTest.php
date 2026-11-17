@@ -38,7 +38,8 @@ it('renders invoice hub table with print links', function () {
         ->assertSeeHtml('hub-doc-table__sticky')
         ->assertSee(__('invoices.col_zatca_status'), false)
         ->assertSee($invoice->document_number, false)
-        ->assertSeeHtml('href="'.e($urls['print']).'"', false)
+        ->assertSeeHtml('data-print-src="'.e($urls['print']).'"', false)
+        ->assertSeeHtml('data-admin-print-open', false)
         ->assertSeeHtml('href="'.e($urls['download']).'"', false)
         ->assertDontSee('autoprint=1', false);
 });

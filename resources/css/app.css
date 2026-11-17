@@ -23,6 +23,7 @@
 @import './admin-field-icons.css';
 @import './customers-table.css';
 @import './document-create-layout.css';
+@import './admin-print-preview.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';

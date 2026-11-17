@@ -68,26 +68,27 @@ class InvoicePrintController extends Controller
             ? route('admin.pos.receipt', array_merge([$order], $baseParams, ['layout' => 'receipt']))
             : null;
 
+        $shared = [
+            'invoice' => $invoice,
+            't' => $t,
+            'receiptUrl' => $receiptUrl,
+            'zatcaNotSent' => ZatcaSubmissionStatus::invoiceNotSentToZatca($invoice),
+            'fallbackBackUrl' => route('admin.invoices'),
+            'pdfUrl' => route('admin.invoices.pdf', ['invoice' => $invoice]),
+        ];
+
         if ($layout === 'cash') {
-            return view('admin.invoices.print-cash', [
-                'invoice' => $invoice,
-                't' => $t,
-                'receiptUrl' => $receiptUrl,
+            return view('admin.invoices.print-cash', array_merge($shared, [
                 'cashUrl' => null,
                 'a4Url' => $printRoute('a4'),
-                'zatcaNotSent' => ZatcaSubmissionStatus::invoiceNotSentToZatca($invoice),
-            ]);
+            ]));
         }
 
         $template = PrintTemplateResolver::forInvoice($business, $request)->value;
 
-        return view("print.invoices.{$template}", [
-            'invoice' => $invoice,
-            't' => $t,
-            'receiptUrl' => $receiptUrl,
+        return view("print.invoices.{$template}", array_merge($shared, [
             'cashUrl' => $printRoute('cash'),
             'a4Url' => null,
-            'zatcaNotSent' => ZatcaSubmissionStatus::invoiceNotSentToZatca($invoice),
-        ]);
+        ]));
     }
 }

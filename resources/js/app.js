@@ -12,6 +12,7 @@ import {
 } from './admin-typeahead-control.js';
 import { registerCatalogProductGallery } from './catalog-product-gallery.js';
 import { registerAdminTheme } from './admin-theme.js';
+import { registerAdminPrintPreview } from './admin-print-preview.js';
 import { registerToastStack } from './toast-stack.js';
 import { wireLivewireRequestFeedback } from './livewire-feedback.js';
 
@@ -29,6 +30,7 @@ registerCatalogProductImageUpload(Alpine);
 registerPosQtyStepper(Alpine);
 registerInvoiceCatalogPicker(Alpine);
 registerAdminTheme(Alpine);
+registerAdminPrintPreview(Alpine);
 registerCatalogProductGallery(Alpine);
 registerAdminModalScroll(Alpine);
 registerAdminTypeaheadControl(Alpine);
