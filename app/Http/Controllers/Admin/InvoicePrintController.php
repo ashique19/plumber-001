@@ -90,7 +90,7 @@ class InvoicePrintController extends Controller
             'canResubmitZatca' => $canResubmitZatca,
             'zatcaResubmitUrl' => route('admin.invoices.zatca-resubmit', ['invoice' => $invoice]),
             'zatcaResubmitLabel' => HubInvoiceZatcaResubmitCopy::actionLabel($invoice),
-            'zatcaInlineError' => HubInvoiceZatcaTab::shortError($invoice),
+            'zatcaInlineError' => self::inlineZatcaError($invoice),
             'zatcaResponseDisplay' => ZatcaResponseDisplay::forInvoice($invoice),
         ];
 
@@ -107,5 +107,15 @@ class InvoicePrintController extends Controller
             'cashUrl' => $printRoute('cash'),
             'a4Url' => null,
         ]));
+    }
+
+    private static function inlineZatcaError(Invoice $invoice): ?string
+    {
+        $fieldErrors = data_get($invoice->payload, 'zheart_field_errors');
+        if (is_array($fieldErrors) && $fieldErrors !== []) {
+            return null;
+        }
+
+        return HubInvoiceZatcaTab::shortError($invoice);
     }
 }

@@ -56,6 +56,15 @@ function clearancePendingStandardInvoice(string $number = 'STD-CLEAR-OUT-1'): In
             'zheart_zatca' => ['status' => 'pending'],
             'buyer_name' => 'Buyer',
             'buyer_vat' => '300000000000003',
+            'buyer_cr' => '1012345678',
+            'supply_date' => '2026-11-17',
+            'buyer_national_address' => [
+                'building' => '12',
+                'street' => 'King Fahd Road',
+                'district' => 'Olaya',
+                'city' => 'Riyadh',
+                'postal_code' => '12345',
+            ],
             'lines' => [['name' => 'x', 'quantity' => 1, 'unit_price_ex_vat' => 10, 'vat_rate' => 15]],
         ],
     ]);
@@ -275,6 +284,64 @@ it('surfaces z-heart 422 validation on flash and stored http status', function (
         ->and($result->userMessage)->toContain('Invoice hash mismatch')
         ->and(data_get($fresh->payload, 'zheart_last_http_status'))->toBe(422)
         ->and(data_get($fresh->payload, 'zheart_request_id'))->toBe('req-422');
+});
+
+it('lists field errors from z-heart 422 errors map on flash and payload without triplicating generic message', function () {
+    Http::fake([
+        'https://z-heart.test/api/v1/invoices/clear' => Http::response([
+            'status' => 'error',
+            'message' => 'The invoice payload is invalid.',
+            'errors' => [
+                'buyer.address.district' => ['The district field is required.'],
+                'buyer.cr_number' => ['CR number is required.'],
+            ],
+        ], 422, ['X-Request-Id' => '9cfd2820-3330-4149-a95e-b9ab7fd32b05']),
+    ]);
+
+    $invoice = clearancePendingStandardInvoice('STD-CLEAR-422-MAP');
+    Invoice::withoutEvents(function () use ($invoice): void {
+        $invoice->forceFill([
+            'payload' => array_merge($invoice->payload ?? [], [
+                'buyer_cr' => '1012345678',
+                'buyer_national_address' => [
+                    'building' => '1',
+                    'street' => 'King Fahd Rd',
+                    'district' => 'Olaya',
+                    'city' => 'Riyadh',
+                    'postal_code' => '12345',
+                ],
+                'supply_date' => '2026-11-18',
+            ]),
+        ])->save();
+    });
+
+    $result = app(InvoiceZatcaResubmitService::class)->resubmit($invoice->fresh());
+    $fresh = $invoice->fresh();
+
+    expect($result->userMessage)->toContain('district')
+        ->and(substr_count(strtolower($result->userMessage), 'the invoice payload is invalid'))->toBe(1)
+        ->and(data_get($fresh->payload, 'zheart_field_errors'))->toBeArray()
+        ->and(count(data_get($fresh->payload, 'zheart_field_errors')))->toBeGreaterThanOrEqual(2);
+});
+
+it('blocks resubmit locally when standard buyer fields are missing', function () {
+    Http::fake();
+
+    $invoice = clearancePendingStandardInvoice('STD-PRECHECK');
+    Invoice::withoutEvents(function () use ($invoice): void {
+        $payload = $invoice->payload ?? [];
+        $address = (array) ($payload['buyer_national_address'] ?? []);
+        unset($address['district']);
+        $payload['buyer_national_address'] = $address;
+        $invoice->forceFill(['payload' => $payload])->save();
+    });
+
+    $result = app(InvoiceZatcaResubmitService::class)->resubmit($invoice->fresh());
+
+    expect($result->ok)->toBeFalse()
+        ->and($result->userMessage)->toContain(__('invoices.zatca_precheck.buyer_district'));
+
+    Http::assertNothingSent();
 });
 
 it('maps resubmit outcomes to flash keys on the invoice view controller', function () {

@@ -12,6 +12,7 @@ class ZHeartApiException extends RuntimeException
         public readonly ?string $requestId = null,
         public readonly ?string $errorCode = null,
         ?\Throwable $previous = null,
+        public readonly ?array $responseJson = null,
     ) {
         parent::__construct($userMessage, $httpStatus, $previous);
     }

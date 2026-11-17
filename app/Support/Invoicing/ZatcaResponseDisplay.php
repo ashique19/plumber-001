@@ -38,14 +38,45 @@ final class ZatcaResponseDisplay
         $status = self::stringOrNull($raw['status'] ?? data_get($invoice->payload, 'zheart_reporting_status'));
         $messages = self::collectStrings($raw, ['message', 'detail', 'description']);
         $warnings = self::collectList($raw, ['warnings', 'warning', 'validation_warnings']);
-        $errors = self::collectList($raw, ['errors', 'error', 'validation_errors', 'rejection_reasons']);
-
-        $lastError = data_get($invoice->payload, 'zheart_last_error');
-        if (is_string($lastError) && $lastError !== '' && ! in_array($lastError, $errors, true)) {
-            $errors[] = $lastError;
+        $fieldErrors = self::collectList($raw, ['field_errors']);
+        $storedFieldErrors = data_get($invoice->payload, 'zheart_field_errors');
+        if (is_array($storedFieldErrors)) {
+            foreach ($storedFieldErrors as $line) {
+                if (is_string($line) && trim($line) !== '') {
+                    $fieldErrors[] = trim($line);
+                }
+            }
         }
 
+        $errors = self::collectList($raw, ['errors', 'error', 'validation_errors', 'rejection_reasons']);
+        $errors = array_merge($fieldErrors, $errors);
+
+        $lastError = data_get($invoice->payload, 'zheart_last_error');
+        $errors = ZHeartApiValidationErrors::dedupe($errors);
+        $messages = ZHeartApiValidationErrors::dedupe($messages);
+        if (is_string($lastError) && $lastError !== '') {
+            $summaryLower = mb_strtolower(trim($lastError));
+            $errors = array_values(array_filter(
+                $errors,
+                function (string $line) use ($summaryLower): bool {
+                    $lower = mb_strtolower(trim($line));
+
+                    return $lower !== $summaryLower
+                        && ! str_contains($summaryLower, $lower)
+                        && ! (self::isGenericPayloadInvalid($line) && $lower !== '');
+                },
+            ));
+            $messages = array_values(array_filter(
+                $messages,
+                fn (string $line): bool => mb_strtolower(trim($line)) !== $summaryLower
+                    && ! self::isGenericPayloadInvalid($line),
+            ));
+        }
+
+        $summary = is_string($lastError) && trim($lastError) !== '' ? trim($lastError) : null;
+
         return [
+            'summary' => $summary,
             'status' => $status,
             'submitted_at' => is_string(data_get($invoice->payload, 'zheart_zatca_submitted_at'))
                 ? data_get($invoice->payload, 'zheart_zatca_submitted_at')
@@ -65,8 +96,19 @@ final class ZatcaResponseDisplay
             'messages' => $messages,
             'warnings' => $warnings,
             'errors' => $errors,
+            'field_errors' => ZHeartApiValidationErrors::dedupe($fieldErrors),
             'details' => $raw,
         ];
+    }
+
+    private static function isGenericPayloadInvalid(string $line): bool
+    {
+        $lower = mb_strtolower(trim($line));
+
+        return in_array($lower, [
+            'the invoice payload is invalid.',
+            'the invoice payload is invalid',
+        ], true);
     }
 
     /**

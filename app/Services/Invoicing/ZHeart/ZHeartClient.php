@@ -236,7 +236,14 @@ final class ZHeartClient
                     continue;
                 }
 
-                throw new ZHeartApiException($message, $status, is_string($requestId) ? $requestId : null, $errorCode);
+                throw new ZHeartApiException(
+                    $message,
+                    $status,
+                    is_string($requestId) ? $requestId : null,
+                    $errorCode,
+                    null,
+                    is_array($json) ? $json : null,
+                );
             } catch (ConnectionException $e) {
                 $lastException = $e;
                 if (! $submitPath && $attempt < $attempts) {
