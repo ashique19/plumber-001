@@ -6,52 +6,49 @@
 
 @php
     $showIdentity = in_array('buyer_identity', $missingKeys, true);
-    $fieldNames = array_filter($missingKeys, fn (string $key): bool => ! in_array($key, ['buyer_identity'], true));
 @endphp
 
 <x-modal
     :show="$show"
     :title="__('invoices.standard_buyer_completion_title')"
     close-wire="cancelStandardBuyerCompletion"
-    size="lg"
+    size="identity"
+    class="x-modal--identity"
+    data-testid="standard-buyer-completion-modal"
 >
     <form class="x-modal-form" wire:submit.prevent="confirmStandardBuyerCompletion">
-        <p class="text-sm text-[var(--app-muted)]">
+        <p class="text-sm text-[var(--app-muted)] px-6 pt-4">
             {{ __('invoices.standard_buyer_completion_intro', ['name' => $customerName]) }}
         </p>
 
-        <div class="x-modal-form__fields x-modal-form__fields--2 mt-4">
+        <div class="x-modal-form__fields x-modal-form__fields--3 !pt-0">
             @if ($showIdentity)
                 <x-customers.identity-fields
                     :fields="\App\Support\Customers\CustomerIdentityRules::buyerFields()"
                     more-address-prop="standardBuyerShowMoreAddress"
                     :sa-standard-buyer="true"
                 />
-                <p class="text-xs text-[var(--app-muted)] md:col-span-2">{{ __('invoices.buyer_id_hint') }}</p>
-            @endif
-
-            @if (in_array('buyerCountry', $missingKeys, true))
-                <x-field.input :label="__('customers.fields.country_code')" name="buyerCountry" wire:model="buyerCountry" :liveValidate="false" maxlength="2" required wrapper-class="md:col-span-2" />
-            @endif
-
-            @if (in_array('addrBuilding', $missingKeys, true))
-                <x-field.input :label="__('business.fields.building')" name="addrBuilding" wire:model="addrBuilding" :liveValidate="false" required />
-            @endif
-            @if (in_array('addrStreet', $missingKeys, true))
-                <x-field.input :label="__('business.fields.street')" name="addrStreet" wire:model="addrStreet" :liveValidate="false" required />
-            @endif
-            @if (in_array('addrDistrict', $missingKeys, true))
-                <x-field.input :label="__('business.fields.district')" name="addrDistrict" wire:model="addrDistrict" :liveValidate="false" />
-            @endif
-            @if (in_array('addrCity', $missingKeys, true))
-                <x-field.input :label="__('business.fields.city')" name="addrCity" wire:model="addrCity" :liveValidate="false" required />
-            @endif
-            @if (in_array('addrPostal', $missingKeys, true))
-                <x-field.input :label="__('business.fields.postal')" name="addrPostal" wire:model="addrPostal" :liveValidate="false" required />
+                <p class="text-xs text-[var(--app-muted)] admin-modal-span-full">{{ __('invoices.buyer_id_hint') }}</p>
+            @else
+                @if (in_array('addrBuilding', $missingKeys, true))
+                    <x-field.input :label="__('business.fields.building')" name="addrBuilding" wire:model="addrBuilding" :liveValidate="false" required />
+                @endif
+                @if (in_array('addrStreet', $missingKeys, true))
+                    <x-field.input :label="__('business.fields.street')" name="addrStreet" wire:model="addrStreet" :liveValidate="false" required wrapper-class="admin-modal-span-2" />
+                @endif
+                @if (in_array('addrDistrict', $missingKeys, true))
+                    <x-field.input :label="__('business.fields.district')" name="addrDistrict" wire:model="addrDistrict" :liveValidate="false" />
+                @endif
+                @if (in_array('addrCity', $missingKeys, true))
+                    <x-field.input :label="__('business.fields.city')" name="addrCity" wire:model="addrCity" :liveValidate="false" required />
+                @endif
+                @if (in_array('addrPostal', $missingKeys, true))
+                    <x-field.input :label="__('business.fields.postal')" name="addrPostal" wire:model="addrPostal" :liveValidate="false" required />
+                @endif
             @endif
         </div>
 
-        <label class="mt-4 flex min-h-12 cursor-pointer items-start gap-3 rounded-lg border border-[var(--app-border)] px-3 py-3 text-sm">
+        <label class="mx-6 mb-2 flex min-h-12 shrink-0 cursor-pointer items-start gap-3 rounded-lg border border-[var(--app-border)] px-3 py-3 text-sm">
             <input
                 type="checkbox"
                 class="mt-0.5 h-5 w-5 shrink-0 rounded border-[var(--app-border)]"

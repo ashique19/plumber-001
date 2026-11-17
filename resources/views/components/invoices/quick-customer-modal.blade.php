@@ -8,7 +8,8 @@
     :show="$show"
     :title="$editMode ? __('invoices.edit_customer') : __('invoices.add_customer')"
     close-wire="$set('showQuickCustomerModal', false)"
-    size="xl"
+    size="identity"
+    class="x-modal--identity"
     data-testid="quick-customer-modal"
 >
     <form class="x-modal-form" wire:submit.prevent="saveQuickCustomer">

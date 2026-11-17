@@ -39,7 +39,7 @@ it('renders quick customer modal with shared compact identity grid', function ()
         ->test(IssueInvoice::class, ['mode' => 'simplified'])
         ->set('showQuickCustomerModal', true)
         ->assertSeeHtml('data-testid="quick-customer-modal"')
-        ->assertSeeHtml('x-modal--xl')
+        ->assertSeeHtml('x-modal--identity')
         ->assertSeeHtml('customer-identity-fields__vat')
         ->assertSeeHtml('data-testid="customer-identity-fields"');
 });
