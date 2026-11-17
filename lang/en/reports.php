@@ -3,6 +3,12 @@
 return [
     'title' => 'Analytics',
     'subtitle' => 'Deep-dive sales, VAT, heatmaps, and branch comparisons. Use the dashboard for today’s snapshot.',
+    'title_profit' => 'Profit & VAT',
+    'subtitle_profit' => 'VAT collected on POS sales and gross profit for the selected period.',
+    'title_inventory' => 'Inventory reports',
+    'subtitle_inventory' => 'Stock valuation and ingredients below reorder threshold.',
+    'title_customers' => 'Customer dues',
+    'subtitle_customers' => 'Outstanding receivables and aging buckets as of the report end date.',
     'nav' => 'Analytics',
     'export_csv' => 'Export CSV',
     'preset_7d' => '7 days',
