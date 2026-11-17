@@ -15,7 +15,6 @@ use App\Models\Product;
 use App\Models\Quotation;
 use App\Support\Invoicing\InvoiceDocumentTotals;
 use App\Support\StaffBranchContext;
-use App\Support\Validation\FieldValidationRules;
 use App\Business\BusinessContext;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
@@ -33,8 +32,6 @@ class ManageQuotation extends Component
     use ValidatesFieldsLive;
 
   public ?int $quotationId = null;
-
-  public string $invoiceMode = 'simplified';
 
   public string $validityUntil = '';
 
@@ -98,8 +95,6 @@ class ManageQuotation extends Component
       app(PermissionRegistrar::class)->setPermissionsTeamId($this->business->id);
       abort_unless(auth('staff')->user()?->can('invoices.issue'), 403);
 
-      $defaultMode = $this->business->defaultInvoiceDocumentType()->value;
-      $this->invoiceMode = in_array($defaultMode, ['standard', 'simplified'], true) ? $defaultMode : 'simplified';
       $this->validityUntil = now('Asia/Riyadh')->addDays(30)->format('Y-m-d');
       $this->supplyDate = now('Asia/Riyadh')->format('Y-m-d');
 
@@ -115,9 +110,6 @@ class ManageQuotation extends Component
 
   private function hydrateFromQuotation(Quotation $quotation): void
   {
-      $this->invoiceMode = in_array($quotation->invoice_mode, ['standard', 'simplified'], true)
-          ? $quotation->invoice_mode
-          : $this->invoiceMode;
       $this->validityUntil = $quotation->validity_until?->format('Y-m-d') ?? $this->validityUntil;
 
       $payload = $quotation->payload ?? [];
@@ -278,35 +270,21 @@ class ManageQuotation extends Component
 
       $payload = ['lines' => $lineItems];
 
-      if ($this->invoiceMode === 'standard') {
-          $vat = preg_replace('/\D/', '', $this->buyerVat) ?? '';
-          $payload = array_merge($payload, [
-              'buyer_name' => trim($this->buyerName),
-              'buyer_vat' => $vat,
-              'buyer_cr' => trim($this->buyerCr),
-              'buyer_phone' => trim($this->buyerPhone),
-              'buyer_email' => trim($this->buyerEmail),
-              'buyer_country' => strtoupper(trim($this->buyerCountry)) ?: 'SA',
-              'buyer_national_address' => [
-                  'building' => $this->addrBuilding,
-                  'street' => $this->addrStreet,
-                  'district' => $this->addrDistrict,
-                  'city' => $this->addrCity,
-                  'postal_code' => $this->addrPostal,
-                  'additional' => $this->addrAdditional,
-                  'country' => strtoupper(trim($this->buyerCountry)) ?: 'SA',
-              ],
-          ]);
-      } else {
-          if ($this->selectedCustomerId !== null && trim($this->buyerName) !== '') {
-              $payload['buyer_name'] = trim($this->buyerName);
-          }
-          if (trim($this->buyerPhone) !== '') {
-              $payload['buyer_phone'] = trim($this->buyerPhone);
-          }
-          if (trim($this->buyerEmail) !== '') {
-              $payload['buyer_email'] = trim($this->buyerEmail);
-          }
+      if (trim($this->buyerName) !== '') {
+          $payload['buyer_name'] = trim($this->buyerName);
+      }
+      if (trim($this->buyerPhone) !== '') {
+          $payload['buyer_phone'] = trim($this->buyerPhone);
+      }
+      if (trim($this->buyerEmail) !== '') {
+          $payload['buyer_email'] = trim($this->buyerEmail);
+      }
+      $vat = preg_replace('/\D/', '', $this->buyerVat) ?? '';
+      if ($vat !== '') {
+          $payload['buyer_vat'] = $vat;
+      }
+      if (trim($this->buyerCr) !== '') {
+          $payload['buyer_cr'] = trim($this->buyerCr);
       }
 
       $supplyDate = trim($this->supplyDate);
@@ -519,29 +497,13 @@ class ManageQuotation extends Component
           'lines.*.unit_price' => ['required', 'numeric', 'min:0'],
           'lines.*.vat_rate' => ['required', 'numeric', 'min:0', 'max:100'],
           'validityUntil' => ['required', 'date'],
-          'invoiceMode' => ['required', 'in:standard,simplified'],
           'supplyDate' => ['nullable', 'date'],
           'documentNotes' => ['nullable', 'string', 'max:2000'],
           'termsAndConditions' => ['nullable', 'string', 'max:6000'],
+          'buyerName' => ['nullable', 'string', 'max:200'],
       ];
 
-      if ($this->invoiceMode === 'simplified') {
-          return $lineRules;
-      }
-
-      return array_merge($lineRules, [
-          'selectedCustomerId' => ['required', 'integer', 'exists:customers,id'],
-          'buyerName' => ['required', 'string', 'max:200'],
-          'buyerVat' => array_merge(FieldValidationRules::vatOptional(), ['required_without:buyerCr']),
-          'buyerCr' => array_merge(FieldValidationRules::crNumberOptional(), ['required_without:buyerVat']),
-          'buyerCountry' => ['required', 'string', 'size:2'],
-          'addrBuilding' => ['required', 'string', 'max:32'],
-          'addrStreet' => ['required', 'string', 'max:120'],
-          'addrDistrict' => ['nullable', 'string', 'max:120'],
-          'addrCity' => ['required', 'string', 'max:80'],
-          'addrPostal' => FieldValidationRules::postalCodeRequired(),
-          'addrAdditional' => ['nullable', 'string', 'max:32'],
-      ]);
+      return $lineRules;
   }
 
   private function pruneEmptyDocumentLines(): void

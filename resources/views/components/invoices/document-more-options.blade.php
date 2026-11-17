@@ -1,6 +1,5 @@
 @props([
     'isStandard' => false,
-    'showQuotationFields' => false,
     'lines' => [],
 ])
 
@@ -18,21 +17,6 @@
     </button>
 
     <div x-show="moreOpen" x-cloak class="invoice-document-more__panel admin-form-grid space-y-4 pt-3">
-        @if ($showQuotationFields)
-            <div class="admin-form-grid admin-form-grid--2 gap-3">
-                <x-field.segmented
-                    :label="__('quotations.target_invoice_mode')"
-                    name="invoiceMode"
-                    wire:model.live="invoiceMode"
-                    :options="[
-                        'simplified' => __('invoices.type.simplified'),
-                        'standard' => __('invoices.type.standard'),
-                    ]"
-                />
-                <x-field.date :label="__('quotations.validity_until')" name="validityUntil" wire:model.live="validityUntil" required />
-            </div>
-        @endif
-
         @if ($isStandard)
             <x-field.date :label="__('invoices.due_date')" name="dueDate" wire:model.live="dueDate" />
         @endif

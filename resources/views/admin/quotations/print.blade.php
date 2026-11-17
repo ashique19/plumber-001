@@ -1,6 +1,6 @@
 <x-layouts.print>
     @push('head')
-        <title>Quotation {{ $t['quotation_number'] }}</title>
+        <title>{{ trans('quotations.print_title') }} {{ $t['quotation_number'] }}</title>
         @vite(['resources/css/invoice-print.css', 'resources/js/receipt.js'])
     @endpush
 
@@ -10,8 +10,9 @@
         </header>
 
         <h1 class="invoice-a4__title">
-            Quotation
-            <span class="invoice-a4__title-ar block">عرض سعر</span>
+            {{ trans('quotations.print_title', [], 'en') }}
+            <span class="invoice-a4__title-ar block">{{ trans('quotations.print_title', [], 'ar') }}</span>
+            <span class="invoice-a4__title-bn block">{{ trans('quotations.print_title', [], 'bn') }}</span>
         </h1>
 
         <section class="invoice-cash__seller">
