@@ -36,7 +36,6 @@
             :name="$block['prop']"
             wire:model.blur="{{ $block['prop'] }}"
             :dir="$block['key'] === 'legal_name_ar' ? 'rtl' : 'auto'"
-            wrapper-class="form-field--span-2"
         />
     @endforeach
 
@@ -44,7 +43,7 @@
         :label="__('customers.fields.vat_registered')"
         name="{{ $fields['vat_registered'] }}"
         wire:model.live="{{ $fields['vat_registered'] }}"
-        class="form-field--span-2"
+        class="customer-identity-fields__vat customer-identity-fields__span-full"
         :options="[
             '1' => __('customers.vat_status.registered'),
             '0' => __('customers.vat_status.not_registered'),
@@ -57,7 +56,6 @@
             :name="$fields['vat_number']"
             wire:model.blur="{{ $fields['vat_number'] }}"
             inputmode="numeric"
-            wrapper-class="form-field--span-2"
         />
     @else
         <x-field.select
@@ -96,7 +94,6 @@
         :label="__('customers.fields.country_code')"
         :name="$fields['country_code']"
         wire:model.live="{{ $fields['country_code'] }}"
-        wrapper-class="form-field--span-2"
     >
         @foreach ($countries as $code => $label)
             <option value="{{ $code }}">{{ $code }} — {{ $label }}</option>
@@ -104,18 +101,19 @@
     </x-field.select>
 
     <x-field.input
-        :label="__('business.fields.street')"
-        :name="$fields['street_name']"
-        wire:model.blur="{{ $fields['street_name'] }}"
-        wrapper-class="form-field--span-2"
-    />
-    <x-field.input
         :label="__('business.fields.city')"
         :name="$fields['city']"
         wire:model.blur="{{ $fields['city'] }}"
     />
 
-    <div class="admin-modal-span-2">
+    <x-field.input
+        :label="__('business.fields.street')"
+        :name="$fields['street_name']"
+        wire:model.blur="{{ $fields['street_name'] }}"
+        wrapper-class="customer-identity-fields__street"
+    />
+
+    <div class="customer-identity-fields__span-full">
         <button
             type="button"
             class="tap-action-muted text-xs font-semibold text-[var(--app-accent)]"
@@ -147,7 +145,7 @@
             :label="__('business.fields.additional')"
             :name="$fields['addr_additional']"
             wire:model.blur="{{ $fields['addr_additional'] }}"
-            wrapper-class="form-field--span-2"
+            wrapper-class="customer-identity-fields__span-full"
         />
     @endif
 </div>

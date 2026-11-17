@@ -8,7 +8,8 @@
     :show="$show"
     :title="$editMode ? __('invoices.edit_customer') : __('invoices.add_customer')"
     close-wire="$set('showQuickCustomerModal', false)"
-    size="lg"
+    size="xl"
+    data-testid="quick-customer-modal"
 >
     <form class="x-modal-form" wire:submit.prevent="saveQuickCustomer">
         <x-modal.validation-summary :fields="$quickCustomerFields" />
@@ -20,7 +21,7 @@
                 :sa-standard-buyer="$standardBuyer"
             />
             @if ($standardBuyer)
-                <p class="text-xs text-[var(--app-muted)] md:col-span-2">{{ __('invoices.standard_customer_modal_hint') }}</p>
+                <p class="col-span-full text-xs text-[var(--app-muted)]">{{ __('invoices.standard_customer_modal_hint') }}</p>
             @endif
         </div>
 
