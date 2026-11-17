@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Business\BusinessContext;
-use App\Data\InvoiceLineData;
 use App\Enums\InvoiceDocumentType;
 use App\Enums\InvoiceStatus;
 use App\Exceptions\InvoiceSigningException;
@@ -13,15 +12,16 @@ use App\Models\Invoice;
 use App\Services\Inventory\ProductStockService;
 use App\Services\Invoicing\InvoiceIssueResult;
 use App\Services\Invoicing\Signing\InvoiceSigningGatewayFactory;
-use App\Services\Invoicing\Signing\InvoiceSigningRequest;
-use App\Support\Invoicing\InvoiceLineDataFactory;
+use App\Services\Invoicing\Signing\InvoiceSigningRequestFactory;
 use App\Support\Invoicing\InvoiceZatcaSubmissionGuard;
 use App\Support\Invoicing\StandardInvoiceBuyerSnapshotRefresh;
 use App\Support\Invoicing\StandardInvoiceZatcaPayloadPrecheck;
+use App\Support\Invoicing\ZHeartApiValidationErrors;
 use App\Support\Invoicing\ZatcaSubmissionPayloadPersistence;
 use App\Support\Hub\HubInvoiceZatcaTab;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
@@ -95,7 +95,8 @@ class InvoiceIssueService
         }
 
         $business = BusinessContext::require();
-        $lines = $this->linesFromInvoice($invoice);
+        $gateway = $this->signingFactory->gateway();
+        $autoSubmitZatca = config('zheart.auto_submit_signed') && $business->invoicingIntegrationEnabled();
 
         $now = Carbon::now('UTC');
         $referenced = $invoice->referencedInvoice;
@@ -103,7 +104,6 @@ class InvoiceIssueService
         $invoiceUuid = (string) (($invoice->payload['invoice_uuid'] ?? null) ?: Str::uuid());
 
         $payload = $invoice->payload ?? [];
-        $documentDiscount = (float) ($payload['invoice_discount_ex_vat'] ?? 0);
 
         $dueDate = $this->resolveDueDate($invoice, $now, $business);
 
@@ -120,6 +120,12 @@ class InvoiceIssueService
             $precheck = StandardInvoiceZatcaPayloadPrecheck::validatePayload($payload);
             if ($precheck !== []) {
                 $summary = __('invoices.zatca_precheck.failed');
+                Log::warning('invoice.zatca_issue_failed', [
+                    'invoice_id' => $invoice->id,
+                    'document_number' => $invoice->document_number,
+                    'code' => 'precheck',
+                    'field_error_count' => count($precheck),
+                ]);
 
                 return $this->finalizeIssuedAfterZatcaFailure(
                     $invoice,
@@ -136,73 +142,104 @@ class InvoiceIssueService
             }
         }
 
-        $signingRequest = new InvoiceSigningRequest(
-            business: $business,
-            documentNumber: $invoice->document_number,
-            documentType: $invoice->document_type,
-            invoiceCategory: $invoiceCategory,
-            lines: $lines,
-            invoicePayload: $payload,
-            issueDateTimeUtc: $now,
-            invoiceUuid: $invoiceUuid,
-            referencedInvoiceNumber: $referenced?->document_number,
-            referencedInvoiceUuid: $referenced
-                ? (string) ($referenced->payload['invoice_uuid'] ?? '')
-                : null,
-            noteReason: $this->resolveNoteReason($invoice),
-            documentDiscountExVat: $documentDiscount,
-        );
-
-        InvoiceZatcaSubmissionGuard::markSubmissionInFlight($invoice);
+        $payload['invoice_uuid'] = $invoiceUuid;
+        $signed = null;
 
         Log::info('invoice.zatca_issue_request', [
             'invoice_id' => $invoice->id,
             'document_number' => $invoice->document_number,
             'invoice_category' => $invoiceCategory,
             'submit_path' => $invoiceCategory === 'simplified' ? 'invoices/report' : 'invoices/clear',
+            'deferred_clearance' => $autoSubmitZatca,
         ]);
 
         try {
-            $signed = $this->signingFactory->gateway()->signIssuedInvoice($signingRequest, $invoice);
+            DB::transaction(function () use (
+                $invoice,
+                $business,
+                $gateway,
+                $autoSubmitZatca,
+                $now,
+                $dueDate,
+                $payload,
+                $invoiceUuid,
+                &$signed,
+            ): void {
+                $invoice->forceFill([
+                    'status' => InvoiceStatus::Issued,
+                    'issued_at' => $now,
+                    'due_date' => $dueDate,
+                    'payload' => $payload,
+                ]);
+                $invoice->save();
+                $invoice->refresh();
+
+                $request = InvoiceSigningRequestFactory::fromIssuedInvoice($invoice, $business);
+
+                InvoiceZatcaSubmissionGuard::markSubmissionInFlight($invoice);
+
+                $signResult = $autoSubmitZatca
+                    ? $gateway->signLocally($request)
+                    : $gateway->signIssuedInvoice($request, $invoice);
+
+                $mergedPayload = array_merge($payload, [
+                    'invoice_uuid' => (string) ($signResult['invoice_uuid'] ?? $invoiceUuid),
+                ]);
+
+                Invoice::withoutEvents(function () use (
+                    $invoice,
+                    $signResult,
+                    $mergedPayload,
+                    $now,
+                    $dueDate,
+                ): void {
+                    $invoice->forceFill([
+                        'status' => InvoiceStatus::Issued,
+                        'issued_at' => $now,
+                        'due_date' => $dueDate,
+                        'icv' => $signResult['icv'],
+                        'invoice_hash' => $signResult['hash'],
+                        'previous_invoice_hash' => $signResult['previous_invoice_hash'],
+                        'signed_xml' => $signResult['xml'],
+                        'qr_tlv_base64' => $signResult['qr'],
+                        'payload' => $mergedPayload,
+                    ])->save();
+                });
+
+                if ($autoSubmitZatca) {
+                    $invoiceId = (int) $invoice->id;
+                    DB::afterCommit(function () use ($invoiceId, $business, $gateway, &$signed): void {
+                        $fresh = Invoice::query()->findOrFail($invoiceId);
+                        $clearRequest = InvoiceSigningRequestFactory::fromIssuedInvoice($fresh, $business);
+                        $signed = $gateway->submitInvoiceToZatca($clearRequest);
+                    });
+                } else {
+                    $signed = $signResult;
+                }
+            });
         } catch (InvoiceSigningException $e) {
-            InvoiceZatcaSubmissionGuard::clearSubmissionInFlight($invoice);
+            $persisted = $invoice->fresh() ?? $invoice;
+            InvoiceZatcaSubmissionGuard::clearSubmissionInFlight($persisted);
 
-            $parsed = ZatcaSubmissionPayloadPersistence::parseSigningException($e);
-
-            return $this->finalizeIssuedAfterZatcaFailure(
-                $invoice,
-                $now,
-                $dueDate,
-                $invoiceUuid,
-                $parsed['user_message'],
-                $parsed['field_errors'],
-                $parsed['http_status'],
-                $parsed['request_id'],
-                ZatcaSubmissionPayloadPersistence::flashMessageForFailure($parsed['user_message'], $parsed['field_errors']),
-                'api_error',
-                $parsed['remote_message'],
-            );
+            return $this->handleIssueSigningException($persisted, $e, $now, $dueDate, $invoiceUuid);
         } catch (\Throwable $e) {
-            InvoiceZatcaSubmissionGuard::clearSubmissionInFlight($invoice);
-            $wrapped = InvoiceSigningException::signingFailed($e);
-            $parsed = ZatcaSubmissionPayloadPersistence::parseSigningException($wrapped);
+            $persisted = $invoice->fresh() ?? $invoice;
+            InvoiceZatcaSubmissionGuard::clearSubmissionInFlight($persisted);
 
-            return $this->finalizeIssuedAfterZatcaFailure(
-                $invoice,
+            return $this->handleIssueSigningException(
+                $persisted,
+                InvoiceSigningException::signingFailed($e),
                 $now,
                 $dueDate,
                 $invoiceUuid,
-                $parsed['user_message'],
-                $parsed['field_errors'],
-                $parsed['http_status'],
-                $parsed['request_id'],
-                ZatcaSubmissionPayloadPersistence::flashMessageForFailure($parsed['user_message'], $parsed['field_errors']),
-                'api_error',
-                $parsed['remote_message'],
             );
         }
 
-        InvoiceZatcaSubmissionGuard::clearSubmissionInFlight($invoice);
+        InvoiceZatcaSubmissionGuard::clearSubmissionInFlight($invoice->fresh() ?? $invoice);
+
+        if ($signed === null) {
+            throw InvoiceSigningException::signingFailed(context: 'Z-Heart clearance did not run after issue.');
+        }
 
         $clearanceError = InvoiceZatcaSubmissionGuard::standardClearanceErrorMessage($signed, $invoiceCategory);
 
@@ -220,17 +257,15 @@ class InvoiceIssueService
             $payloadMerge['zheart_last_error_at'] = now()->toIso8601String();
         }
 
-        $invoice->forceFill([
-            'status' => InvoiceStatus::Issued,
-            'icv' => $signed['icv'],
-            'invoice_hash' => $signed['hash'],
-            'previous_invoice_hash' => $signed['previous_invoice_hash'],
-            'signed_xml' => $signed['cleared_xml'] ?? $signed['xml'],
-            'qr_tlv_base64' => $signed['qr'],
-            'issued_at' => $now,
-            'due_date' => $dueDate,
-            'payload' => $payloadMerge,
-        ])->save();
+        $invoice->refresh();
+
+        Invoice::withoutEvents(function () use ($invoice, $signed, $payloadMerge): void {
+            $invoice->forceFill([
+                'signed_xml' => $signed['cleared_xml'] ?? $signed['xml'] ?? $invoice->signed_xml,
+                'qr_tlv_base64' => filled($signed['qr'] ?? null) ? $signed['qr'] : $invoice->qr_tlv_base64,
+                'payload' => $payloadMerge,
+            ])->save();
+        });
 
         $this->auditService->record($invoice, 'invoice.issued', [
             'icv' => $signed['icv'],
@@ -262,6 +297,62 @@ class InvoiceIssueService
     /**
      * @param  list<string>  $fieldErrors
      */
+    private function handleIssueSigningException(
+        Invoice $invoice,
+        InvoiceSigningException $exception,
+        Carbon $issuedAt,
+        string $dueDate,
+        string $invoiceUuid,
+    ): InvoiceIssueResult {
+        $invoice = $invoice->fresh() ?? $invoice;
+        $parsed = ZatcaSubmissionPayloadPersistence::parseSigningException($exception);
+        $previous = $exception->getPrevious();
+        $errorCodes = $previous instanceof \App\Services\Invoicing\ZHeart\ZHeartApiException
+            ? ZHeartApiValidationErrors::codesForLog($previous->responseJson)
+            : [];
+
+        Log::warning('invoice.zatca_issue_failed', [
+            'invoice_id' => $invoice->id,
+            'document_number' => $invoice->document_number,
+            'http_status' => $parsed['http_status'],
+            'request_id' => $parsed['request_id'],
+            'field_error_count' => count($parsed['field_errors']),
+            'zatca_error_codes' => $errorCodes,
+        ]);
+
+        $fresh = $invoice->fresh() ?? $invoice;
+        if ($fresh->isIssued()) {
+            return $this->finalizeIssuedAfterZatcaFailure(
+                $fresh,
+                $fresh->issued_at ?? $issuedAt,
+                (string) ($fresh->due_date?->format('Y-m-d') ?? $dueDate),
+                $invoiceUuid,
+                $parsed['user_message'],
+                $parsed['field_errors'],
+                $parsed['http_status'],
+                $parsed['request_id'],
+                ZatcaSubmissionPayloadPersistence::flashMessageForFailure($parsed['user_message'], $parsed['field_errors']),
+                'api_error',
+                $parsed['remote_message'],
+                preserveSigningArtifacts: true,
+            );
+        }
+
+        return $this->finalizeIssuedAfterZatcaFailure(
+            $invoice,
+            $issuedAt,
+            $dueDate,
+            $invoiceUuid,
+            $parsed['user_message'],
+            $parsed['field_errors'],
+            $parsed['http_status'],
+            $parsed['request_id'],
+            ZatcaSubmissionPayloadPersistence::flashMessageForFailure($parsed['user_message'], $parsed['field_errors']),
+            'api_error',
+            $parsed['remote_message'],
+        );
+    }
+
     private function finalizeIssuedAfterZatcaFailure(
         Invoice $invoice,
         Carbon $issuedAt,
@@ -274,16 +365,8 @@ class InvoiceIssueService
         string $flashMessage,
         string $code,
         ?string $remoteMessage = null,
+        bool $preserveSigningArtifacts = false,
     ): InvoiceIssueResult {
-        Log::warning('invoice.zatca_issue_failed', [
-            'invoice_id' => $invoice->id,
-            'document_number' => $invoice->document_number,
-            'code' => $code,
-            'http_status' => $httpStatus,
-            'request_id' => $requestId,
-            'field_error_count' => count($fieldErrors),
-        ]);
-
         $payloadMerge = array_merge($invoice->payload ?? [], [
             'lines' => $invoice->payload['lines'] ?? [],
             'invoice_uuid' => $invoiceUuid,
@@ -297,17 +380,28 @@ class InvoiceIssueService
             $remoteMessage,
         );
 
-        $invoice->forceFill([
+        $attributes = [
             'status' => InvoiceStatus::Issued,
-            'icv' => null,
-            'invoice_hash' => null,
-            'previous_invoice_hash' => null,
-            'signed_xml' => null,
-            'qr_tlv_base64' => null,
-            'issued_at' => $issuedAt,
-            'due_date' => $dueDate,
             'payload' => $payloadMerge,
-        ])->save();
+        ];
+
+        if ($preserveSigningArtifacts) {
+            $attributes['due_date'] = $dueDate;
+        } else {
+            $attributes = array_merge($attributes, [
+                'icv' => null,
+                'invoice_hash' => null,
+                'previous_invoice_hash' => null,
+                'signed_xml' => null,
+                'qr_tlv_base64' => null,
+                'issued_at' => $issuedAt,
+                'due_date' => $dueDate,
+            ]);
+        }
+
+        Invoice::withoutEvents(function () use ($invoice, $attributes): void {
+            $invoice->forceFill($attributes)->save();
+        });
 
         $this->auditService->record($invoice, 'invoice.issued', [
             'signing_deferred' => true,
@@ -401,15 +495,5 @@ class InvoiceIssueService
         $reason = $invoice->payload['refund_reason'] ?? $invoice->payload['note_reason'] ?? null;
 
         return is_string($reason) && $reason !== '' ? $reason : null;
-    }
-
-    /**
-     * @return list<InvoiceLineData>
-     */
-    private function linesFromInvoice(Invoice $invoice): array
-    {
-        $raw = $invoice->payload['lines'] ?? [];
-
-        return InvoiceLineDataFactory::fromPayloadLines(is_array($raw) ? $raw : []);
     }
 }

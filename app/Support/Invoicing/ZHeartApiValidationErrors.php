@@ -91,6 +91,66 @@ final class ZHeartApiValidationErrors
     /**
      * @param  list<string>  $fieldErrors
      */
+    /**
+     * Redacted ZATCA / Z-Heart error codes for logs (no buyer or line detail).
+     *
+     * @return list<string>
+     */
+    public static function codesForLog(?array $json): array
+    {
+        if ($json === null || $json === []) {
+            return [];
+        }
+
+        $codes = [];
+        $candidates = [
+            data_get($json, 'data.error'),
+            data_get($json, 'data.code'),
+            data_get($json, 'error'),
+            data_get($json, 'code'),
+        ];
+
+        foreach ($candidates as $value) {
+            if (is_string($value) && trim($value) !== '') {
+                $codes[] = trim($value);
+            }
+        }
+
+        $zatcaBody = data_get($json, 'data.zatca.body');
+        if (is_array($zatcaBody)) {
+            $validation = $zatcaBody['validationResults'] ?? null;
+            if (is_array($validation)) {
+                foreach (['errorMessages', 'errors'] as $key) {
+                    $items = $validation[$key] ?? [];
+                    if (! is_array($items)) {
+                        continue;
+                    }
+                    foreach ($items as $item) {
+                        if (is_array($item)) {
+                            foreach (['code', 'category', 'type'] as $field) {
+                                $code = $item[$field] ?? null;
+                                if (is_string($code) && trim($code) !== '') {
+                                    $codes[] = trim($code);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        $errors = $json['errors'] ?? null;
+        if (is_array($errors)) {
+            foreach (array_keys($errors) as $field) {
+                if (is_string($field) && trim($field) !== '') {
+                    $codes[] = trim($field);
+                }
+            }
+        }
+
+        return self::dedupe($codes);
+    }
+
     public static function formatFlashMessage(string $summary, array $fieldErrors): string
     {
         $summary = trim($summary);
