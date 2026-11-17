@@ -33,13 +33,13 @@
         </section>
     @endif
 
-    <section class="app-card app-filter-fields mb-4 grid grid-cols-1 items-end gap-3 p-4 md:grid-cols-2 xl:grid-cols-3">
+    <section class="app-card app-filter-fields mb-4 grid grid-cols-1 items-end gap-3 p-4 md:grid-cols-2 lg:grid-cols-4">
         <x-field.search
             :label="__('invoices.search')"
             name="search"
             wire:model.live.debounce.300ms="search"
             :placeholder="__('invoices.search_hint')"
-            wrapper-class="min-w-0 md:col-span-2 xl:col-span-3"
+            wrapper-class="min-w-0 md:col-span-2 lg:col-span-1"
         />
         <x-field.input type="date" :label="__('invoices.date_from')" name="dateFrom" wire:model.live="dateFrom" :liveValidate="false" />
         <x-field.input type="date" :label="__('invoices.date_to')" name="dateTo" wire:model.live="dateTo" :liveValidate="false" />
