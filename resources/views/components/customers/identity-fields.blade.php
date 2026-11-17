@@ -29,7 +29,7 @@
     $showMore = (bool) ($this->{$moreAddressProp} ?? false);
 @endphp
 
-<div class="customer-identity-fields grid w-full grid-cols-1 gap-3 md:col-span-2 md:grid-cols-2" data-testid="customer-identity-fields">
+<div class="customer-identity-fields admin-modal-field-grid admin-modal-field-grid--2 col-span-full w-full min-w-0" data-testid="customer-identity-fields">
     @foreach ($nameBlocks as $block)
         <x-field.input
             :label="__('customers.fields.'.$block['key'])"
@@ -44,7 +44,7 @@
         :label="__('customers.fields.vat_registered')"
         name="{{ $fields['vat_registered'] }}"
         wire:model.live="{{ $fields['vat_registered'] }}"
-        wrapper-class="md:col-span-2"
+        class="md:col-span-2"
         :options="[
             '1' => __('customers.vat_status.registered'),
             '0' => __('customers.vat_status.not_registered'),

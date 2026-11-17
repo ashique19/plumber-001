@@ -1,0 +1,50 @@
+import { type Locator, type Page, expect } from 'playwright/test';
+import { adminPath } from './staff-auth.js';
+
+export async function openAddCustomerModal(page: Page, locale: 'en' | 'bn' | 'ar'): Promise<void> {
+    await page.goto(adminPath('/admin/customers?create=customer', locale));
+    await page.waitForLoadState('networkidle');
+    await expect(page.locator('[data-testid="customer-modal"]')).toBeVisible({ timeout: 20_000 });
+}
+
+export async function expectCustomerModalFormSpacing(modal: Locator): Promise<void> {
+    const fieldsWrap = modal.locator('.x-modal-form__fields').first();
+    const identity = modal.locator('[data-testid="customer-identity-fields"]').first();
+
+    await expect(fieldsWrap).toBeVisible();
+    await expect(identity).toBeVisible();
+
+    const fieldsBox = await fieldsWrap.boundingBox();
+    const identityBox = await identity.boundingBox();
+
+    expect(fieldsBox, 'modal fields wrap').not.toBeNull();
+    expect(identityBox, 'identity grid').not.toBeNull();
+
+    expect(identityBox!.width, 'identity grid uses full modal field width').toBeGreaterThanOrEqual(fieldsBox!.width * 0.92);
+
+    const vatSegment = identity.locator('.admin-segmented').first();
+    await expect(vatSegment).toBeVisible();
+    const segBox = await vatSegment.boundingBox();
+    expect(segBox!.width, 'VAT segmented toggle spans grid').toBeGreaterThanOrEqual(identityBox!.width * 0.9);
+
+    const firstControl = identity.locator('.form-field__control').first();
+    const vatLabel = identity.locator('.form-field__label', { hasText: /.+/ }).nth(2);
+    const firstBox = await firstControl.boundingBox();
+    const vatLabelBox = await vatLabel.boundingBox();
+
+    expect(firstBox).not.toBeNull();
+    expect(vatLabelBox).not.toBeNull();
+
+    const verticalGap = vatLabelBox!.y - (firstBox!.y + firstBox!.height);
+    expect(verticalGap, 'space between prior field control and next label').toBeGreaterThanOrEqual(12);
+
+    const optionLabels = vatSegment.locator('.admin-segmented__option span');
+    const optionCount = await optionLabels.count();
+    expect(optionCount).toBeGreaterThanOrEqual(2);
+
+    for (let i = 0; i < optionCount; i++) {
+        const opt = optionLabels.nth(i);
+        const optBox = await opt.boundingBox();
+        expect(optBox!.height, `segment option ${i} readable height`).toBeGreaterThanOrEqual(20);
+    }
+}
