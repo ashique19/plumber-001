@@ -31,6 +31,8 @@ return array (
   'delete_draft_confirm' => 'এই ড্রাফট ইনভয়েস মুছবেন? ফিরিয়ে আনা যাবে না।',
   'draft_deleted' => 'ড্রাফট :number মুছে ফেলা হয়েছে।',
   'awaiting_zatca_clearance' => 'ZATCA ক্লিয়ারেন্সের অপেক্ষায়',
+  'zatca_clearance_hint' => 'স্ট্যান্ডার্ড ইনভয়েস ইস্যুর আগে ZATCA ক্লিয়ারেন্স আবশ্যক। সরলীকৃত ইনভয়েস স্বয়ংক্রিয়ভাবে রিপোর্ট হয়।',
+  'view_status_label' => 'ইনভয়েস অবস্থা',
   'action_resend_zatca' => 'পুনরায় পাঠান',
   'more_resend_zatca' => 'ZATCA-তে পুনরায় পাঠান',
   'more_record_payment' => 'পেমেন্ট রেকর্ড',

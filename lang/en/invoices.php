@@ -31,6 +31,8 @@ return [
     'delete_draft_confirm' => 'Delete this draft invoice? This cannot be undone.',
     'draft_deleted' => 'Draft :number deleted.',
     'awaiting_zatca_clearance' => 'Awaiting ZATCA clearance',
+    'zatca_clearance_hint' => 'Standard invoices must be cleared by ZATCA before they are issued. Simplified invoices are reported automatically.',
+    'view_status_label' => 'Invoice status',
     'action_resend_zatca' => 'Resend',
     'more_resend_zatca' => 'Resend to ZATCA',
     'more_record_payment' => 'Record payment',

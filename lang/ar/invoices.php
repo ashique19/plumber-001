@@ -32,6 +32,8 @@ return array (
   'delete_draft_confirm' => 'حذف مسودة الفاتورة؟ لا يمكن التراجع.',
   'draft_deleted' => 'تم حذف المسودة :number.',
   'awaiting_zatca_clearance' => 'في انتظار اعتماد زاتكا',
+  'zatca_clearance_hint' => 'يجب اعتماد الفواتير الضريبية من زاتكا قبل إصدارها. الفواتير المبسطة تُبلَّغ تلقائياً.',
+  'view_status_label' => 'حالة الفاتورة',
   'action_resend_zatca' => 'إعادة إرسال',
   'more_resend_zatca' => 'إعادة الإرسال إلى زاتكا',
   'more_record_payment' => 'تسجيل دفعة',

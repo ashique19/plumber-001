@@ -147,23 +147,21 @@
                             ])>{{ $row['payment_status']->label() }}</span>
                         </td>
                         <td>
-                            <span @class([
-                                'pos-status-pill',
-                                'pos-status-pill--warning' => $row['invoice_status_key'] === 'pending',
-                                'pos-status-pill--refunded' => $row['invoice_status_key'] === 'draft',
-                                'pos-status-pill--paid' => $row['invoice_status_key'] === 'issued',
-                            ])>{{ __('invoices.invoice_status.'.$row['invoice_status_key']) }}</span>
+                            <div class="hub-doc-table__status-cell">
+                                <x-invoices.hub-invoice-status-pill :invoice="$invoice" kind="invoice" />
+                                @if (\App\Support\Hub\HubInvoiceStatusDisplay::showsClearanceHint($invoice))
+                                    <p class="hub-doc-table__status-hint">{{ __('invoices.zatca_clearance_hint') }}</p>
+                                @endif
+                            </div>
                         </td>
                         <td>
-                            <span
-                                @class([
-                                    'pos-status-pill',
-                                    'pos-status-pill--paid' => in_array($row['zatca_badge'], ['cleared', 'reported'], true),
-                                    'pos-status-pill--warning' => $row['zatca_badge'] === 'pending',
-                                    'pos-status-pill--refunded' => $row['zatca_badge'] === 'not_submitted',
-                                ])
-                                @if ($row['zatca_error']) title="{{ $row['zatca_error'] }}" @endif
-                            >{{ __('invoices.zatca_badge.'.$row['zatca_badge']) }}</span>
+                            <div class="hub-doc-table__status-cell">
+                                <x-invoices.hub-invoice-status-pill
+                                    :invoice="$invoice"
+                                    kind="zatca"
+                                    :zatca-error="$row['zatca_error']"
+                                />
+                            </div>
                         </td>
                         <td>
                             <div class="hub-doc-table__actions">
