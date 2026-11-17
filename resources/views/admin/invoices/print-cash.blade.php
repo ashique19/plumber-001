@@ -92,36 +92,38 @@
 
         @php($tot = $t['totals'])
         <section class="invoice-cash__amount-block">
-            <div class="flex justify-between">
-                <span><x-invoices.print-label en="Subtotal (ex VAT)" ar="المجموع (بدون ضريبة)" /></span>
-                <span><x-invoices.sar-symbol /> {{ number_format($tot['subtotal_ex_vat'], 2) }}</span>
+            <table class="invoice-print-totals invoice-cash__totals" role="presentation">
+                <x-invoices.print-totals-row en="Subtotal (ex VAT)" ar="المجموع (بدون ضريبة)">
+                    <x-invoices.sar-symbol /> {{ number_format($tot['subtotal_ex_vat'], 2) }}
+                </x-invoices.print-totals-row>
+                @if (($tot['invoice_discount_ex_vat'] ?? 0) > 0)
+                    <x-invoices.print-totals-row en="Discount" ar="الخصم">
+                        - <x-invoices.sar-symbol /> {{ number_format($tot['invoice_discount_ex_vat'], 2) }}
+                    </x-invoices.print-totals-row>
+                @endif
+                <x-invoices.print-totals-row en="Total VAT" ar="مجموع الضريبة">
+                    <x-invoices.sar-symbol /> {{ number_format($tot['total_vat'], 2) }}
+                </x-invoices.print-totals-row>
+                <x-invoices.print-totals-row en="Total (inc VAT)" ar="الإجمالي (شامل الضريبة)" :strong="true">
+                    <x-invoices.sar-symbol /> {{ number_format($tot['total_inc_vat'], 2) }}
+                </x-invoices.print-totals-row>
+                @if (($tot['retention_amount'] ?? 0) > 0)
+                    <x-invoices.print-totals-row en="Retention" ar="المحجوز">
+                        - <x-invoices.sar-symbol /> {{ number_format($tot['retention_amount'], 2) }}
+                    </x-invoices.print-totals-row>
+                    <x-invoices.print-totals-row en="Net due" ar="الصافي المستحق" :strong="true">
+                        <x-invoices.sar-symbol /> {{ number_format($t['net_due_inc_vat'], 2) }}
+                    </x-invoices.print-totals-row>
+                @endif
+            </table>
+            <div class="invoice-print-words-block invoice-cash__words">
+                @if (filled($t['amount_words_en'] ?? null))
+                    <p class="invoice-print-words-block__en invoice-a4__words">{{ $t['amount_words_en'] }}</p>
+                @endif
+                @if (filled($t['amount_words_ar'] ?? null))
+                    <p class="invoice-print-words-block__ar invoice-a4__words invoice-print-ar" dir="rtl">{{ $t['amount_words_ar'] }}</p>
+                @endif
             </div>
-            @if (($tot['invoice_discount_ex_vat'] ?? 0) > 0)
-                <div class="flex justify-between">
-                    <span><x-invoices.print-label en="Discount" ar="الخصم" /></span>
-                    <span>- <x-invoices.sar-symbol /> {{ number_format($tot['invoice_discount_ex_vat'], 2) }}</span>
-                </div>
-            @endif
-            <div class="flex justify-between">
-                <span><x-invoices.print-label en="Total VAT" ar="مجموع الضريبة" /></span>
-                <span><x-invoices.sar-symbol /> {{ number_format($tot['total_vat'], 2) }}</span>
-            </div>
-            <div class="flex justify-between font-bold text-base">
-                <span><x-invoices.print-label en="Total (inc VAT)" ar="الإجمالي (شامل الضريبة)" /></span>
-                <span><x-invoices.sar-symbol /> {{ number_format($tot['total_inc_vat'], 2) }}</span>
-            </div>
-            @if (($tot['retention_amount'] ?? 0) > 0)
-                <div class="flex justify-between font-semibold">
-                    <span><x-invoices.print-label en="Retention" ar="المحجوز" /></span>
-                    <span>- <x-invoices.sar-symbol /> {{ number_format($tot['retention_amount'], 2) }}</span>
-                </div>
-                <div class="flex justify-between font-bold">
-                    <span><x-invoices.print-label en="Net due" ar="الصافي المستحق" /></span>
-                    <span><x-invoices.sar-symbol /> {{ number_format($t['net_due_inc_vat'], 2) }}</span>
-                </div>
-            @endif
-            <p class="invoice-a4__words invoice-print-ar mt-2" dir="rtl">{{ $t['amount_words_ar'] }}</p>
-            <p class="invoice-a4__words">{{ $t['amount_words_en'] }}</p>
         </section>
 
         @if (($t['show_qr'] ?? false) && filled($t['qr_tlv_base64'] ?? null))

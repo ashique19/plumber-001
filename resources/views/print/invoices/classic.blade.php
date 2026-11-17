@@ -135,27 +135,30 @@
         </table>
 
         <div class="print-classic__totals-wrap">
-            <table class="print-classic__totals">
-                <tr>
-                    <td class="print-classic__cell-label"><span class="invoice-print-ar" dir="rtl">الإجمالي (غير شامل ضريبة القيمة المضافة)</span> Total Excluding Vat</td>
-                    <td class="print-classic__cell-value tabular-nums"><x-invoices.sar-symbol /> {{ number_format($tot['subtotal_ex_vat'], 2) }}</td>
-                </tr>
-                <tr>
-                    <td class="print-classic__cell-label"><span class="invoice-print-ar" dir="rtl">الإجمالي الخاضع للضريبة</span> Total Taxable Amount</td>
-                    <td class="print-classic__cell-value tabular-nums"><x-invoices.sar-symbol /> {{ number_format($tot['subtotal_ex_vat'] - ($tot['invoice_discount_ex_vat'] ?? 0), 2) }}</td>
-                </tr>
-                <tr>
-                    <td class="print-classic__cell-label"><span class="invoice-print-ar" dir="rtl">مجموع ضريبة القيمة المضافة</span> Total Vat</td>
-                    <td class="print-classic__cell-value tabular-nums"><x-invoices.sar-symbol /> {{ number_format($tot['total_vat'], 2) }}</td>
-                </tr>
-                <tr>
-                    <td class="print-classic__cell-label"><span class="invoice-print-ar" dir="rtl">اجمالي المبلغ المستحق</span> Total Amount Due</td>
-                    <td class="print-classic__cell-value tabular-nums"><strong><x-invoices.sar-symbol /> {{ number_format($tot['net_due_inc_vat'] ?? $tot['total_inc_vat'], 2) }}</strong></td>
-                </tr>
+            <table class="print-classic__totals invoice-print-totals">
+                <x-invoices.print-totals-row en="Total Excluding Vat" ar="الإجمالي (غير شامل ضريبة القيمة المضافة)">
+                    <x-invoices.sar-symbol /> {{ number_format($tot['subtotal_ex_vat'], 2) }}
+                </x-invoices.print-totals-row>
+                <x-invoices.print-totals-row en="Total Taxable Amount" ar="الإجمالي الخاضع للضريبة">
+                    <x-invoices.sar-symbol /> {{ number_format($tot['subtotal_ex_vat'] - ($tot['invoice_discount_ex_vat'] ?? 0), 2) }}
+                </x-invoices.print-totals-row>
+                <x-invoices.print-totals-row en="Total Vat" ar="مجموع ضريبة القيمة المضافة">
+                    <x-invoices.sar-symbol /> {{ number_format($tot['total_vat'], 2) }}
+                </x-invoices.print-totals-row>
+                <x-invoices.print-totals-row en="Total Amount Due" ar="اجمالي المبلغ المستحق" :strong="true">
+                    <x-invoices.sar-symbol /> {{ number_format($tot['net_due_inc_vat'] ?? $tot['total_inc_vat'], 2) }}
+                </x-invoices.print-totals-row>
             </table>
         </div>
 
-        <p class="print-classic__words invoice-print-ar" dir="rtl">{{ $t['amount_words_ar'] }}</p>
+        <div class="invoice-print-words-block">
+            @if (filled($t['amount_words_en'] ?? null))
+                <p class="invoice-print-words-block__en">{{ $t['amount_words_en'] }}</p>
+            @endif
+            @if (filled($t['amount_words_ar'] ?? null))
+                <p class="invoice-print-words-block__ar invoice-print-ar" dir="rtl">{{ $t['amount_words_ar'] }}</p>
+            @endif
+        </div>
 
         <footer class="print-classic__sheet-footer">
             <x-invoices.print-page-label :document-number="$t['document_number']" />

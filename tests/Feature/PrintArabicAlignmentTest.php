@@ -97,7 +97,7 @@ function assertModernArabicPrintCells(string $html): void
 {
     expect($html)
         ->toMatch('/invoice-a4__buyer-table-label ar invoice-print-ar[^>]*dir="rtl"/')
-        ->toMatch('/print-tpl-modern__totals-ar invoice-print-ar[^>]*dir="rtl"/')
+        ->toMatch('/invoice-print-totals__ar invoice-print-ar[^>]*dir="rtl"/')
         ->toMatch('/invoice-a4__desc-ar invoice-print-ar[^>]*dir="rtl"/')
         ->toMatch('/invoice-a4__seller-side--ar invoice-print-ar[^>]*dir="rtl"/');
 }

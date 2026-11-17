@@ -123,12 +123,12 @@ it('inlines the SAR symbol as a dompdf-friendly data URI image', function () {
         ->not->toContain('<svg');
 });
 
-it('keeps modern totals labels on one row in PDF overlay CSS', function () {
-    $wrapped = DocumentPdfRenderer::wrapHtml('<div class="invoice-print-root--pdf"><table class="print-tpl-modern__totals"></table></div>');
+it('keeps modern totals as three fixed columns in PDF overlay CSS', function () {
+    $wrapped = DocumentPdfRenderer::wrapHtml('<div class="invoice-print-root--pdf"><table class="print-tpl-modern__totals invoice-print-totals"></table></div>');
 
     expect($wrapped)
-        ->toContain('.invoice-print-root--pdf .print-tpl-modern__totals-ar{display:inline!important')
-        ->toContain('unicode-bidi:plaintext!important');
+        ->toContain('table-layout:fixed!important')
+        ->toContain('invoice-print-totals__value{white-space:nowrap!important');
 });
 
 it('renders public 404 copy from the locale cookie when session middleware did not run', function () {

@@ -163,9 +163,9 @@
 
 .print-classic__totals {
     display: table;
-    width: auto;
-    min-width: 52%;
-    max-width: 70%;
+    width: 100%;
+    min-width: 62%;
+    max-width: 78%;
     margin-left: auto;
 }
 
@@ -177,14 +177,13 @@
     display: table-cell;
 }
 
-.print-classic__words {
+.print-classic__totals-wrap .invoice-print-totals td {
+    border: 1px solid var(--inv-border);
+}
+
+.print-classic .invoice-print-words-block {
     border: 1px solid var(--inv-border);
     padding: 6px 8px;
-    margin-top: 8px;
-    font-family: Tajawal, sans-serif;
-    font-size: 9pt;
-    direction: rtl;
-    text-align: right;
 }
 
 .print-classic__sheet-footer {
