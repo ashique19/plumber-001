@@ -352,16 +352,17 @@ html[dir='rtl'] .hub-doc-table__actions {
 }
 
 .hub-doc-table__more-panel {
-    position: absolute;
-    inset-inline-end: 0;
-    z-index: 10;
-    margin-top: 0.25rem;
     min-width: 11rem;
     padding: 0.35rem;
     border-radius: 0.5rem;
     border: 1px solid var(--app-border);
     background: var(--app-surface, #fff);
     box-shadow: 0 8px 24px color-mix(in srgb, #000 12%, transparent);
+}
+
+.hub-doc-table__more-panel--teleport {
+    overflow-y: auto;
+    overscroll-behavior: contain;
 }
 
 .hub-doc-table__more-item {
