@@ -16,7 +16,7 @@
     :show="$show"
     :title="__('invoices.add_product')"
     close-wire="$set('showQuickProductModal', false)"
-    size="md"
+    size="lg"
 >
     <form class="x-modal-form" wire:submit.prevent="saveQuickProduct">
         <x-modal.validation-summary :fields="$quickProductFields" />

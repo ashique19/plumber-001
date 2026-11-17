@@ -11,6 +11,7 @@
     $sizeClass = match ($size) {
         'sm' => 'x-modal--sm',
         'lg' => 'x-modal--lg',
+        'xl' => 'x-modal--xl',
         default => 'x-modal--md',
     };
 @endphp

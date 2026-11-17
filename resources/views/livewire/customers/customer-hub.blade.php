@@ -140,7 +140,7 @@
 
     <x-admin.hub-sheet
         class="customer-hub-modal-shell"
-        size="lg"
+        size="xl"
         :show="$showCustomerModal"
         :title="$customerModalTitle"
         close-wire="closeCustomerModal"

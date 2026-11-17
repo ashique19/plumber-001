@@ -198,7 +198,7 @@
             :show="true"
             :title="$editingProductId ? __('catalog.edit_product') : __('catalog.add_product')"
             close-wire='$set("showProductForm", false)'
-            size="lg"
+            size="xl"
             data-testid="catalog-product-modal"
         >
             <form id="catalog-product-form" class="x-modal-form catalog-product-form" wire:submit="saveProduct">
