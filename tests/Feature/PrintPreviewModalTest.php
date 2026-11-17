@@ -61,6 +61,6 @@ it('hides screen toolbar on embedded invoice print and keeps it on direct visit'
     $embedded = (string) $this->get(route('admin.invoices.print', ['invoice' => $invoice, 'layout' => 'a4', 'embed' => 1]))->getContent();
 
     expect($direct)->toContain('data-testid="print-screen-toolbar"')
-        ->toContain('data-print-back')
+        ->toContain('data-testid="print-screen-back"')
         ->and($embedded)->not->toContain('data-testid="print-screen-toolbar"');
 });
