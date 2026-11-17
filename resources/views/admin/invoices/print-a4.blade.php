@@ -4,7 +4,7 @@
 <x-layouts.print>
     @push('head')
         <title>{{ ($t['is_simplified'] ?? false) ? 'Simplified Tax Invoice' : 'Tax Invoice' }} {{ $t['document_number'] }}</title>
-        @vite(['resources/css/invoice-print.css', 'resources/js/receipt.js'])
+        @vite(['resources/css/invoice-print.css', 'resources/js/receipt.js', 'resources/js/invoice-print-preview.js'])
     @endpush
 
     <div class="invoice-print-root invoice-print-sheet" data-invoice-print data-document-number="{{ $t['document_number'] }}">
@@ -151,9 +151,10 @@
 
         <x-invoices.print-qr :tlv="$t['qr_tlv_base64']" :fallback="(bool) ($t['qr_phase1_fallback'] ?? false)" />
 
-        <footer class="invoice-a4__footer print-only" data-seller-en="{{ $t['seller_en'] }}" data-seller-ar="{{ $t['seller_ar'] }}">
+        <footer class="invoice-a4__footer print-only" data-seller-en="{{ $t['seller_en'] }}" data-seller-ar="{{ $t['seller_ar'] }}" data-document-number="{{ $t['document_number'] }}">
             <div>{{ $t['seller_en'] }}</div>
             <div class="invoice-a4__footer-ar">{{ $t['seller_ar'] }}</div>
+            <x-invoices.print-page-label :document-number="$t['document_number']" />
         </footer>
     </div>
 </x-layouts.print>

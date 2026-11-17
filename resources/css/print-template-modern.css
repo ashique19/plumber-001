@@ -168,15 +168,15 @@
         border-top: none;
     }
 
-    .print-tpl-modern .invoice-a4__footer.print-tpl-modern__sheet-footer::after {
-        content: 'Page ' counter(page) ' of ' counter(pages) ' - ' attr(data-document-number);
+    .print-tpl-modern .invoice-a4__footer .invoice-print-page-label {
         position: absolute;
-        right: 12mm;
+        inset-inline-end: 12mm;
         bottom: 6mm;
+        margin: 0;
         font-size: 8pt;
         font-weight: 600;
         color: var(--inv-muted);
-        text-align: right;
+        text-align: end;
     }
 
     .print-tpl-modern__footer-names {

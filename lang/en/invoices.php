@@ -118,6 +118,7 @@ return [
     'riyal_symbol' => 'SAR',
     'unified_number' => 'Unified number',
     'mobile' => 'Mobile',
+    'print_page_of' => 'Page :current of :total',
     'print_a4' => 'Tax invoice (A4)',
     'print_cash' => 'Simplified invoice',
     'layout_a4' => 'A4 tax layout',

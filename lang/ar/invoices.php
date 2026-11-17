@@ -74,6 +74,7 @@ return array (
   'print' => 'طباعة / PDF',
   'create_heading' => 'إنشاء فاتورة',
   'create_print_hint' => 'اختر نوع المستند. بعد الإصدار يمكن التبديل بين فاتورة A4 الضريبية والمبسطة من شاشة الطباعة.',
+  'print_page_of' => 'صفحة :current من :total',
   'print_a4' => 'فاتورة ضريبية (A4)',
   'print_cash' => 'فاتورة مبسطة',
   'layout_a4' => 'تخطيط A4 الضريبي',

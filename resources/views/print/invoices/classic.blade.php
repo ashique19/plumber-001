@@ -31,7 +31,9 @@
                 <x-invoices.print-document-title :t="$tClassic" />
             </div>
             <div class="print-classic__top-right">
-                <div class="print-classic__page-label">Page: <span class="print-classic__page-counter"></span></div>
+                <div class="print-classic__page-label">
+                    <x-invoices.print-page-label :document-number="$t['document_number']" />
+                </div>
                 @if (($t['show_qr'] ?? true) && filled($t['qr_tlv_base64'] ?? null))
                     <x-invoices.print-qr :tlv="$t['qr_tlv_base64']" :fallback="(bool) ($t['qr_phase1_fallback'] ?? false)" />
                 @endif

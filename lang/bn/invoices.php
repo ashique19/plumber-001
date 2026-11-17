@@ -159,6 +159,7 @@ return array (
   'riyal_symbol' => 'SAR',
   'unified_number' => 'একীভূত নম্বর',
   'mobile' => 'মোবাইল',
+  'print_page_of' => 'পৃষ্ঠা :current / :total',
   'print_a4' => 'কর ইনভয়েস (A4)',
   'print_cash' => 'সরলীকৃত ইনভয়েস',
   'layout_a4' => 'A4 কর লেআউট',
