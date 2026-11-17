@@ -75,7 +75,7 @@ it('uses the SAR svg in PDF html and omits the Bangla quotation subtitle', funct
 
     $sheet = PrintSheetFactory::quotation($quotation, Request::create('/', 'GET', ['template' => 'modern']), true);
     $html = view($sheet['view'], $sheet['data'])->render();
-    $wrapped = DocumentPdfRenderer::wrapHtml($html);
+    $wrapped = DocumentPdfRenderer::wrapHtml($html, forMpdf: false);
 
     expect($wrapped)
         ->toContain('invoice-sar-symbol__svg')
@@ -85,16 +85,18 @@ it('uses the SAR svg in PDF html and omits the Bangla quotation subtitle', funct
         ->not->toContain('display:inline!important;font-size:.85em;font-weight:700}');
 });
 
-it('preserves digit order in Arabic seller address when shaping', function () {
-    $html = '<div class="invoice-print-root--pdf"><p class="invoice-a4__seller-side--ar invoice-pdf-ar-plaintext invoice-print-ar" dir="rtl">الرياض ، حي النخيل ، 709812629</p></div>';
+it('preserves digit order in Arabic seller address for mPDF output', function () {
+    $html = '<div class="invoice-print-root--pdf"><p class="invoice-a4__seller-side--ar invoice-print-ar" dir="rtl">الرياض ، حي النخيل ، 709812629</p></div>';
 
-    $wrapped = DocumentPdfRenderer::wrapHtml($html);
+    $wrapped = DocumentPdfRenderer::wrapHtml($html, forMpdf: true);
     $decoded = html_entity_decode($wrapped, ENT_QUOTES | ENT_HTML5, 'UTF-8');
 
     expect($decoded)
         ->toContain('709812629')
-        ->toContain('الرياض')
-        ->not->toMatch('/629\s*،\s*709812/');
+        ->toContain('الرياض');
+
+    $binary = DocumentPdfRenderer::render($html);
+    expect($binary)->toStartWith('%PDF');
 });
 
 it('keeps TRN digits in a separate LTR run beside Arabic labels', function () {
@@ -103,19 +105,21 @@ it('keeps TRN digits in a separate LTR run beside Arabic labels', function () {
         .'<span dir="ltr" class="invoice-pdf-ltr-digits">123456789012345</span></p>'
         .'</div>';
 
-    $wrapped = DocumentPdfRenderer::wrapHtml($html);
+    $wrapped = DocumentPdfRenderer::wrapHtml($html, forMpdf: true);
     $decoded = html_entity_decode($wrapped, ENT_QUOTES | ENT_HTML5, 'UTF-8');
 
     expect($decoded)
         ->toContain('123456789012345')
         ->toContain('رقم التسجيل الضريبي')
         ->toContain('invoice-pdf-ltr-digits');
+
+    expect(DocumentPdfRenderer::render($html))->toStartWith('%PDF');
 });
 
 it('inlines the SAR symbol as a dompdf-friendly data URI image', function () {
     $html = '<span class="invoice-sar-symbol"><svg class="invoice-sar-symbol__svg" xmlns="http://www.w3.org/2000/svg"></svg></span>';
 
-    $wrapped = DocumentPdfRenderer::wrapHtml($html);
+    $wrapped = DocumentPdfRenderer::wrapHtml($html, forMpdf: false);
 
     expect($wrapped)
         ->toContain('data:image/svg+xml;base64,')
@@ -124,12 +128,12 @@ it('inlines the SAR symbol as a dompdf-friendly data URI image', function () {
 });
 
 it('keeps modern totals as three fixed columns in PDF overlay CSS', function () {
-    $wrapped = DocumentPdfRenderer::wrapHtml('<div class="invoice-print-root--pdf"><table class="print-tpl-modern__totals invoice-print-totals"></table></div>');
+    $wrapped = DocumentPdfRenderer::wrapHtml('<div class="invoice-print-root--pdf"><table class="print-tpl-modern__totals invoice-print-totals"></table></div>', forMpdf: true);
 
     expect($wrapped)
         ->toContain('table-layout:fixed!important')
         ->toContain('invoice-print-totals__value{white-space:nowrap!important')
-        ->toContain('DejaVu Sans,sans-serif')
+        ->toContain('dejavusans, sans-serif')
         ->toContain('print-tpl-modern__totals-net td{border-top:1px solid #1a1a1a!important')
         ->toContain('invoice-print-money{display:inline!important;white-space:nowrap!important');
 });

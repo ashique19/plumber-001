@@ -33,13 +33,13 @@
             <div class="invoice-a4__seller-side invoice-a4__seller-side--ar invoice-print-ar" dir="rtl">
                 <strong>{{ $t['seller_ar'] }}</strong>
                 @if ($t['address_ar'])
-                    <p class="m-0 invoice-pdf-ar-plaintext" dir="rtl">{{ $t['address_ar'] }}</p>
+                    <p class="m-0 invoice-print-ar" dir="rtl">{{ $t['address_ar'] }}</p>
                 @endif
                 @if ($t['trn'])
-                    <p class="m-0 invoice-pdf-ar-plaintext" dir="rtl">رقم التسجيل الضريبي <span dir="ltr" class="invoice-pdf-ltr-digits">{{ $t['trn'] }}</span></p>
+                    <p class="m-0 invoice-print-ar" dir="rtl">رقم التسجيل الضريبي <span dir="ltr" class="invoice-pdf-ltr-digits">{{ $t['trn'] }}</span></p>
                 @endif
                 @if ($t['unified_number'])
-                    <p class="m-0 invoice-pdf-ar-plaintext" dir="rtl">الرقم الموحد <span dir="ltr" class="invoice-pdf-ltr-digits">{{ $t['unified_number'] }}</span></p>
+                    <p class="m-0 invoice-print-ar" dir="rtl">الرقم الموحد <span dir="ltr" class="invoice-pdf-ltr-digits">{{ $t['unified_number'] }}</span></p>
                 @endif
             </div>
         </section>
