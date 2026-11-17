@@ -210,8 +210,8 @@
                 <p class="mt-2 text-sm font-medium tabular-nums">
                     {{ __('reports.total_outstanding') }}: {{ number_format($dues['total_outstanding_inc_vat'] ?? 0, 2) }} SAR
                 </p>
-                <div class="mt-4 overflow-x-auto">
-                    <table class="w-full min-w-[32rem] text-left text-sm">
+                <div class="mt-4 overflow-x-auto overscroll-x-contain rounded-lg border border-[var(--app-border)]" data-testid="reports-customers-table">
+                    <table class="w-full min-w-[20rem] text-left text-sm">
                         <thead>
                             <tr class="text-xs uppercase text-[var(--app-muted)]">
                                 <th class="pb-2 pe-4">{{ __('reports.aging_bucket') }}</th>

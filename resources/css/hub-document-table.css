@@ -8,6 +8,10 @@
 .hub-doc-table-scroll {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    background:
+        linear-gradient(var(--app-surface, #fff) 33%, transparent) 0 0 / 1.5rem 100% local,
+        linear-gradient(to right, color-mix(in srgb, #000 12%, transparent), transparent) 0 0 / 0.75rem 100% local,
+        linear-gradient(to left, color-mix(in srgb, #000 12%, transparent), transparent) 100% 0 / 0.75rem 100% local;
 }
 
 .hub-doc-table {
@@ -16,7 +20,10 @@
 }
 
 .hub-doc-table thead th {
-    background: color-mix(in srgb, var(--app-border) 35%, transparent);
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    background: color-mix(in srgb, var(--app-border) 35%, var(--app-surface, #fff));
     font-size: 0.75rem;
     font-weight: 600;
     text-align: start;
@@ -31,17 +38,45 @@
     border-bottom: 1px solid color-mix(in srgb, var(--app-border) 55%, transparent);
 }
 
-.hub-doc-table__sticky {
+.hub-doc-table tbody .hub-doc-table__sticky {
     position: sticky;
     inset-inline-start: 0;
-    z-index: 2;
+    z-index: 1;
     background: var(--app-surface, #fff);
     box-shadow: 1px 0 0 var(--app-border);
 }
 
 .hub-doc-table thead .hub-doc-table__sticky {
-    z-index: 3;
-    background: color-mix(in srgb, var(--app-border) 35%, transparent);
+    position: sticky;
+    inset-inline-start: 0;
+    top: 0;
+    z-index: 4;
+    background: color-mix(in srgb, var(--app-border) 35%, var(--app-surface, #fff));
+}
+
+.hub-doc-table__id-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+}
+
+.hub-doc-table__resend-inline {
+    display: inline-flex;
+}
+
+.hub-doc-table__resend-desktop {
+    display: none;
+}
+
+@media (min-width: 1024px) {
+    .hub-doc-table__resend-inline {
+        display: none;
+    }
+
+    .hub-doc-table__resend-desktop {
+        display: inline-flex;
+    }
 }
 
 .hub-doc-table__sort {

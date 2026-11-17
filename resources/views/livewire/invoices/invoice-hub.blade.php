@@ -115,9 +115,25 @@
                         $invoice = $row['invoice'];
                         $urls = $row['print_urls'];
                         $paymentKey = $row['payment_status']->value;
+                        $a = $row['actions'];
                     @endphp
                     <tr wire:key="inv-{{ $invoice->id }}">
-                        <td class="hub-doc-table__sticky font-semibold tabular-nums">{{ $invoice->document_number }}</td>
+                        <td class="hub-doc-table__sticky font-semibold tabular-nums">
+                            <div class="hub-doc-table__id-cell">
+                                <span>{{ $invoice->document_number }}</span>
+                                @if (($a['resend_zatca'] ?? false) && ($canResubmitZatca ?? false))
+                                    <button
+                                        type="button"
+                                        class="hub-doc-table__action hub-doc-table__action--accent hub-doc-table__resend-inline"
+                                        wire:click="resubmitInvoice({{ $invoice->id }})"
+                                        wire:loading.attr="disabled"
+                                        wire:target="resubmitInvoice({{ $invoice->id }})"
+                                    >
+                                        {{ __('invoices.action_resend_zatca') }}
+                                    </button>
+                                @endif
+                            </div>
+                        </td>
                         <td class="tabular-nums whitespace-nowrap">{{ $invoice->issued_at?->format('Y-m-d') ?? ($invoice->created_at?->format('Y-m-d') ?? '—') }}</td>
                         <td class="max-w-[12rem] truncate" title="{{ $row['customer'] }}">{{ $row['customer'] }}</td>
                         <td class="hub-doc-table__amount"><x-invoices.sar-symbol /> {{ number_format($row['total_inc_vat'], 2) }}</td>
@@ -149,7 +165,6 @@
                                 @if ($row['zatca_error']) title="{{ $row['zatca_error'] }}" @endif
                             >{{ __('invoices.zatca_badge.'.$row['zatca_badge']) }}</span>
                         </td>
-                        @php $a = $row['actions']; @endphp
                         <td>
                             <div class="hub-doc-table__actions">
                                 @if ($a['view'] ?? false)
@@ -174,7 +189,7 @@
                                 @if (($a['resend_zatca'] ?? false) && ($canResubmitZatca ?? false))
                                     <button
                                         type="button"
-                                        class="hub-doc-table__action hub-doc-table__action--accent"
+                                        class="hub-doc-table__action hub-doc-table__action--accent hub-doc-table__resend-desktop"
                                         wire:click="resubmitInvoice({{ $invoice->id }})"
                                         wire:loading.attr="disabled"
                                         wire:target="resubmitInvoice({{ $invoice->id }})"
