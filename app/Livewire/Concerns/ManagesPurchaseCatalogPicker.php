@@ -8,6 +8,7 @@ use App\Models\ProductCategory;
 use App\Models\ProductUnit;
 use App\Support\Catalog\CatalogUnitsSizesSchema;
 use App\Support\Catalog\ProductSkuGenerator;
+use App\Support\Invoicing\DocumentCreateUiSupport;
 use App\Support\Invoicing\InvoicingCatalogLookup;
 use App\Support\Inventory\ProductStockSchema;
 use Illuminate\Support\Collection;
@@ -90,7 +91,7 @@ trait ManagesPurchaseCatalogPicker
         if ($this->lines[$index]['unit_cost'] === '') {
             $this->lines[$index]['unit_cost'] = (string) round((float) $product->cost_ex_vat, 2);
         }
-        $this->lines[$index]['vat_rate'] = (string) $product->vat_rate;
+        $this->lines[$index]['vat_rate'] = DocumentCreateUiSupport::normalizeLineVatRate(null, $product->vat_rate);
     }
 
     public function openQuickProductModal(): void

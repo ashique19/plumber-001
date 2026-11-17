@@ -195,7 +195,6 @@
 }
 
 .document-product-lines-scroll {
-    display: none;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     margin: 0.25rem -0.25rem 0;
@@ -227,16 +226,6 @@
     padding: 0.65rem 0.5rem;
     vertical-align: middle;
     border-bottom: 1px solid color-mix(in srgb, var(--app-border) 70%, transparent);
-}
-
-@media (min-width: 768px) {
-    .document-product-lines-scroll {
-        display: block;
-    }
-
-    .document-product-line-cards {
-        display: none;
-    }
 }
 
 .document-product-line-cards {

@@ -8,6 +8,7 @@ use App\Models\ProductCategory;
 use App\Models\ProductUnit;
 use App\Support\Catalog\CatalogUnitsSizesSchema;
 use App\Support\Catalog\ProductSkuGenerator;
+use App\Support\Invoicing\DocumentCreateUiSupport;
 use App\Support\Invoicing\InvoicingCatalogLookup;
 use App\Support\Inventory\ProductStockSchema;
 use Illuminate\Support\Collection;
@@ -174,7 +175,7 @@ trait ManagesInvoicingCatalogPicker
             'name_bn' => $nameBn,
             'quantity' => $this->lines[$lineIndex]['quantity'] !== '' ? $this->lines[$lineIndex]['quantity'] : '1',
             'unit_price' => (string) $product->price_ex_vat,
-            'vat_rate' => (string) $product->vat_rate,
+            'vat_rate' => DocumentCreateUiSupport::normalizeLineVatRate(null, $product->vat_rate),
             'discount_percent' => (string) ($this->lines[$lineIndex]['discount_percent'] ?? '0'),
             'product_id' => $product->id,
             'unit_label' => $product->unitPickerLabel(),

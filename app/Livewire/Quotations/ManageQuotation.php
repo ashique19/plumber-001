@@ -486,9 +486,10 @@ class ManageQuotation extends Component
               $this->lines[$index]['unit_price'] = (string) $product->price_ex_vat;
           }
 
-          if (trim((string) ($this->lines[$index]['vat_rate'] ?? '')) === '') {
-              $this->lines[$index]['vat_rate'] = (string) $product->vat_rate;
-          }
+          $this->lines[$index]['vat_rate'] = \App\Support\Invoicing\DocumentCreateUiSupport::normalizeLineVatRate(
+              $this->lines[$index]['vat_rate'] ?? '',
+              $product->vat_rate,
+          );
       }
   }
 
