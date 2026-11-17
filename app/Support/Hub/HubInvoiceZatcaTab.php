@@ -45,11 +45,7 @@ final class HubInvoiceZatcaTab
 
         $effective = $zatcaStatus !== '' ? $zatcaStatus : $reporting;
 
-        if (in_array($effective, self::successReportingStatuses(), true)) {
-            return true;
-        }
-
-        return filled(data_get($invoice->payload, 'zheart_zatca'));
+        return in_array($effective, self::successReportingStatuses(), true);
     }
 
     public static function isFailed(Invoice $invoice): bool
@@ -138,8 +134,7 @@ final class HubInvoiceZatcaTab
         $query->where('payload->zheart_remote_submitted', true)
             ->where(function (Builder $q) use ($success): void {
                 $q->whereIn('payload->zheart_reporting_status', $success)
-                    ->orWhereIn('payload->zheart_zatca->status', $success)
-                    ->orWhereNotNull('payload->zheart_zatca');
+                    ->orWhereIn('payload->zheart_zatca->status', $success);
             });
     }
 
