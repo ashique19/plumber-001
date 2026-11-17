@@ -32,12 +32,6 @@
                 @if ($t['address_en'])
                     <p class="m-0">{{ $t['address_en'] }}</p>
                 @endif
-                @if ($t['trn'])
-                    <p class="m-0"><x-invoices.print-label en="VAT No." ar="الرقم الضريبي" />: {{ $t['trn'] }}</p>
-                @endif
-                @if ($t['cr_number'])
-                    <p class="m-0"><x-invoices.print-label en="CR No." ar="السجل التجاري" />: {{ $t['cr_number'] }}</p>
-                @endif
             </div>
             <div>
                 @if ($t['logo_url'])
@@ -49,66 +43,60 @@
                 @if ($t['address_ar'])
                     <p class="m-0">{{ $t['address_ar'] }}</p>
                 @endif
-                @if ($t['mobile'])
-                    <p class="m-0"><x-invoices.print-label en="Mobile" ar="الجوال" />: {{ $t['mobile'] }}@if($t['mobile_secondary']) / {{ $t['mobile_secondary'] }}@endif</p>
-                @endif
             </div>
         </section>
+        <div class="invoice-print-seller-ids">
+            @if ($t['trn'])
+                <x-invoices.print-labeled-row en="VAT No." ar="الرقم الضريبي" :value="$t['trn']" :nowrap="true" />
+            @endif
+            @if ($t['cr_number'])
+                <x-invoices.print-labeled-row en="CR No." ar="السجل التجاري" :value="$t['cr_number']" :nowrap="true" />
+            @endif
+            @if ($t['mobile'])
+                <x-invoices.print-labeled-row en="Mobile" ar="الجوال" :nowrap="true">
+                    {{ $t['mobile'] }}@if ($t['mobile_secondary']) / {{ $t['mobile_secondary'] }}@endif
+                </x-invoices.print-labeled-row>
+            @endif
+        </div>
 
         <x-invoices.print-document-title :t="$t" />
 
-        <div class="invoice-a4__customer">
-            @foreach ([
-                ['en' => 'Customer', 'ar' => 'العميل', 'val' => $t['customer']['name'] ?? null],
-                ['en' => 'Address', 'ar' => 'العنوان', 'val' => $t['customer']['address'] ?? null],
-                ['en' => 'Email', 'ar' => 'البريد', 'val' => $t['customer']['email'] ?? null],
-                ['en' => 'Mobile', 'ar' => 'الجوال', 'val' => $t['customer']['phone'] ?? null],
-                ['en' => 'VAT No.', 'ar' => 'الرقم الضريبي', 'val' => $t['customer']['vat_number'] ?? null],
-                ['en' => 'CR No.', 'ar' => 'السجل التجاري', 'val' => $t['customer']['cr_number'] ?? null],
-                ['en' => 'Invoice No.', 'ar' => 'رقم الفاتورة', 'val' => $t['document_number']],
-                ['en' => 'Issue date', 'ar' => 'تاريخ الإصدار', 'val' => $t['issue_date']],
-                ['en' => 'Supply date', 'ar' => 'تاريخ التوريد', 'val' => $t['supply_date'] ?? null],
-                ['en' => 'Due date', 'ar' => 'تاريخ الاستحقاق', 'val' => $t['due_date'] ?? null],
-            ] as $row)
-                @if (filled($row['val'] ?? null))
-                    <div>
-                        <span class="invoice-a4__customer-label">
-                            {{ $row['en'] }}
-                            <span class="ar">{{ $row['ar'] }}</span>
-                        </span>
-                        <div>{{ $row['val'] }}</div>
-                    </div>
-                @endif
-            @endforeach
-        </div>
+        <x-invoices.print-meta-grid :rows="array_values(array_filter([
+            ['en' => 'Invoice No.', 'ar' => 'رقم الفاتورة', 'value' => $t['document_number'], 'nowrap' => true],
+            ['en' => 'Issue date', 'ar' => 'تاريخ الإصدار', 'value' => $t['issue_date']],
+            ['en' => 'Supply date', 'ar' => 'تاريخ التوريد', 'value' => $t['supply_date'] ?? null],
+            ['en' => 'Due date', 'ar' => 'تاريخ الاستحقاق', 'value' => $t['due_date'] ?? null],
+        ], fn (array $row): bool => filled($row['value'] ?? null)))" />
 
-        <table class="invoice-a4__table">
+        <x-invoices.print-buyer-table :rows="\App\Support\Invoicing\BuyerPrintBlock::rows($t['customer'] ?? null)" />
+
+        <table class="invoice-a4__table invoice-a4__table--product-lines">
             <thead>
                 <tr>
-                    <th>#<span class="ar">م</span></th>
-                    <th>Description<span class="ar">الوصف</span></th>
-                    <th>Qty<span class="ar">الكمية</span></th>
-                    <th>Unit price<span class="ar">سعر الوحدة</span></th>
-                    <th>Taxable<span class="ar">الخاضع</span></th>
-                    <th>VAT<span class="ar">الضريبة</span></th>
-                    <th>Total<span class="ar">الإجمالي</span></th>
+                    <th class="col-index" scope="col"><x-invoices.print-th-label en="#" ar="م" align="center" /></th>
+                    <th class="col-desc" scope="col"><x-invoices.print-th-label en="Description" ar="الوصف" /></th>
+                    <th class="col-num" scope="col"><x-invoices.print-th-label en="Qty" ar="الكمية" align="end" /></th>
+                    <th class="col-num" scope="col"><x-invoices.print-th-label en="Unit price" ar="سعر الوحدة" align="end" /></th>
+                    <th class="col-num" scope="col"><x-invoices.print-th-label en="Taxable" ar="الخاضع" align="end" /></th>
+                    <th class="col-num" scope="col"><x-invoices.print-th-label en="VAT" ar="الضريبة" align="end" /></th>
+                    <th class="col-num" scope="col"><x-invoices.print-th-label en="Total" ar="الإجمالي" align="end" /></th>
                 </tr>
             </thead>
             <tbody>
                 @foreach ($t['lines'] as $line)
                     <tr>
-                        <td>{{ $line['line_no'] }}</td>
-                        <td>
+                        <td class="col-index tabular-nums">{{ $line['line_no'] }}</td>
+                        <td class="col-desc">
                             <div class="invoice-a4__desc-en">{{ $line['name_en'] }}</div>
                             @if ($line['name_ar'])
-                                <div class="invoice-a4__desc-ar">{{ $line['name_ar'] }}</div>
+                                <div class="invoice-a4__desc-ar invoice-print-ar" dir="rtl">{{ $line['name_ar'] }}</div>
                             @endif
                         </td>
-                        <td class="tabular-nums">{{ $line['quantity_display'] }}</td>
-                        <td class="tabular-nums"><x-invoices.sar-symbol /> {{ number_format($line['unit_price_ex_vat'], 2) }}</td>
-                        <td class="tabular-nums"><x-invoices.sar-symbol /> {{ number_format($line['taxable_ex_vat'], 2) }}</td>
-                        <td class="tabular-nums">{{ number_format($line['vat_rate'], 0) }}% · <x-invoices.sar-symbol /> {{ number_format($line['vat_amount'], 2) }}</td>
-                        <td class="tabular-nums"><x-invoices.sar-symbol /> {{ number_format($line['line_amount_inc_vat'], 2) }}</td>
+                        <td class="col-num tabular-nums">{{ $line['quantity_display'] }}</td>
+                        <td class="col-num tabular-nums"><x-invoices.sar-symbol /> {{ number_format($line['unit_price_ex_vat'], 2) }}</td>
+                        <td class="col-num tabular-nums"><x-invoices.sar-symbol /> {{ number_format($line['taxable_ex_vat'], 2) }}</td>
+                        <td class="col-num tabular-nums">{{ number_format($line['vat_rate'], 0) }}% · <x-invoices.sar-symbol /> {{ number_format($line['vat_amount'], 2) }}</td>
+                        <td class="col-num tabular-nums"><x-invoices.sar-symbol /> {{ number_format($line['line_amount_inc_vat'], 2) }}</td>
                     </tr>
                 @endforeach
             </tbody>

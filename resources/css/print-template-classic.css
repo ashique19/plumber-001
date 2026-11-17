@@ -98,6 +98,16 @@
     font-size: 7.5pt;
     font-weight: 700;
     text-align: center;
+    vertical-align: middle;
+}
+
+.print-classic__lines td.col-index {
+    text-align: center;
+}
+
+.print-classic__lines td.col-num {
+    text-align: end;
+    font-variant-numeric: tabular-nums;
 }
 
 .print-classic__lines thead th .ar {

@@ -8,13 +8,8 @@
     border-bottom: none;
 }
 
-.print-tpl-modern__lines thead th .ar {
-    display: block;
-    direction: rtl;
-    text-align: right;
-    font-family: Tajawal, sans-serif;
+.print-tpl-modern__lines thead th .invoice-print-th-label__ar {
     font-size: 7.5pt;
-    font-weight: 600;
 }
 
 .print-tpl-modern__lines tbody tr {
@@ -22,7 +17,7 @@
 }
 
 .print-tpl-modern__vat-cell {
-    text-align: center;
+    text-align: end;
     line-height: 1.25;
 }
 
