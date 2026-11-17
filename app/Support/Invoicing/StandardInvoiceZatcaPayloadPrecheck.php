@@ -33,24 +33,7 @@ final class StandardInvoiceZatcaPayloadPrecheck
     public static function validatePayload(array $payload): array
     {
         $issues = [];
-
-        $vat = preg_replace('/\D/', '', (string) ($payload['buyer_vat'] ?? '')) ?? '';
-        $cr = trim((string) ($payload['buyer_cr'] ?? ''));
-
-        if ($vat === '' && $cr === '') {
-            $issues[] = __('invoices.zatca_precheck.buyer_vat_or_cr');
-        } else {
-            if ($vat === '') {
-                $issues[] = __('invoices.zatca_precheck.buyer_vat');
-            } elseif (! Validator::make(['vat' => $vat], ['vat' => [new SaudiVatNumber]])->passes()) {
-                $issues[] = __('invoices.zatca_precheck.buyer_vat_invalid');
-            }
-            if ($cr === '') {
-                $issues[] = __('invoices.zatca_precheck.buyer_cr');
-            } elseif (! preg_match('/^\d{1,10}$/', $cr)) {
-                $issues[] = __('invoices.zatca_precheck.buyer_cr_invalid');
-            }
-        }
+        $issues = array_merge($issues, self::buyerIdentityIssues($payload));
 
         $address = (array) ($payload['buyer_national_address'] ?? []);
 
@@ -82,6 +65,55 @@ final class StandardInvoiceZatcaPayloadPrecheck
         $supply = trim((string) ($payload['supply_date'] ?? ''));
         if ($supply === '') {
             $issues[] = __('invoices.zatca_precheck.supply_date');
+        }
+
+        return $issues;
+    }
+
+    /**
+     * Mirrors {@see \App\Services\Invoicing\ZHeart\ZHeartInvoicePayloadBuilder::buyerBlock} ID rules.
+     *
+     * @param  array<string, mixed>  $payload
+     * @return list<string>
+     */
+    private static function buyerIdentityIssues(array $payload): array
+    {
+        $issues = [];
+
+        $vatRegistered = (bool) ($payload['buyer_vat_registered'] ?? false);
+        $vat = preg_replace('/\D/', '', (string) ($payload['buyer_vat'] ?? '')) ?? '';
+        $altType = strtoupper(trim((string) ($payload['buyer_alt_id_type'] ?? '')));
+        $altNumber = trim((string) ($payload['buyer_alt_id_number'] ?? ''));
+        $cr = trim((string) ($payload['buyer_cr'] ?? ''));
+        if ($altType === 'CRN' && $altNumber !== '') {
+            $cr = $cr !== '' ? $cr : $altNumber;
+        }
+
+        if (! $vatRegistered && $vat !== '') {
+            $vatRegistered = true;
+        }
+        if (! $vatRegistered && $altType === '' && $cr !== '') {
+            $altType = 'CRN';
+            $altNumber = $cr;
+        }
+
+        if ($vatRegistered) {
+            if ($vat === '') {
+                $issues[] = __('invoices.zatca_precheck.buyer_vat');
+            } elseif (! Validator::make(['vat' => $vat], ['vat' => [new SaudiVatNumber]])->passes()) {
+                $issues[] = __('invoices.zatca_precheck.buyer_vat_invalid');
+            }
+            if ($cr !== '' && ! preg_match('/^\d{1,10}$/', $cr)) {
+                $issues[] = __('invoices.zatca_precheck.buyer_cr_invalid');
+            }
+
+            return $issues;
+        }
+
+        if ($altType === '' || $altNumber === '') {
+            $issues[] = __('invoices.zatca_precheck.buyer_vat_or_cr');
+        } elseif ($altType === 'CRN' && ! preg_match('/^\d{1,10}$/', $altNumber)) {
+            $issues[] = __('invoices.zatca_precheck.buyer_cr_invalid');
         }
 
         return $issues;
