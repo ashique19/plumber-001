@@ -161,7 +161,86 @@ it('surfaces api errors from z-heart on resubmit', function () {
     expect($result->ok)->toBeFalse()
         ->and($result->flashLevel)->toBe('error');
 
-    expect(data_get($invoice->fresh()->payload, 'zheart_last_error'))->not->toBeEmpty();
+    $fresh = $invoice->fresh();
+    expect(data_get($fresh->payload, 'zheart_last_error'))->not->toBeEmpty()
+        ->and(data_get($fresh->payload, 'zheart_last_http_status'))->toBe(503);
+});
+
+it('always posts to invoices clear for pending standard invoices with signed xml', function () {
+    Http::fake([
+        'https://z-heart.test/api/v1/invoices/clear' => Http::response([
+            'status' => 'ok',
+            'data' => [
+                'signed_xml' => base64_encode('<Invoice/>'),
+                'uuid' => '550e8400-e29b-41d4-a716-446655440077',
+                'zatca' => ['status' => 'pending'],
+                'reporting_status' => 'pending',
+            ],
+        ], 200),
+    ]);
+
+    $invoice = clearancePendingStandardInvoice('STD-CLEAR-POST');
+    Invoice::withoutEvents(function () use ($invoice): void {
+        $invoice->forceFill([
+            'icv' => null,
+            'invoice_hash' => null,
+        ])->save();
+    });
+
+    app(InvoiceZatcaResubmitService::class)->resubmit($invoice->fresh());
+
+    Http::assertSent(fn (\Illuminate\Http\Client\Request $request): bool => $request->method() === 'POST'
+        && str_contains($request->url(), '/api/v1/invoices/clear'));
+    Http::assertSentCount(1);
+});
+
+it('clears a stale in-flight flag and still posts clearance to z-heart', function () {
+    Http::fake([
+        'https://z-heart.test/api/v1/invoices/clear' => Http::response([
+            'status' => 'ok',
+            'data' => [
+                'signed_xml' => base64_encode('<Invoice/>'),
+                'uuid' => '550e8400-e29b-41d4-a716-446655440077',
+                'zatca' => ['status' => 'pending'],
+                'reporting_status' => 'pending',
+            ],
+        ], 200),
+    ]);
+
+    $invoice = clearancePendingStandardInvoice('STD-CLEAR-FLIGHT');
+    Invoice::withoutEvents(function () use ($invoice): void {
+        $invoice->forceFill([
+            'payload' => array_merge($invoice->payload ?? [], [
+                'zheart_submission_in_flight' => true,
+            ]),
+        ])->save();
+    });
+
+    app(InvoiceZatcaResubmitService::class)->resubmit($invoice->fresh());
+
+    expect(data_get($invoice->fresh()->payload, 'zheart_submission_in_flight'))->toBeNull();
+    Http::assertSentCount(1);
+});
+
+it('surfaces z-heart 422 validation on flash and stored http status', function () {
+    Http::fake([
+        'https://z-heart.test/api/v1/invoices/clear' => Http::response([
+            'status' => 'error',
+            'message' => 'Invoice hash mismatch',
+            'data' => ['error' => 'validation_failed'],
+        ], 422, ['X-Request-Id' => 'req-422']),
+    ]);
+
+    $invoice = clearancePendingStandardInvoice('STD-CLEAR-422');
+
+    $result = app(InvoiceZatcaResubmitService::class)->resubmit($invoice);
+    $fresh = $invoice->fresh();
+
+    expect($result->ok)->toBeFalse()
+        ->and($result->userMessage)->toContain('422')
+        ->and($result->userMessage)->toContain('Invoice hash mismatch')
+        ->and(data_get($fresh->payload, 'zheart_last_http_status'))->toBe(422)
+        ->and(data_get($fresh->payload, 'zheart_request_id'))->toBe('req-422');
 });
 
 it('maps resubmit outcomes to flash keys on the invoice view controller', function () {

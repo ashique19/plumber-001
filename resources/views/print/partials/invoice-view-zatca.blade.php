@@ -53,6 +53,12 @@
                         <span dir="ltr">{{ $zatcaResponseDisplay['request_id'] }}</span>
                     </p>
                 @endif
+                @if (filled($zatcaResponseDisplay['http_status'] ?? null))
+                    <p class="m-0 text-xs text-[var(--app-muted)]" data-testid="invoice-zatca-http-status">
+                        {{ __('invoices.zatca_view_http_status') }}:
+                        <span dir="ltr">{{ $zatcaResponseDisplay['http_status'] }}</span>
+                    </p>
+                @endif
                 @if (($zatcaResponseDisplay['messages'] ?? []) !== [])
                     <ul class="m-0 list-disc ps-5 text-[var(--app-text)]">
                         @foreach ($zatcaResponseDisplay['messages'] as $line)

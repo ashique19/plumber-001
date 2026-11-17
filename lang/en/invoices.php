@@ -101,6 +101,8 @@ return [
     'zatca_view_last_status' => 'Last Z-Heart status',
     'zatca_view_last_submitted' => 'Last submission',
     'zatca_view_request_id' => 'Request id',
+    'zatca_view_http_status' => 'HTTP status',
+    'zatca_resubmit_http_failed' => 'Z-Heart returned HTTP :status — :reason',
     'zatca_view_errors' => 'Errors',
     'zatca_view_warnings' => 'Warnings',
     'zatca_resubmit_failed' => 'ZATCA submission failed. Try again or check Z-Heart.',

@@ -11,6 +11,7 @@ final class ZatcaResponseDisplay
      *     status: ?string,
      *     submitted_at: ?string,
      *     request_id: ?string,
+     *     http_status: ?int,
      *     messages: list<string>,
      *     warnings: list<string>,
      *     errors: list<string>,
@@ -46,6 +47,9 @@ final class ZatcaResponseDisplay
                 ? data_get($invoice->payload, 'zheart_zatca_submitted_at')
                 : (is_string(data_get($invoice->payload, 'zheart_last_error_at')) ? data_get($invoice->payload, 'zheart_last_error_at') : null),
             'request_id' => is_string(data_get($invoice->payload, 'zheart_request_id')) ? data_get($invoice->payload, 'zheart_request_id') : null,
+            'http_status' => is_int(data_get($invoice->payload, 'zheart_last_http_status'))
+                ? data_get($invoice->payload, 'zheart_last_http_status')
+                : (is_numeric($raw['http_status'] ?? null) ? (int) $raw['http_status'] : null),
             'messages' => $messages,
             'warnings' => $warnings,
             'errors' => $errors,
