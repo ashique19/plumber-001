@@ -4,9 +4,11 @@ namespace App\Livewire\Admin;
 
 use App\Models\StaffUser;
 use App\Livewire\Concerns\DispatchesToasts;
+use App\Livewire\Concerns\ValidatesFieldsLive;
 use App\Support\EnabledLocales;
+use App\Support\LocaleCookie;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password as PasswordRule;
 use Illuminate\View\View;
@@ -17,6 +19,7 @@ use Livewire\Component;
 class StaffProfile extends Component
 {
     use DispatchesToasts;
+    use ValidatesFieldsLive;
     public string $name = '';
 
     public string $email = '';
@@ -43,18 +46,11 @@ class StaffProfile extends Component
         /** @var StaffUser $user */
         $user = Auth::guard('staff')->user();
 
-        $validated = $this->validate([
-            'name' => ['required', 'string', 'max:120'],
-            'email' => ['required', 'email', 'max:190', Rule::unique('staff_users', 'email')->ignore($user->id)],
-            'password' => ['nullable', 'confirmed', PasswordRule::defaults()],
-            'locale' => ['required', Rule::in(EnabledLocales::codes())],
-        ], [], [
-            'name' => __('profile.name'),
-            'email' => __('profile.email'),
-            'password' => __('profile.password'),
-            'password_confirmation' => __('profile.password_confirm'),
-            'locale' => __('profile.language'),
-        ]);
+        $validated = $this->validate(
+            $this->profileValidationRules($user->id),
+            [],
+            $this->profileValidationAttributes(),
+        );
 
         $user->forceFill([
             'name' => $validated['name'],
@@ -69,10 +65,49 @@ class StaffProfile extends Component
 
         session()->put('locale', $validated['locale']);
         app()->setLocale($validated['locale']);
+        Cookie::queue(Cookie::forever(LocaleCookie::NAME, $validated['locale']));
 
         $this->password = '';
         $this->password_confirmation = '';
         $this->toastSuccess(__('profile.saved'));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function liveValidationRules(): array
+    {
+        /** @var StaffUser $user */
+        $user = Auth::guard('staff')->user();
+
+        return $this->profileValidationRules($user->id);
+    }
+
+    /**
+     * @return array<string, list<mixed>>
+     */
+    private function profileValidationRules(int $userId): array
+    {
+        return [
+            'name' => ['required', 'string', 'max:120'],
+            'email' => ['required', 'email', 'max:190', Rule::unique('staff_users', 'email')->ignore($userId)],
+            'password' => ['nullable', 'string', 'confirmed', PasswordRule::defaults()],
+            'locale' => ['required', Rule::in(EnabledLocales::codes())],
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function profileValidationAttributes(): array
+    {
+        return [
+            'name' => __('profile.name'),
+            'email' => __('profile.email'),
+            'password' => __('profile.password'),
+            'password_confirmation' => __('profile.password_confirm'),
+            'locale' => __('profile.language'),
+        ];
     }
 
     public function render(): View

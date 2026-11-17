@@ -11,5 +11,6 @@ return [
     'password_hint' => 'Leave blank to keep your current password.',
     'language' => 'Language',
     'saved' => 'Profile updated.',
+    'save' => 'Save profile',
     'open' => 'Open profile',
 ];
