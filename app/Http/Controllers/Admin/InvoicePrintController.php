@@ -13,6 +13,7 @@ use App\Support\Invoicing\PrintTemplateResolver;
 use App\Support\Hub\HubInvoiceRowActions;
 use App\Support\Hub\HubInvoiceZatcaResubmitCopy;
 use App\Support\Hub\HubInvoiceZatcaTab;
+use App\Support\Invoicing\PrintScreenBackUrl;
 use App\Support\Invoicing\ZatcaResponseDisplay;
 use App\Support\Invoicing\ZatcaSubmissionStatus;
 use Illuminate\Http\RedirectResponse;
@@ -54,11 +55,19 @@ class InvoicePrintController extends Controller
             $t = InvoicePrintPresenter::fromInvoice($business, $invoice, $branch);
         }
 
+        $returnQuery = $request->query(PrintScreenBackUrl::RETURN_PARAM);
+        $returnParams = is_string($returnQuery) && $returnQuery !== ''
+            ? [PrintScreenBackUrl::RETURN_PARAM => $returnQuery]
+            : [];
+
         $baseParams = array_filter([
             'locale' => $locale !== config('locales.default') ? $locale : null,
         ]);
 
-        $printRoute = fn (string $l) => route('admin.invoices.print', array_merge([$invoice], $baseParams, ['layout' => $l]));
+        $printRoute = fn (string $l) => route(
+            'admin.invoices.print',
+            array_merge([$invoice], $baseParams, $returnParams, ['layout' => $l]),
+        );
 
         if ($layout === 'receipt') {
             if ($order === null) {
@@ -84,11 +93,12 @@ class InvoicePrintController extends Controller
             't' => $t,
             'receiptUrl' => $receiptUrl,
             'zatcaNotSent' => ZatcaSubmissionStatus::invoiceNotSentToZatca($invoice),
-            'fallbackBackUrl' => route('admin.invoices'),
+            'fallbackBackUrl' => PrintScreenBackUrl::invoiceHub($request),
             'pdfUrl' => route('admin.invoices.pdf', ['invoice' => $invoice]),
             'canDownloadPdf' => $canDownloadPdf,
             'canResubmitZatca' => $canResubmitZatca,
             'zatcaResubmitUrl' => route('admin.invoices.zatca-resubmit', ['invoice' => $invoice]),
+            'zatcaResubmitReturn' => is_string($returnQuery) ? $returnQuery : null,
             'zatcaResubmitLabel' => HubInvoiceZatcaResubmitCopy::actionLabel($invoice),
             'zatcaInlineError' => self::inlineZatcaError($invoice),
             'zatcaResponseDisplay' => ZatcaResponseDisplay::forInvoice($invoice),

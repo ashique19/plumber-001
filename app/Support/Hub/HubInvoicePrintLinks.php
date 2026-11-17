@@ -4,6 +4,7 @@ namespace App\Support\Hub;
 
 use App\Enums\InvoiceDocumentType;
 use App\Models\Invoice;
+use App\Support\Invoicing\PrintScreenBackUrl;
 
 final class HubInvoicePrintLinks
 {
@@ -23,19 +24,26 @@ final class HubInvoicePrintLinks
      *     fallback_back: string,
      * }
      */
-    public static function urls(Invoice $invoice): array
+    public static function urls(Invoice $invoice, ?string $returnQuery = null): array
     {
         $layout = self::layout($invoice);
         $base = ['invoice' => $invoice];
+        $return = $returnQuery
+            ? [PrintScreenBackUrl::RETURN_PARAM => $returnQuery]
+            : [];
 
         return [
-            'print' => route('admin.invoices.print', [...$base, 'layout' => $layout]),
-            'view' => route('admin.invoices.print', [...$base, 'layout' => $layout]),
-            'a4' => route('admin.invoices.print', [...$base, 'layout' => 'a4']),
-            'cash' => route('admin.invoices.print', [...$base, 'layout' => 'cash']),
+            'print' => route('admin.invoices.print', [...$base, 'layout' => $layout, ...$return]),
+            'view' => route('admin.invoices.print', [...$base, 'layout' => $layout, ...$return]),
+            'a4' => route('admin.invoices.print', [...$base, 'layout' => 'a4', ...$return]),
+            'cash' => route('admin.invoices.print', [...$base, 'layout' => 'cash', ...$return]),
             'download' => route('admin.invoices.pdf', $base),
             'layout' => $layout,
-            'fallback_back' => route('admin.invoices'),
+            'fallback_back' => PrintScreenBackUrl::listUrlFromEncodedReturn(
+                $returnQuery,
+                'admin.invoices',
+                PrintScreenBackUrl::INVOICE_HUB_KEYS,
+            ),
         ];
     }
 }

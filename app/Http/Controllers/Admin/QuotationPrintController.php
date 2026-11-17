@@ -7,6 +7,7 @@ use App\Models\BusinessSetting;
 use App\Models\Quotation;
 use App\Support\EnabledLocales;
 use App\Support\Invoicing\QuotationPrintPresenter;
+use App\Support\Invoicing\PrintScreenBackUrl;
 use App\Support\Invoicing\PrintTemplateResolver;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -32,7 +33,7 @@ class QuotationPrintController extends Controller
             'cashUrl' => null,
             'a4Url' => null,
             'zatcaNotSent' => false,
-            'fallbackBackUrl' => route('admin.quotations'),
+            'fallbackBackUrl' => PrintScreenBackUrl::quotationHub($request),
             'pdfUrl' => route('admin.quotations.pdf', ['quotation' => $quotation]),
         ]);
     }

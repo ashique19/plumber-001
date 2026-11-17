@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Invoice;
 use App\Services\Invoicing\InvoiceZatcaResubmitService;
 use App\Support\Hub\HubInvoiceRowActions;
+use App\Support\Invoicing\PrintScreenBackUrl;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -19,9 +20,23 @@ final class InvoiceZatcaResubmitController extends Controller
 
         $result = $service->resubmit($invoice);
 
-        $back = (string) $request->headers->get('referer', route('admin.invoices'));
-        if ($back === '' || ! str_starts_with($back, url('/'))) {
-            $back = route('admin.invoices.print', ['invoice' => $invoice, 'layout' => 'a4']);
+        $returnQuery = $request->input('return');
+        $returnParams = is_string($returnQuery) && $returnQuery !== ''
+            ? [PrintScreenBackUrl::RETURN_PARAM => $returnQuery]
+            : [];
+
+        $back = (string) $request->headers->get('referer', '');
+        $printPath = parse_url(route('admin.invoices.print', ['invoice' => $invoice, 'layout' => 'a4']), PHP_URL_PATH);
+        if ($back === '' || ! str_starts_with($back, url('/')) || ($printPath && ! str_contains(parse_url($back, PHP_URL_PATH) ?: '', (string) $printPath))) {
+            $back = route('admin.invoices.print', array_merge(
+                ['invoice' => $invoice, 'layout' => 'a4'],
+                $returnParams,
+            ));
+        } elseif ($returnParams !== []) {
+            $separator = str_contains($back, '?') ? '&' : '?';
+            if (! str_contains($back, PrintScreenBackUrl::RETURN_PARAM.'=')) {
+                $back .= $separator.http_build_query($returnParams);
+            }
         }
 
         if ($result->invoice && $result->userMessage) {

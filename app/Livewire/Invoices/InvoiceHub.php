@@ -17,6 +17,7 @@ use App\Support\Hub\HubInvoiceLifecycleTab;
 use App\Support\Hub\HubInvoiceRowActions;
 use App\Support\Hub\HubInvoiceTableRow;
 use App\Support\Hub\HubInvoiceZatcaTab;
+use App\Support\Invoicing\PrintScreenBackUrl;
 use App\Support\Invoicing\ZatcaSubmissionStatus;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -340,9 +341,14 @@ class InvoiceHub extends Component
         $paginator = $query->paginate($this->adminPerPage());
 
         $ledger = app(InvoiceDuesLedgerService::class);
+        $returnQuery = PrintScreenBackUrl::encodeHubState([
+            'lifecycle' => $this->lifecycleTab,
+            'zatcaTab' => $this->zatcaTab,
+            'typeFilter' => $this->typeFilter,
+        ], PrintScreenBackUrl::INVOICE_HUB_KEYS);
 
         $paginator->getCollection()->transform(
-            fn (Invoice $invoice): array => HubInvoiceTableRow::fromInvoice($invoice, $ledger),
+            fn (Invoice $invoice): array => HubInvoiceTableRow::fromInvoice($invoice, $ledger, $returnQuery),
         );
 
         return $paginator;
