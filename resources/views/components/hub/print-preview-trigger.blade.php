@@ -3,6 +3,7 @@
     'a4Url' => null,
     'cashUrl' => null,
     'pdfUrl' => null,
+    'canDownloadPdf' => null,
     'layout' => 'a4',
     'backUrl' => '',
     'icon',
@@ -24,6 +25,7 @@
     @if ($a4Url) data-print-a4="{{ $a4Url }}" @endif
     @if ($cashUrl) data-print-cash="{{ $cashUrl }}" @endif
     @if ($pdfUrl) data-print-pdf="{{ $pdfUrl }}" @endif
+    data-print-can-download="{{ ($canDownloadPdf ?? true) && filled($pdfUrl) ? '1' : '0' }}"
     data-print-layout="{{ $layout }}"
     data-print-back="{{ $backUrl }}"
     aria-label="{{ $label }}"

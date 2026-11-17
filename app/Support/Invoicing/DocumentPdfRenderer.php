@@ -9,15 +9,19 @@ use Dompdf\Dompdf;
 use Dompdf\Options;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use Mpdf\Config\ConfigVariables;
 use Mpdf\Config\FontVariables;
 use Mpdf\Mpdf;
 
 final class DocumentPdfRenderer
 {
-    public static function download(string $html, string $filename): Response
+    /**
+     * @param  array<string, mixed>  $context
+     */
+    public static function download(string $html, string $filename, array $context = []): Response
     {
-        $binary = self::render($html);
+        $binary = self::render($html, $context);
         $safe = preg_replace('/[^A-Za-z0-9._-]+/', '-', $filename) ?: 'document.pdf';
         if (! str_ends_with(strtolower($safe), '.pdf')) {
             $safe .= '.pdf';
@@ -30,16 +34,32 @@ final class DocumentPdfRenderer
         ]);
     }
 
-    public static function render(string $html): string
+    /**
+     * @param  array<string, mixed>  $context
+     */
+    public static function render(string $html, array $context = []): string
     {
         $wrapped = self::wrapHtml($html, forMpdf: true);
 
         try {
             return self::renderWithMpdf($wrapped);
-        } catch (\Throwable) {
+        } catch (\Throwable $mpdfError) {
+            Log::warning('document_pdf_mpdf_failed', array_merge($context, [
+                'message' => $mpdfError->getMessage(),
+            ]));
+
             $wrappedDompdf = self::wrapHtml($html, forMpdf: false);
 
-            return self::renderWithDompdf($wrappedDompdf);
+            try {
+                return self::renderWithDompdf($wrappedDompdf);
+            } catch (\Throwable $dompdfError) {
+                Log::error('document_pdf_render_failed', array_merge($context, [
+                    'mpdf_message' => $mpdfError->getMessage(),
+                    'dompdf_message' => $dompdfError->getMessage(),
+                ]));
+
+                throw $dompdfError;
+            }
         }
     }
 

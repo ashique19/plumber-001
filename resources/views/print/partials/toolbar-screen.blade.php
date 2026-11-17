@@ -1,5 +1,7 @@
 @php
     $screenToolbar = ! ($isPdf ?? false) && ! request()->boolean('embed');
+    $canDownloadPdf = (bool) ($canDownloadPdf ?? true);
+    $pdfBlockedTitle = __('invoices.pdf_available_after_clearance');
 @endphp
 @if ($screenToolbar)
     <header class="invoice-print-toolbar invoice-print-toolbar--screen no-print flex flex-wrap items-center gap-2 p-2" data-testid="print-screen-toolbar">
@@ -9,7 +11,17 @@
             data-print-back
             data-fallback-url="{{ $fallbackBackUrl ?? route('admin.invoices') }}"
         >{{ __('print.back') }}</button>
-        <button type="button" class="tap-action-primary min-h-11" data-print-trigger>{{ __('pos.print') }}</button>
+        @if ($canDownloadPdf)
+            <button type="button" class="tap-action-primary min-h-11" data-print-trigger>{{ __('pos.print') }}</button>
+        @else
+            <button
+                type="button"
+                class="tap-action-primary min-h-11 opacity-60"
+                disabled
+                title="{{ $pdfBlockedTitle }}"
+                data-testid="print-toolbar-print-disabled"
+            >{{ __('pos.print') }}</button>
+        @endif
         @if ($receiptUrl ?? null)
             <a class="tap-action-muted min-h-11" href="{{ $receiptUrl }}">{{ __('invoices.layout_receipt') }}</a>
         @endif
@@ -22,8 +34,21 @@
         @if (($a4Url ?? null) && $currentPrintLayout !== 'a4')
             <a class="tap-action-muted min-h-11" href="{{ $a4Url }}">{{ __('print.layout_a4') }}</a>
         @endif
-        @if ($pdfUrl ?? null)
-            <a class="tap-action-muted min-h-11" href="{{ $pdfUrl }}" download>{{ __('invoices.action_download_pdf') }}</a>
+        @if ($canDownloadPdf && ($pdfUrl ?? null))
+            <a
+                class="tap-action-muted min-h-11"
+                href="{{ $pdfUrl }}"
+                download
+                data-testid="print-toolbar-download-pdf"
+            >{{ __('invoices.action_download_pdf') }}</a>
+        @elseif ($pdfUrl ?? null)
+            <button
+                type="button"
+                class="tap-action-muted min-h-11 opacity-60"
+                disabled
+                title="{{ $pdfBlockedTitle }}"
+                data-testid="print-toolbar-download-pdf-disabled"
+            >{{ __('invoices.action_download_pdf') }}</button>
         @endif
         @if ($canResubmitZatca ?? false)
             <form

@@ -48,7 +48,8 @@
                 :src="$viewUrl"
                 :a4-url="$printA4Url"
                 :cash-url="$printCashUrl"
-                :pdf-url="$downloadUrl"
+                :pdf-url="($actions['awaiting_clearance'] ?? false) ? $downloadUrl : (($actions['download'] ?? false) ? $downloadUrl : null)"
+                :can-download-pdf="(bool) ($actions['download'] ?? false)"
                 :layout="$printLayout"
                 :back-url="$printBackUrl"
                 test-id="hub-row-action-view"
@@ -68,6 +69,7 @@
                 :a4-url="$printA4Url"
                 :cash-url="$printCashUrl"
                 :pdf-url="$downloadUrl"
+                :can-download-pdf="true"
                 :layout="$printLayout"
                 :back-url="$printBackUrl"
                 test-id="hub-row-action-print"
@@ -77,14 +79,14 @@
                 icon="download"
                 :label="__('invoices.action_download_pdf')"
                 :disabled="true"
-                :tooltip="__('invoices.awaiting_zatca_clearance')"
+                :tooltip="__('invoices.pdf_available_after_clearance')"
                 test-id="hub-row-action-download-disabled"
             />
             <x-hub.row-action-icon
                 icon="print"
                 :label="__('invoices.action_print')"
                 :disabled="true"
-                :tooltip="__('invoices.awaiting_zatca_clearance')"
+                :tooltip="__('invoices.pdf_available_after_clearance')"
                 test-id="hub-row-action-print-disabled"
             />
         @endif

@@ -79,6 +79,8 @@ return [
     'print_not_cleared_notice' => 'This standard invoice is not ZATCA-cleared yet. The QR is hidden until clearance. Download/Print from the hub is disabled until cleared.',
     'pdf_not_cleared' => 'PDF download is unavailable until this standard invoice is ZATCA-cleared.',
     'pdf_not_available' => 'PDF download is only available for issued invoices.',
+    'pdf_available_after_clearance' => 'Available after ZATCA clearance',
+    'pdf_render_failed' => 'Could not generate the PDF. Try again or contact support if it persists.',
     'zatca_tabs_label' => 'ZATCA submission',
     'zatca_tab_all' => 'All',
     'zatca_tab_failed' => 'ZATCA failed',
