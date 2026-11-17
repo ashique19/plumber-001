@@ -28,6 +28,40 @@ it('enlarges the centered print logo and right-aligns Arabic print text', functi
         ->toContain('invoice-sar-symbol__svg');
 });
 
+it('keeps modern totals on one row per amount with English then Arabic labels', function () {
+    $css = (string) file_get_contents(resource_path('css/print-template-modern.css'));
+
+    expect($css)
+        ->toContain('.print-tpl-modern__totals-en')
+        ->toContain('.print-tpl-modern__totals-ar')
+        ->toContain('display: inline')
+        ->not->toContain(".print-tpl-modern__totals-ar {\n    display: block");
+
+    $invoice = Invoice::query()->create([
+        'branch_id' => Branch::query()->first()?->id,
+        'document_number' => 'STD-TOTALS-001',
+        'document_type' => InvoiceDocumentType::Standard,
+        'status' => InvoiceStatus::Issued,
+        'issued_at' => now(),
+        'payload' => [
+            'lines' => [
+                ['name' => 'Pipe', 'quantity' => 1, 'unit_price_ex_vat' => 100, 'vat_rate' => 15],
+            ],
+        ],
+    ]);
+
+    $html = $this->actingAs($this->owner, 'staff')
+        ->get(route('admin.invoices.print', ['invoice' => $invoice, 'layout' => 'a4', 'template' => 'modern']))
+        ->assertOk()
+        ->getContent();
+
+    expect($html)
+        ->toContain('print-tpl-modern__totals')
+        ->toContain('print-tpl-modern__totals-en')
+        ->toContain('print-tpl-modern__totals-ar')
+        ->toContain('print-tpl-modern__totals-value');
+});
+
 it('renders an inline Saudi riyal SVG on invoice print', function () {
     $invoice = Invoice::query()->create([
         'branch_id' => Branch::query()->first()?->id,

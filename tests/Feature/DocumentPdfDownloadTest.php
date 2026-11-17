@@ -9,7 +9,10 @@ use App\Models\Quotation;
 use App\Models\StaffUser;
 use App\Support\Hub\HubInvoicePrintLinks;
 use App\Support\Hub\HubQuotationPrintLinks;
+use App\Support\Invoicing\DocumentPdfRenderer;
+use App\Support\Invoicing\PrintSheetFactory;
 use Database\Seeders\DemoStaffSeeder;
+use Illuminate\Http\Request;
 
 beforeEach(function () {
     $this->withoutVite();
@@ -65,4 +68,64 @@ it('downloads a quotation PDF without opening the print preview', function () {
         ->assertOk()
         ->assertHeader('content-type', 'application/pdf')
         ->assertHeader('content-disposition', 'attachment; filename="QUO-PDF-001.pdf"');
+});
+
+it('wraps PDF HTML with an Arabic-capable default font and SAR fallback, without question-mark glyphs', function () {
+    $invoice = Invoice::query()->create([
+        'branch_id' => Branch::query()->first()?->id,
+        'document_number' => 'STD-PDF-AR-001',
+        'document_type' => InvoiceDocumentType::Standard,
+        'status' => InvoiceStatus::Issued,
+        'issued_at' => now(),
+        'payload' => [
+            'lines' => [
+                [
+                    'name' => 'Service visit',
+                    'name_ar' => 'زيارة صيانة',
+                    'quantity' => 1,
+                    'unit_price_ex_vat' => 50,
+                    'vat_rate' => 15,
+                ],
+            ],
+            'buyer_name' => 'هيئة الزكاة والضريبة والجمارك',
+        ],
+    ]);
+
+    $sheet = PrintSheetFactory::invoice($invoice, Request::create('/', 'GET', ['template' => 'modern']), true);
+    $html = view($sheet['view'], $sheet['data'])->render();
+    $wrapped = DocumentPdfRenderer::wrapHtml($html);
+
+    expect($wrapped)
+        ->toContain('AmiriPdf')
+        ->toContain('invoice-sar-symbol__fallback')
+        ->toContain('display:inline!important')
+        ->not->toContain('???');
+
+    $binary = DocumentPdfRenderer::render($html);
+    expect($binary)
+        ->toStartWith('%PDF')
+        ->and($binary)->not->toContain('???');
+});
+
+it('uses the SAR symbol and a page footer on classic template B prints', function () {
+    $invoice = Invoice::query()->create([
+        'branch_id' => Branch::query()->first()?->id,
+        'document_number' => 'STD-CLASSIC-SAR',
+        'document_type' => InvoiceDocumentType::Standard,
+        'status' => InvoiceStatus::Issued,
+        'issued_at' => now(),
+        'payload' => [
+            'lines' => [
+                ['name' => 'Pipe', 'quantity' => 1, 'unit_price_ex_vat' => 100, 'vat_rate' => 15],
+            ],
+        ],
+    ]);
+
+    $this->actingAs($this->owner, 'staff')
+        ->get(route('admin.invoices.print', ['invoice' => $invoice, 'layout' => 'a4', 'template' => 'classic']))
+        ->assertOk()
+        ->assertSee('invoice-sar-symbol__svg', false)
+        ->assertSee('print-classic__sheet-footer', false)
+        ->assertSee('invoice-print-page-label', false)
+        ->assertDontSee('Page 0 of 0', false);
 });

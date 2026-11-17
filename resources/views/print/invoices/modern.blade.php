@@ -8,7 +8,7 @@
         @vite(['resources/css/invoice-print.css', 'resources/css/print-template-modern.css', 'resources/js/receipt.js', 'resources/js/invoice-print-preview.js'])
     @endpush
 
-    <div class="invoice-print-root invoice-print-sheet print-tpl-modern" data-invoice-print data-document-number="{{ $t['document_number'] }}" data-print-footer-doc="{{ $t['document_number'] }}">
+    <div @class(['invoice-print-root', 'invoice-print-sheet', 'print-tpl-modern', 'invoice-print-root--pdf' => $isPdf ?? false]) data-invoice-print data-document-number="{{ $t['document_number'] }}" data-print-footer-doc="{{ $t['document_number'] }}">
         @include('print.partials.toolbar-invoice')
 
         <div class="print-tpl-modern__intro">
