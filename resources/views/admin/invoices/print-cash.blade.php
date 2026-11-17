@@ -16,6 +16,7 @@
         </header>
 
         @if ($invoice ?? null)
+            @include('print.partials.invoice-draft-lifecycle', ['invoice' => $invoice])
             @include('print.partials.invoice-view-status', ['invoice' => $invoice])
         @endif
 

@@ -6,6 +6,7 @@ use App\Livewire\Concerns\DispatchesToasts;
 use App\Livewire\Concerns\ResolvesBusinessContext;
 use App\Livewire\Concerns\ValidatesFieldsLive;
 use App\Models\Invoice;
+use App\Services\Invoicing\HubDraftInvoiceIssueService;
 use App\Services\Invoicing\InvoiceZatcaResubmitService;
 use App\Support\Hub\HubInvoiceRowActions;
 use App\Support\Hub\HubInvoiceTableRow;
@@ -138,6 +139,32 @@ class InvoiceHub extends Component
         } finally {
             unset($this->resubmitting[$invoiceId]);
         }
+    }
+
+    public function issueDraft(int $invoiceId, HubDraftInvoiceIssueService $service): void
+    {
+        abort_unless(auth('staff')->user()?->can('invoices.issue'), 403);
+
+        $invoice = Invoice::query()->whereKey($invoiceId)->firstOrFail();
+        abort_unless(HubInvoiceRowActions::canIssueDraft($invoice), 403);
+
+        $outcome = $service->issueDraft($invoice);
+        if (! $outcome->ok()) {
+            $this->toastError($outcome->message ?? __('invoices.errors.issue_failed'));
+
+            return;
+        }
+
+        $issued = $outcome->result->invoice;
+        if (! $outcome->result->signingSucceeded) {
+            $this->toastWarning(
+                __('invoices.issue_saved_not_sent_zatca', ['number' => $issued->document_number]),
+                persistent: true,
+                dedupe: false,
+            );
+        }
+
+        $this->toastSuccess(__('invoices.issue_success', ['number' => $issued->document_number]));
     }
 
     public function deleteDraft(int $invoiceId): void

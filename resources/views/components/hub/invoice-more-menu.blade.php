@@ -11,6 +11,7 @@
         || filled($more['duplicate'] ?? null)
         || ($actions['delete_draft'] ?? false)
         || ($actions['edit'] ?? false)
+        || ($actions['issue_draft'] ?? false)
         || (($actions['resend_zatca'] ?? false) && $canResubmitZatca);
 @endphp
 
@@ -26,8 +27,22 @@
             <span class="sr-only">{{ __('invoices.action_more') }}</span>
         </summary>
         <div class="hub-doc-table__more-panel" role="menu">
+            @if ($actions['issue_draft'] ?? false)
+                <button
+                    type="button"
+                    class="hub-doc-table__more-item hub-doc-table__more-item--accent"
+                    role="menuitem"
+                    wire:click="issueDraft({{ $invoiceId }})"
+                    wire:confirm="{{ __('invoices.issue_draft_confirm') }}"
+                    wire:loading.attr="disabled"
+                    wire:target="issueDraft({{ $invoiceId }})"
+                    data-testid="hub-draft-action-issue"
+                >
+                    {{ __('invoices.action_issue_draft') }}
+                </button>
+            @endif
             @if ($actions['edit'] ?? false)
-                <a class="hub-doc-table__more-item" role="menuitem" href="{{ $actions['edit_url'] }}">{{ __('invoices.action_edit') }}</a>
+                <a class="hub-doc-table__more-item" role="menuitem" href="{{ $actions['edit_url'] }}" data-testid="hub-draft-action-edit">{{ __('invoices.action_edit') }}</a>
             @endif
             @if (($actions['record_payment'] ?? false) && filled($more['record_payment'] ?? null))
                 <a class="hub-doc-table__more-item" role="menuitem" href="{{ $more['record_payment'] }}">{{ __('invoices.more_record_payment') }}</a>
@@ -57,6 +72,7 @@
                     role="menuitem"
                     wire:click="deleteDraft({{ $invoiceId }})"
                     wire:confirm="{{ __('invoices.delete_draft_confirm') }}"
+                    data-testid="hub-draft-action-delete"
                 >
                     {{ __('invoices.action_delete_draft') }}
                 </button>
