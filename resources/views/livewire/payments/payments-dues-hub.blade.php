@@ -1,10 +1,10 @@
-<div class="payments-dues pb-24 lg:pb-8">
+<div class="payments-dues min-w-0 max-w-full overflow-x-hidden pb-24 lg:pb-8">
     <header class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
             <h1 class="app-page-title">{{ __('payments.title') }}</h1>
             <p class="app-page-lead">{{ __('payments.subtitle') }}</p>
         </div>
-        <div class="app-kpi-grid w-full max-w-xs sm:w-auto">
+        <div class="w-full min-w-0 sm:max-w-sm">
             <x-app.stat-card
                 :label="__('payments.total_outstanding')"
                 :value="number_format($totalOutstanding, 2).' '.__('dashboard.sar')"

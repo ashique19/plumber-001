@@ -26,6 +26,7 @@ return [
     'name_ar' => 'Name (Arabic)',
     'name_ar_hint' => 'Required on invoices and receipts (Arabic).',
     'name_bn' => 'Name (Bangla)',
+    'name_bn_optional_hint' => 'Optional — if empty, the English name is used on receipts and labels.',
     'description_en' => 'Description (English)',
     'description_ar' => 'Description (Arabic)',
     'description_bn' => 'Description (Bangla)',

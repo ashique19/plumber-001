@@ -376,6 +376,8 @@ class ManageQuotation extends Component
           ),
           'validityDays' => DocumentCreateUiSupport::validityDaysBetween($this->supplyDate, $this->validityUntil),
           'documentNumberLabel' => $this->displayQuotationNumber,
+      ])->layout('layouts.pos', [
+          'pageTitle' => $isEdit ? __('quotations.edit_title') : __('quotations.create_title'),
       ]);
   }
 

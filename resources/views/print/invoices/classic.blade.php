@@ -17,7 +17,7 @@
 <x-layouts.print>
     @push('head')
         <title>{{ \App\Support\Invoicing\DocumentPrintTitles::forContext($t)['en'] }} {{ $t['document_number'] }}</title>
-        @vite(['resources/css/invoice-print.css', 'resources/css/print-template-classic.css', 'resources/js/receipt.js'])
+        @vite(['resources/css/invoice-print.css', 'resources/css/print-template-classic.css', 'resources/js/receipt.js', 'resources/js/invoice-print-preview.js'])
     @endpush
 
     <div class="invoice-print-root invoice-print-sheet print-tpl-classic" data-invoice-print data-document-number="{{ $t['document_number'] }}">

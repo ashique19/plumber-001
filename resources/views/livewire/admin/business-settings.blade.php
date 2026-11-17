@@ -104,11 +104,17 @@
     @elseif ($section === 'invoicing')
         <form class="app-card flex flex-col gap-4 p-4" novalidate wire:keydown.enter.prevent>
             <p class="text-sm text-[var(--app-muted)]">{{ __('business.invoicing.lead') }}</p>
-            @if ($keyHint = \App\Models\BusinessSetting::zheartApiKeyPrefixFromEnv())
-                <p class="text-xs text-[var(--app-muted)]">{{ __('business.invoicing.api_key_configured', ['prefix' => $keyHint]) }}</p>
+            @if (filled(config('zheart.api_key')))
+                <p class="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-950 ring-1 ring-emerald-200">{{ __('business.invoicing.api_key_configured') }}</p>
             @else
                 <p class="rounded-lg bg-amber-50 p-3 text-sm text-amber-900 ring-1 ring-amber-200">{{ __('business.invoicing.api_key_missing') }}</p>
             @endif
+            <p class="rounded-lg bg-[var(--app-surface-muted)]/80 p-3 text-sm text-[var(--app-muted)]">
+                <span class="font-medium text-[var(--app-fg)]">{{ __('business.invoicing.server_auto_submit') }}</span>
+                <span class="mt-1 block">
+                    {{ config('zheart.auto_submit_signed') ? __('business.invoicing.server_auto_submit_on') : __('business.invoicing.server_auto_submit_off') }}
+                </span>
+            </p>
             <x-field.input type="number" min="0" step="1" :label="__('invoices.payment_terms_days')" name="paymentTermsDays" wire:model.live="paymentTermsDays" />
             <div class="grid gap-4 sm:grid-cols-2">
                 <div>

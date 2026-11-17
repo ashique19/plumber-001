@@ -29,7 +29,7 @@
     $showMore = (bool) ($this->{$moreAddressProp} ?? false);
 @endphp
 
-<div class="customer-identity-fields" data-testid="customer-identity-fields">
+<div class="customer-identity-fields grid w-full grid-cols-1 gap-3 md:col-span-2 md:grid-cols-2" data-testid="customer-identity-fields">
     @foreach ($nameBlocks as $block)
         <x-field.input
             :label="__('customers.fields.'.$block['key'])"

@@ -7,7 +7,7 @@
     ];
 @endphp
 
-<nav class="catalog-product-form-tabs app-section-tabs app-section-tabs--scroll -mx-1 mb-4 px-1" role="tablist" aria-label="{{ __('catalog.product_form_tabs_label') }}">
+<nav class="catalog-product-form-tabs app-section-tabs app-section-tabs--scroll shrink-0 -mx-1 mb-4 px-1 pt-5" role="tablist" aria-label="{{ __('catalog.product_form_tabs_label') }}">
     @foreach ($productTabs as $tabKey => $tabLabel)
         <button
             type="button"
@@ -28,6 +28,7 @@
     @endforeach
 </nav>
 
+<div class="catalog-product-form__panels min-h-0 flex-1 overflow-y-auto overscroll-contain px-0 pb-5">
 <div wire:cloak @class(['space-y-3', 'hidden' => $productFormTab !== 'basic'])">
     <x-form.product-image-upload
         :label="__('catalog.product_image.label')"
@@ -54,7 +55,12 @@
         wrapper-class="quick-product-modal__name-field quick-product-modal__name-field--ar"
     />
     @if($catalogI18nReady ?? false)
-        <x-field.input :label="__('catalog.name_bn')" name="productNameBn" wire:model="productNameBn" :required="($catalogUnitsSizesReady ?? false)" />
+        <x-field.input
+            :label="__('catalog.name_bn')"
+            :hint="__('catalog.name_bn_optional_hint')"
+            name="productNameBn"
+            wire:model="productNameBn"
+        />
     @endif
     <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
         @if($catalogUnitsSizesReady ?? false)
@@ -69,22 +75,6 @@
             @endforeach
         </x-field.select>
     </div>
-    @if($catalogUnitsSizesReady ?? false)
-        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <x-field.select :label="__('catalog.unit')" name="productUnitId" wire:model="productUnitId" required>
-                <option value="">{{ __('catalog.none') }}</option>
-                @foreach($activeUnitsForPicker as $unit)
-                    <option value="{{ $unit->id }}">{{ $unit->displayName() }} ({{ $unit->code }})</option>
-                @endforeach
-            </x-field.select>
-            <x-field.select :label="__('catalog.size')" name="productSizeId" wire:model="productSizeId">
-                <option value="">{{ __('catalog.none') }}</option>
-                @foreach($activeSizesForPicker as $size)
-                    <option value="{{ $size->id }}">{{ $size->name }}</option>
-                @endforeach
-            </x-field.select>
-        </div>
-    @endif
     @if($catalogI18nReady ?? false)
         <x-field.textarea :label="__('catalog.description_en')" name="productDescriptionEn" wire:model="productDescriptionEn" />
         <x-field.textarea :label="__('catalog.description_ar')" name="productDescriptionAr" wire:model="productDescriptionAr" dir="rtl" />
@@ -109,7 +99,7 @@
     <x-field.toggle wire:model="productActive" name="productActive" :label="__('catalog.active')" />
 </div>
 
-<div wire:cloak @class(['space-y-3', 'hidden' => $productFormTab !== 'pricing'])">
+<div wire:cloak @class(['space-y-3', 'hidden' => $productFormTab !== 'pricing'])>
     @if($productStockReady ?? false)
         <x-field.input
             type="number"
@@ -141,16 +131,24 @@
     @endif
 </div>
 
-<div wire:cloak @class(['space-y-3', 'hidden' => $productFormTab !== 'stock'])">
+<div wire:cloak @class(['space-y-3', 'hidden' => $productFormTab !== 'stock'])>
     @if($productStockReady ?? false)
         <x-field.toggle wire:model.live="productTrackStock" name="productTrackStock" :label="__('stock.track_stock')" />
         @if($catalogUnitsSizesReady ?? false)
-            <x-field.select :label="__('catalog.unit')" name="productUnitIdStock" wire:model="productUnitId" required>
-                <option value="">{{ __('catalog.none') }}</option>
-                @foreach($activeUnitsForPicker as $unit)
-                    <option value="{{ $unit->id }}">{{ $unit->displayName() }} ({{ $unit->code }})</option>
-                @endforeach
-            </x-field.select>
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <x-field.select :label="__('catalog.unit')" name="productUnitIdStock" wire:model="productUnitId" required>
+                    <option value="">{{ __('catalog.none') }}</option>
+                    @foreach($activeUnitsForPicker as $unit)
+                        <option value="{{ $unit->id }}">{{ $unit->displayName() }} ({{ $unit->code }})</option>
+                    @endforeach
+                </x-field.select>
+                <x-field.select :label="__('catalog.size')" name="productSizeId" wire:model="productSizeId">
+                    <option value="">{{ __('catalog.none') }}</option>
+                    @foreach($activeSizesForPicker as $size)
+                        <option value="{{ $size->id }}">{{ $size->name }}</option>
+                    @endforeach
+                </x-field.select>
+            </div>
         @endif
         @if($productTrackStock && ! $editingProductId)
             <x-field.input
@@ -187,4 +185,5 @@
     @else
         <p class="text-sm text-[var(--app-muted)]">{{ __('catalog.product_stock_unavailable') }}</p>
     @endif
+</div>
 </div>

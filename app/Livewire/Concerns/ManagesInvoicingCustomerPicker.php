@@ -56,6 +56,13 @@ trait ManagesInvoicingCustomerPicker
         $this->customerQuickVatRegistered = filter_var($value, FILTER_VALIDATE_BOOLEAN);
     }
 
+    public function updatedCustomerSearch(string $value): void
+    {
+        if (trim($value) !== '' && property_exists($this, 'addLineProductSearch')) {
+            $this->addLineProductSearch = '';
+        }
+    }
+
     public function customerSearchResults(): Collection
     {
         return InvoicingCustomerLookup::search($this->customerSearch);

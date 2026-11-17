@@ -105,10 +105,10 @@ export function initOwnerAnalytics() {
                 shadeIntensity: 0.5,
                 colorScale: {
                     ranges: [
-                        { from: 0, to: 0, color: theme.latte, name: '0' },
-                        { from: 0.01, to: 50, color: theme.accent, name: 'low' },
-                        { from: 50.01, to: 500, color: theme.primary, name: 'mid' },
-                        { from: 500.01, to: 100000, color: theme.espresso, name: 'high' },
+                        { from: 0, to: 0, color: theme.latte, name: labels.heatmap_zero ?? '0' },
+                        { from: 0.01, to: 50, color: theme.accent, name: labels.heatmap_low ?? 'low' },
+                        { from: 50.01, to: 500, color: theme.primary, name: labels.heatmap_mid ?? 'mid' },
+                        { from: 500.01, to: 100000, color: theme.espresso, name: labels.heatmap_high ?? 'high' },
                     ],
                 },
             },

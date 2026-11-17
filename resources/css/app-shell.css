@@ -665,6 +665,33 @@
         overscroll-behavior-x: contain;
     }
 
+    .catalog-product-form__body.x-modal-form__fields {
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        overflow: hidden;
+    }
+
+    .catalog-admin .app-section-tabs .form-field {
+        width: 100%;
+        min-width: 0;
+    }
+
+    @media (max-width: 639px) {
+        .catalog-admin .app-section-tabs {
+            flex-wrap: wrap;
+        }
+
+        .catalog-admin .app-section-tabs .form-field {
+            flex: 1 1 100%;
+        }
+
+        .catalog-admin .app-section-tabs .form-field__control {
+            width: 100%;
+            min-width: 0;
+        }
+    }
+
     .catalog-product-form-tabs__chip {
         display: inline-flex;
         align-items: center;

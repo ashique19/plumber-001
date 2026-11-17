@@ -2,6 +2,30 @@
     font-size: 9pt;
 }
 
+@media screen and (max-width: 767px) {
+    .invoice-print-preview-host {
+        overflow-x: hidden;
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .invoice-print-root.print-tpl-classic {
+        margin-inline: auto;
+    }
+}
+
+@media print {
+    .invoice-print-root.print-tpl-classic {
+        transform: none !important;
+        width: auto !important;
+    }
+
+    .print-classic__page-counter::after {
+        content: counter(page);
+    }
+}
+
 .print-classic__top {
     display: grid;
     grid-template-columns: 120px 1fr 160px;

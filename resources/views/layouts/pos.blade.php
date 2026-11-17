@@ -32,6 +32,7 @@
         : null;
     $adminNavHasItems = $adminMenu && collect($adminMenu['groups'] ?? [])
         ->flatMap(fn (array $group) => $group['items'] ?? [])
+        ->reject(fn (array $item) => ($item['id'] ?? '') === 'profile')
         ->isNotEmpty();
     $branchParam = $branch ?? ($staffUser ? StaffBranchContext::resolve($staffUser) : null);
     $brandHomeUrl = ($staffUser && $business)
@@ -40,18 +41,15 @@
     app(\Spatie\Permission\PermissionRegistrar::class)->setPermissionsTeamId($business?->id ?? 1);
     $localeSwitchClass = 'shrink-0';
     $contentUsesNoTabbar = ! $adminSidebar;
-    $documentTitle = $pageTitle ?? __('pos.title');
-    $topbarTitle = $documentTitle;
-    if ($adminSidebar && $adminNavHasItems) {
-        $activeNavItem = collect($adminMenu['groups'])
+    $activeNavItem = ($adminSidebar && $adminMenu && $adminNavHasItems)
+        ? collect($adminMenu['groups'])
             ->flatMap(fn (array $group) => $group['items'] ?? [])
-            ->first(fn (array $item) => (bool) ($item['active'] ?? false));
-        if (filled($pageTitle ?? null)) {
-            $topbarTitle = $pageTitle;
-        } elseif ($activeNavItem !== null) {
-            $topbarTitle = $activeNavItem['label'];
-        }
-    }
+            ->first(fn (array $item) => (bool) ($item['active'] ?? false))
+        : null;
+    $topbarTitle = filled($pageTitle ?? null)
+        ? $pageTitle
+        : ($activeNavItem['label'] ?? __('pos.title'));
+    $documentTitle = $topbarTitle;
 @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', $locale) }}" dir="{{ $dir }}" class="scroll-smooth admin-app"
@@ -189,6 +187,17 @@
                             <x-app.icon name="moon" class="h-5 w-5" x-show="! $store.adminTheme.dark" />
                             <x-app.icon name="sun" class="h-5 w-5" x-show="$store.adminTheme.dark" x-cloak />
                         </button>
+                    @endif
+                    @if ($adminSidebar)
+                        <a
+                            href="{{ route('admin.profile') }}"
+                            wire:navigate
+                            class="app-topbar__logout shrink-0 tap-action-muted min-h-10 px-2 sm:px-3"
+                            title="{{ __('profile.open') }}"
+                        >
+                            <x-app.icon name="user" class="h-5 w-5 shrink-0" />
+                            <span class="hidden text-xs sm:inline sm:text-sm">{{ __('profile.nav') }}</span>
+                        </a>
                     @endif
                     <form method="POST" action="{{ route('admin.logout') }}" class="shrink-0">
                         @csrf
