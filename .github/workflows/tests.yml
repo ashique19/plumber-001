@@ -20,8 +20,9 @@ jobs:
           php-version: '8.3'
           extensions: dom, mbstring, pdo_sqlite
           coverage: none
+          cache: true
       - name: Install Composer dependencies
-        run: composer install --no-interaction --prefer-dist
+        run: composer install --no-interaction --prefer-dist --no-progress
       - name: Run suite (sqlite, excluding InstallSql MySQL testsuite)
         run: vendor/bin/pest --testsuite=Unit,Feature
 
@@ -61,8 +62,9 @@ jobs:
           php-version: '8.3'
           extensions: dom, mbstring, pdo_mysql
           coverage: none
+          cache: true
       - name: Install Composer dependencies
-        run: composer install --no-interaction --prefer-dist
+        run: composer install --no-interaction --prefer-dist --no-progress
       - name: Wait for MySQL
         run: |
           for i in {1..30}; do
@@ -75,7 +77,6 @@ jobs:
           vendor/bin/pest --testsuite=InstallSql
 
   playwright-search-icon:
-    if: false
     runs-on: ubuntu-latest
     services:
       mysql:
@@ -102,34 +103,48 @@ jobs:
       E2E_PORT: 8765
       E2E_BASE_URL: http://127.0.0.1:8765
       E2E_ARTIFACTS: ${{ github.workspace }}/e2e-artifacts
+      E2E_SMOKE: ${{ github.event_name == 'pull_request' && '1' || '0' }}
     steps:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
-          extensions: dom, mbstring, pdo_mysql
+          extensions: dom, mbstring, pdo_mysql, gd
           coverage: none
+          cache: true
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: npm
       - name: Install PHP dependencies
-        run: composer install --no-interaction --prefer-dist
+        run: composer install --no-interaction --prefer-dist --no-progress
       - name: Install Node dependencies
-        run: npm ci
-      - name: Build assets
-        run: npm run build
+        run: npm ci --no-audit --no-fund
+      - name: Cache Playwright Chromium
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('package-lock.json') }}
       - name: Install Playwright Chromium
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: npx playwright install --with-deps chromium
+      - name: Install Playwright OS deps
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
       - name: Wait for MySQL
         run: |
           for i in {1..30}; do
             mysqladmin ping -h127.0.0.1 -P3306 -uplumber_e2e -pplumber_e2e_test --silent && break
             sleep 2
           done
-      - name: Playwright admin UI checks
-        run: npm run test:e2e -- tests/e2e/admin/
-      - name: Upload Playwright admin screenshots
+      - name: Playwright smoke (pull requests)
+        if: github.event_name == 'pull_request'
+        run: npm run test:e2e -- tests/e2e/cashier/access.spec.ts
+      - name: Playwright full suite (main)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: npm run test:e2e -- tests/e2e/
+      - name: Upload Playwright screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
