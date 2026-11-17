@@ -88,7 +88,10 @@ it('saves encrypted credentials and masks stored key', function () {
 it('tests connection without leaking the api key in http payload', function () {
     Http::fake([
         'https://z-heart.example.test/api/v1/health' => Http::response(['status' => 'ok'], 200),
-        'https://z-heart.example.test/api/v1/auth' => Http::response(['status' => 'ok'], 200),
+        'https://z-heart.example.test/api/v1/auth' => Http::response([
+            'status' => 'ok',
+            'client' => ['name' => 'Test Client', 'environment' => 'sandbox', 'onboarded' => true],
+        ], 200),
     ]);
 
     $key = 'zh_test1234.AbcdEfGhIjKlMnOpQrStUvWxYz0123456789';
@@ -99,12 +102,32 @@ it('tests connection without leaking the api key in http payload', function () {
         ->set('zheartBaseUrl', 'https://z-heart.example.test')
         ->set('zheartApiKeyInput', $key)
         ->call('testZheartConnection')
-        ->assertSet('zheartTestStatus', 'ok');
+        ->assertSet('zheartTestStatus', 'ok')
+        ->assertSet('zheartTestHttpStatus', 200)
+        ->assertSee('Test Client', false)
+        ->assertSeeHtml('data-testid="business-zheart-test-http-status"');
 
     Http::assertSent(function ($request) use ($key) {
         return $request->hasHeader('Authorization', 'Bearer '.$key)
             && ! str_contains((string) $request->url(), $key);
     });
+});
+
+it('shows warning when auth endpoint returns 404', function () {
+    Http::fake([
+        'https://z-heart.example.test/api/v1/health' => Http::response(['status' => 'ok'], 200),
+        'https://z-heart.example.test/api/v1/auth' => Http::response([], 404),
+    ]);
+
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(BusinessSettings::class)
+        ->set('section', 'invoicing')
+        ->set('zheartBaseUrl', 'https://z-heart.example.test')
+        ->set('zheartApiKeyInput', 'zh_test1234.AbcdEfGhIjKlMnOpQrStUvWxYz0123456789')
+        ->call('testZheartConnection')
+        ->assertSet('zheartTestStatus', 'warn')
+        ->assertSet('zheartTestHttpStatus', 404)
+        ->assertSee(__('business.zheart.test_auth_endpoint_missing'), false);
 });
 
 it('maps legacy zheart section to invoicing tab', function () {

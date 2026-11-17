@@ -44,7 +44,7 @@ final class ZHeartClient
     }
 
     /**
-     * @return array{ok: bool, health_ok: bool, auth_ok: bool, message: string}
+     * @return array{ok: bool, health_ok: bool, auth_ok: bool, message: string, http_status: ?int, severity: 'ok'|'error'|'warn'}
      */
     public function testConnection(?string $baseUrl = null, ?string $apiKey = null): array
     {
@@ -57,12 +57,13 @@ final class ZHeartClient
                 'health_ok' => false,
                 'auth_ok' => false,
                 'message' => __('business.zheart.test_not_configured'),
+                'http_status' => null,
+                'severity' => 'error',
             ];
         }
 
         $timeout = (int) config('zheart.timeout_health_seconds', 5);
         $healthOk = false;
-        $authOk = false;
 
         try {
             $health = Http::timeout($timeout)
@@ -73,32 +74,75 @@ final class ZHeartClient
             $healthOk = false;
         }
 
+        $authStatus = null;
+        /** @var array<string, mixed>|null $authBody */
+        $authBody = null;
+
         try {
             $auth = Http::timeout($timeout)
                 ->acceptJson()
                 ->withToken($apiKey)
                 ->get($base.'/api/v1/auth');
-            $authOk = $auth->successful()
-                && in_array($auth->json('status'), ['ok', 'success'], true);
+            $authStatus = $auth->status();
+            $payload = $auth->json();
+            $authBody = is_array($payload) ? $payload : null;
         } catch (\Throwable) {
-            $authOk = false;
+            $authStatus = null;
         }
 
-        if ($healthOk && $authOk) {
+        if ($authStatus === 200 && is_array($authBody) && ($authBody['status'] ?? '') === 'ok') {
+            $client = is_array($authBody['client'] ?? null) ? $authBody['client'] : [];
+            $onboarded = $client['onboarded'] ?? null;
+            $onboardedLabel = match (true) {
+                $onboarded === true => __('business.zheart.onboarded_yes'),
+                $onboarded === false => __('business.zheart.onboarded_no'),
+                default => __('business.zheart.onboarded_unknown'),
+            };
+
             return [
                 'ok' => true,
-                'health_ok' => true,
+                'health_ok' => $healthOk,
                 'auth_ok' => true,
-                'message' => __('business.zheart.test_success'),
+                'message' => __('business.zheart.test_success_client', [
+                    'name' => (string) ($client['name'] ?? '—'),
+                    'environment' => (string) ($client['environment'] ?? '—'),
+                    'onboarded' => $onboardedLabel,
+                ]),
+                'http_status' => 200,
+                'severity' => 'ok',
             ];
         }
 
-        if ($healthOk && ! $authOk) {
+        if ($authStatus === 404) {
+            return [
+                'ok' => false,
+                'health_ok' => $healthOk,
+                'auth_ok' => false,
+                'message' => __('business.zheart.test_auth_endpoint_missing'),
+                'http_status' => 404,
+                'severity' => 'warn',
+            ];
+        }
+
+        if (in_array($authStatus, [401, 403], true)) {
+            return [
+                'ok' => false,
+                'health_ok' => $healthOk,
+                'auth_ok' => false,
+                'message' => __('business.zheart.test_auth_failed_allowlist'),
+                'http_status' => $authStatus,
+                'severity' => 'error',
+            ];
+        }
+
+        if ($healthOk && $authStatus !== null) {
             return [
                 'ok' => false,
                 'health_ok' => true,
                 'auth_ok' => false,
                 'message' => __('business.zheart.test_auth_failed'),
+                'http_status' => $authStatus,
+                'severity' => 'error',
             ];
         }
 
@@ -107,6 +151,8 @@ final class ZHeartClient
             'health_ok' => $healthOk,
             'auth_ok' => false,
             'message' => __('business.zheart.test_unreachable'),
+            'http_status' => $authStatus,
+            'severity' => 'error',
         ];
     }
 
