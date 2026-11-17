@@ -171,6 +171,8 @@ return [
     'catalog_no_match' => 'No catalog items match your search.',
     'catalog_product_meta' => ':type · :price SAR ex VAT · :vat% VAT',
     'catalog_product_applied' => 'Line filled from “:name”.',
+    'catalog_product_qty_bumped' => '“:name” quantity increased to :qty.',
+    'catalog_product_qty_capped' => '“:name” is at the available stock limit.',
     'product_created_applied' => 'Product saved and added to the document.',
     'catalog_product_missing' => 'That catalog item is no longer available.',
     'manual_line_hint' => 'Pick a catalog product or type a custom line below.',

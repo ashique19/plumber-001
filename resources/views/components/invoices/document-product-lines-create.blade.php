@@ -18,7 +18,7 @@
             $amounts = DocumentCreateUiSupport::lineAmounts($line);
             $thumb = filled($line['product_image_url'] ?? null) ? asset($line['product_image_url']) : null;
         @endphp
-        <article class="document-product-line-card invoice-document-lines__row" wire:key="doc-line-card-{{ $index }}-{{ $line['product_id'] }}">
+        <article class="document-product-line-card invoice-document-lines__row" wire:key="doc-line-card-{{ $index }}-{{ $line['product_id'] }}" data-document-line-index="{{ $index }}">
             <div class="mb-2 flex items-start justify-between gap-2">
                 <div class="flex min-w-0 items-start gap-2">
                     @if ($thumb)
@@ -94,7 +94,7 @@
                 $amounts = DocumentCreateUiSupport::lineAmounts($line);
                 $thumb = filled($line['product_image_url'] ?? null) ? asset($line['product_image_url']) : null;
             @endphp
-            <tr class="invoice-document-lines__row" wire:key="doc-line-row-{{ $index }}-{{ $line['product_id'] }}">
+            <tr class="invoice-document-lines__row" wire:key="doc-line-row-{{ $index }}-{{ $line['product_id'] }}" data-document-line-index="{{ $index }}">
                 <td class="tabular-nums">{{ $rowNum }}</td>
                 <td>
                     <div class="flex items-start gap-2">

@@ -8,6 +8,7 @@ use App\Models\ProductCategory;
 use App\Models\ProductUnit;
 use App\Support\Catalog\CatalogUnitsSizesSchema;
 use App\Support\Catalog\ProductSkuGenerator;
+use App\Support\Invoicing\DocumentCatalogLineMerge;
 use App\Support\Invoicing\DocumentCreateUiSupport;
 use App\Support\Invoicing\InvoicingCatalogLookup;
 use App\Support\Inventory\ProductStockSchema;
@@ -76,10 +77,31 @@ trait ManagesInvoicingCatalogPicker
         $this->addLineFromProduct($productId);
     }
 
-    public function addLineFromProduct(int $productId): void
+    public function addLineFromProduct(int $productId, bool $notify = true): void
     {
         $product = Product::query()->visibleInCatalog()->with('unit')->find($productId);
         if ($product === null) {
+            return;
+        }
+
+        $existingIndex = DocumentCatalogLineMerge::findInvoicingLineIndex($this->lines, $product);
+        if ($existingIndex !== null) {
+            $bump = DocumentCatalogLineMerge::bumpLineQuantity($this->lines, $existingIndex, 1.0);
+            $this->refreshLineStockSnapshot($existingIndex, $product);
+            $this->addLineProductSearch = '';
+            $this->dispatch('document-line-merged', lineIndex: $existingIndex);
+            if ($notify) {
+                if ($bump['capped']) {
+                    $this->toastInfo(__('invoices.catalog_product_qty_capped', ['name' => $product->displayName()]));
+                } else {
+                    $this->toastInfo(__('invoices.catalog_product_qty_bumped', [
+                        'name' => $product->displayName(),
+                        'qty' => $bump['quantity'],
+                    ]));
+                }
+            }
+            $this->afterCatalogLineChanged();
+
             return;
         }
 
@@ -87,8 +109,11 @@ trait ManagesInvoicingCatalogPicker
         $index = count($this->lines) - 1;
         $this->fillLineFromProduct($index, $product);
         $this->addLineProductSearch = '';
-        $this->dispatch('document-line-added');
-        $this->toastInfo(__('invoices.catalog_product_applied', ['name' => $product->displayName()]));
+        $this->dispatch('document-line-added', lineIndex: $index);
+        if ($notify) {
+            $this->toastInfo(__('invoices.catalog_product_applied', ['name' => $product->displayName()]));
+        }
+        $this->afterCatalogLineChanged();
     }
 
     public function openQuickProductModal(?int $lineIndex = null): void
@@ -147,13 +172,10 @@ trait ManagesInvoicingCatalogPicker
 
         $product = Product::query()->create($attrs);
 
-        $this->lines[] = $this->emptyLine();
-        $lineIndex = count($this->lines) - 1;
-        $this->fillLineFromProduct($lineIndex, $product);
         $this->showQuickProductModal = false;
         $this->quickProductLineIndex = null;
         $this->resetQuickProductForm();
-        $this->dispatch('document-line-added');
+        $this->addLineFromProduct($product->id, notify: false);
         $this->toastSuccess(__('invoices.product_created_applied'));
     }
 
@@ -180,6 +202,8 @@ trait ManagesInvoicingCatalogPicker
             'vat_rate' => DocumentCreateUiSupport::normalizeLineVatRate(null, $product->vat_rate),
             'discount_percent' => (string) ($this->lines[$lineIndex]['discount_percent'] ?? '0'),
             'product_id' => $product->id,
+            'product_unit_id' => $product->product_unit_id,
+            'product_size_id' => $product->product_size_id,
             'unit_label' => $product->unitPickerLabel(),
             'unit_code' => $product->ublUnitCode(),
             'vat_zatca_category' => $product->vatZatcaCategory()->value,
@@ -187,6 +211,25 @@ trait ManagesInvoicingCatalogPicker
             'track_stock' => (bool) $product->track_stock,
             'stock_quantity' => $product->track_stock ? (string) $product->stock_quantity : '',
         ]);
+    }
+
+    protected function refreshLineStockSnapshot(int $lineIndex, Product $product): void
+    {
+        if (! isset($this->lines[$lineIndex])) {
+            return;
+        }
+
+        $this->lines[$lineIndex]['track_stock'] = (bool) $product->track_stock;
+        $this->lines[$lineIndex]['stock_quantity'] = $product->track_stock
+            ? (string) $product->stock_quantity
+            : '';
+    }
+
+    protected function afterCatalogLineChanged(): void
+    {
+        if (method_exists($this, 'syncAmountReceivedToGrandTotal')) {
+            $this->syncAmountReceivedToGrandTotal();
+        }
     }
 
     protected function resetQuickProductForm(): void
