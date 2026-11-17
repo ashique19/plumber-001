@@ -7,6 +7,7 @@ use App\Enums\BusinessExpenseCategory;
 use App\Livewire\Concerns\DispatchesToasts;
 use App\Livewire\Concerns\HasAdminHubPagination;
 use App\Livewire\Concerns\ResolvesBusinessContext;
+use App\Livewire\Concerns\ValidatesFieldsLive;
 use App\Models\Branch;
 use App\Models\BusinessExpense;
 use App\Support\StaffBranchContext;
@@ -21,8 +22,9 @@ use Spatie\Permission\PermissionRegistrar;
 class ExpensesHub extends Component
 {
     use DispatchesToasts;
-    use ResolvesBusinessContext;
     use HasAdminHubPagination;
+    use ResolvesBusinessContext;
+    use ValidatesFieldsLive;
 
     #[Url(as: 'from')]
     public string $dateFrom = '';
@@ -194,5 +196,19 @@ class ExpensesHub extends Component
         $this->description = '';
         $this->amountExVat = '';
         $this->resetValidation();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function liveValidationRules(): array
+    {
+        return [
+            'spentOn' => ['required', 'date'],
+            'formCategory' => ['required', 'in:'.implode(',', BusinessExpenseCategory::values())],
+            'vendor' => ['nullable', 'string', 'max:255'],
+            'description' => ['nullable', 'string', 'max:2000'],
+            'amountExVat' => ['required', 'numeric', 'min:0.01'],
+        ];
     }
 }

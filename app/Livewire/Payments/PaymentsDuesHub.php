@@ -8,6 +8,7 @@ use App\Enums\InvoiceStatus;
 use App\Livewire\Concerns\DispatchesToasts;
 use App\Livewire\Concerns\HasAdminHubPagination;
 use App\Livewire\Concerns\ResolvesBusinessContext;
+use App\Livewire\Concerns\ValidatesFieldsLive;
 use App\Models\Invoice;
 use App\Services\Invoicing\InvoiceDuesLedgerService;
 use Illuminate\View\View;
@@ -22,6 +23,7 @@ class PaymentsDuesHub extends Component
     use DispatchesToasts;
     use HasAdminHubPagination;
     use ResolvesBusinessContext;
+    use ValidatesFieldsLive;
 
     #[Url]
     public string $customerKey = '';
@@ -169,5 +171,19 @@ class PaymentsDuesHub extends Component
             'totalOutstanding' => $ledger->totalOutstandingPrincipal(),
             'canRecord' => $user?->can('invoices.issue') ?? false,
         ]);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function liveValidationRules(): array
+    {
+        return [
+            'paidOn' => ['required', 'date'],
+            'paymentAmount' => ['required', 'numeric', 'min:0.01'],
+            'paymentMethod' => ['required', 'in:cash,bank,card'],
+            'paymentReference' => ['nullable', 'string', 'max:128'],
+            'forRetention' => ['boolean'],
+        ];
     }
 }

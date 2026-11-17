@@ -17,6 +17,13 @@ beforeEach(function () {
     $this->owner = StaffUser::query()->where('email', 'owner@example.test')->firstOrFail();
 });
 
+it('exposes validateLiveField for shared form blur hooks', function () {
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(StaffProfile::class)
+        ->call('validateLiveField', 'email')
+        ->assertHasNoErrors();
+});
+
 it('renders staff profile for authenticated user', function () {
     Livewire::actingAs($this->owner, 'staff')
         ->test(StaffProfile::class)
