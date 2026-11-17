@@ -102,17 +102,19 @@
                     <x-field.textarea :label="__('catalog.description_ar')" name="productDescriptionAr" wire:model="productDescriptionAr" dir="rtl" rows="3" />
                     <x-field.textarea :label="__('catalog.description_bn')" name="productDescriptionBn" wire:model="productDescriptionBn" wrapper-class="form-field--span-2 admin-modal-span-2" rows="3" />
                 @endif
-                <fieldset class="catalog-product-form__modifiers">
-                    <legend class="text-xs font-medium leading-snug text-[var(--app-muted)]">{{ __('catalog.modifiers') }}</legend>
-                    <div class="mt-2 flex flex-wrap gap-2">
-                        @foreach($modifiers as $mod)
-                            <label class="app-admin-form__modifier-chip" style="border-color: var(--app-border)">
-                                <input type="checkbox" class="h-4 w-4 shrink-0" value="{{ $mod->id }}" wire:model="productModifierIds">
-                                <span class="min-w-0 break-words">{{ $mod->displayName() }}</span>
-                            </label>
-                        @endforeach
-                    </div>
-                </fieldset>
+                @if ($modifiersFeatureEnabled ?? false)
+                    <fieldset class="catalog-product-form__modifiers" data-testid="catalog-product-modifiers">
+                        <legend class="text-xs font-medium leading-snug text-[var(--app-muted)]">{{ __('catalog.modifiers') }}</legend>
+                        <div class="mt-2 flex flex-wrap gap-2">
+                            @foreach($modifiers as $mod)
+                                <label class="app-admin-form__modifier-chip" style="border-color: var(--app-border)">
+                                    <input type="checkbox" class="h-4 w-4 shrink-0" value="{{ $mod->id }}" wire:model="productModifierIds">
+                                    <span class="min-w-0 break-words">{{ $mod->displayName() }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+                    </fieldset>
+                @endif
             </div>
         </div>
     </div>

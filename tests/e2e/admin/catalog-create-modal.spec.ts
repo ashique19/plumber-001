@@ -37,6 +37,7 @@ test.describe('catalog create deep links and add buttons', () => {
     });
 
     test('modifiers tab opens add modifier sheet from add button', async ({ page }) => {
+        test.skip(process.env.FEATURE_PRODUCT_MODIFIERS !== 'true', 'modifiers feature off (default plumber)');
         await page.goto(adminPath('/admin/catalog?tab=modifiers', 'en'));
         await page.waitForLoadState('networkidle');
 

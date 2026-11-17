@@ -2,6 +2,7 @@
 
 namespace App\Services\Pos;
 
+use App\Support\Business\PlumberFeatures;
 use App\Enums\PosOrderStatus;
 use App\Models\Branch;
 use App\Models\PosOrder;
@@ -44,6 +45,10 @@ class PosOrderService
     public function addProduct(PosOrder $order, Product $product, float $quantity = 1, array $modifierIds = []): PosOrder
     {
         $this->assertOpen($order);
+
+        if (! PlumberFeatures::modifiersEnabled()) {
+            $modifierIds = [];
+        }
 
         $lines = $order->line_items;
 

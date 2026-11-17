@@ -6,6 +6,7 @@ use App\Enums\ProductItemType;
 use App\Models\Branch;
 use App\Models\Product;
 use App\Models\ProductCategory;
+use App\Support\Business\PlumberFeatures;
 use Illuminate\Database\Eloquent\Collection;
 
 class PosCatalogQuery
@@ -30,8 +31,7 @@ class PosCatalogQuery
      */
     public function productsForBranch(?int $categoryId, Branch $branch, ?ProductItemType $itemType = null): Collection
     {
-        return Product::query()
-            ->with('modifiers')
+        $query = Product::query()
             ->where('is_active', true)
             ->when($itemType !== null, fn ($q) => $q->where('item_type', $itemType->value))
             ->when($categoryId, fn ($q) => $q->where('product_category_id', $categoryId))
@@ -39,7 +39,12 @@ class PosCatalogQuery
                 $q->whereNull('branch_id')->orWhere('branch_id', $branch->id);
             })
             ->orderBy('sort_order')
-            ->orderBy('name_en')
-            ->get();
+            ->orderBy('name_en');
+
+        if (PlumberFeatures::modifiersEnabled()) {
+            $query->with('modifiers');
+        }
+
+        return $query->get();
     }
 }

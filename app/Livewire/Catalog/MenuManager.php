@@ -25,6 +25,7 @@ use App\Support\Catalog\ProductSkuGenerator;
 use App\Support\Catalog\ProductCategorySchema;
 use App\Support\Catalog\ProductGallery;
 use App\Support\Catalog\ProductStorefrontVisibility;
+use App\Support\Business\PlumberFeatures;
 use App\Support\Inventory\IngredientInventorySchema;
 use App\Support\Inventory\ProductStockSchema;
 use App\Support\Upload\ProductImageConstraints;
@@ -188,7 +189,11 @@ class MenuManager extends Component
 
         $tab = request()->query('tab');
         if (is_string($tab) && in_array($tab, ['categories', 'products', 'modifiers', 'units', 'sizes'], true)) {
-            $this->tab = $tab;
+            if ($tab === 'modifiers' && ! PlumberFeatures::modifiersEnabled()) {
+                $this->tab = 'products';
+            } else {
+                $this->tab = $tab;
+            }
         }
 
         if (request()->query('create') === 'product' && $this->staffCanManageCatalog()) {
@@ -270,7 +275,9 @@ class MenuManager extends Component
             'sort_order' => $source->sort_order + 1,
         ]));
 
-        $copy->modifiers()->sync($source->modifiers->pluck('id')->all());
+        if (PlumberFeatures::modifiersEnabled()) {
+            $copy->modifiers()->sync($source->modifiers->pluck('id')->all());
+        }
 
         $this->closeProductActions();
         $this->toastSuccess(__('catalog.duplicated_product'));
@@ -288,6 +295,10 @@ class MenuManager extends Component
 
     public function setTab(string $tab): void
     {
+        if ($tab === 'modifiers' && ! PlumberFeatures::modifiersEnabled()) {
+            return;
+        }
+
         if (in_array($tab, ['categories', 'products', 'modifiers', 'units', 'sizes'], true)) {
             $this->tab = $tab;
         }
@@ -592,11 +603,15 @@ class MenuManager extends Component
         if ($this->editingProductId) {
             $product = $this->productQuery()->findOrFail($this->editingProductId);
             $product->update($payload);
-            $product->modifiers()->sync($validated['productModifierIds']);
+            if (PlumberFeatures::modifiersEnabled()) {
+                $product->modifiers()->sync($validated['productModifierIds']);
+            }
             $this->toastSuccess(__('catalog.saved_product'));
         } else {
             $product = $this->productQuery()->create(array_merge(ProductStorefrontVisibility::defaultsForNewProduct(), $payload));
-            $product->modifiers()->sync($validated['productModifierIds']);
+            if (PlumberFeatures::modifiersEnabled()) {
+                $product->modifiers()->sync($validated['productModifierIds']);
+            }
             if (ProductStockSchema::ready() && $product->track_stock) {
                 $opening = (float) ($validated['productOpeningStock'] ?? 0);
                 $stock->recordOpeningStock(
@@ -660,6 +675,7 @@ class MenuManager extends Component
 
     public function startModifier(?int $id = null): void
     {
+        abort_unless(PlumberFeatures::modifiersEnabled(), 404);
         $this->authorizeCatalogWrite();
         $this->resetModifierForm();
         $this->showModifierForm = true;
@@ -676,6 +692,7 @@ class MenuManager extends Component
 
     public function saveModifier(): void
     {
+        abort_unless(PlumberFeatures::modifiersEnabled(), 404);
         $this->authorizeCatalogWrite();
         $validated = $this->validate([
             'modifierNameEn' => ['required', 'string', 'max:120'],
@@ -711,6 +728,7 @@ class MenuManager extends Component
 
     public function deleteModifier(int $id): void
     {
+        abort_unless(PlumberFeatures::modifiersEnabled(), 404);
         $this->authorizeCatalogWrite();
         $this->modifierQuery()->findOrFail($id)->delete();
         $this->toastSuccess(__('catalog.deleted_modifier'));
@@ -832,6 +850,7 @@ class MenuManager extends Component
             'ingredientOptions' => IngredientInventorySchema::ingredientsReady()
                 ? Ingredient::query()->whereNull('branch_id')->orderedForDisplay()->get()
                 : collect(),
+            'modifiersFeatureEnabled' => PlumberFeatures::modifiersEnabled(),
             'catalogUnitsSizesReady' => CatalogUnitsSizesSchema::ready(),
             'catalogUnits' => CatalogUnitsSizesSchema::ready()
                 ? ProductUnit::query()->orderBy('code')->get()
