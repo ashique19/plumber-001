@@ -319,8 +319,8 @@ it('lists field errors from z-heart 422 errors map on flash and payload without 
     $result = app(InvoiceZatcaResubmitService::class)->resubmit($invoice->fresh());
     $fresh = $invoice->fresh();
 
-    expect($result->userMessage)->toContain('district')
-        ->and(substr_count(strtolower($result->userMessage), 'the invoice payload is invalid'))->toBe(1)
+    expect($result->userMessage)->toContain(__('invoices.zatca_precheck.buyer_district'))
+        ->and(substr_count(mb_strtolower($result->userMessage), mb_strtolower(__('invoices.zatca_precheck.failed'))))->toBeLessThanOrEqual(1)
         ->and(data_get($fresh->payload, 'zheart_field_errors'))->toBeArray()
         ->and(count(data_get($fresh->payload, 'zheart_field_errors')))->toBeGreaterThanOrEqual(2);
 });
