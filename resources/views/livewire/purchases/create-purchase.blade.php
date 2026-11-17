@@ -54,7 +54,7 @@
         </form>
 
         <x-documents.create-footer
-            :cancel-url="route('admin.purchases')"
+            :cancel-url="route('admin.stock.search')"
             :primary-label="__('purchases.submit')"
             primary-target="save"
             form-id="purchase-save-form"
