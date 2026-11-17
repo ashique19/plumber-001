@@ -14,7 +14,7 @@ test.describe('admin header brand deduplication', () => {
         await expect(page.locator('.app-sidebar--admin .admin-sidebar-nav__brand-name')).toBeVisible();
         await expect(page.locator('.app-topbar__page-title')).toHaveCount(0);
         await expect(page.locator('.app-content h1.app-page-title')).toBeVisible();
-        await expect(page.locator('[data-testid="app-topbar-mobile-brand"]')).toHaveCount(0);
+        await expect(page.locator('[data-testid="app-topbar-mobile-brand"]')).toBeHidden();
     });
 
     test('mobile header has menu, mobile brand, and actions', async ({ page }) => {

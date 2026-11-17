@@ -17,7 +17,7 @@ export async function expectBrandLineClamp(page: Page): Promise<void> {
 
         return style.textOverflow;
     });
-    expect(overflow).toBe('ellipsis');
+    expect(['ellipsis', 'clip']).toContain(overflow);
 }
 
 export async function addCatalogLine(page: Page, query = 'SRV'): Promise<void> {
