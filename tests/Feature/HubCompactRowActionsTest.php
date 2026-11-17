@@ -66,7 +66,7 @@ it('marks disabled pdf and print icons when awaiting zatca clearance', function 
         ->toContain('data-testid="hub-row-action-download-disabled"')
         ->toContain('data-testid="hub-row-action-print-disabled"')
         ->toContain('aria-disabled="true"')
-        ->toContain('title="'.e(__('invoices.awaiting_zatca_clearance')).'"');
+        ->toContain('title="'.e(__('invoices.pdf_available_after_clearance')).'"');
 });
 
 it('renders compact quotation actions with a more menu for secondary items', function () {

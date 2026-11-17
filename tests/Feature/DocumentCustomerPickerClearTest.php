@@ -47,11 +47,14 @@ it('exposes clear control markup when customer is linked', function () {
         ->call('selectDocumentCustomer', $this->customer->id)
         ->html();
 
+    $clearLabel = __('invoices.clear_customer');
+
     expect($html)
         ->toContain('data-testid="document-customer-clear"')
-        ->toContain(__('invoices.clear_customer', [], 'en'))
+        ->toContain($clearLabel)
+        ->toContain('wire:click="clearSelectedCustomer"')
         ->toContain('wire:click="clearCustomerPicker"')
-        ->toContain('title="'.e(__('invoices.clear_customer', [], 'en')).'"');
+        ->toContain('title="'.e($clearLabel).'"');
 });
 
 it('clears purchase supplier selection', function () {
