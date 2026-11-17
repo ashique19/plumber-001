@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Quotations;
 
+use App\Business\BusinessContext;
 use App\Data\InvoiceLineData;
 use App\Enums\InvoiceDocumentType;
 use App\Livewire\Concerns\DispatchesToasts;
@@ -10,10 +11,10 @@ use App\Livewire\Concerns\ResolvesBusinessContext;
 use App\Livewire\Concerns\ValidatesFieldsLive;
 use App\Models\BusinessSetting;
 use App\Models\Quotation;
+use App\Support\Hub\HubChronologicalSort;
 use App\Support\Hub\HubQuotationPrintLinks;
 use App\Support\Invoicing\InvoiceDocumentTotals;
 use App\Support\Invoicing\IssueInvoicePrefill;
-use App\Business\BusinessContext;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\View\View;
@@ -25,10 +26,10 @@ use Spatie\Permission\PermissionRegistrar;
 #[Layout('layouts.pos')]
 class QuotationHub extends Component
 {
-    use ResolvesBusinessContext;
     use DispatchesToasts;
-    use ValidatesFieldsLive;
     use HasAdminHubPagination;
+    use ResolvesBusinessContext;
+    use ValidatesFieldsLive;
 
     #[Url]
     public string $search = '';
@@ -135,16 +136,19 @@ class QuotationHub extends Component
             $query->whereDate('created_at', '<=', $this->dateTo);
         }
 
-        $dir = $this->sortDir === 'asc' ? 'asc' : 'desc';
+        $descending = $this->sortDir !== 'asc';
+        $dir = $descending ? 'desc' : 'asc';
 
         match ($this->sortBy) {
             'quotation_number' => $query->orderBy('quotation_number', $dir),
             'validity_until' => $query->orderBy('validity_until', $dir),
             'buyer_name' => $query->orderBy('payload->buyer_name', $dir),
-            default => $query->orderBy('created_at', $dir),
+            default => HubChronologicalSort::applyLatestFirst($query, 'created_at', $descending),
         };
 
-        $query->orderByDesc('id');
+        if ($this->sortBy !== 'created_at') {
+            HubChronologicalSort::applyTieBreakers($query, $descending);
+        }
 
         $paginator = $query->paginate($this->adminPerPage());
 

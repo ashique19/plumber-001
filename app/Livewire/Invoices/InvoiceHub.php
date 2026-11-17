@@ -2,20 +2,21 @@
 
 namespace App\Livewire\Invoices;
 
+use App\Business\BusinessContext;
 use App\Livewire\Concerns\DispatchesToasts;
 use App\Livewire\Concerns\HasAdminHubPagination;
 use App\Livewire\Concerns\ResolvesBusinessContext;
 use App\Livewire\Concerns\ValidatesFieldsLive;
 use App\Models\Invoice;
 use App\Services\Invoicing\HubDraftInvoiceIssueService;
+use App\Services\Invoicing\InvoiceDuesLedgerService;
 use App\Services\Invoicing\InvoiceZatcaResubmitService;
+use App\Support\Hub\HubChronologicalSort;
+use App\Support\Hub\HubInvoiceDraftLifecycle;
 use App\Support\Hub\HubInvoiceRowActions;
 use App\Support\Hub\HubInvoiceTableRow;
 use App\Support\Hub\HubInvoiceZatcaTab;
-use App\Enums\InvoiceStatus;
-use App\Services\Invoicing\InvoiceDuesLedgerService;
 use App\Support\Invoicing\ZatcaSubmissionStatus;
-use App\Business\BusinessContext;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\View\View;
@@ -27,10 +28,10 @@ use Spatie\Permission\PermissionRegistrar;
 #[Layout('layouts.pos')]
 class InvoiceHub extends Component
 {
-    use ResolvesBusinessContext;
     use DispatchesToasts;
-    use ValidatesFieldsLive;
     use HasAdminHubPagination;
+    use ResolvesBusinessContext;
+    use ValidatesFieldsLive;
 
     #[Url]
     public string $search = '';
@@ -151,7 +152,7 @@ class InvoiceHub extends Component
         abort_unless($user?->can('invoices.issue'), 403);
 
         $invoice = Invoice::query()->whereKey($invoiceId)->firstOrFail();
-        abort_unless(\App\Support\Hub\HubInvoiceDraftLifecycle::canAuthorize($user, $invoice), 403);
+        abort_unless(HubInvoiceDraftLifecycle::canAuthorize($user, $invoice), 403);
 
         $outcome = $service->authorizeAndIssue($invoice, $user);
         if (! $outcome->ok()) {
@@ -293,19 +294,20 @@ class InvoiceHub extends Component
             HubInvoiceZatcaTab::applyTabScope($query, $this->zatcaTab);
         }
 
-        $dir = $this->sortDir === 'asc' ? 'asc' : 'desc';
+        $descending = $this->sortDir !== 'asc';
 
         if ($this->sortBy === 'buyer_name') {
-            $query->orderBy('payload->buyer_name', $dir);
+            $query->orderBy('payload->buyer_name', $descending ? 'desc' : 'asc');
+            HubChronologicalSort::applyTieBreakers($query, $descending);
         } elseif ($this->sortBy === 'document_number') {
-            $query->orderBy('document_number', $dir);
+            $query->orderBy('document_number', $descending ? 'desc' : 'asc');
+            HubChronologicalSort::applyTieBreakers($query, $descending);
         } elseif ($this->sortBy === 'document_type') {
-            $query->orderBy('document_type', $dir)->orderByDesc('issued_at');
+            $query->orderBy('document_type', $descending ? 'desc' : 'asc');
+            HubChronologicalSort::applyLatestFirst($query, 'issued_at', $descending);
         } else {
-            $query->orderBy('issued_at', $dir);
+            HubChronologicalSort::applyLatestFirst($query, 'issued_at', $descending);
         }
-
-        $query->orderByDesc('id');
 
         $paginator = $query->paginate($this->adminPerPage());
 
