@@ -22,7 +22,7 @@ export async function expectCustomerModalFormSpacing(modal: Locator): Promise<vo
     const innerWidth = modalBox!.width - contentPadding;
     expect(identityBox!.width, 'identity grid uses modal content width').toBeGreaterThanOrEqual(innerWidth * 0.88);
 
-    const fullWidthInput = identity.locator('#customerLegalNameEn, #customerQuickName, #buyerName').first();
+    const fullWidthInput = identity.locator('#customerLegalNameEn');
     await expect(fullWidthInput).toBeVisible({ timeout: 15_000 });
     const fullWidthBox = await fullWidthInput.boundingBox();
     expect(fullWidthBox!.width, 'full-width row inputs span the grid').toBeGreaterThanOrEqual(identityBox!.width * 0.88);
