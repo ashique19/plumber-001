@@ -69,8 +69,16 @@
 }
 
 .receipt-thermal__seller-ar {
-    text-align: end;
+    text-align: right;
+    direction: rtl;
     flex: 1;
+}
+
+.receipt-thermal [dir='rtl'],
+.receipt-thermal .invoice-print-ar {
+    direction: rtl;
+    text-align: right;
+    unicode-bidi: isolate;
 }
 
 .receipt-thermal__seller-en {

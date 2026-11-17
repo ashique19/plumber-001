@@ -47,7 +47,7 @@
                     <tr>
                         <td class="print-classic__cell-label">{{ $row['en'] }}</td>
                         <td class="print-classic__cell-value">{{ $row['value'] }}</td>
-                        <td class="print-classic__cell-label ar" dir="rtl">{{ $row['ar'] }}</td>
+                        <td class="print-classic__cell-label ar invoice-print-ar" dir="rtl">{{ $row['ar'] }}</td>
                     </tr>
                 @endforeach
             </tbody>
@@ -55,7 +55,7 @@
 
         <div class="print-classic__parties">
             <div class="print-classic__party">
-                <div class="print-classic__party-head">Seller <span class="ar" dir="rtl">المورد</span></div>
+                <div class="print-classic__party-head">Seller <span class="ar invoice-print-ar" dir="rtl">المورد</span></div>
                 <table class="print-classic__party-table">
                     <tbody>
                         @foreach ($sellerRows as $row)
@@ -68,14 +68,14 @@
                                         {{ $row['value'] ?? '' }}
                                     @endif
                                 </td>
-                                <td class="print-classic__cell-label ar" dir="rtl">{{ $row['ar'] }}</td>
+                                <td class="print-classic__cell-label ar invoice-print-ar" dir="rtl">{{ $row['ar'] }}</td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
             </div>
             <div class="print-classic__party">
-                <div class="print-classic__party-head">Buyer <span class="ar" dir="rtl">العميل</span></div>
+                <div class="print-classic__party-head">Buyer <span class="ar invoice-print-ar" dir="rtl">العميل</span></div>
                 <table class="print-classic__party-table">
                     <tbody>
                         @forelse ($buyerRows as $row)
@@ -88,7 +88,7 @@
                                         {{ $row['value'] ?? '' }}
                                     @endif
                                 </td>
-                                <td class="print-classic__cell-label ar" dir="rtl">{{ $row['ar'] }}</td>
+                                <td class="print-classic__cell-label ar invoice-print-ar" dir="rtl">{{ $row['ar'] }}</td>
                             </tr>
                         @empty
                             <tr><td colspan="3" class="print-classic__cell-value">—</td></tr>
@@ -101,15 +101,15 @@
         <table class="print-classic__lines">
             <thead>
                 <tr>
-                    <th>Nature of goods or services<span class="ar">تفاصيل السلع أو الخدمات</span></th>
-                    <th>Line Num<span class="ar">السطر</span></th>
-                    <th>Unit Price<span class="ar">سعر الوحدة</span></th>
-                    <th>Quantity<span class="ar">الكمية</span></th>
-                    <th>Taxable Amount<span class="ar">المبلغ الخاضع للضريبة</span></th>
-                    <th>Discount<span class="ar">خصومات</span></th>
-                    <th>Tax Rate<span class="ar">نسبة الضريبة</span></th>
-                    <th>Tax Amount<span class="ar">مبلغ الضريبة</span></th>
-                    <th>Item Subtotal (Including VAT)<span class="ar">المجموع شامل ضريبة القيمة المضافة</span></th>
+                    <th>Nature of goods or services<span class="ar invoice-print-ar" dir="rtl">تفاصيل السلع أو الخدمات</span></th>
+                    <th>Line Num<span class="ar invoice-print-ar" dir="rtl">السطر</span></th>
+                    <th>Unit Price<span class="ar invoice-print-ar" dir="rtl">سعر الوحدة</span></th>
+                    <th>Quantity<span class="ar invoice-print-ar" dir="rtl">الكمية</span></th>
+                    <th>Taxable Amount<span class="ar invoice-print-ar" dir="rtl">المبلغ الخاضع للضريبة</span></th>
+                    <th>Discount<span class="ar invoice-print-ar" dir="rtl">خصومات</span></th>
+                    <th>Tax Rate<span class="ar invoice-print-ar" dir="rtl">نسبة الضريبة</span></th>
+                    <th>Tax Amount<span class="ar invoice-print-ar" dir="rtl">مبلغ الضريبة</span></th>
+                    <th>Item Subtotal (Including VAT)<span class="ar invoice-print-ar" dir="rtl">المجموع شامل ضريبة القيمة المضافة</span></th>
                 </tr>
             </thead>
             <tbody>
@@ -118,7 +118,7 @@
                         <td class="print-classic__desc">
                             <div>{{ $line['name_en'] }}</div>
                             @if ($line['name_ar'])
-                                <div dir="rtl">{{ $line['name_ar'] }}</div>
+                                <div class="invoice-print-ar" dir="rtl">{{ $line['name_ar'] }}</div>
                             @endif
                         </td>
                         <td>{{ $line['line_no'] }}</td>
@@ -137,25 +137,25 @@
         <div class="print-classic__totals-wrap">
             <table class="print-classic__totals">
                 <tr>
-                    <td class="print-classic__cell-label"><span dir="rtl">الإجمالي (غير شامل ضريبة القيمة المضافة)</span> Total Excluding Vat</td>
+                    <td class="print-classic__cell-label"><span class="invoice-print-ar" dir="rtl">الإجمالي (غير شامل ضريبة القيمة المضافة)</span> Total Excluding Vat</td>
                     <td class="print-classic__cell-value tabular-nums"><x-invoices.sar-symbol /> {{ number_format($tot['subtotal_ex_vat'], 2) }}</td>
                 </tr>
                 <tr>
-                    <td class="print-classic__cell-label"><span dir="rtl">الإجمالي الخاضع للضريبة</span> Total Taxable Amount</td>
+                    <td class="print-classic__cell-label"><span class="invoice-print-ar" dir="rtl">الإجمالي الخاضع للضريبة</span> Total Taxable Amount</td>
                     <td class="print-classic__cell-value tabular-nums"><x-invoices.sar-symbol /> {{ number_format($tot['subtotal_ex_vat'] - ($tot['invoice_discount_ex_vat'] ?? 0), 2) }}</td>
                 </tr>
                 <tr>
-                    <td class="print-classic__cell-label"><span dir="rtl">مجموع ضريبة القيمة المضافة</span> Total Vat</td>
+                    <td class="print-classic__cell-label"><span class="invoice-print-ar" dir="rtl">مجموع ضريبة القيمة المضافة</span> Total Vat</td>
                     <td class="print-classic__cell-value tabular-nums"><x-invoices.sar-symbol /> {{ number_format($tot['total_vat'], 2) }}</td>
                 </tr>
                 <tr>
-                    <td class="print-classic__cell-label"><span dir="rtl">اجمالي المبلغ المستحق</span> Total Amount Due</td>
+                    <td class="print-classic__cell-label"><span class="invoice-print-ar" dir="rtl">اجمالي المبلغ المستحق</span> Total Amount Due</td>
                     <td class="print-classic__cell-value tabular-nums"><strong><x-invoices.sar-symbol /> {{ number_format($tot['net_due_inc_vat'] ?? $tot['total_inc_vat'], 2) }}</strong></td>
                 </tr>
             </table>
         </div>
 
-        <p class="print-classic__words" dir="rtl">{{ $t['amount_words_ar'] }}</p>
+        <p class="print-classic__words invoice-print-ar" dir="rtl">{{ $t['amount_words_ar'] }}</p>
 
         <footer class="print-classic__sheet-footer">
             <x-invoices.print-page-label :document-number="$t['document_number']" />

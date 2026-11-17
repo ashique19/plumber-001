@@ -65,7 +65,7 @@
 }
 
 .print-classic__top-right {
-    text-align: end;
+    text-align: right;
     font-size: 8pt;
 }
 
@@ -105,6 +105,7 @@
     font-family: Tajawal, sans-serif;
     font-weight: 600;
     direction: rtl;
+    text-align: right;
 }
 
 .print-classic__cell-label {
@@ -115,7 +116,7 @@
 }
 
 .print-classic__cell-label.ar {
-    text-align: end;
+    text-align: right;
     font-family: Tajawal, sans-serif;
 }
 
@@ -182,12 +183,14 @@
     margin-top: 8px;
     font-family: Tajawal, sans-serif;
     font-size: 9pt;
+    direction: rtl;
+    text-align: right;
 }
 
 .print-classic__sheet-footer {
     margin-top: 12px;
     padding-top: 6px;
-    text-align: end;
+    text-align: right;
     font-size: 8pt;
     color: var(--inv-muted);
 }

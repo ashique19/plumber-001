@@ -107,7 +107,7 @@ final class BuyerPrintBlock
         }
 
         if ($nameAr !== '' && $nameEn !== '' && $nameAr !== $nameEn) {
-            return '<span class="invoice-a4__buyer-name-ar" dir="rtl">'.$nameAr.'</span>'
+            return '<span class="invoice-a4__buyer-name-ar invoice-print-ar" dir="rtl">'.$nameAr.'</span>'
                 .'<span class="invoice-a4__buyer-name-en">'.$nameEn.'</span>';
         }
 

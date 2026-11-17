@@ -48,15 +48,26 @@
     }
 }
 
+.invoice-print-root .invoice-print-ar,
+.invoice-print-root [dir='rtl'].invoice-print-ar,
 .invoice-print-root [dir='rtl'],
 .invoice-print-root .ar,
 .invoice-print-root .invoice-a4__desc-ar,
 .invoice-print-root .invoice-a4__title-ar,
+.invoice-print-root .invoice-a4__title-ar[dir='rtl'],
 .invoice-print-root .invoice-a4__footer-ar,
 .invoice-print-root .invoice-a4__seller-side--ar,
 .invoice-print-root .invoice-print-label__ar,
 .invoice-print-root .invoice-a4__buyer-name-ar,
-.invoice-print-root .invoice-a4__words[dir='rtl'] {
+.invoice-print-root .invoice-a4__buyer-table-label.ar,
+.invoice-print-root .invoice-a4__buyer-table-split-row .invoice-a4__buyer-table-label.ar,
+.invoice-print-root .invoice-a4__table th .ar,
+.invoice-print-root .invoice-a4__words[dir='rtl'],
+.invoice-print-root .print-tpl-modern__totals-ar,
+.invoice-print-root .print-classic__title-ar,
+.invoice-print-root .print-classic__cell-label.ar,
+.invoice-print-root .print-classic__words,
+.invoice-print-root .classic-party__name-ar {
     direction: rtl;
     text-align: right;
     unicode-bidi: isolate;
@@ -152,7 +163,7 @@
 .invoice-a4__buyer-table-label.ar {
     width: 22%;
     font-family: Tajawal, sans-serif;
-    text-align: end;
+    text-align: right;
 }
 
 .invoice-a4__buyer-name-ar {
@@ -219,6 +230,7 @@
 .invoice-a4__customer-label .ar {
     display: block;
     direction: rtl;
+    text-align: right;
     font-family: Tajawal, sans-serif;
     font-size: 8pt;
 }
@@ -244,6 +256,7 @@
 .invoice-a4__table th .ar {
     display: block;
     direction: rtl;
+    text-align: right;
     font-family: Tajawal, sans-serif;
     font-size: 8.5pt;
     font-weight: 600;
@@ -252,6 +265,7 @@
 
 .invoice-a4__desc-ar {
     direction: rtl;
+    text-align: right;
     font-family: Tajawal, sans-serif;
     font-size: 8pt;
     overflow-wrap: anywhere;
@@ -318,6 +332,7 @@
 
 .invoice-cash__seller-ar {
     direction: rtl;
+    text-align: right;
     font-family: Tajawal, sans-serif;
 }
 

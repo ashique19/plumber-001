@@ -99,15 +99,17 @@
 }
 
 .print-tpl-modern__totals-ar {
-    display: inline;
+    display: inline-block;
+    width: 100%;
     direction: rtl;
+    text-align: right;
     unicode-bidi: isolate;
     font-family: Tajawal, sans-serif;
     font-size: 8pt;
 }
 
 .print-tpl-modern__totals-value {
-    text-align: end;
+    text-align: right;
     white-space: nowrap;
     padding-inline-start: 1.25rem;
 }
