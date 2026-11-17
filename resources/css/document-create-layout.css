@@ -238,6 +238,40 @@ html.admin-app.admin-theme-dark .document-customer-strip {
     border-bottom: 1px solid color-mix(in srgb, var(--app-border) 70%, transparent);
 }
 
+/* Desktop table: column headers carry labels — hide in-cell duplicates, keep for screen readers */
+.document-product-lines-table .form-field > .form-field__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+.document-product-lines-table .form-field {
+    position: relative;
+    margin-bottom: 0;
+    gap: 0;
+}
+
+.document-product-lines-table .form-field__control {
+    min-height: 2.5rem;
+}
+
+.document-product-lines-table input[type='number'] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+.document-product-lines-table input[type='number']::-webkit-outer-spin-button,
+.document-product-lines-table input[type='number']::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
 @media (max-width: 1023px) {
     .document-product-line-cards {
         display: flex;
