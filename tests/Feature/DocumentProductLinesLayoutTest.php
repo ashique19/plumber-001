@@ -14,10 +14,14 @@ beforeEach(function () {
 
 it('exposes mutually exclusive responsive line layouts', function () {
     $blade = file_get_contents(resource_path('views/components/invoices/document-product-lines-create.blade.php'));
+    $css = file_get_contents(resource_path('css/document-create-layout.css'));
 
     expect($blade)
         ->toContain('document-product-line-cards lg:hidden')
         ->toContain('document-product-lines-scroll hidden lg:block');
+
+    expect($css)->toContain('@media (max-width: 1023px)')
+        ->and($css)->toContain('.document-product-line-cards');
 });
 
 it('sets line vat_rate to select-friendly value when adding a product', function () {

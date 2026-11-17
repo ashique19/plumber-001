@@ -7,11 +7,32 @@ use App\Models\BusinessSetting;
 use App\Models\Customer;
 use App\Models\Product;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 
 final class DocumentCreateUiSupport
 {
     /** @var list<float> */
     public const VAT_SELECT_RATES = [0.0, 5.0, 15.0];
+
+    public static function newLineId(): string
+    {
+        return (string) Str::uuid();
+    }
+
+    /**
+     * @param  list<array<string, mixed>>  $lines
+     */
+    public static function assignMissingLineIds(array &$lines): void
+    {
+        foreach ($lines as $index => $line) {
+            if (! is_array($line)) {
+                continue;
+            }
+            if (! filled($line['line_id'] ?? null)) {
+                $lines[$index]['line_id'] = self::newLineId();
+            }
+        }
+    }
 
     public static function defaultDocumentVatRate(): float
     {

@@ -238,10 +238,12 @@ html.admin-app.admin-theme-dark .document-customer-strip {
     border-bottom: 1px solid color-mix(in srgb, var(--app-border) 70%, transparent);
 }
 
-.document-product-line-cards {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
+@media (max-width: 1023px) {
+    .document-product-line-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
 }
 
 .document-product-line-card {

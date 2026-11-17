@@ -114,6 +114,13 @@ class ManageQuotation extends Component
       }
 
       $this->formSubmissionToken = (string) Str::uuid();
+
+      DocumentCreateUiSupport::assignMissingLineIds($this->lines);
+  }
+
+  public function hydrate(): void
+  {
+      DocumentCreateUiSupport::assignMissingLineIds($this->lines);
   }
 
   private function hydrateFromQuotation(Quotation $quotation): void
@@ -161,6 +168,8 @@ class ManageQuotation extends Component
       $this->documentNotes = (string) ($payload['document_notes'] ?? '');
       $this->termsAndConditions = (string) ($payload['terms_and_conditions'] ?? $this->termsAndConditions);
       $this->displayQuotationNumber = $quotation->quotation_number;
+
+      DocumentCreateUiSupport::assignMissingLineIds($this->lines);
   }
 
   public function saveDraft(): void
@@ -507,6 +516,7 @@ class ManageQuotation extends Component
   protected function emptyLine(): array
   {
       return [
+          'line_id' => DocumentCreateUiSupport::newLineId(),
           'name' => '',
           'name_ar' => '',
           'name_bn' => '',
