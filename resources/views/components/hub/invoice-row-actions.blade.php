@@ -14,15 +14,34 @@
 ])
 
 <div {{ $attributes->class(['hub-doc-table__actions', 'hub-doc-table__actions--compact']) }} data-testid="hub-invoice-row-actions">
-    @if ($actions['view'] ?? false)
-        @if ($actions['edit'] ?? false)
+    @if ($actions['edit'] ?? false)
+        <x-hub.row-action-icon
+            icon="edit"
+            accent
+            :label="__('invoices.action_continue_editing')"
+            :href="$actions['edit_url'] ?? null"
+            test-id="hub-row-action-edit"
+        />
+        @if (($actions['preview_draft'] ?? false) && filled($actions['preview_draft_url'] ?? null))
             <x-hub.row-action-icon
                 icon="view"
-                :label="__('invoices.action_view')"
-                :href="$viewUrl"
-                test-id="hub-row-action-view"
+                :label="__('invoices.action_preview_draft')"
+                :href="$actions['preview_draft_url']"
+                target="_blank"
+                rel="noopener"
+                class="hub-doc-table__action--watermark"
+                test-id="hub-row-action-preview-draft"
             />
-        @else
+        @endif
+        <x-hub.invoice-more-menu
+            :invoice-id="$invoiceId"
+            :actions="$actions"
+            :more="$more"
+            :can-resubmit-zatca="$canResubmitZatca"
+            draft-toolbar
+        />
+    @else
+        @if ($actions['view'] ?? false)
             <x-hub.print-preview-trigger
                 icon="view"
                 :label="__('invoices.action_view')"
@@ -35,54 +54,54 @@
                 test-id="hub-row-action-view"
             />
         @endif
+        @if ($actions['download'] ?? false)
+            <x-hub.row-action-icon
+                icon="download"
+                :label="__('invoices.action_download_pdf')"
+                :href="$downloadUrl"
+                test-id="hub-row-action-download"
+            />
+            <x-hub.print-preview-trigger
+                icon="print"
+                :label="__('invoices.action_print')"
+                :src="$printUrl"
+                :a4-url="$printA4Url"
+                :cash-url="$printCashUrl"
+                :pdf-url="$downloadUrl"
+                :layout="$printLayout"
+                :back-url="$printBackUrl"
+                test-id="hub-row-action-print"
+            />
+        @elseif ($actions['awaiting_clearance'] ?? false)
+            <x-hub.row-action-icon
+                icon="download"
+                :label="__('invoices.action_download_pdf')"
+                :disabled="true"
+                :tooltip="__('invoices.awaiting_zatca_clearance')"
+                test-id="hub-row-action-download-disabled"
+            />
+            <x-hub.row-action-icon
+                icon="print"
+                :label="__('invoices.action_print')"
+                :disabled="true"
+                :tooltip="__('invoices.awaiting_zatca_clearance')"
+                test-id="hub-row-action-print-disabled"
+            />
+        @endif
+        @if (($actions['record_payment'] ?? false) && $recordPaymentOnPage)
+            <x-hub.row-action-icon
+                icon="payment"
+                :label="__('invoices.more_record_payment')"
+                wire:click="prepareRecordPayment({{ $invoiceId }})"
+                test-id="hub-row-action-record-payment"
+                accent
+            />
+        @endif
+        <x-hub.invoice-more-menu
+            :invoice-id="$invoiceId"
+            :actions="$actions"
+            :more="$more"
+            :can-resubmit-zatca="$canResubmitZatca"
+        />
     @endif
-    @if ($actions['download'] ?? false)
-        <x-hub.row-action-icon
-            icon="download"
-            :label="__('invoices.action_download_pdf')"
-            :href="$downloadUrl"
-            test-id="hub-row-action-download"
-        />
-        <x-hub.print-preview-trigger
-            icon="print"
-            :label="__('invoices.action_print')"
-            :src="$printUrl"
-            :a4-url="$printA4Url"
-            :cash-url="$printCashUrl"
-            :pdf-url="$downloadUrl"
-            :layout="$printLayout"
-            :back-url="$printBackUrl"
-            test-id="hub-row-action-print"
-        />
-    @elseif ($actions['awaiting_clearance'] ?? false)
-        <x-hub.row-action-icon
-            icon="download"
-            :label="__('invoices.action_download_pdf')"
-            :disabled="true"
-            :tooltip="__('invoices.awaiting_zatca_clearance')"
-            test-id="hub-row-action-download-disabled"
-        />
-        <x-hub.row-action-icon
-            icon="print"
-            :label="__('invoices.action_print')"
-            :disabled="true"
-            :tooltip="__('invoices.awaiting_zatca_clearance')"
-            test-id="hub-row-action-print-disabled"
-        />
-    @endif
-    @if (($actions['record_payment'] ?? false) && $recordPaymentOnPage)
-        <x-hub.row-action-icon
-            icon="payment"
-            :label="__('invoices.more_record_payment')"
-            wire:click="prepareRecordPayment({{ $invoiceId }})"
-            test-id="hub-row-action-record-payment"
-            accent
-        />
-    @endif
-    <x-hub.invoice-more-menu
-        :invoice-id="$invoiceId"
-        :actions="$actions"
-        :more="$more"
-        :can-resubmit-zatca="$canResubmitZatca"
-    />
 </div>

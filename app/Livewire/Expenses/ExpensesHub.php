@@ -12,6 +12,7 @@ use App\Models\Branch;
 use App\Models\BusinessExpense;
 use App\Models\ExpenseCategory;
 use App\Support\Expenses\ExpenseCategoryCatalog;
+use App\Support\Hub\HubChronologicalSort;
 use App\Support\Hub\HubFormSubmissionIdempotency;
 use App\Support\StaffBranchContext;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -377,8 +378,7 @@ class ExpensesHub extends Component
     {
         return $this->filteredQuery()
             ->with(['branch', 'recordedBy'])
-            ->orderByDesc('spent_on')
-            ->orderByDesc('id')
+            ->tap(fn ($q) => HubChronologicalSort::applyLatestFirst($q, 'spent_on'))
             ->paginate($this->adminPerPage());
     }
 

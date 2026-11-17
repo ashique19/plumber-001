@@ -18,8 +18,8 @@ use Spatie\Permission\PermissionRegistrar;
 #[Layout('layouts.pos')]
 class StockSearch extends Component
 {
-    use ResolvesBusinessContext;
     use HasAdminHubPagination;
+    use ResolvesBusinessContext;
 
     #[Url]
     public string $search = '';
@@ -113,7 +113,8 @@ class StockSearch extends Component
     {
         $query = ProductStockMovement::query()
             ->with(['product', 'invoice', 'purchase'])
-            ->orderByDesc('created_at');
+            ->orderByDesc('created_at')
+            ->orderByDesc('id');
 
         if ($this->product !== null) {
             $query->where('product_id', $this->product);

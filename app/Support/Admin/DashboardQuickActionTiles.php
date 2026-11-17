@@ -2,7 +2,9 @@
 
 namespace App\Support\Admin;
 
+use App\Enums\InvoiceStatus;
 use App\Models\BusinessSetting;
+use App\Models\Invoice;
 use App\Models\StaffUser;
 use Illuminate\Support\Facades\Route;
 
@@ -45,6 +47,16 @@ final class DashboardQuickActionTiles
                 'subtitle' => __('dashboard.tiles.subtitles.create_invoice'),
                 'visible' => $user->can('invoices.issue'),
                 'route' => ['admin.invoices.issue', ['mode' => $defaultIssueMode]],
+            ],
+            [
+                'key' => 'invoice_drafts',
+                'emoji' => '📝',
+                'label' => __('dashboard.tiles.invoice_drafts', [
+                    'count' => (int) Invoice::query()->where('status', InvoiceStatus::Draft)->count(),
+                ]),
+                'subtitle' => __('dashboard.tiles.subtitles.invoice_drafts'),
+                'visible' => $user->can('invoices.issue'),
+                'route' => ['admin.invoices', ['lifecycle' => 'drafts']],
             ],
             [
                 'key' => 'create_quotation',
