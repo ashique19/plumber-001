@@ -9,14 +9,6 @@
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     background-color: var(--app-surface, #fff);
-    background-repeat: no-repeat;
-    background-image:
-        linear-gradient(var(--app-surface, #fff) 33%, transparent),
-        linear-gradient(to right, color-mix(in srgb, #000 12%, transparent), transparent),
-        linear-gradient(to left, color-mix(in srgb, #000 12%, transparent), transparent);
-    background-size: 1.5rem 100%, 0.75rem 100%, 0.75rem 100%;
-    background-position: 0 0, 0 0, 100% 0;
-    background-attachment: local, local, local;
 }
 
 .hub-doc-table {
@@ -66,6 +58,33 @@
     top: 0;
     z-index: 4;
     background: color-mix(in srgb, var(--app-border) 35%, var(--app-surface, #fff));
+}
+
+.hub-doc-table__doc-number {
+    white-space: nowrap;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+    font-size: 0.78rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.hub-doc-table__customer {
+    max-width: 11rem;
+    min-width: 6rem;
+}
+
+.hub-doc-table__customer-text {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 11rem;
+}
+
+.hub-doc-table__status-col {
+    min-width: 8.25rem;
+    width: 8.25rem;
+    vertical-align: middle;
 }
 
 .hub-doc-table__id-cell {
@@ -186,6 +205,7 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 0.25rem;
+    min-width: 8rem;
     max-width: 11rem;
 }
 
@@ -204,8 +224,12 @@
 }
 
 .hub-invoice-status-pill {
+    display: inline-block;
     max-width: 100%;
-    white-space: normal;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
     text-align: start;
 }
 

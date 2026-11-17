@@ -114,9 +114,9 @@
                     </th>
                     <th scope="col">{{ __('invoices.col_total') }}</th>
                     <th scope="col">{{ __('invoices.col_due') }}</th>
-                    <th scope="col">{{ __('invoices.col_payment_status') }}</th>
-                    <th scope="col">{{ __('invoices.col_invoice_status') }}</th>
-                    <th scope="col">{{ __('invoices.col_zatca_status') }}</th>
+                    <th scope="col" class="hub-doc-table__status-col">{{ __('invoices.col_payment_status') }}</th>
+                    <th scope="col" class="hub-doc-table__status-col">{{ __('invoices.col_invoice_status') }}</th>
+                    <th scope="col" class="hub-doc-table__status-col">{{ __('invoices.col_zatca_status') }}</th>
                     <th scope="col" class="text-end">{{ __('invoices.col_actions') }}</th>
                 </tr>
             </thead>
@@ -129,12 +129,14 @@
                         $a = $row['actions'];
                     @endphp
                     <tr wire:key="inv-{{ $invoice->id }}">
-                        <td class="hub-doc-table__sticky font-semibold tabular-nums">{{ $invoice->document_number }}</td>
+                        <td class="hub-doc-table__sticky hub-doc-table__doc-number">{{ $invoice->document_number }}</td>
                         <td class="tabular-nums whitespace-nowrap">{{ $invoice->issued_at?->format('Y-m-d') ?? ($invoice->created_at?->format('Y-m-d') ?? '—') }}</td>
-                        <td class="max-w-[12rem] truncate" title="{{ $row['customer'] }}">{{ $row['customer'] }}</td>
+                        <td class="hub-doc-table__customer" dir="auto" title="{{ $row['customer'] }}">
+                            <span class="hub-doc-table__customer-text">{{ $row['customer'] }}</span>
+                        </td>
                         <td class="hub-doc-table__amount"><x-invoices.sar-symbol /> {{ number_format($row['total_inc_vat'], 2) }}</td>
                         <td class="hub-doc-table__amount"><x-invoices.sar-symbol /> {{ number_format($row['due_amount'], 2) }}</td>
-                        <td>
+                        <td class="hub-doc-table__status-col">
                             <span @class([
                                 'pos-status-pill',
                                 'pos-status-pill--paid' => $paymentKey === 'paid',
@@ -142,7 +144,7 @@
                                 'pos-status-pill--refunded' => $paymentKey === 'unpaid',
                             ])>{{ $row['payment_status']->label() }}</span>
                         </td>
-                        <td>
+                        <td class="hub-doc-table__status-col">
                             <div class="hub-doc-table__status-cell">
                                 <x-invoices.hub-invoice-status-pill :invoice="$invoice" kind="invoice" />
                                 @if (\App\Support\Hub\HubInvoiceStatusDisplay::showsClearanceHint($invoice))
@@ -150,7 +152,7 @@
                                 @endif
                             </div>
                         </td>
-                        <td>
+                        <td class="hub-doc-table__status-col">
                             <div class="hub-doc-table__status-cell">
                                 <x-invoices.hub-invoice-status-pill
                                     :invoice="$invoice"

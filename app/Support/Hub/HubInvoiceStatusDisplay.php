@@ -20,7 +20,7 @@ final class HubInvoiceStatusDisplay
     {
         $key = HubInvoiceTableRow::invoiceStatusKey($invoice);
         if (self::awaitingStandardClearance($invoice) && $key === 'pending') {
-            return (string) __('invoices.awaiting_zatca_clearance');
+            return (string) __('invoices.awaiting_zatca_clearance_short');
         }
 
         return (string) __('invoices.invoice_status.'.$key);
@@ -30,7 +30,7 @@ final class HubInvoiceStatusDisplay
     {
         $badge = HubInvoiceZatcaBadge::badgeKey($invoice);
         if (self::awaitingStandardClearance($invoice) && $badge === HubInvoiceZatcaBadge::Pending) {
-            return (string) __('invoices.awaiting_zatca_clearance');
+            return (string) __('invoices.awaiting_zatca_clearance_short');
         }
 
         return (string) __('invoices.zatca_badge.'.$badge);
@@ -39,6 +39,11 @@ final class HubInvoiceStatusDisplay
     public static function clearanceHint(): string
     {
         return (string) __('invoices.zatca_clearance_hint');
+    }
+
+    public static function awaitingClearanceTooltip(): string
+    {
+        return (string) __('invoices.awaiting_zatca_clearance');
     }
 
     public static function invoiceStatusPillVariant(Invoice $invoice): string

@@ -43,6 +43,7 @@ return [
     'delete_draft_confirm' => 'Delete this draft invoice? This cannot be undone.',
     'draft_deleted' => 'Draft :number deleted.',
     'awaiting_zatca_clearance' => 'Awaiting ZATCA clearance',
+    'awaiting_zatca_clearance_short' => 'Clearance pending',
     'zatca_clearance_hint' => 'Standard invoices must be cleared by ZATCA before they are issued. Simplified invoices are reported automatically.',
     'view_status_label' => 'Invoice status',
     'action_resend_zatca' => 'Resend',

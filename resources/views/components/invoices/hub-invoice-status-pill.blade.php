@@ -21,9 +21,16 @@
             (! $isZatca && HubInvoiceTableRow::invoiceStatusKey($invoice) === 'pending')
             || ($isZatca && HubInvoiceZatcaBadge::badgeKey($invoice) === HubInvoiceZatcaBadge::Pending)
         );
-    $tooltip = $showClearanceHint
-        ? HubInvoiceStatusDisplay::clearanceHint()
-        : ($isZatca && filled($zatcaError) ? $zatcaError : null);
+    $awaitingClearance = HubInvoiceStatusDisplay::awaitingStandardClearance($invoice)
+        && (
+            (! $isZatca && HubInvoiceTableRow::invoiceStatusKey($invoice) === 'pending')
+            || ($isZatca && HubInvoiceZatcaBadge::badgeKey($invoice) === HubInvoiceZatcaBadge::Pending)
+        );
+    $tooltip = $awaitingClearance
+        ? HubInvoiceStatusDisplay::awaitingClearanceTooltip()
+        : ($showClearanceHint
+            ? HubInvoiceStatusDisplay::clearanceHint()
+            : ($isZatca && filled($zatcaError) ? $zatcaError : null));
 @endphp
 
 <span

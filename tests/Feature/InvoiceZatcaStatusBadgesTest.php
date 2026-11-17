@@ -55,13 +55,15 @@ function makeStandardAwaitingClearanceInvoice(): Invoice
 
 it('labels standard uncleared invoice and zatca badges as awaiting clearance in the hub', function () {
     $invoice = makeStandardAwaitingClearanceInvoice();
-    $label = __('invoices.awaiting_zatca_clearance');
+    $short = __('invoices.awaiting_zatca_clearance_short');
+    $full = __('invoices.awaiting_zatca_clearance');
     $hint = __('invoices.zatca_clearance_hint');
 
     Livewire::actingAs($this->owner, 'staff')
         ->test(InvoiceHub::class)
         ->set('search', $invoice->document_number)
-        ->assertSee($label, false)
+        ->assertSee($short, false)
+        ->assertSeeHtml('title="'.e($full).'"', false)
         ->assertSee($hint, false)
         ->assertSeeHtml('data-testid="hub-invoice-status-pill-invoice"', false)
         ->assertSeeHtml('data-testid="hub-invoice-status-pill-zatca"', false)

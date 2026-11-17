@@ -102,7 +102,7 @@
                         $urls = $row['print_urls'];
                     @endphp
                     <tr wire:key="quotation-{{ $quotation->id }}">
-                        <td class="hub-doc-table__sticky font-semibold tabular-nums">{{ $quotation->quotation_number }}</td>
+                        <td class="hub-doc-table__sticky hub-doc-table__doc-number">{{ $quotation->quotation_number }}</td>
                         <td class="tabular-nums whitespace-nowrap">{{ $quotation->created_at?->format('Y-m-d') ?? '—' }}</td>
                         <td class="max-w-[12rem] truncate" title="{{ $row['customer'] }}">{{ $row['customer'] }}</td>
                         <td class="tabular-nums whitespace-nowrap">{{ $quotation->validity_until?->format('Y-m-d') ?? '—' }}</td>
