@@ -153,6 +153,8 @@ class BusinessSettings extends Component
 
     public bool $zheartUsingEnvFallback = false;
 
+    public bool $zheartBaseUrlFromEnv = false;
+
     public ?string $zheartTestStatus = null;
 
     public string $zheartTestMessage = '';
@@ -173,10 +175,10 @@ class BusinessSettings extends Component
     public function setSection(string $section): void
     {
         $allowed = ['brand', 'legal', 'invoicing', 'contact', 'hours', 'branches', 'extras'];
-        if ($section === 'zheart' && ! $this->isOwner()) {
-            return;
+        if ($section === 'zheart') {
+            $section = 'invoicing';
         }
-        if (in_array($section, $allowed, true) || $section === 'zheart') {
+        if (in_array($section, $allowed, true)) {
             if ($section !== 'brand' && ! $this->logoAwaitingSave) {
                 $this->logoUpload = null;
             }
@@ -582,10 +584,24 @@ class BusinessSettings extends Component
         $this->zheartApiKeyInput = '';
     }
 
+    public function updatedZheartBaseUrl(): void
+    {
+        $stored = trim((string) data_get($this->business->settings, 'zheart.base_url', ''));
+        if ($stored !== '') {
+            $this->zheartBaseUrlFromEnv = false;
+
+            return;
+        }
+
+        $env = rtrim((string) config('zheart.base_url', ''), '/');
+        $current = rtrim(trim($this->zheartBaseUrl), '/');
+        $this->zheartBaseUrlFromEnv = $env !== '' && $current === $env;
+    }
+
     public function saveZheart(BusinessSettingsService $service): void
     {
         $this->assertOwner();
-        $this->section = 'zheart';
+        $this->section = 'invoicing';
         $this->tabsWithErrors = [];
 
         $rules = [
@@ -596,7 +612,7 @@ class BusinessSettings extends Component
         }
 
         try {
-            $this->runSectionValidation($rules, 'zheart');
+            $this->runSectionValidation($rules, 'invoicing');
         } catch (ValidationException) {
             return;
         }
@@ -607,7 +623,7 @@ class BusinessSettings extends Component
                 'api_key' => trim($this->zheartApiKeyInput) !== '' ? trim($this->zheartApiKeyInput) : null,
             ], auth('staff')->user());
         } catch (Throwable $e) {
-            $this->failSave('zheart', $e);
+            $this->failSave('invoicing', $e);
 
             return;
         }
@@ -621,14 +637,14 @@ class BusinessSettings extends Component
     public function removeZheartKey(BusinessSettingsService $service): void
     {
         $this->assertOwner();
-        $this->section = 'zheart';
+        $this->section = 'invoicing';
 
         try {
             $business = $service->saveZheart($this->business(), [
                 'remove_api_key' => true,
             ], auth('staff')->user());
         } catch (Throwable $e) {
-            $this->failSave('zheart', $e);
+            $this->failSave('invoicing', $e);
 
             return;
         }
@@ -642,7 +658,7 @@ class BusinessSettings extends Component
     public function testZheartConnection(ZHeartClient $client): void
     {
         $this->assertOwner();
-        $this->section = 'zheart';
+        $this->section = 'invoicing';
 
         $business = $this->business();
         $base = trim($this->zheartBaseUrl);
@@ -832,9 +848,20 @@ class BusinessSettings extends Component
             true,
         ) ? (string) data_get($business->settings, 'invoicing.quotation_print_template', 'modern') : 'modern';
 
-        $this->zheartBaseUrl = (string) data_get($business->settings, 'zheart.base_url', '');
+        $storedBaseUrl = trim((string) data_get($business->settings, 'zheart.base_url', ''));
+        $envBaseUrl = rtrim((string) config('zheart.base_url', ''), '/');
+        if ($storedBaseUrl !== '') {
+            $this->zheartBaseUrl = $storedBaseUrl;
+            $this->zheartBaseUrlFromEnv = false;
+        } elseif ($envBaseUrl !== '') {
+            $this->zheartBaseUrl = $envBaseUrl;
+            $this->zheartBaseUrlFromEnv = true;
+        } else {
+            $this->zheartBaseUrl = '';
+            $this->zheartBaseUrlFromEnv = false;
+        }
         $this->zheartHasStoredKey = ZHeartCredentials::hasStoredApiKey($business);
-        $this->zheartKeyLast4 = ZHeartCredentials::storedKeyLast4($business);
+        $this->zheartKeyLast4 = ZHeartCredentials::last4ForDisplay($business);
         $this->zheartUsingEnvFallback = ! $this->zheartHasStoredKey
             && is_string(config('zheart.api_key'))
             && config('zheart.api_key') !== '';
