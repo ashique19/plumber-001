@@ -1,0 +1,67 @@
+@layer components {
+    html.admin-app .payments-dues-customer-row {
+        cursor: pointer;
+        transition: background-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    html.admin-app .payments-dues-customer-row:hover {
+        background: color-mix(in srgb, var(--app-accent) 6%, var(--app-surface));
+    }
+
+    html.admin-app .payments-dues-customer-row--selected {
+        background: color-mix(in srgb, var(--app-accent) 10%, var(--app-surface));
+        box-shadow: inset 3px 0 0 var(--app-accent);
+    }
+
+    [dir='rtl'] html.admin-app .payments-dues-customer-row--selected {
+        box-shadow: inset -3px 0 0 var(--app-accent);
+    }
+
+    html.admin-app .payments-dues-customer-row--selected .payments-dues-customer-row__name {
+        font-weight: 700;
+    }
+
+    html.admin-app .payments-dues-invoice-balance {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 0.35rem 1rem;
+        align-items: baseline;
+        width: 100%;
+        margin-top: 0.5rem;
+    }
+
+    html.admin-app .payments-dues-invoice-balance dt {
+        color: var(--app-muted);
+        font-size: 0.75rem;
+        line-height: 1.35;
+    }
+
+    html.admin-app .payments-dues-invoice-balance dd {
+        margin: 0;
+        font-size: 0.8125rem;
+        text-align: end;
+    }
+
+    html.admin-app .payments-dues-amount__sar {
+        font-size: 0.85em;
+        opacity: 0.85;
+    }
+
+    html.admin-app .payments-dues-statement-invoice {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    @media (min-width: 640px) {
+        html.admin-app .payments-dues-statement-invoice {
+            flex-direction: row;
+            align-items: flex-start;
+            justify-content: space-between;
+        }
+    }
+
+    html.admin-app .payments-dues-statement-invoice__actions {
+        flex-shrink: 0;
+    }
+}
