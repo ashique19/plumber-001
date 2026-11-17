@@ -44,8 +44,19 @@ function zatcaDraft(string $number, InvoiceDocumentType $type): Invoice
     );
 }
 
-it('issues simplified invoice with a single Z-Heart report call', function () {
+it('issues simplified invoice with sign then report calls', function () {
     Http::fake([
+        'https://z-heart.test/api/v1/invoices/sign' => Http::response([
+            'status' => 'ok',
+            'data' => [
+                'signed_xml' => base64_encode('<Invoice/>'),
+                'invoice_hash' => 'hash',
+                'qr' => 'qr',
+                'uuid' => '550e8400-e29b-41d4-a716-446655440099',
+                'icv' => 1,
+                'pih' => '',
+            ],
+        ], 200),
         'https://z-heart.test/api/v1/invoices/report' => Http::response([
             'status' => 'ok',
             'data' => [
@@ -69,7 +80,7 @@ it('issues simplified invoice with a single Z-Heart report call', function () {
     expect($second->invoice->isIssued())->toBeTrue()
         ->and($second->invoice->payload['zheart_remote_submitted'])->toBeTrue();
 
-    Http::assertSentCount(1);
+    Http::assertSentCount(2);
 });
 
 it('skips resubmit when invoice was already reported', function () {
@@ -98,6 +109,17 @@ it('skips resubmit when invoice was already reported', function () {
 
 it('surfaces standard clear failure on the invoice payload', function () {
     Http::fake([
+        'https://z-heart.test/api/v1/invoices/sign' => Http::response([
+            'status' => 'ok',
+            'data' => [
+                'signed_xml' => base64_encode('<Invoice/>'),
+                'invoice_hash' => 'hash',
+                'qr' => 'qr',
+                'uuid' => '550e8400-e29b-41d4-a716-446655440011',
+                'icv' => 2,
+                'pih' => '',
+            ],
+        ], 200),
         'https://z-heart.test/api/v1/invoices/clear' => Http::response([
             'status' => 'ok',
             'data' => [

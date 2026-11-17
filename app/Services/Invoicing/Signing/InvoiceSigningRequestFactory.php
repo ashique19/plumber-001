@@ -2,10 +2,10 @@
 
 namespace App\Services\Invoicing\Signing;
 
-use App\Data\InvoiceLineData;
 use App\Enums\InvoiceDocumentType;
 use App\Models\BusinessSetting;
 use App\Models\Invoice;
+use App\Support\Invoicing\InvoiceLineDataFactory;
 use Illuminate\Support\Carbon;
 
 final class InvoiceSigningRequestFactory
@@ -64,23 +64,12 @@ final class InvoiceSigningRequestFactory
     }
 
     /**
-     * @return list<InvoiceLineData>
+     * @return list<\App\Data\InvoiceLineData>
      */
     private static function linesFromInvoice(Invoice $invoice): array
     {
         $raw = $invoice->payload['lines'] ?? [];
 
-        return array_map(function (array $line): InvoiceLineData {
-            $nameAr = trim((string) ($line['name_ar'] ?? ''));
-
-            return new InvoiceLineData(
-                name: (string) $line['name'],
-                quantity: (float) $line['quantity'],
-                unitPriceExVat: (float) $line['unit_price_ex_vat'],
-                vatRate: (float) ($line['vat_rate'] ?? 15),
-                discountExVat: (float) ($line['discount_ex_vat'] ?? 0),
-                nameAr: $nameAr !== '' ? $nameAr : null,
-            );
-        }, is_array($raw) ? $raw : []);
+        return InvoiceLineDataFactory::fromPayloadLines(is_array($raw) ? $raw : []);
     }
 }

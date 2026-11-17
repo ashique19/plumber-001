@@ -4,9 +4,11 @@ use App\Business\BusinessContext;
 use App\Enums\InvoiceDocumentType;
 use App\Models\Branch;
 use App\Models\BusinessSetting;
+use App\Models\Invoice;
 use App\Models\Customer;
 use App\Services\InvoiceIssueService;
 use App\Support\Invoicing\ZatcaResponseDisplay;
+use App\Support\Invoicing\ZHeartInvoicePayloadFromInvoice;
 use App\Support\Themes\PlumberThemePreset;
 use Database\Seeders\DemoStaffSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -68,8 +70,25 @@ function standardIssueDraft(string $number, array $payloadExtra = []): \App\Mode
     return $draft->fresh();
 }
 
+function zheartSignResponse(): array
+{
+    return [
+        'status' => 'ok',
+        'data' => [
+            'signed_xml' => base64_encode('<Invoice/>'),
+            'uuid' => (string) Str::uuid(),
+            'invoice_hash' => 'hash-sign',
+            'icv' => 40,
+            'pih' => 'prev-hash',
+            'qr' => 'cXI=',
+        ],
+        'request_id' => 'req-sign',
+    ];
+}
+
 it('persists z-heart 422 request id and field errors when standard issue fails', function () {
     Http::fake([
+        'https://z-heart.test/api/v1/invoices/sign' => Http::response(zheartSignResponse(), 200),
         'https://z-heart.test/api/v1/invoices/clear' => Http::response([
             'status' => 'error',
             'message' => 'Validation failed.',
@@ -101,6 +120,7 @@ it('persists z-heart 422 request id and field errors when standard issue fails',
 
 it('marks signing failed when clear returns rejected clearance with request metadata', function () {
     Http::fake([
+        'https://z-heart.test/api/v1/invoices/sign' => Http::response(zheartSignResponse(), 200),
         'https://z-heart.test/api/v1/invoices/clear' => Http::response([
             'status' => 'ok',
             'request_id' => 'req-issue-reject',
@@ -141,6 +161,7 @@ it('marks signing failed when clear returns rejected clearance with request meta
 
 it('refreshes buyer address from customer before first standard issue submit', function () {
     Http::fake([
+        'https://z-heart.test/api/v1/invoices/sign' => Http::response(zheartSignResponse(), 200),
         'https://z-heart.test/api/v1/invoices/clear' => Http::response([
             'status' => 'ok',
             'request_id' => 'req-issue-ok',
@@ -198,11 +219,52 @@ it('refreshes buyer address from customer before first standard issue submit', f
     expect($addr['district'] ?? null)->toBe('Malaz')
         ->and($addr['postal_code'] ?? null)->toBe('11564');
 
-    Http::assertSentCount(1);
+    Http::assertSent(function ($request) {
+        return str_contains($request->url(), '/invoices/clear');
+    });
     Http::assertSent(function ($request) {
         $encoded = json_encode($request->data());
 
-        return str_contains((string) $encoded, '11564')
+        return str_contains($request->url(), '/invoices/clear')
+            && str_contains((string) $encoded, '11564')
             && str_contains((string) $encoded, 'Malaz');
     });
+});
+
+it('sends the same clear payload shape on issue as on resubmit', function () {
+  $clearBodies = [];
+    Http::fake([
+        'https://z-heart.test/api/v1/invoices/sign' => Http::response(zheartSignResponse(), 200),
+        'https://z-heart.test/api/v1/invoices/clear' => function ($request) use (&$clearBodies) {
+            $clearBodies[] = $request->data();
+
+            return Http::response([
+                'status' => 'ok',
+                'request_id' => 'req-clear-parity',
+                'data' => [
+                    'signed_xml' => base64_encode('<Invoice/>'),
+                    'cleared_xml' => base64_encode('<Invoice cleared="1"/>'),
+                    'uuid' => $clearBodies[0]['uuid'] ?? (string) Str::uuid(),
+                    'invoice_hash' => 'hash-sign',
+                    'zatca' => [
+                        'ok' => true,
+                        'http_status' => 200,
+                        'body' => ['clearanceStatus' => 'CLEARED'],
+                    ],
+                    'reporting_status' => 'cleared',
+                ],
+            ], 200);
+        },
+    ]);
+
+    $draft = standardIssueDraft('STD-PARITY-CLEAR');
+
+    app(InvoiceIssueService::class)->issue($draft);
+    expect($clearBodies)->toHaveCount(1);
+
+    $invoice = Invoice::query()->where('document_number', 'STD-PARITY-CLEAR')->firstOrFail();
+    $expected = ZHeartInvoicePayloadFromInvoice::build($invoice->fresh(), BusinessContext::require());
+    $sent = $clearBodies[0]['invoice'] ?? $clearBodies[0];
+    unset($sent['uuid'], $expected['uuid']);
+    expect($sent)->toBe($expected);
 });

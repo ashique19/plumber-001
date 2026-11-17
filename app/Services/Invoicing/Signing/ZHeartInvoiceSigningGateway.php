@@ -47,6 +47,23 @@ final class ZHeartInvoiceSigningGateway implements InvoiceSigningGateway
         return $this->mapZatcaSubmissionResponse($result, $request->invoiceUuid, $autoSubmitSigned);
     }
 
+    public function signLocally(InvoiceSigningRequest $request): array
+    {
+        try {
+            $payload = $this->payloadBuilder->build($request);
+        } catch (\InvalidArgumentException $e) {
+            throw new InvoiceSigningException($e->getMessage());
+        }
+
+        try {
+            $result = $this->client->sign($payload);
+        } catch (ZHeartApiException $e) {
+            throw new InvoiceSigningException(ZHeartApiUserMessage::forException($e), 0, $e);
+        }
+
+        return $this->mapZatcaSubmissionResponse($result, $request->invoiceUuid, false);
+    }
+
   /**
      * Re-submit an already issued document to ZATCA using the same UUID and invoice content (idempotent).
      *
