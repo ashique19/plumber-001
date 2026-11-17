@@ -1,4 +1,6 @@
-@if ($editingCustomerId)
+@php($loyaltyFeatureEnabled = $loyaltyFeatureEnabled ?? true)
+
+@if ($editingCustomerId && $loyaltyFeatureEnabled)
     <div class="customer-hub-modal__tabs shrink-0 border-b border-[var(--app-border)] bg-white px-5 py-3" data-testid="customer-modal-tabs">
         <div class="app-section-tabs app-section-tabs--scroll min-w-0 max-w-full">
             <button
@@ -36,7 +38,7 @@
             />
         </div>
     </form>
-@else
+@elseif ($loyaltyFeatureEnabled)
     <div class="customer-hub-modal x-modal-form flex min-h-0 flex-1 flex-col" data-testid="customer-modal">
         <div class="x-modal-form__fields min-h-0 flex-1 gap-5">
             <dl class="customer-hub-modal__summary grid gap-3 rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface-muted)]/50 p-4 text-sm sm:grid-cols-2">

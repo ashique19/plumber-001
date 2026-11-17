@@ -1,8 +1,12 @@
 <div class="customer-hub admin-hub-page pb-24 lg:pb-8" data-testid="customers-hub">
     <header class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-            <h1 class="app-page-title">{{ __('customers.title') }}</h1>
-            <p class="app-page-lead">{{ __('customers.subtitle') }}</p>
+            <h1 class="app-page-title">
+                {{ $loyaltyFeatureEnabled ? __('customers.title_with_loyalty') : __('customers.title_hub') }}
+            </h1>
+            <p class="app-page-lead">
+                {{ $loyaltyFeatureEnabled ? __('customers.subtitle_with_loyalty') : __('customers.subtitle_hub') }}
+            </p>
         </div>
         <x-app.add-button type="button" variant="primary" data-admin-livewire-call="startCustomer" class="mb-0 hidden w-full sm:ms-auto sm:inline-flex sm:w-auto">
             {{ __('customers.add') }}
@@ -21,7 +25,7 @@
                 :label="__('customers.search')"
                 name="search"
                 wire:model.live.debounce.300ms="search"
-                :placeholder="__('customers.search_placeholder')"
+                :placeholder="$loyaltyFeatureEnabled ? __('customers.search_placeholder_with_loyalty') : __('customers.search_placeholder_hub')"
                 :clearable="trim($search) !== ''"
                 clear-action="$set('search', '')"
             />
@@ -121,7 +125,25 @@
         $customerModalTitle = $editingCustomerId
             ? (($selected !== null ? \App\Support\Customers\CustomerDisplayName::for($selected) : null) ?: __('customers.edit_title'))
             : __('customers.add');
+        $customerDetailTitle = $selected !== null
+            ? \App\Support\Customers\CustomerDisplayName::for($selected)
+            : __('customers.detail_title');
     @endphp
+
+    <x-admin.hub-sheet
+        class="customer-hub-detail-shell x-modal--form-sheet"
+        size="xl"
+        :show="$showCustomerDetailModal"
+        :title="$customerDetailTitle"
+        close-wire="closeCustomerDetailModal"
+    >
+        @if ($showCustomerDetailModal && $customerDetail !== null)
+            @include('livewire.customers.partials.customer-detail', [
+                'selected' => $selected,
+                'customerDetail' => $customerDetail,
+            ])
+        @endif
+    </x-admin.hub-sheet>
 
     <x-admin.hub-sheet
         class="customer-hub-modal-shell x-modal--form-sheet"
@@ -134,6 +156,7 @@
             'selected' => $selected,
             'loyaltyRates' => $loyaltyRates,
             'transactions' => $transactions,
+            'loyaltyFeatureEnabled' => $loyaltyFeatureEnabled,
         ])
     </x-admin.hub-sheet>
 </div>

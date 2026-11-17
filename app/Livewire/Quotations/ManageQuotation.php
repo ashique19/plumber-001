@@ -11,9 +11,11 @@ use App\Livewire\Concerns\ManagesInvoicingCustomerPicker;
 use App\Support\Invoicing\DocumentCreateUiSupport;
 use App\Livewire\Concerns\ResolvesBusinessContext;
 use App\Livewire\Concerns\ValidatesFieldsLive;
+use App\Models\Customer;
 use App\Models\ProductCategory;
 use App\Models\Product;
 use App\Models\Quotation;
+use App\Support\Invoicing\InvoicingCustomerLookup;
 use App\Support\Invoicing\InvoiceDocumentTotals;
 use App\Support\Hub\HubFormSubmissionIdempotency;
 use App\Support\StaffBranchContext;
@@ -113,6 +115,14 @@ class ManageQuotation extends Component
           $this->hydrateFromQuotation($quotation);
       } else {
           $this->displayQuotationNumber = DocumentCreateUiSupport::pendingQuotationNumberLabel();
+
+          $fromCustomer = request()->query('from_customer');
+          if (is_numeric($fromCustomer)) {
+              $customer = Customer::query()->find((int) $fromCustomer);
+              if ($customer !== null) {
+                  InvoicingCustomerLookup::applyCustomerToBuyer($this, $customer);
+              }
+          }
       }
 
       $this->formSubmissionToken = (string) Str::uuid();

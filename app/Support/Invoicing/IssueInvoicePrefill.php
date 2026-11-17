@@ -4,8 +4,12 @@ namespace App\Support\Invoicing;
 
 use App\Livewire\Invoices\IssueInvoice;
 use App\Enums\InvoiceStatus;
+use App\Models\Customer;
 use App\Models\Invoice;
 use App\Models\Quotation;
+use App\Support\Customers\CustomerIdentityPersistence;
+use App\Support\Customers\CustomerIdentityRules;
+use App\Support\Customers\CustomerProfileFields;
 use App\Support\Hub\HubInvoiceRowActions;
 use Illuminate\Http\Request;
 
@@ -124,6 +128,44 @@ final class IssueInvoicePrefill
         session([self::SESSION_KEY => self::fromQuotation($quotation)]);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
+    public static function fromCustomer(Customer $customer, string $mode = 'standard'): array
+    {
+        $fields = CustomerIdentityRules::buyerFields();
+        $state = CustomerIdentityPersistence::stateFromCustomer($customer);
+
+        $vatRegistered = (bool) ($state['vat_registered'] ?? false);
+        $vatDigits = $vatRegistered ? preg_replace('/\D/', '', (string) ($state['vat_number'] ?? '')) : '';
+        $altType = strtoupper(trim((string) ($state['alt_id_type'] ?? '')));
+        $altNumber = trim((string) ($state['alt_id_number'] ?? ''));
+        $cr = $altType === 'CRN' && $altNumber !== '' ? $altNumber : (CustomerProfileFields::crNumber($customer) ?? '');
+
+        return [
+            'mode' => $mode,
+            'selectedCustomerId' => $customer->id,
+            'buyerPhone' => (string) ($state['phone'] ?? ''),
+            'buyerEmail' => (string) ($state['email'] ?? ''),
+            'buyerName' => (string) ($state['legal_name_en'] ?? $customer->name ?? ''),
+            'buyerVat' => $vatDigits !== '' ? (string) $vatDigits : '',
+            'buyerCr' => (string) $cr,
+            'buyerNameOptional' => (string) ($state['legal_name_en'] ?? $customer->name ?? ''),
+            'buyerCountry' => (string) ($state['country_code'] ?? 'SA'),
+            'addrBuilding' => (string) ($state['addr_building'] ?? ''),
+            'addrStreet' => (string) ($state['street_name'] ?? ''),
+            'addrDistrict' => (string) ($state['addr_district'] ?? ''),
+            'addrCity' => (string) ($state['city'] ?? 'Riyadh'),
+            'addrPostal' => (string) ($state['addr_postal'] ?? ''),
+            'addrAdditional' => (string) ($state['addr_additional'] ?? ''),
+        ];
+    }
+
+    public static function stashFromCustomer(Customer $customer, string $mode = 'standard'): void
+    {
+        session([self::SESSION_KEY => self::fromCustomer($customer, $mode)]);
+    }
+
     public static function clear(): void
     {
         session()->forget(self::SESSION_KEY);
@@ -220,5 +262,9 @@ final class IssueInvoicePrefill
         $component->addrCity = $prefill['addrCity'] ?? $component->addrCity;
         $component->addrPostal = $prefill['addrPostal'] ?? $component->addrPostal;
         $component->addrAdditional = $prefill['addrAdditional'] ?? $component->addrAdditional;
+
+        if (isset($prefill['selectedCustomerId']) && property_exists($component, 'selectedCustomerId')) {
+            $component->selectedCustomerId = (int) $prefill['selectedCustomerId'];
+        }
     }
 }
