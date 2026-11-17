@@ -75,7 +75,7 @@ jobs:
           vendor/bin/pest --testsuite=InstallSql
 
   playwright-search-icon:
-    if: false
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     services:
       mysql:
