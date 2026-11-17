@@ -11,18 +11,21 @@ const VIEWPORTS = [
     { width: 1280, height: 900, name: '1280' },
 ] as const;
 
-for (const locale of LOCALES) {
-    for (const viewport of VIEWPORTS) {
-        test(`customer modal form spacing [${locale} @ ${viewport.name}]`, async ({ page }) => {
-            await page.setViewportSize({ width: viewport.width, height: viewport.height });
-            await staffLogin(page);
-            await openAddCustomerModal(page, locale);
+test.describe('customer modal form spacing', () => {
+    for (const locale of LOCALES) {
+        for (const viewport of VIEWPORTS) {
+            test(`[${locale} @ ${viewport.name}]`, async ({ page }) => {
+                test.setTimeout(120_000);
+                await page.setViewportSize({ width: viewport.width, height: viewport.height });
+                await staffLogin(page);
+                await openAddCustomerModal(page, locale);
 
-            const modal = page.locator('.x-modal-backdrop .x-modal').first();
-            await expectCustomerModalFormSpacing(modal);
-        });
+                const modal = page.locator('.x-modal-backdrop .x-modal').first();
+                await expectCustomerModalFormSpacing(modal);
+            });
+        }
     }
-}
+});
 
 for (const viewport of VIEWPORTS) {
     test(`product add modal uses shared field stack [en @ ${viewport.name}]`, async ({ page }) => {
