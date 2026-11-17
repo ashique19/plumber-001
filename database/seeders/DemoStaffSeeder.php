@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Branch;
 use App\Models\BusinessSetting;
 use App\Models\Customer;
+use App\Models\Quotation;
 use App\Models\StaffUser;
 use App\Support\AuthRoleProvisioner;
 use App\Support\Themes\PlumberThemePreset;
@@ -71,5 +72,23 @@ class DemoStaffSeeder extends Seeder
                 'points_balance' => 120,
             ],
         );
+
+        $owner = StaffUser::query()->where('email', 'owner@example.test')->first();
+        if ($owner) {
+            Quotation::query()->firstOrCreate(
+                ['quotation_number' => 'QUO-DEMO-001'],
+                [
+                    'branch_id' => $jad->id,
+                    'invoice_mode' => 'simplified',
+                    'validity_until' => now()->addDays(30)->toDateString(),
+                    'payload' => [
+                        'lines' => [
+                            ['name' => 'Demo pipe fitting', 'quantity' => 1, 'unit_price_ex_vat' => 85, 'vat_rate' => 15],
+                        ],
+                    ],
+                    'created_by_staff_user_id' => $owner->id,
+                ],
+            );
+        }
     }
 }

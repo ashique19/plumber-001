@@ -353,7 +353,7 @@
     "isEntry": true
   },
   "resources/css/app.css": {
-    "file": "assets/app-CNzfv8AW.css",
+    "file": "assets/app-Dgu3DPck.css",
     "name": "app",
     "names": [
       "app.css"
@@ -528,6 +528,12 @@
       "assets/marker-icon-hN30_KVU.png",
       "assets/marker-shadow-f7SaPCxT.png"
     ]
+  },
+  "resources/js/invoice-print-preview.js": {
+    "file": "assets/invoice-print-preview-CPK8gCeZ.js",
+    "name": "invoice-print-preview",
+    "src": "resources/js/invoice-print-preview.js",
+    "isEntry": true
   },
   "resources/js/receipt.js": {
     "file": "assets/receipt-Dd-k7eC2.js",

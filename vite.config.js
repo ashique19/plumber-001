@@ -15,6 +15,7 @@ export default defineConfig({
                 'resources/css/print-template-modern.css',
                 'resources/css/print-template-classic.css',
                 'resources/js/receipt.js',
+                'resources/js/invoice-print-preview.js',
                 'resources/css/analytics-dashboard.css',
                 'resources/css/reports-print.css',
                 'resources/js/analytics-dashboard.js',
