@@ -359,16 +359,7 @@
         background: #fff;
     }
 
-    body {
-        counter-reset: invPage;
-    }
-
-    .invoice-print-sheet {
-        counter-increment: invPage;
-    }
-
-    .invoice-a4__footer::after {
-        content: 'Page ' counter(page) ' of ' counter(pages) ' – ' attr(data-document-number);
+    .invoice-print-page-label {
         display: block;
         margin-top: 2px;
         font-weight: 600;

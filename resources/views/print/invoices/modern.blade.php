@@ -5,7 +5,7 @@
 <x-layouts.print>
     @push('head')
         <title>{{ $titles['en'] }} {{ $t['document_number'] }}</title>
-        @vite(['resources/css/invoice-print.css', 'resources/css/print-template-modern.css', 'resources/js/receipt.js'])
+        @vite(['resources/css/invoice-print.css', 'resources/css/print-template-modern.css', 'resources/js/receipt.js', 'resources/js/invoice-print-preview.js'])
     @endpush
 
     <div class="invoice-print-root invoice-print-sheet print-tpl-modern" data-invoice-print data-document-number="{{ $t['document_number'] }}" data-print-footer-doc="{{ $t['document_number'] }}">
@@ -181,6 +181,7 @@
                 <div>{{ $t['seller_en'] }}</div>
                 <div class="invoice-a4__footer-ar">{{ $t['seller_ar'] }}</div>
             </div>
+            <x-invoices.print-page-label :document-number="$t['document_number']" class="print-tpl-modern__footer-page" />
         </footer>
 
         <footer class="print-tpl-modern__sheet-footer print-tpl-modern__sheet-footer--screen no-print" aria-hidden="true">
@@ -188,7 +189,7 @@
                 <div>{{ $t['seller_en'] }}</div>
                 <div class="invoice-a4__footer-ar">{{ $t['seller_ar'] }}</div>
             </div>
-            <p class="print-tpl-modern__footer-page">Page 1 of 1 - {{ $t['document_number'] }}</p>
+            <x-invoices.print-page-label :document-number="$t['document_number']" class="print-tpl-modern__footer-page" />
         </footer>
     </div>
 </x-layouts.print>
