@@ -161,7 +161,19 @@
 }
 
 .print-classic__totals {
-    width: 52%;
+    display: table;
+    width: auto;
+    min-width: 52%;
+    max-width: 70%;
+    margin-left: auto;
+}
+
+.print-classic__totals tr {
+    display: table-row;
+}
+
+.print-classic__totals td {
+    display: table-cell;
 }
 
 .print-classic__words {
