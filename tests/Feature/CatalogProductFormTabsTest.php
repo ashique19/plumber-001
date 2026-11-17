@@ -36,6 +36,8 @@ it('renders product form section tabs in the product sheet', function () {
         ->html();
 
     expect($html)->toContain('catalog-product-form-tabs')
+        ->and($html)->toContain('catalog-product-form-basic-layout')
+        ->and($html)->toContain('x-modal--xl')
         ->and($html)->toContain(__('catalog.product_tab_basic'))
         ->and($html)->toContain("setProductFormTab('pricing')")
         ->and($html)->toContain(__('catalog.product_tab_stock'));

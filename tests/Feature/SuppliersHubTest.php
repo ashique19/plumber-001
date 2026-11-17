@@ -81,6 +81,14 @@ it('blocks supplier delete when purchases exist', function () {
     expect(Supplier::query()->whereKey($supplier->id)->exists())->toBeTrue();
 });
 
+it('renders supplier hub modal with compact three-column field grid on large screens', function () {
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(SupplierHub::class)
+        ->call('startCreate')
+        ->assertSee('x-modal-form__fields--3', false)
+        ->assertSee('x-modal--xl', false);
+});
+
 it('renders searchable empty state without side panel', function () {
     Livewire::actingAs($this->owner, 'staff')
         ->test(SupplierHub::class)

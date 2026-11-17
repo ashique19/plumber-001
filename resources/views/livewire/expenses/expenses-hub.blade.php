@@ -50,9 +50,9 @@
         <x-admin.hub-fab wire:click="openForm" :label="__('expenses.add')" />
     @endif
 
-    <x-admin.hub-sheet :show="$showForm" :title="__('expenses.add')" close-wire="closeExpenseForm">
+    <x-admin.hub-sheet :show="$showForm" :title="__('expenses.add')" close-wire="closeExpenseForm" size="xl">
         <form wire:submit="saveExpense" class="x-modal-form">
-            <div class="x-modal-form__fields">
+            <div class="x-modal-form__fields x-modal-form__fields--2">
                 <x-field.date :label="__('expenses.spent_on')" name="spentOn" wire:model="spentOn" />
                 <x-field.select :label="__('expenses.category')" name="formCategory" wire:model="formCategory">
                     @foreach ($categories as $cat)
@@ -61,7 +61,7 @@
                 </x-field.select>
                 <x-field.input :label="__('expenses.vendor')" name="vendor" wire:model="vendor" />
                 <x-field.money :label="__('expenses.amount_ex_vat')" name="amountExVat" wire:model="amountExVat" />
-                <x-field.textarea :label="__('expenses.description')" name="description" wire:model="description" rows="2" />
+                <x-field.textarea :label="__('expenses.description')" name="description" wire:model="description" rows="2" wrapper-class="col-span-full" />
             </div>
             <div class="x-modal__footer x-modal__footer--in-form">
                 <x-modal.footer
