@@ -1,4 +1,6 @@
 @php
+    use App\Support\Reports\OwnerAnalyticsSection;
+
     $summary = $report['summary'];
     $trend = $summary['trend_gross_pct'];
     $trendUp = $trend >= 0;
@@ -7,14 +9,20 @@
     $profit = $extended['profit'] ?? [];
     $inventory = $extended['inventory'] ?? [];
     $dues = $extended['dues_aging'] ?? [];
+    $showsSummaryKpis = OwnerAnalyticsSection::showsSummaryKpis($reportSection);
+    $showsCharts = OwnerAnalyticsSection::showsCharts($reportSection);
+    $showsVatSummary = OwnerAnalyticsSection::showsVatSummary($reportSection);
+    $showsProfit = OwnerAnalyticsSection::showsProfit($reportSection);
+    $showsInventory = OwnerAnalyticsSection::showsInventory($reportSection);
+    $showsDues = OwnerAnalyticsSection::showsDues($reportSection);
 @endphp
 <div class="owner-analytics min-w-0 max-w-full overflow-x-hidden pb-24 lg:pb-8">
-    @vite(['resources/css/analytics-dashboard.css', 'resources/css/reports-print.css', 'resources/js/analytics-dashboard.js'])
+    @vite(['resources/css/reports-print.css'])
 
     <header class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-            <h1 class="app-page-title">{{ __('reports.title') }}</h1>
-            <p class="app-page-lead">{{ __('reports.subtitle') }}</p>
+            <h1 class="app-page-title">{{ __(OwnerAnalyticsSection::titleKey($reportSection)) }}</h1>
+            <p class="app-page-lead">{{ __(OwnerAnalyticsSection::subtitleKey($reportSection)) }}</p>
         </div>
         <div class="flex flex-wrap gap-2 reports-no-print">
             <button
@@ -89,15 +97,18 @@
         </div>
     </section>
 
-    <div class="app-kpi-grid mt-4">
-        <x-app.stat-card :label="__('reports.orders')" :value="(string) $summary['order_count']" icon="clipboard" />
-        <x-app.stat-card :label="__('reports.gross')" :value="number_format($summary['gross_inc_vat'], 2).' SAR'" icon="chart" />
-        <x-app.stat-card :label="__('reports.vat_collected')" :value="number_format($summary['vat_total'], 2).' SAR'" icon="shield" />
-        <x-app.stat-card :label="__('reports.aov')" :value="number_format($summary['avg_order_value'], 2).' SAR'" icon="clock" />
-    </div>
+    @if ($showsSummaryKpis)
+        <div class="app-kpi-grid mt-4">
+            <x-app.stat-card :label="__('reports.orders')" :value="(string) $summary['order_count']" icon="clipboard" />
+            <x-app.stat-card :label="__('reports.gross')" :value="number_format($summary['gross_inc_vat'], 2).' SAR'" icon="chart" />
+            <x-app.stat-card :label="__('reports.vat_collected')" :value="number_format($summary['vat_total'], 2).' SAR'" icon="shield" />
+            <x-app.stat-card :label="__('reports.aov')" :value="number_format($summary['avg_order_value'], 2).' SAR'" icon="clock" />
+        </div>
+    @endif
 
-  @if ($extended !== [])
+    @if ($extended !== [] && ($showsVatSummary || $showsProfit || $showsInventory || $showsDues))
         <section class="reports-print-block mt-4 grid gap-4 lg:grid-cols-2">
+            @if ($showsVatSummary)
             <div class="app-card p-4">
                 <h2 class="text-sm font-semibold uppercase tracking-wide text-[var(--app-muted)]">{{ __('reports.vat_summary_heading') }}</h2>
                 <dl class="mt-3 space-y-2 text-sm">
@@ -115,7 +126,9 @@
                     </div>
                 </dl>
             </div>
+            @endif
 
+            @if ($showsProfit)
             <div class="app-card p-4">
                 <h2 class="text-sm font-semibold uppercase tracking-wide text-[var(--app-muted)]">{{ __('reports.profit_heading') }}</h2>
                 @if (($profit['cost_status'] ?? 'unknown') === 'unknown')
@@ -157,7 +170,9 @@
                     </dl>
                 @endif
             </div>
+            @endif
 
+            @if ($showsInventory)
             <div class="app-card p-4 lg:col-span-2">
                 <h2 class="text-sm font-semibold uppercase tracking-wide text-[var(--app-muted)]">{{ __('reports.inventory_heading') }}</h2>
                 @if (($inventory['valuation_status'] ?? '') === 'known')
@@ -184,7 +199,9 @@
                     <p class="mt-3 text-sm text-[var(--app-muted)]">{{ __('reports.no_low_stock') }}</p>
                 @endif
             </div>
+            @endif
 
+            @if ($showsDues)
             <div class="app-card p-4 lg:col-span-2">
                 <h2 class="text-sm font-semibold uppercase tracking-wide text-[var(--app-muted)]">{{ __('reports.dues_heading') }}</h2>
                 <p class="mt-1 text-xs text-[var(--app-muted)]">
@@ -223,9 +240,12 @@
                     </table>
                 </div>
             </div>
+            @endif
         </section>
     @endif
 
+    @if ($showsCharts)
+    @vite(['resources/css/analytics-dashboard.css', 'resources/js/analytics-dashboard.js'])
     @php
         $analyticsPayload = [
             'report' => $report,
@@ -295,4 +315,5 @@
             <div id="chart-cashiers" class="analytics-chart mt-2"></div>
         </section>
     </div>
+    @endif
 </div>

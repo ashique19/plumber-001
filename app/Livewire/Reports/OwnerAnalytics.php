@@ -5,6 +5,7 @@ namespace App\Livewire\Reports;
 use App\Models\Branch;
 use App\Models\BusinessSetting;
 use App\Services\Pos\PosAnalyticsService;
+use App\Support\Reports\OwnerAnalyticsSection;
 use App\Support\StaffBranchContext;
 use Illuminate\Support\Carbon;
 use Illuminate\View\View;
@@ -32,6 +33,9 @@ class OwnerAnalytics extends Component
 
     #[Url]
     public string $preset = '7d';
+
+    #[Url(as: 'section')]
+    public string $section = '';
 
     public function mount(): void
     {
@@ -113,9 +117,11 @@ class OwnerAnalytics extends Component
         $showBranchSelector = StaffBranchContext::selectorVisible();
 
         $colors = $this->business->themeColors();
+        $reportSection = OwnerAnalyticsSection::normalize($this->section);
 
         return view('livewire.reports.owner-analytics', [
             'report' => $report,
+            'reportSection' => $reportSection,
             'branches' => $branches,
             'showBranchSelector' => $showBranchSelector,
             'resolvedBranch' => StaffBranchContext::resolve(),

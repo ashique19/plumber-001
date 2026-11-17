@@ -41,7 +41,9 @@ it('records an expense and includes it in profit report totals', function () {
     expect(BusinessExpense::query()->count())->toBe(1);
 
     Livewire::actingAs($this->owner, 'staff')
+        ->withQueryParams(['section' => 'profit'])
         ->test(OwnerAnalytics::class, [
+            'section' => 'profit',
             'dateFrom' => $spentOn,
             'dateTo' => $spentOn,
         ])
