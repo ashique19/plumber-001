@@ -39,6 +39,7 @@ it('hides duplicate buyer contact fields in more options after customer is linke
 it('shows walk-in optional contact on simplified issue without customer', function () {
     $html = Livewire::actingAs($this->owner, 'staff')
         ->test(IssueInvoice::class, ['mode' => 'simplified'])
+        ->call('expandSimplifiedCustomerSection')
         ->assertSee(__('invoices.buyer_contact_walk_in_heading'))
         ->html();
 

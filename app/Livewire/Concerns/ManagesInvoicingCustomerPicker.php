@@ -100,6 +100,14 @@ trait ManagesInvoicingCustomerPicker
             $this->standardBuyerShowMoreAddress = false;
         }
 
+        if (
+            property_exists($this, 'simplifiedCustomerExpanded')
+            && property_exists($this, 'mode')
+            && $this->mode === 'simplified'
+        ) {
+            $this->simplifiedCustomerExpanded = false;
+        }
+
         $this->resetErrorBag();
         $this->resetValidation();
     }
@@ -118,6 +126,9 @@ trait ManagesInvoicingCustomerPicker
         InvoicingCustomerLookup::applyCustomerToBuyer($this, $customer);
         $this->customerSearch = $customer->name;
         $this->customerQuickEditMode = false;
+        if (property_exists($this, 'simplifiedCustomerExpanded')) {
+            $this->simplifiedCustomerExpanded = true;
+        }
         $this->toastInfo(__('invoices.customer_selected', ['name' => $customer->name]));
 
         if (method_exists($this, 'promptStandardBuyerCompletionIfNeeded')) {
