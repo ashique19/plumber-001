@@ -25,11 +25,13 @@ use App\Support\Invoicing\DocumentCreateUiSupport;
 use App\Support\Invoicing\InvoiceDocumentTotals;
 use App\Support\Invoicing\IssueInvoicePrefill;
 use App\Support\Invoicing\SigningFailureSanitizer;
+use App\Support\Hub\HubFormSubmissionIdempotency;
 use App\Support\Invoicing\ZatcaSubmissionStatus;
 use App\Support\StaffBranchContext;
 use App\Support\Validation\FieldValidationRules;
 use App\Support\Validation\QuickModalValidationAttributes;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
@@ -119,6 +121,9 @@ class IssueInvoice extends Component
     #[Locked]
     public ?int $draftInvoiceId = null;
 
+    #[Locked]
+    public string $issueSubmissionToken = '';
+
     public function updatedBuyerVatRegistered(mixed $value): void
     {
         $this->buyerVatRegistered = filter_var($value, FILTER_VALIDATE_BOOLEAN);
@@ -172,6 +177,7 @@ class IssueInvoice extends Component
 
         $this->paymentMethod = InvoiceArPaymentMethod::Cash->value;
         $this->syncAmountReceivedToGrandTotal();
+        $this->issueSubmissionToken = (string) Str::uuid();
     }
 
     public function updatedPaymentTerms(): void
@@ -283,39 +289,75 @@ class IssueInvoice extends Component
             throw $exception;
         }
 
-        $draft = $this->persistDraftInvoice($issuer, forIssue: true);
-        if ($draft === null) {
+        $actorId = auth('staff')->id();
+        $existingIssuedId = HubFormSubmissionIdempotency::storedResourceId('invoice_issue', $this->issueSubmissionToken, $actorId);
+        if ($existingIssuedId !== null) {
+            $this->redirect(route('admin.invoices'), navigate: true);
+
+            return;
+        }
+
+        $lock = HubFormSubmissionIdempotency::acquireLock('invoice_issue', $this->issueSubmissionToken, $actorId);
+        if ($lock === null) {
+            $replayId = HubFormSubmissionIdempotency::waitForStoredResourceId('invoice_issue', $this->issueSubmissionToken, $actorId);
+            if ($replayId !== null) {
+                $this->redirect(route('admin.invoices'), navigate: true);
+            }
+
             return;
         }
 
         try {
-            $outcome = $issuer->issue($draft->fresh());
-        } catch (InvoiceSigningException $e) {
-            Log::warning('invoice.livewire_issue_signing_failed', SigningFailureSanitizer::logContext($e));
-            $this->toastError($this->signingToastMessage($e));
+            $replayId = HubFormSubmissionIdempotency::storedResourceId('invoice_issue', $this->issueSubmissionToken, $actorId);
+            if ($replayId !== null) {
+                $this->redirect(route('admin.invoices'), navigate: true);
 
-            return;
-        } catch (\Throwable $e) {
-            Log::error('invoice.livewire_issue_failed', SigningFailureSanitizer::logContext($e));
-            $this->toastError(__('invoices.errors.issue_failed'));
+                return;
+            }
 
-            return;
-        }
+            $draft = $this->persistDraftInvoice($issuer, forIssue: true);
+            if ($draft === null) {
+                return;
+            }
 
-        $issued = $outcome->invoice;
+            try {
+                $outcome = $issuer->issue($draft->fresh());
+            } catch (InvoiceSigningException $e) {
+                Log::warning('invoice.livewire_issue_signing_failed', SigningFailureSanitizer::logContext($e));
+                $this->toastError($this->signingToastMessage($e));
 
-        $this->recordInitialPaymentIfNeeded($issued);
+                return;
+            } catch (\Throwable $e) {
+                Log::error('invoice.livewire_issue_failed', SigningFailureSanitizer::logContext($e));
+                $this->toastError(__('invoices.errors.issue_failed'));
 
-        if (! $outcome->signingSucceeded) {
-            $this->toastWarning(
-                __('invoices.issue_saved_not_sent_zatca', ['number' => $issued->document_number]),
-                persistent: true,
-                dedupe: false,
+                return;
+            }
+
+            $issued = $outcome->invoice;
+
+            $this->recordInitialPaymentIfNeeded($issued);
+
+            HubFormSubmissionIdempotency::rememberResourceId(
+                'invoice_issue',
+                $this->issueSubmissionToken,
+                $actorId,
+                (int) $issued->id,
             );
-        }
 
-        $this->toastSuccess(__('invoices.issue_success', ['number' => $issued->document_number]));
-        $this->redirect(route('admin.invoices'), navigate: true);
+            if (! $outcome->signingSucceeded) {
+                $this->toastWarning(
+                    __('invoices.issue_saved_not_sent_zatca', ['number' => $issued->document_number]),
+                    persistent: true,
+                    dedupe: false,
+                );
+            }
+
+            $this->toastSuccess(__('invoices.issue_success', ['number' => $issued->document_number]));
+            $this->redirect(route('admin.invoices'), navigate: true);
+        } finally {
+            $lock->release();
+        }
     }
 
     private function persistDraftInvoice(InvoiceIssueService $issuer, bool $forIssue = false): ?Invoice

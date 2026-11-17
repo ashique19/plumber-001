@@ -12,12 +12,15 @@ use App\Models\ProductCategory;
 use App\Models\Supplier;
 use App\Services\Inventory\PurchaseRecordingService;
 use App\Services\Inventory\SupplierService;
+use App\Support\Hub\HubFormSubmissionIdempotency;
 use App\Support\Inventory\ProductStockSchema;
 use App\Support\StaffBranchContext;
 use App\Support\Validation\FieldValidationRules;
 use App\Support\Validation\QuickModalValidationAttributes;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Spatie\Permission\PermissionRegistrar;
 
@@ -59,6 +62,9 @@ class CreatePurchase extends Component
 
     public bool $schemaReady = true;
 
+    #[Locked]
+    public string $formSubmissionToken = '';
+
     public function mount(): void
     {
         $this->resolveBusiness();
@@ -66,6 +72,7 @@ class CreatePurchase extends Component
         app(PermissionRegistrar::class)->setPermissionsTeamId($this->business->id);
         abort_unless(auth('staff')->user()?->can('inventory.manage'), 403);
         $this->schemaReady = ProductStockSchema::ready();
+        $this->formSubmissionToken = (string) Str::uuid();
     }
 
     protected function liveValidationRules(): array
@@ -209,6 +216,30 @@ class CreatePurchase extends Component
         $user = auth('staff')->user();
         abort_if($user === null, 403);
 
+        $actorId = $user->id;
+        $scope = 'purchase_save';
+        if (HubFormSubmissionIdempotency::storedResourceId($scope, $this->formSubmissionToken, $actorId) !== null) {
+            $this->redirect(route('admin.stock.search'), navigate: true);
+
+            return;
+        }
+
+        $lock = HubFormSubmissionIdempotency::acquireLock($scope, $this->formSubmissionToken, $actorId);
+        if ($lock === null) {
+            if (HubFormSubmissionIdempotency::waitForStoredResourceId($scope, $this->formSubmissionToken, $actorId) !== null) {
+                $this->redirect(route('admin.stock.search'), navigate: true);
+            }
+
+            return;
+        }
+
+        try {
+            if (HubFormSubmissionIdempotency::storedResourceId($scope, $this->formSubmissionToken, $actorId) !== null) {
+                $this->redirect(route('admin.stock.search'), navigate: true);
+
+                return;
+            }
+
         $supplier = Supplier::query()
             ->where('branch_id', $branch->id)
             ->whereKey($validated['supplierId'])
@@ -226,8 +257,13 @@ class CreatePurchase extends Component
 
         $purchase = $purchases->record($branch, $supplier, $linePayload, $validated['notes'] ?? null, $user);
 
+        HubFormSubmissionIdempotency::rememberResourceId($scope, $this->formSubmissionToken, $actorId, (int) $purchase->id);
+
         $this->toastSuccess(__('purchases.recorded', ['number' => $purchase->purchase_number]));
         $this->redirect(route('admin.stock.search'), navigate: true);
+        } finally {
+            $lock->release();
+        }
     }
 
     /**

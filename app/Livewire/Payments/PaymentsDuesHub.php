@@ -11,9 +11,12 @@ use App\Livewire\Concerns\ResolvesBusinessContext;
 use App\Livewire\Concerns\ValidatesFieldsLive;
 use App\Models\Invoice;
 use App\Services\Invoicing\InvoiceDuesLedgerService;
+use App\Support\Hub\HubFormSubmissionIdempotency;
 use App\Support\Hub\HubInvoiceTableRow;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Spatie\Permission\PermissionRegistrar;
@@ -44,6 +47,9 @@ class PaymentsDuesHub extends Component
     public string $paymentReference = '';
 
     public bool $forRetention = false;
+
+    #[Locked]
+    public string $paymentSubmissionToken = '';
 
     public function mount(): void
     {
@@ -76,6 +82,7 @@ class PaymentsDuesHub extends Component
     public function selectInvoice(int $invoiceId): void
     {
         $this->selectedInvoiceId = $invoiceId;
+        $this->paymentSubmissionToken = (string) Str::uuid();
         $this->forRetention = false;
         $this->paymentAmount = '';
         $this->prefillPaymentAmount(app(InvoiceDuesLedgerService::class));
@@ -109,26 +116,66 @@ class PaymentsDuesHub extends Component
             ->where('status', InvoiceStatus::Issued)
             ->firstOrFail();
 
-        try {
-            $ledger->recordPayment(
-                $invoice,
-                $validated['paidOn'],
-                (float) $validated['paymentAmount'],
-                InvoiceArPaymentMethod::from($validated['paymentMethod']),
-                $validated['paymentReference'] ?? null,
-                (bool) $validated['forRetention'],
-                auth('staff')->user(),
-            );
-        } catch (\InvalidArgumentException $e) {
-            $this->toastError($e->getMessage());
+        $actorId = auth('staff')->id();
+        $scope = 'payment_record';
+        $token = $this->paymentSubmissionToken.':'.$validated['selectedInvoiceId'];
+
+        if (HubFormSubmissionIdempotency::storedResourceId($scope, $token, $actorId) !== null) {
+            $this->toastSuccess(__('payments.recorded'));
+            $this->paymentAmount = '';
+            $this->paymentReference = '';
+            $this->forRetention = false;
 
             return;
         }
 
-        $this->toastSuccess(__('payments.recorded'));
-        $this->paymentAmount = '';
-        $this->paymentReference = '';
-        $this->forRetention = false;
+        $lock = HubFormSubmissionIdempotency::acquireLock($scope, $token, $actorId);
+        if ($lock === null) {
+            if (HubFormSubmissionIdempotency::waitForStoredResourceId($scope, $token, $actorId) !== null) {
+                $this->toastSuccess(__('payments.recorded'));
+                $this->paymentAmount = '';
+                $this->paymentReference = '';
+                $this->forRetention = false;
+            }
+
+            return;
+        }
+
+        try {
+            if (HubFormSubmissionIdempotency::storedResourceId($scope, $token, $actorId) !== null) {
+                $this->toastSuccess(__('payments.recorded'));
+                $this->paymentAmount = '';
+                $this->paymentReference = '';
+                $this->forRetention = false;
+
+                return;
+            }
+
+            try {
+                $ledger->recordPayment(
+                    $invoice,
+                    $validated['paidOn'],
+                    (float) $validated['paymentAmount'],
+                    InvoiceArPaymentMethod::from($validated['paymentMethod']),
+                    $validated['paymentReference'] ?? null,
+                    (bool) $validated['forRetention'],
+                    auth('staff')->user(),
+                );
+            } catch (\InvalidArgumentException $e) {
+                $this->toastError($e->getMessage());
+
+                return;
+            }
+
+            HubFormSubmissionIdempotency::rememberResourceId($scope, $token, $actorId, (int) $invoice->id);
+
+            $this->toastSuccess(__('payments.recorded'));
+            $this->paymentAmount = '';
+            $this->paymentReference = '';
+            $this->forRetention = false;
+        } finally {
+            $lock->release();
+        }
     }
 
     public function render(InvoiceDuesLedgerService $ledger): View

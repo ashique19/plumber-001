@@ -12,12 +12,15 @@ use App\Models\Branch;
 use App\Models\BusinessExpense;
 use App\Models\ExpenseCategory;
 use App\Support\Expenses\ExpenseCategoryCatalog;
+use App\Support\Hub\HubFormSubmissionIdempotency;
 use App\Support\StaffBranchContext;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Spatie\Permission\PermissionRegistrar;
@@ -65,6 +68,9 @@ class ExpensesHub extends Component
     public ?int $pendingDeleteCategoryId = null;
 
     public string $mergeCategorySlug = '';
+
+    #[Locked]
+    public string $expenseSubmissionToken = '';
 
     public function mount(): void
     {
@@ -115,6 +121,7 @@ class ExpensesHub extends Component
     public function openForm(): void
     {
         $this->authorize('staff.manage');
+        $this->expenseSubmissionToken = (string) Str::uuid();
         $this->showForm = true;
     }
 
@@ -255,19 +262,55 @@ class ExpensesHub extends Component
             'amountExVat' => ['required', 'numeric', 'min:0.01'],
         ]);
 
-        BusinessExpense::query()->create([
-            'branch_id' => $this->branchId,
-            'spent_on' => $validated['spentOn'],
-            'category' => $validated['formCategory'],
-            'vendor' => trim($this->vendor) !== '' ? trim($this->vendor) : null,
-            'description' => trim($this->description) !== '' ? trim($this->description) : null,
-            'amount_ex_vat' => $validated['amountExVat'],
-            'recorded_by_staff_user_id' => auth('staff')->id(),
-        ]);
+        $actorId = auth('staff')->id();
+        $scope = 'expense_save';
 
-        $this->resetForm();
-        $this->showForm = false;
-        $this->toastSuccess(__('expenses.saved'));
+        if (HubFormSubmissionIdempotency::storedResourceId($scope, $this->expenseSubmissionToken, $actorId) !== null) {
+            $this->resetForm();
+            $this->showForm = false;
+            $this->toastSuccess(__('expenses.saved'));
+
+            return;
+        }
+
+        $lock = HubFormSubmissionIdempotency::acquireLock($scope, $this->expenseSubmissionToken, $actorId);
+        if ($lock === null) {
+            if (HubFormSubmissionIdempotency::waitForStoredResourceId($scope, $this->expenseSubmissionToken, $actorId) !== null) {
+                $this->resetForm();
+                $this->showForm = false;
+                $this->toastSuccess(__('expenses.saved'));
+            }
+
+            return;
+        }
+
+        try {
+            if (HubFormSubmissionIdempotency::storedResourceId($scope, $this->expenseSubmissionToken, $actorId) !== null) {
+                $this->resetForm();
+                $this->showForm = false;
+                $this->toastSuccess(__('expenses.saved'));
+
+                return;
+            }
+
+            $expense = BusinessExpense::query()->create([
+                'branch_id' => $this->branchId,
+                'spent_on' => $validated['spentOn'],
+                'category' => $validated['formCategory'],
+                'vendor' => trim($this->vendor) !== '' ? trim($this->vendor) : null,
+                'description' => trim($this->description) !== '' ? trim($this->description) : null,
+                'amount_ex_vat' => $validated['amountExVat'],
+                'recorded_by_staff_user_id' => $actorId,
+            ]);
+
+            HubFormSubmissionIdempotency::rememberResourceId($scope, $this->expenseSubmissionToken, $actorId, (int) $expense->id);
+
+            $this->resetForm();
+            $this->showForm = false;
+            $this->toastSuccess(__('expenses.saved'));
+        } finally {
+            $lock->release();
+        }
     }
 
     public function deleteExpense(int $expenseId): void
