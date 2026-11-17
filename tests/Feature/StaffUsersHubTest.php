@@ -1,5 +1,6 @@
 <?php
 
+use App\Business\BusinessContext;
 use App\Livewire\Admin\StaffUsersHub;
 use App\Models\BusinessSetting;
 use App\Models\StaffUser;
@@ -15,7 +16,7 @@ beforeEach(function () {
     $this->withoutVite();
     (new DemoStaffSeeder)->run();
     $business = BusinessSetting::singleton();
-    \App\Business\BusinessContext::set($business);
+    BusinessContext::set($business);
     app(PermissionRegistrar::class)->setPermissionsTeamId($business->id);
     $this->owner = StaffUser::query()->where('email', 'owner@example.test')->firstOrFail();
     $this->cashier = StaffUser::query()->where('email', 'cashier@example.test')->firstOrFail();
@@ -73,7 +74,8 @@ it('creates a staff user with default bn locale and cashier role', function () {
         ->call('startCreate')
         ->set('name', 'New Staff')
         ->set('email', 'newstaff@example.test')
-        ->set('password', 'Password12345!')
+        ->set('password', 'Password123!')
+        ->set('password_confirmation', 'Password123!')
         ->set('role', StaffAdminRoleCatalog::UI_STAFF)
         ->set('locale', 'bn')
         ->call('save')

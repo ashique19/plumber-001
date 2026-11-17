@@ -530,6 +530,35 @@
         min-height: 3rem;
     }
 
+    html.admin-app .app-admin-form--staff-user .staff-user-hub-field .form-field__label {
+        margin-bottom: 0.35rem;
+    }
+
+    html.admin-app .staff-user-password-fields__grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    @media (min-width: 1024px) {
+        html.admin-app .staff-user-password-fields__grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    html.admin-app .staff-user-password-fields__legend {
+        margin-bottom: 0.25rem;
+        font-weight: 600;
+    }
+
+    html.admin-app .staff-user-password-fields__hint {
+        margin-bottom: 0.75rem;
+    }
+
+    html.admin-app .admin-field-toggle-password {
+        color: var(--app-muted);
+    }
+
     html.admin-app .x-modal-form__fields .form-field__hint--after {
         margin-top: 0.25rem;
         margin-bottom: 0;

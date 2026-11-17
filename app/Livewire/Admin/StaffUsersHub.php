@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin;
 
+use App\Business\BusinessContext;
 use App\Livewire\Concerns\DispatchesToasts;
 use App\Livewire\Concerns\HasAdminHubPagination;
 use App\Livewire\Concerns\ResolvesBusinessContext;
@@ -11,8 +12,8 @@ use App\Services\Operations\StaffAdminService;
 use App\Support\EnabledLocales;
 use App\Support\Staff\StaffAdminRoleCatalog;
 use App\Support\Validation\FieldValidationRules;
-use App\Business\BusinessContext;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
@@ -40,6 +41,10 @@ class StaffUsersHub extends Component
     public string $email = '';
 
     public string $password = '';
+
+    public string $password_confirmation = '';
+
+    public ?string $generatedPasswordPlain = null;
 
     public string $role = StaffAdminRoleCatalog::UI_STAFF;
 
@@ -72,6 +77,8 @@ class StaffUsersHub extends Component
         $this->name = $user->name;
         $this->email = (string) $user->email;
         $this->password = '';
+        $this->password_confirmation = '';
+        $this->generatedPasswordPlain = null;
         $this->role = StaffAdminRoleCatalog::primaryUiRole($user->getRoleNames());
         $this->locale = EnabledLocales::resolve($user->locale ?? 'bn');
         $this->showForm = true;
@@ -94,11 +101,9 @@ class StaffUsersHub extends Component
             'role' => ['required', Rule::in(StaffAdminRoleCatalog::assignableUiRoles())],
             'locale' => ['required', Rule::in(EnabledLocales::codes())],
         ];
-        if ($this->editingId === null) {
-            $rules['password'] = ['required', 'string', 'min:12'];
-        } else {
-            $rules['password'] = ['nullable', 'string', 'min:12'];
-        }
+        $rules['password'] = $this->editingId === null
+            ? ['required', 'string', 'min:8', 'confirmed']
+            : ['nullable', 'string', 'min:8', 'confirmed'];
 
         $validated = $this->validate($rules);
         $spatieRole = StaffAdminRoleCatalog::spatieRolesForUiRole($validated['role']);
@@ -130,6 +135,19 @@ class StaffUsersHub extends Component
         }
 
         $this->closeForm();
+    }
+
+    public function generatePassword(): void
+    {
+        $plain = Str::password(16, letters: true, numbers: true, symbols: true);
+        $this->password = $plain;
+        $this->password_confirmation = $plain;
+        $this->generatedPasswordPlain = $plain;
+    }
+
+    public function dismissGeneratedPassword(): void
+    {
+        $this->generatedPasswordPlain = null;
     }
 
     public function deactivateUser(int $id, StaffAdminService $staffAdmin): void
@@ -190,6 +208,8 @@ class StaffUsersHub extends Component
         $this->name = '';
         $this->email = '';
         $this->password = '';
+        $this->password_confirmation = '';
+        $this->generatedPasswordPlain = null;
         $this->role = StaffAdminRoleCatalog::UI_STAFF;
         $this->locale = 'bn';
         $this->resetLiveValidationState();
@@ -203,7 +223,8 @@ class StaffUsersHub extends Component
         return [
             'name' => ['required', 'string', 'max:120'],
             'email' => FieldValidationRules::emailRequired(),
-            'password' => ['nullable', 'string', 'min:12'],
+            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+            'password_confirmation' => ['nullable', 'string'],
         ];
     }
 }
