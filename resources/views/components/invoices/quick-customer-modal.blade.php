@@ -9,18 +9,19 @@
     :title="$editMode ? __('invoices.edit_customer') : __('invoices.add_customer')"
     close-wire="$set('showQuickCustomerModal', false)"
     size="xl"
+    data-testid="quick-customer-modal"
 >
     <form class="x-modal-form" wire:submit.prevent="saveQuickCustomer">
         <x-modal.validation-summary :fields="$quickCustomerFields" />
 
-        <div class="x-modal-form__fields x-modal-form__fields--2">
+        <div class="x-modal-form__fields">
             <x-customers.identity-fields
                 :fields="\App\Support\Customers\CustomerIdentityRules::quickFields()"
                 more-address-prop="customerQuickShowMoreAddress"
                 :sa-standard-buyer="$standardBuyer"
             />
             @if ($standardBuyer)
-                <p class="text-xs text-[var(--app-muted)] md:col-span-2">{{ __('invoices.standard_customer_modal_hint') }}</p>
+                <p class="col-span-full text-xs text-[var(--app-muted)]">{{ __('invoices.standard_customer_modal_hint') }}</p>
             @endif
         </div>
 

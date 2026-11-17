@@ -34,6 +34,25 @@ foreach (['en', 'bn', 'ar'] as $locale) {
     });
 }
 
+it('renders quick customer modal with shared compact identity grid', function () {
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(IssueInvoice::class, ['mode' => 'simplified'])
+        ->set('showQuickCustomerModal', true)
+        ->assertSeeHtml('data-testid="quick-customer-modal"')
+        ->assertSeeHtml('x-modal--xl')
+        ->assertSeeHtml('customer-identity-fields__vat')
+        ->assertSeeHtml('data-testid="customer-identity-fields"');
+});
+
+it('renders quick product modal with shared quick product fields and xl width', function () {
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(IssueInvoice::class, ['mode' => 'simplified'])
+        ->call('openQuickProductModal')
+        ->assertSeeHtml('data-testid="quick-product-modal"')
+        ->assertSeeHtml('x-modal--xl')
+        ->assertSeeHtml('data-testid="quick-product-fields"');
+});
+
 it('renders quick customer modal outside the invoice form', function () {
     $html = Livewire::actingAs($this->owner, 'staff')
         ->test(IssueInvoice::class, ['mode' => 'simplified'])
