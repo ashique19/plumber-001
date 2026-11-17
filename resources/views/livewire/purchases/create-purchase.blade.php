@@ -1,4 +1,4 @@
-<div class="pb-24 lg:pb-8">
+<div class="document-create-page">
     <header class="mb-4">
         <h1 class="app-page-title">{{ __('purchases.create_title') }}</h1>
         <p class="app-page-lead">{{ __('purchases.create_subtitle') }}</p>
@@ -51,12 +51,16 @@
                 @endforeach
             </x-field.section>
 
-            <x-field.actions>
-                <x-ui.livewire-action type="submit" target="save" loading="save" class="tap-action-primary min-h-12 w-full flex-1 text-base font-semibold" variant="primary">
-                    {{ __('purchases.submit') }}
-                </x-ui.livewire-action>
-            </x-field.actions>
         </form>
+
+        <x-documents.create-footer
+            :cancel-url="route('admin.stock.search')"
+            :primary-label="__('purchases.submit')"
+            primary-target="save"
+            form-id="purchase-save-form"
+            :show-draft="false"
+            :show-preview="false"
+        />
 
         <x-purchases.quick-supplier-modal :show="$showQuickSupplierModal" />
         <x-invoices.quick-product-modal :show="$showQuickProductModal" :categories="$productCategories" />
