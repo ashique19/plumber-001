@@ -2,10 +2,13 @@
 
 namespace App\Services\Invoicing\ZHeart;
 
+use App\Models\BusinessSetting;
 use App\Support\Invoicing\ZHeartApiUserMessage;
+use App\Support\Invoicing\ZHeartConnectionTestReport;
 use App\Support\Invoicing\ZHeartCredentials;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
+use App\Business\BusinessContext;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -44,21 +47,35 @@ final class ZHeartClient
     }
 
     /**
-     * @return array{ok: bool, health_ok: bool, auth_ok: bool, message: string, http_status: ?int, severity: 'ok'|'error'|'warn'}
+     * @return array{
+     *     ok: bool,
+     *     health_ok: bool,
+     *     auth_ok: bool,
+     *     message: string,
+     *     http_status: ?int,
+     *     severity: 'ok'|'error'|'warn',
+     *     reason: ?string,
+     *     card: ?array<string, mixed>,
+     *     warnings: list<string>
+     * }
      */
-    public function testConnection(?string $baseUrl = null, ?string $apiKey = null): array
+    public function testConnection(?string $baseUrl = null, ?string $apiKey = null, ?BusinessSetting $business = null): array
     {
         $base = rtrim($baseUrl ?? $this->baseUrl(), '/');
         $apiKey ??= $this->resolveApiKey();
+        $business ??= BusinessContext::get();
 
         if ($base === '' || $apiKey === null || $apiKey === '') {
             return [
                 'ok' => false,
                 'health_ok' => false,
                 'auth_ok' => false,
-                'message' => __('business.zheart.test_not_configured'),
+                'message' => __('business.zheart.test_reason_not_configured'),
                 'http_status' => null,
                 'severity' => 'error',
+                'reason' => 'not_configured',
+                'card' => null,
+                'warnings' => [],
             ];
         }
 
@@ -91,68 +108,65 @@ final class ZHeartClient
         }
 
         if ($authStatus === 200 && is_array($authBody) && ($authBody['status'] ?? '') === 'ok') {
-            $client = is_array($authBody['client'] ?? null) ? $authBody['client'] : [];
-            $onboarded = $client['onboarded'] ?? null;
-            $onboardedLabel = match (true) {
-                $onboarded === true => __('business.zheart.onboarded_yes'),
-                $onboarded === false => __('business.zheart.onboarded_no'),
-                default => __('business.zheart.onboarded_unknown'),
-            };
+            $report = ZHeartConnectionTestReport::successFromAuthPayload($authBody, $business);
 
             return [
                 'ok' => true,
                 'health_ok' => $healthOk,
                 'auth_ok' => true,
-                'message' => __('business.zheart.test_success_client', [
-                    'name' => (string) ($client['name'] ?? '—'),
-                    'environment' => (string) ($client['environment'] ?? '—'),
-                    'onboarded' => $onboardedLabel,
-                ]),
+                'message' => $report['message'],
                 'http_status' => 200,
                 'severity' => 'ok',
+                'reason' => null,
+                'card' => $report['card'],
+                'warnings' => $report['warnings'],
             ];
         }
 
         if ($authStatus === 404) {
+            $failure = ZHeartConnectionTestReport::failureReason(404, $healthOk, $authBody);
+
             return [
                 'ok' => false,
                 'health_ok' => $healthOk,
                 'auth_ok' => false,
-                'message' => __('business.zheart.test_auth_endpoint_missing'),
+                'message' => $failure['message'],
                 'http_status' => 404,
                 'severity' => 'warn',
+                'reason' => $failure['reason'],
+                'card' => null,
+                'warnings' => [],
             ];
         }
 
         if (in_array($authStatus, [401, 403], true)) {
+            $failure = ZHeartConnectionTestReport::failureReason($authStatus, $healthOk, $authBody);
+
             return [
                 'ok' => false,
                 'health_ok' => $healthOk,
                 'auth_ok' => false,
-                'message' => __('business.zheart.test_auth_failed_allowlist'),
+                'message' => $failure['message'],
                 'http_status' => $authStatus,
                 'severity' => 'error',
+                'reason' => $failure['reason'],
+                'card' => null,
+                'warnings' => [],
             ];
         }
 
-        if ($healthOk && $authStatus !== null) {
-            return [
-                'ok' => false,
-                'health_ok' => true,
-                'auth_ok' => false,
-                'message' => __('business.zheart.test_auth_failed'),
-                'http_status' => $authStatus,
-                'severity' => 'error',
-            ];
-        }
+        $failure = ZHeartConnectionTestReport::failureReason($authStatus, $healthOk, $authBody);
 
         return [
             'ok' => false,
             'health_ok' => $healthOk,
             'auth_ok' => false,
-            'message' => __('business.zheart.test_unreachable'),
+            'message' => $failure['message'],
             'http_status' => $authStatus,
-            'severity' => 'error',
+            'severity' => $failure['reason'] === 'outdated' ? 'warn' : 'error',
+            'reason' => $failure['reason'],
+            'card' => null,
+            'warnings' => [],
         ];
     }
 

@@ -1,0 +1,278 @@
+<?php
+
+namespace App\Support\Invoicing;
+
+use App\Models\BusinessSetting;
+use Carbon\CarbonInterface;
+use Illuminate\Support\Carbon;
+
+final class ZHeartConnectionTestReport
+{
+    /**
+     * @param  array<string, mixed>  $authBody
+     * @return array{message: string, card: array<string, mixed>, warnings: list<string>}
+     */
+    public static function successFromAuthPayload(array $authBody, ?BusinessSetting $business = null): array
+    {
+        $client = is_array($authBody['client'] ?? null) ? $authBody['client'] : [];
+        $keyBlock = is_array($authBody['api_key'] ?? null)
+            ? $authBody['api_key']
+            : (is_array($authBody['key'] ?? null) ? $authBody['key'] : []);
+
+        $vat = self::displayScalar(self::firstScalar($client, ['vat_number', 'vat_no', 'vat']));
+        $cr = self::displayScalar(self::firstScalar($client, ['cr_number', 'cr_no', 'commercial_registration', 'cr']));
+        $environment = strtolower((string) self::firstScalar($client, ['environment', 'env'], ''));
+        $environmentLabel = $environment !== '' ? strtoupper($environment) : '—';
+        $isProduction = in_array($environment, ['production', 'prod', 'live'], true);
+
+        $activeRaw = self::firstScalar($client, ['active', 'is_active', 'client_active'], null);
+        $activeLabel = self::formatBoolStatus($activeRaw, 'active_yes', 'active_no');
+
+        $onboardedRaw = self::firstScalar($client, ['onboarded', 'onboarding_complete', 'onboarding_status'], null);
+        $onboardingLabel = match (true) {
+            $onboardedRaw === true || $onboardedRaw === 1 || $onboardedRaw === '1' || $onboardedRaw === 'true' => __('business.zheart.onboarded_yes'),
+            $onboardedRaw === false || $onboardedRaw === 0 || $onboardedRaw === '0' || $onboardedRaw === 'false' => __('business.zheart.onboarded_no'),
+            is_string($onboardedRaw) && $onboardedRaw !== '' => $onboardedRaw,
+            default => '—',
+        };
+
+        $csidExpiresRaw = self::firstScalar($client, ['csid_expires_at', 'csid_expiry', 'csid_expires'], null)
+            ?? self::firstScalar($authBody, ['csid_expires_at', 'csid_expiry'], null);
+        [$csidExpiresLabel, $csidExpiresSoon] = self::formatExpiry($csidExpiresRaw);
+
+        $lastZatca = self::formatDateTime(self::firstScalar($client, [
+            'last_zatca_call_at',
+            'last_zatca_at',
+            'last_zatca_call',
+            'zatca_last_call_at',
+        ], null) ?? self::firstScalar($authBody, ['last_zatca_call_at'], null));
+
+        $keyLabel = self::displayScalar(self::firstScalar($keyBlock, ['label', 'name', 'title']));
+        $keyLast4 = self::displayScalar(self::firstScalar($keyBlock, ['last4', 'last_four', 'suffix']));
+        if ($keyLast4 !== '—' && ! str_starts_with($keyLast4, '…')) {
+            $keyLast4 = '…'.$keyLast4;
+        }
+
+        $keyExpiresRaw = self::firstScalar($keyBlock, ['expires_at', 'expiry', 'expires'], null);
+        [$keyExpiresLabel] = self::formatExpiry($keyExpiresRaw, warnDays: null);
+
+        $allowRaw = self::firstScalar($authBody, ['ip_allowlist_enabled'], null)
+            ?? self::firstScalar($keyBlock, ['ip_allowlist_enabled', 'ip_allowlist'], null)
+            ?? self::firstScalar($client, ['ip_allowlist_enabled'], null);
+        $allowlistLabel = self::formatAllowlist($allowRaw);
+
+        $card = [
+            'client_name' => self::displayScalar(self::firstScalar($client, ['name', 'client_name', 'display_name'])),
+            'vat_number' => $vat,
+            'cr_number' => $cr,
+            'environment' => $environmentLabel,
+            'environment_production' => $isProduction,
+            'active' => $activeLabel,
+            'onboarding' => $onboardingLabel,
+            'csid_expires' => $csidExpiresLabel,
+            'csid_expires_soon' => $csidExpiresSoon,
+            'last_zatca_call' => $lastZatca,
+            'key_label' => $keyLabel,
+            'key_last4' => $keyLast4,
+            'key_expires' => $keyExpiresLabel,
+            'ip_allowlist' => $allowlistLabel,
+        ];
+
+        $warnings = [];
+        if ($csidExpiresSoon) {
+            $warnings[] = __('business.zheart.test_warn_csid_expiring');
+        }
+
+        $businessVat = trim((string) ($business !== null ? data_get($business->settings, 'legal.vat_number', '') : ''));
+        $remoteVat = self::normalizeVat(self::firstScalar($client, ['vat_number', 'vat_no', 'vat'], '') ?? '');
+        $localVat = self::normalizeVat($businessVat);
+        if ($remoteVat !== '' && $localVat !== '' && $remoteVat !== $localVat) {
+            $warnings[] = __('business.zheart.test_warn_vat_mismatch', [
+                'local' => $businessVat !== '' ? $businessVat : $localVat,
+                'remote' => $vat !== '—' ? $vat : $remoteVat,
+            ]);
+        }
+
+        $message = __('business.zheart.test_success_client', [
+            'name' => $card['client_name'],
+            'environment' => $card['environment'],
+            'onboarded' => $onboardingLabel,
+        ]);
+
+        return [
+            'message' => $message,
+            'card' => $card,
+            'warnings' => $warnings,
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>|null  $authBody
+     */
+    public static function failureReason(
+        ?int $authStatus,
+        bool $healthOk,
+        ?array $authBody = null,
+    ): array {
+        if ($authStatus === 404) {
+            return [
+                'reason' => 'outdated',
+                'message' => __('business.zheart.test_reason_outdated'),
+            ];
+        }
+
+        if ($authStatus === 401) {
+            return [
+                'reason' => 'bad_key',
+                'message' => __('business.zheart.test_reason_bad_key'),
+            ];
+        }
+
+        if ($authStatus === 403) {
+            $errorCode = is_string(data_get($authBody, 'data.error')) ? (string) data_get($authBody, 'data.error') : null;
+            $reason = $errorCode === 'ip_not_allowed' ? 'ip_not_allowed' : 'ip_not_allowed';
+
+            return [
+                'reason' => $reason,
+                'message' => __('business.zheart.test_reason_ip_not_allowed'),
+            ];
+        }
+
+        if (! $healthOk && $authStatus === null) {
+            return [
+                'reason' => 'unreachable',
+                'message' => __('business.zheart.test_reason_unreachable'),
+            ];
+        }
+
+        if ($healthOk && $authStatus !== null) {
+            return [
+                'reason' => 'auth_failed',
+                'message' => __('business.zheart.test_reason_auth_failed'),
+            ];
+        }
+
+        return [
+            'reason' => 'unreachable',
+            'message' => __('business.zheart.test_reason_unreachable'),
+        ];
+    }
+
+    private static function normalizeVat(mixed $value): string
+    {
+        $digits = preg_replace('/\D/', '', (string) $value) ?? '';
+
+        return $digits;
+    }
+
+    /**
+     * @param  list<string>  $keys
+     */
+    private static function firstScalar(array $data, array $keys, mixed $default = '—'): mixed
+    {
+        foreach ($keys as $key) {
+            if (! array_key_exists($key, $data)) {
+                continue;
+            }
+            $value = $data[$key];
+            if ($value === null || $value === '') {
+                continue;
+            }
+
+            return $value;
+        }
+
+        return $default;
+    }
+
+    private static function displayScalar(mixed $value): string
+    {
+        if ($value === null || $value === '' || $value === '—') {
+            return '—';
+        }
+
+        if (is_bool($value)) {
+            return $value ? '1' : '0';
+        }
+
+        return trim((string) $value);
+    }
+
+    private static function formatBoolStatus(mixed $value, string $yesKey, string $noKey): string
+    {
+        if ($value === null || $value === '—') {
+            return '—';
+        }
+
+        $truthy = $value === true || $value === 1 || $value === '1' || $value === 'true' || $value === 'yes';
+        $falsy = $value === false || $value === 0 || $value === '0' || $value === 'false' || $value === 'no';
+
+        if ($truthy) {
+            return __('business.zheart.'.$yesKey);
+        }
+        if ($falsy) {
+            return __('business.zheart.'.$noKey);
+        }
+
+        return '—';
+    }
+
+    private static function formatAllowlist(mixed $value): string
+    {
+        if ($value === null || $value === '—') {
+            return '—';
+        }
+
+        if (is_bool($value)) {
+            return $value
+                ? __('business.zheart.allowlist_on')
+                : __('business.zheart.allowlist_off');
+        }
+
+        if (is_string($value) && in_array(strtolower($value), ['on', 'enabled', 'true', '1'], true)) {
+            return __('business.zheart.allowlist_on');
+        }
+        if (is_string($value) && in_array(strtolower($value), ['off', 'disabled', 'false', '0'], true)) {
+            return __('business.zheart.allowlist_off');
+        }
+
+        return '—';
+    }
+
+    /**
+     * @return array{0: string, 1: bool}
+     */
+    private static function formatExpiry(mixed $value, ?int $warnDays = 30): array
+    {
+        if ($value === null || $value === '' || $value === '—') {
+            return ['—', false];
+        }
+
+        try {
+            $date = Carbon::parse($value);
+        } catch (\Throwable) {
+            return [self::displayScalar($value), false];
+        }
+
+        $label = $date->timezone(config('app.timezone'))->translatedFormat('Y-m-d H:i');
+        $soon = $warnDays !== null && $date->isFuture() && $date->lessThanOrEqualTo(now()->addDays($warnDays));
+
+        return [$label, $soon];
+    }
+
+    private static function formatDateTime(mixed $value): string
+    {
+        if ($value === null || $value === '' || $value === '—') {
+            return '—';
+        }
+
+        try {
+            /** @var CarbonInterface $date */
+            $date = Carbon::parse($value);
+
+            return $date->timezone(config('app.timezone'))->translatedFormat('Y-m-d H:i');
+        } catch (\Throwable) {
+            return self::displayScalar($value);
+        }
+    }
+}

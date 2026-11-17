@@ -90,7 +90,16 @@ it('tests connection without leaking the api key in http payload', function () {
         'https://z-heart.example.test/api/v1/health' => Http::response(['status' => 'ok'], 200),
         'https://z-heart.example.test/api/v1/auth' => Http::response([
             'status' => 'ok',
-            'client' => ['name' => 'Test Client', 'environment' => 'sandbox', 'onboarded' => true],
+            'client' => [
+                'name' => 'Test Client',
+                'vat_number' => '300012345600003',
+                'cr_number' => '1010123456',
+                'environment' => 'sandbox',
+                'active' => true,
+                'onboarded' => true,
+            ],
+            'api_key' => ['label' => 'Sandbox key', 'last4' => '6789'],
+            'ip_allowlist_enabled' => true,
         ], 200),
     ]);
 
@@ -104,13 +113,42 @@ it('tests connection without leaking the api key in http payload', function () {
         ->call('testZheartConnection')
         ->assertSet('zheartTestStatus', 'ok')
         ->assertSet('zheartTestHttpStatus', 200)
+        ->assertSeeHtml('data-testid="business-zheart-test-card"')
         ->assertSee('Test Client', false)
+        ->assertSee('300012345600003', false)
         ->assertSeeHtml('data-testid="business-zheart-test-http-status"');
 
     Http::assertSent(function ($request) use ($key) {
         return $request->hasHeader('Authorization', 'Bearer '.$key)
             && ! str_contains((string) $request->url(), $key);
     });
+});
+
+it('shows vat mismatch warning when z-heart client vat differs from business legal', function () {
+    $settings = $this->business->settings ?? BusinessSetting::defaultSettings();
+    $settings['legal']['vat_number'] = '300012345600003';
+    $this->business->writeSettings($settings);
+
+    Http::fake([
+        'https://z-heart.example.test/api/v1/health' => Http::response(['status' => 'ok'], 200),
+        'https://z-heart.example.test/api/v1/auth' => Http::response([
+            'status' => 'ok',
+            'client' => [
+                'name' => 'Test Client',
+                'vat_number' => '300099999900003',
+                'environment' => 'sandbox',
+            ],
+        ], 200),
+    ]);
+
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(BusinessSettings::class)
+        ->set('section', 'invoicing')
+        ->set('zheartBaseUrl', 'https://z-heart.example.test')
+        ->set('zheartApiKeyInput', 'zh_test1234.AbcdEfGhIjKlMnOpQrStUvWxYz0123456789')
+        ->call('testZheartConnection')
+        ->assertSeeHtml('data-testid="business-zheart-test-warnings"')
+        ->assertSee('300099999900003', false);
 });
 
 it('shows warning when auth endpoint returns 404', function () {
@@ -127,7 +165,8 @@ it('shows warning when auth endpoint returns 404', function () {
         ->call('testZheartConnection')
         ->assertSet('zheartTestStatus', 'warn')
         ->assertSet('zheartTestHttpStatus', 404)
-        ->assertSee(__('business.zheart.test_auth_endpoint_missing'), false);
+        ->assertSet('zheartTestReason', 'outdated')
+        ->assertSee(__('business.zheart.test_reason_outdated'), false);
 });
 
 it('maps legacy zheart section to invoicing tab', function () {

@@ -188,26 +188,7 @@
                             />
                         @endif
                     </div>
-                    @if ($zheartTestMessage !== '')
-                        <div
-                            @class([
-                                'rounded-lg p-3 text-sm',
-                                'bg-emerald-50 text-emerald-950 ring-1 ring-emerald-200' => $zheartTestStatus === 'ok',
-                                'bg-amber-50 text-amber-950 ring-1 ring-amber-200' => $zheartTestStatus === 'warn',
-                                'bg-red-50 text-red-950 ring-1 ring-red-200' => $zheartTestStatus === 'error',
-                                'bg-[var(--app-surface-muted)] text-[var(--app-muted)]' => $zheartTestStatus === null,
-                            ])
-                            role="status"
-                            data-testid="business-zheart-test-result"
-                        >
-                            <p>{{ $zheartTestMessage }}</p>
-                            @if ($zheartTestHttpStatus !== null)
-                                <p class="mt-1 text-xs opacity-80" data-testid="business-zheart-test-http-status">
-                                    {{ __('business.zheart.test_http_status', ['status' => $zheartTestHttpStatus]) }}
-                                </p>
-                            @endif
-                        </div>
-                    @endif
+                    @include('livewire.admin.partials.zheart-test-result')
                     <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-end">
                         <button type="button" class="tap-action-muted min-h-11 w-full sm:w-auto" wire:click="testZheartConnection" wire:loading.attr="disabled" wire:target="testZheartConnection">{{ __('business.zheart.test_connection') }}</button>
                         <button type="button" class="tap-action-primary min-h-11 w-full sm:w-auto" wire:click="saveZheart" wire:loading.attr="disabled" wire:target="saveZheart">{{ __('business.save') }}</button>
