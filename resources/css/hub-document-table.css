@@ -107,15 +107,21 @@
 
 .hub-doc-table__actions {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.35rem;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0.25rem;
     justify-content: flex-end;
-    min-width: 11rem;
+    min-width: 8.5rem;
+}
+
+.hub-doc-table__actions--compact {
+    max-width: 100%;
 }
 
 .hub-doc-table__action {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 0.25rem;
     min-height: 2.25rem;
     padding: 0.25rem 0.5rem;
@@ -125,6 +131,29 @@
     border: 1px solid var(--app-border);
     background: var(--app-surface-2, #f8fafc);
     white-space: nowrap;
+}
+
+.hub-doc-table__action--icon {
+    width: 2.25rem;
+    min-width: 2.25rem;
+    padding: 0.25rem;
+}
+
+.hub-doc-table__action--icon .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.hub-doc-table__more summary.hub-doc-table__action--icon {
+    list-style: none;
+    cursor: pointer;
 }
 
 .hub-doc-table__action svg {
@@ -271,6 +300,47 @@ html[dir='rtl'] .hub-doc-table__actions {
     background: color-mix(in srgb, var(--app-border) 40%, transparent);
 }
 
+.hub-doc-table__more-item--accent {
+    color: var(--app-accent);
+}
+
 .hub-doc-table {
     min-width: 62rem;
+}
+
+.hub-doc-mobile-card {
+    border: 1px solid var(--app-border);
+    border-radius: var(--app-radius, 0.75rem);
+    background: var(--app-surface, #fff);
+    padding: 0.85rem;
+}
+
+.hub-doc-mobile-card__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.hub-doc-mobile-card__meta {
+    margin-top: 0.5rem;
+    display: grid;
+    gap: 0.35rem;
+    font-size: 0.75rem;
+}
+
+.hub-doc-mobile-card__meta-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.hub-doc-mobile-card__actions {
+    margin-top: 0.75rem;
+    padding-top: 0.65rem;
+    border-top: 1px solid color-mix(in srgb, var(--app-border) 55%, transparent);
+}
+
+.hub-doc-mobile-card__actions .hub-doc-table__actions {
+    justify-content: flex-start;
 }

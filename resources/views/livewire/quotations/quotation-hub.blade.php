@@ -27,6 +27,46 @@
         <x-field.input type="date" :label="__('quotations.date_to')" name="dateTo" wire:model.live="dateTo" :liveValidate="false" />
     </section>
 
+    @if ($quotations->isNotEmpty())
+        <ul class="mb-4 space-y-3 sm:hidden" data-testid="hub-quotation-cards">
+            @foreach ($quotations as $row)
+                @php
+                    $quotation = $row['quotation'];
+                    $urls = $row['print_urls'];
+                @endphp
+                <li wire:key="quotation-card-{{ $quotation->id }}" class="hub-doc-mobile-card">
+                    <div class="hub-doc-mobile-card__head">
+                        <div>
+                            <p class="font-semibold tabular-nums">{{ $quotation->quotation_number }}</p>
+                            <p class="text-xs text-[var(--app-muted)]">{{ $row['customer'] }}</p>
+                        </div>
+                    </div>
+                    <dl class="hub-doc-mobile-card__meta">
+                        <div class="hub-doc-mobile-card__meta-row">
+                            <dt class="text-[var(--app-muted)]">{{ __('quotations.col_valid_until') }}</dt>
+                            <dd class="tabular-nums">{{ $quotation->validity_until?->format('Y-m-d') ?? '—' }}</dd>
+                        </div>
+                        <div class="hub-doc-mobile-card__meta-row">
+                            <dt class="text-[var(--app-muted)]">{{ __('quotations.col_amount') }}</dt>
+                            <dd class="tabular-nums font-medium"><x-invoices.sar-symbol /> {{ number_format($row['total_inc_vat'], 2) }}</dd>
+                        </div>
+                    </dl>
+                    <div class="hub-doc-mobile-card__actions">
+                        <x-hub.quotation-row-actions
+                            :quotation-id="$quotation->id"
+                            :print-url="$urls['print']"
+                            :download-url="$urls['download']"
+                            :can-manage="$canManageQuotations ?? false"
+                        />
+                    </div>
+                </li>
+            @endforeach
+        </ul>
+    @else
+        <p class="mb-4 text-center text-sm text-[var(--app-muted)] sm:hidden">{{ __('quotations.empty') }}</p>
+    @endif
+
+    <div class="hidden sm:block">
         <x-hub.document-table-shell :aria-label="__('quotations.table_caption')">
             <thead>
                 <tr>
@@ -69,26 +109,12 @@
                             <x-invoices.sar-symbol /> {{ number_format($row['total_inc_vat'], 2) }}
                         </td>
                         <td>
-                            <div class="hub-doc-table__actions">
-                                <a class="hub-doc-table__action" href="{{ $urls['print'] }}" target="_blank" rel="noopener">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
-                                    {{ __('quotations.action_print') }}
-                                </a>
-                                <a class="hub-doc-table__action" href="{{ $urls['download'] }}">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
-                                    {{ __('quotations.action_download_pdf') }}
-                                </a>
-                                @if ($canManageQuotations ?? false)
-                                    <a class="hub-doc-table__action" href="{{ route('admin.quotations.edit', $quotation) }}">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                                        {{ __('quotations.edit') }}
-                                    </a>
-                                    <button type="button" class="hub-doc-table__action" wire:click="convertToInvoice({{ $quotation->id }})">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M12 18v-6"/><path d="M9 15h6"/></svg>
-                                        {{ __('quotations.convert') }}
-                                    </button>
-                                @endif
-                            </div>
+                            <x-hub.quotation-row-actions
+                                :quotation-id="$quotation->id"
+                                :print-url="$urls['print']"
+                                :download-url="$urls['download']"
+                                :can-manage="$canManageQuotations ?? false"
+                            />
                         </td>
                     </tr>
                 @empty
@@ -98,6 +124,7 @@
                 @endforelse
             </tbody>
         </x-hub.document-table-shell>
+    </div>
 
     <div class="mt-4">
         {{ $quotations->links() }}
