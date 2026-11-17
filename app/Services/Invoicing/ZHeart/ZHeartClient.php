@@ -3,6 +3,7 @@
 namespace App\Services\Invoicing\ZHeart;
 
 use App\Support\Invoicing\ZHeartApiUserMessage;
+use App\Support\Invoicing\ZHeartCredentials;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
@@ -39,20 +40,74 @@ final class ZHeartClient
 
     public function health(): bool
     {
-        $base = $this->baseUrl();
-        if ($base === '') {
-            return false;
+        return $this->testConnection()['ok'];
+    }
+
+    /**
+     * @return array{ok: bool, health_ok: bool, auth_ok: bool, message: string}
+     */
+    public function testConnection(?string $baseUrl = null, ?string $apiKey = null): array
+    {
+        $base = rtrim($baseUrl ?? $this->baseUrl(), '/');
+        $apiKey ??= $this->resolveApiKey();
+
+        if ($base === '' || $apiKey === null || $apiKey === '') {
+            return [
+                'ok' => false,
+                'health_ok' => false,
+                'auth_ok' => false,
+                'message' => __('business.zheart.test_not_configured'),
+            ];
+        }
+
+        $timeout = (int) config('zheart.timeout_health_seconds', 5);
+        $healthOk = false;
+        $authOk = false;
+
+        try {
+            $health = Http::timeout($timeout)
+                ->acceptJson()
+                ->get($base.'/api/v1/health');
+            $healthOk = $health->successful() && ($health->json('status') === 'ok');
+        } catch (\Throwable) {
+            $healthOk = false;
         }
 
         try {
-            $response = Http::timeout((int) config('zheart.timeout_health_seconds', 5))
+            $auth = Http::timeout($timeout)
                 ->acceptJson()
-                ->get($base.'/api/v1/health');
-
-            return $response->successful() && ($response->json('status') === 'ok');
+                ->withToken($apiKey)
+                ->get($base.'/api/v1/auth');
+            $authOk = $auth->successful()
+                && in_array($auth->json('status'), ['ok', 'success'], true);
         } catch (\Throwable) {
-            return false;
+            $authOk = false;
         }
+
+        if ($healthOk && $authOk) {
+            return [
+                'ok' => true,
+                'health_ok' => true,
+                'auth_ok' => true,
+                'message' => __('business.zheart.test_success'),
+            ];
+        }
+
+        if ($healthOk && ! $authOk) {
+            return [
+                'ok' => false,
+                'health_ok' => true,
+                'auth_ok' => false,
+                'message' => __('business.zheart.test_auth_failed'),
+            ];
+        }
+
+        return [
+            'ok' => false,
+            'health_ok' => $healthOk,
+            'auth_ok' => false,
+            'message' => __('business.zheart.test_unreachable'),
+        ];
     }
 
     /**
@@ -141,13 +196,11 @@ final class ZHeartClient
 
     private function baseUrl(): string
     {
-        return rtrim((string) config('zheart.base_url', ''), '/');
+        return ZHeartCredentials::baseUrl();
     }
 
     private function resolveApiKey(): ?string
     {
-        $fromEnv = config('zheart.api_key');
-
-        return is_string($fromEnv) && $fromEnv !== '' ? $fromEnv : null;
+        return ZHeartCredentials::apiKey();
     }
 }

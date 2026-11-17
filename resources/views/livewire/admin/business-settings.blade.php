@@ -9,7 +9,14 @@
         </header>
 
         <nav class="app-section-tabs app-section-tabs--scroll business-settings-page__tabs mt-4 flex min-w-0 w-full" aria-label="{{ __('business.title') }}">
-            @foreach (['brand', 'legal', 'invoicing', 'contact', 'hours', 'branches', 'extras'] as $key)
+            @php
+                $businessTabKeys = ['brand', 'legal', 'invoicing'];
+                if ($isOwner) {
+                    $businessTabKeys[] = 'zheart';
+                }
+                $businessTabKeys = array_merge($businessTabKeys, ['contact', 'hours', 'branches', 'extras']);
+            @endphp
+            @foreach ($businessTabKeys as $key)
                 <button
                     type="button"
                     wire:click="setSection('{{ $key }}')"
@@ -104,7 +111,7 @@
     @elseif ($section === 'invoicing')
         <form class="app-card flex flex-col gap-4 p-4" novalidate wire:keydown.enter.prevent>
             <p class="text-sm text-[var(--app-muted)]">{{ __('business.invoicing.lead') }}</p>
-            @if (filled(config('zheart.api_key')))
+            @if (\App\Support\Invoicing\ZHeartCredentials::isConfigured($business))
                 <p class="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-950 ring-1 ring-emerald-200">{{ __('business.invoicing.api_key_configured') }}</p>
             @else
                 <p class="rounded-lg bg-amber-50 p-3 text-sm text-amber-900 ring-1 ring-amber-200">{{ __('business.invoicing.api_key_missing') }}</p>
@@ -146,6 +153,62 @@
             </label>
             <div class="flex justify-end">
                 <button type="button" class="tap-action-primary min-h-11 w-full sm:w-auto" wire:click="saveInvoicing" wire:loading.attr="disabled" wire:target="saveInvoicing">{{ __('business.save') }}</button>
+            </div>
+        </form>
+    @elseif ($section === 'zheart' && $isOwner)
+        <form class="app-card flex flex-col gap-4 p-4" novalidate wire:keydown.enter.prevent data-testid="business-zheart-form">
+            <p class="text-sm text-[var(--app-muted)]">{{ __('business.zheart.lead') }}</p>
+            @if ($zheartUsingEnvFallback)
+                <p class="rounded-lg border border-[var(--app-border)] bg-[var(--app-surface-muted)]/60 p-3 text-sm text-[var(--app-muted)]">
+                    {{ __('business.zheart.env_fallback_hint') }}
+                </p>
+            @endif
+            <x-field.input
+                type="url"
+                inputmode="url"
+                autocomplete="off"
+                :label="__('business.zheart.base_url')"
+                name="zheartBaseUrl"
+                wire:model.live="zheartBaseUrl"
+                :liveValidate="false"
+                placeholder="https://z-heart.example.com"
+            />
+            <div class="space-y-2" data-testid="business-zheart-api-key">
+                <span class="type-label">{{ __('business.zheart.api_key') }}</span>
+                @if ($zheartHasStoredKey && ! $zheartReplaceKeyOpen)
+                    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                        <p class="font-mono text-sm tabular-nums" dir="ltr">{{ __('business.zheart.masked_key', ['last4' => $zheartKeyLast4 ?? '????']) }}</p>
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" class="tap-action-muted min-h-10 px-3 text-sm" wire:click="beginZheartReplaceKey">{{ __('business.zheart.replace_key') }}</button>
+                            <button type="button" class="tap-action-muted min-h-10 px-3 text-sm text-red-700" wire:click="removeZheartKey" wire:confirm="{{ __('business.zheart.remove_confirm') }}">{{ __('business.zheart.remove_key') }}</button>
+                        </div>
+                    </div>
+                @else
+                    <x-field.input
+                        type="password"
+                        autocomplete="new-password"
+                        :label="$zheartHasStoredKey ? __('business.zheart.new_api_key') : __('business.zheart.api_key')"
+                        name="zheartApiKeyInput"
+                        wire:model="zheartApiKeyInput"
+                        :liveValidate="false"
+                    />
+                @endif
+            </div>
+            @if ($zheartTestMessage !== '')
+                <p
+                    @class([
+                        'rounded-lg p-3 text-sm',
+                        'bg-emerald-50 text-emerald-950 ring-1 ring-emerald-200' => $zheartTestStatus === 'ok',
+                        'bg-red-50 text-red-950 ring-1 ring-red-200' => $zheartTestStatus === 'error',
+                        'bg-[var(--app-surface-muted)] text-[var(--app-muted)]' => $zheartTestStatus === null,
+                    ])
+                    role="status"
+                    data-testid="business-zheart-test-result"
+                >{{ $zheartTestMessage }}</p>
+            @endif
+            <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-end">
+                <button type="button" class="tap-action-muted min-h-11 w-full sm:w-auto" wire:click="testZheartConnection" wire:loading.attr="disabled" wire:target="testZheartConnection">{{ __('business.zheart.test_connection') }}</button>
+                <button type="button" class="tap-action-primary min-h-11 w-full sm:w-auto" wire:click="saveZheart" wire:loading.attr="disabled" wire:target="saveZheart">{{ __('business.save') }}</button>
             </div>
         </form>
     @elseif ($section === 'contact')
@@ -261,7 +324,7 @@
                 <a href="{{ $teamUrl }}" class="tap-action-muted min-h-11 w-full text-center sm:w-auto">{{ __('business.branches.open_team') }}</a>
             </div>
         </section>
-    @else
+    @elseif ($section === 'extras')
         <form class="app-card flex flex-col gap-4 p-4" novalidate wire:keydown.enter.prevent>
             <x-field.toggle :label="__('business.extras.storefront_emergency')" name="plumberEmergency" wire:model="plumberEmergency" />
             <x-field.input :label="__('business.extras.storefront_license')" name="plumberLicense" wire:model.live="plumberLicense" :liveValidate="false" />
