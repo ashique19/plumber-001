@@ -15,8 +15,10 @@ use App\Services\Invoicing\InvoiceIssueResult;
 use App\Services\Invoicing\Signing\InvoiceSigningGatewayFactory;
 use App\Services\Invoicing\Signing\InvoiceSigningRequest;
 use App\Support\Invoicing\InvoiceLineDataFactory;
+use App\Support\Invoicing\InvoiceZatcaSubmissionGuard;
 use App\Support\Invoicing\SigningFailureSanitizer;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
@@ -62,6 +64,33 @@ class InvoiceIssueService
             return new InvoiceIssueResult($invoice, true);
         }
 
+        $lock = Cache::lock(InvoiceZatcaSubmissionGuard::lockKey((int) $invoice->id), InvoiceZatcaSubmissionGuard::LOCK_SECONDS);
+        if (! $lock->get()) {
+            $fresh = $invoice->fresh() ?? $invoice;
+            if ($fresh->isIssued()) {
+                return new InvoiceIssueResult($fresh, filled($fresh->signed_xml));
+            }
+
+            return new InvoiceIssueResult($invoice, false, __('invoices.errors.issue_in_progress'));
+        }
+
+        try {
+            return $this->issueWithLock($invoice->fresh() ?? $invoice);
+        } finally {
+            $lock->release();
+        }
+    }
+
+    private function issueWithLock(Invoice $invoice): InvoiceIssueResult
+    {
+        if ($invoice->isIssued()) {
+            return new InvoiceIssueResult($invoice, true);
+        }
+
+        if (InvoiceZatcaSubmissionGuard::shouldSkipRemoteSubmission($invoice)) {
+            return new InvoiceIssueResult($invoice, true);
+        }
+
         $business = BusinessContext::require();
         $lines = $this->linesFromInvoice($invoice);
 
@@ -92,15 +121,22 @@ class InvoiceIssueService
 
         $dueDate = $this->resolveDueDate($invoice, $now, $business);
 
+        InvoiceZatcaSubmissionGuard::markSubmissionInFlight($invoice);
+
         try {
             $signed = $this->signingFactory->gateway()->signIssuedInvoice($signingRequest, $invoice);
         } catch (InvoiceSigningException $e) {
+            InvoiceZatcaSubmissionGuard::clearSubmissionInFlight($invoice);
+
             return $this->finalizeWithoutRemoteSigning($invoice, $now, $dueDate, $invoiceUuid, $e);
         } catch (\Throwable $e) {
+            InvoiceZatcaSubmissionGuard::clearSubmissionInFlight($invoice);
             $wrapped = InvoiceSigningException::signingFailed($e);
 
             return $this->finalizeWithoutRemoteSigning($invoice, $now, $dueDate, $invoiceUuid, $wrapped);
         }
+
+        InvoiceZatcaSubmissionGuard::clearSubmissionInFlight($invoice);
 
         $payloadMerge = array_merge($invoice->payload ?? [], [
             'lines' => $invoice->payload['lines'] ?? [],
@@ -121,6 +157,12 @@ class InvoiceIssueService
         }
 
         $payloadMerge['zheart_remote_submitted'] = (bool) ($signed['remote_submitted'] ?? false);
+
+        $clearanceError = InvoiceZatcaSubmissionGuard::standardClearanceErrorMessage($signed, $invoiceCategory);
+        if ($clearanceError !== null) {
+            $payloadMerge['zheart_last_error'] = $clearanceError;
+            $payloadMerge['zheart_last_error_at'] = now()->toIso8601String();
+        }
 
         $invoice->forceFill([
             'status' => InvoiceStatus::Issued,
@@ -166,6 +208,8 @@ class InvoiceIssueService
             'signing_submission_status' => 'not_submitted',
             'zheart_remote_submitted' => false,
             'zheart_reporting_status' => 'pending',
+            'zheart_last_error' => SigningFailureSanitizer::sanitizeMessage($exception->getMessage()),
+            'zheart_last_error_at' => now()->toIso8601String(),
         ]);
 
         $invoice->forceFill([
