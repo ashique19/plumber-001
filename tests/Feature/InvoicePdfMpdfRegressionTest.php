@@ -69,7 +69,7 @@ it('includes totals rows, QR image, and Arabic address in wrapped PDF html', fun
         ->toContain('حي الملز')
         ->toContain('sar-riyal-symbol.png')
         ->not->toContain('Issue date &amp; time')
-        ->not->toContain('<colgroup')
+        ->toContain('invoice-print-info-grid__col-en', false)
         ->not->toMatch('/class="[^"]*print-tpl-modern__totals-net/');
 });
 

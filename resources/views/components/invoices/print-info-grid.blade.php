@@ -12,12 +12,21 @@
 
 @if ($filled !== [])
     <table {{ $attributes->class(['invoice-print-info-grid']) }} role="presentation" width="100%">
+        <colgroup>
+            <col style="width:50%">
+            <col style="width:50%">
+        </colgroup>
         <tbody>
             @foreach ($pairs as $pair)
                 <tr>
                     @foreach ($pair as $row)
                         <td class="invoice-print-info-grid__pair" width="50%" style="padding:0;vertical-align:top">
                             <table class="invoice-print-info-grid-field" role="presentation" width="100%">
+                                <colgroup>
+                                    <col class="invoice-print-info-grid__col-en">
+                                    <col class="invoice-print-info-grid__col-value">
+                                    <col class="invoice-print-info-grid__col-ar">
+                                </colgroup>
                                 <tr>
                                     <td @class([
                                         'invoice-print-info-grid__en',

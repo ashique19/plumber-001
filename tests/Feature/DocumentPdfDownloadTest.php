@@ -37,7 +37,7 @@ it('downloads an invoice PDF as an attachment named after the document number', 
 
     $urls = HubInvoicePrintLinks::urls($invoice);
     expect($urls['download'])->toBe(route('admin.invoices.pdf', $invoice))
-        ->and($urls['print'])->toBe(route('admin.invoices.print', ['invoice' => $invoice, 'layout' => 'cash']));
+        ->and($urls['print'])->toBe(route('admin.invoices.print', ['invoice' => $invoice, 'layout' => 'a4']));
 
     $this->actingAs($this->owner, 'staff')
         ->get($urls['download'])

@@ -37,7 +37,7 @@ it('renders admin print preview shell on invoice hub with modal triggers', funct
 
     expect($html)
         ->toContain('data-admin-print-open')
-        ->toContain('data-print-src="'.e(route('admin.invoices.print', ['invoice' => $invoice, 'layout' => 'cash'])).'"');
+        ->toContain('data-print-src="'.e(route('admin.invoices.print', ['invoice' => $invoice, 'layout' => 'a4'])).'"');
 
     $page = (string) $this->actingAs($this->owner, 'staff')
         ->get(route('admin.invoices'))

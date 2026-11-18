@@ -2,7 +2,6 @@
 
 namespace App\Support\Hub;
 
-use App\Enums\InvoiceDocumentType;
 use App\Models\Invoice;
 use App\Support\Invoicing\PrintScreenBackUrl;
 
@@ -10,7 +9,7 @@ final class HubInvoicePrintLinks
 {
     public static function layout(Invoice $invoice): string
     {
-        return $invoice->document_type === InvoiceDocumentType::Standard ? 'a4' : 'cash';
+        return 'a4';
     }
 
     /**
