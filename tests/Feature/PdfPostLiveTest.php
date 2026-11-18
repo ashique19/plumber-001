@@ -8,6 +8,7 @@ use App\Models\Invoice;
 use App\Models\Quotation;
 use App\Models\StaffUser;
 use App\Support\Invoicing\DocumentPdfRenderer;
+use Tests\Support\DocumentPdfHtmlExpectations;
 use App\Support\Invoicing\PrintSheetFactory;
 use App\Support\LocaleCookie;
 use Database\Seeders\DemoStaffSeeder;
@@ -169,7 +170,7 @@ it('preserves digit order in Arabic seller address for mPDF output', function ()
 
     expect($decoded)
         ->toContain('709812629')
-        ->toContain('الرياض');
+        ->toContain(DocumentPdfHtmlExpectations::shapedArabicSubstring('الرياض'));
 
     $binary = DocumentPdfRenderer::render($html);
     expect($binary)->toStartWith('%PDF');
@@ -186,7 +187,7 @@ it('keeps TRN digits in a separate LTR run beside Arabic labels', function () {
 
     expect($decoded)
         ->toContain('123456789012345')
-        ->toContain('رقم التسجيل الضريبي')
+        ->toContain(DocumentPdfHtmlExpectations::shapedArabicSubstring('رقم التسجيل الضريبي'))
         ->toContain('invoice-pdf-ltr-digits');
 
     expect(DocumentPdfRenderer::render($html))->toStartWith('%PDF');
