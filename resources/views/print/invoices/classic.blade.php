@@ -3,12 +3,7 @@
     $tClassic = array_merge($t, ['classic_title_stack' => true]);
     $isQuotation = ($t['document_kind'] ?? 'invoice') === 'quotation';
     $introRows = $isQuotation
-        ? array_values(array_filter([
-            ['en' => 'Quotation number', 'ar' => 'رقم العرض', 'value' => $t['document_number'], 'nowrap' => true],
-            ['en' => 'Issue date & time', 'ar' => 'تاريخ ووقت الإصدار', 'value' => $t['issue_datetime_print'] ?? $t['issue_datetime'] ?? $t['issue_date'], 'label_nowrap' => true, 'nowrap' => true],
-            ['en' => 'Valid until', 'ar' => 'صالح حتى', 'value' => $t['validity_until'] ?? null, 'nowrap' => true],
-            ['en' => 'Payment terms', 'ar' => 'شروط الدفع', 'value' => $t['payment_terms_en'] ?? null, 'nowrap' => true],
-        ], fn (array $row): bool => filled($row['value'] ?? null)))
+        ? \App\Support\Invoicing\InvoicePrintMetaRows::modernQuotationMeta($t)
         : \App\Support\Invoicing\InvoicePrintMetaRows::modernIntroGrid($t);
     $sellerRows = \App\Support\Invoicing\ClassicPartyPrintBlock::sellerRows($t);
     $buyerRows = \App\Support\Invoicing\ClassicPartyPrintBlock::buyerRows($t['customer'] ?? null);
