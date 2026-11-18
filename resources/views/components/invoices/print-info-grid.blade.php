@@ -24,20 +24,20 @@
                                         'invoice-print-info-grid__label--nowrap' => ! empty($row['label_nowrap']),
                                     ]) width="18%">{{ $row['en'] }}</td>
                                     <td @class([
+                                        'invoice-print-info-grid__value',
+                                        'invoice-print-info-grid__value--nowrap' => ! empty($row['nowrap']),
+                                    ]) width="55%">
+                                        @if (! empty($row['html']))
+                                            {!! $row['html'] !!}
+                                        @else
+                                            <span @if (! empty($row['nowrap'])) dir="ltr" @endif>{{ $row['value'] ?? '' }}</span>
+                                        @endif
+                                    </td>
+                                    <td @class([
                                         'invoice-print-info-grid__ar',
                                         'invoice-print-ar',
                                         'invoice-print-info-grid__label--nowrap' => ! empty($row['label_nowrap']),
                                     ]) dir="rtl" width="27%">{{ $row['ar'] }}</td>
-                                    <td @class([
-                                        'invoice-print-info-grid__value',
-                                        'invoice-print-info-grid__value--nowrap' => ! empty($row['nowrap']),
-                                    ]) width="55%" @if (! empty($row['nowrap'])) dir="ltr" @endif>
-                                        @if (! empty($row['html']))
-                                            {!! $row['html'] !!}
-                                        @else
-                                            {{ $row['value'] ?? '' }}
-                                        @endif
-                                    </td>
                                 </tr>
                             </table>
                         </td>

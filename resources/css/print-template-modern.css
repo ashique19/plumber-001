@@ -58,8 +58,8 @@
 }
 
 .print-tpl-modern__qr-wrap .invoice-a4__qr {
-    margin: 0;
-    text-align: start;
+    margin: 0 auto;
+    text-align: center;
     max-width: none;
 }
 
@@ -68,11 +68,15 @@
     height: 140px !important;
 }
 
-.print-tpl-modern__qr-wrap .invoice-a4__qr-note {
-    text-align: start;
-    font-size: 7pt;
+.print-tpl-modern__qr-wrap .invoice-a4__qr-note,
+.print-tpl-modern__qr-wrap .invoice-a4__qr-note-en,
+.print-tpl-modern__qr-wrap .invoice-a4__qr-note-ar {
+    text-align: center;
+    font-size: 8pt;
     line-height: 1.35;
-    max-width: 14rem;
+    max-width: none;
+    width: 100%;
+    margin: 4px 0 0;
 }
 
 .print-tpl-modern__qr-wrap {

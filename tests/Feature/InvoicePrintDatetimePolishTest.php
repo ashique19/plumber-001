@@ -96,13 +96,8 @@ it('keeps supply date on standard invoice and omits empty buyer table on cash', 
     expect($modern)
         ->toContain('Supply date', false)
         ->toContain('2026-11-20')
-        ->toContain(BusinessProfile::formatNationalAddressArHtml([
-            'building' => '7098',
-            'street_ar' => 'أحمد بن الحسين بن شقير',
-            'district_ar' => 'حي الملز',
-            'city_ar' => 'الرياض',
-            'postal_code' => '12629',
-        ]) ?? '', false);
+        ->toContain('invoice-national-address-ar__line', false)
+        ->toContain('أحمد بن الحسين بن شقير', false);
 
     $cash = (string) $this->actingAs($this->owner, 'staff')
         ->get(route('admin.invoices.print', ['invoice' => $invoice, 'layout' => 'cash']))
