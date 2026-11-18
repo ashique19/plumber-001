@@ -19,28 +19,14 @@
 
         @php
             $isQuotation = ($t['document_kind'] ?? 'invoice') === 'quotation';
-            $splitLeft = $isQuotation
-                ? [
-                    ['en' => 'Quotation number', 'ar' => 'رقم العرض', 'value' => $t['document_number'], 'nowrap' => true],
-                    ['en' => 'Payment terms', 'ar' => 'شروط الدفع', 'value' => $t['payment_terms_en'] ?? null, 'value_ar' => $t['payment_terms_ar'] ?? null],
-                    ['en' => 'Valid until', 'ar' => 'صالح حتى', 'value' => $t['validity_until'] ?? null],
-                ]
-                : [
-                    ['en' => 'Invoice No.', 'ar' => 'رقم الفاتورة', 'value' => $t['document_number'], 'nowrap' => true],
-                    ['en' => 'Payment terms', 'ar' => 'شروط الدفع', 'value' => $t['payment_terms_en'] ?? null, 'value_ar' => $t['payment_terms_ar'] ?? null],
-                    ['en' => 'Due date', 'ar' => 'تاريخ الاستحقاق', 'value' => $t['due_date'] ?? null],
-                ];
         @endphp
 
         @php($buyerRows = \App\Support\Invoicing\BuyerPrintBlock::rows($t['customer'] ?? null))
         @if ($isQuotation)
-            <x-invoices.print-buyer-table
-                :rows="$buyerRows"
-                :split-left="$splitLeft"
-                :split-right="[
-                    ['en' => 'Issue date', 'ar' => 'تاريخ الإصدار', 'value' => $t['issue_date']],
-                ]"
-            />
+            <x-invoices.print-info-grid :rows="\App\Support\Invoicing\InvoicePrintMetaRows::modernQuotationMeta($t)" />
+            @if (count($buyerRows) > 0)
+                <x-invoices.print-buyer-table :rows="$buyerRows" />
+            @endif
         @else
             <x-invoices.print-info-grid :rows="\App\Support\Invoicing\InvoicePrintMetaRows::modernIntroGrid($t)" />
             @if (count($buyerRows) > 0)

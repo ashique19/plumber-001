@@ -17,7 +17,6 @@ final class DocumentPdfArabicLineWrap
         'invoice-a4__desc-ar' => 34,
         'invoice-a4__buyer-name-ar' => 38,
         'invoice-print-words-block__ar' => 42,
-        'invoice-a4__qr-note-ar__line' => 46,
         'invoice-a4__footer-ar' => 40,
         'print-tpl-modern__footer-name-ar' => 40,
     ];

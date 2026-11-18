@@ -77,9 +77,7 @@ it('renders embed modern print with aligned grid, bidi payment, address lines, a
         ->not->toContain('data-testid="print-screen-toolbar"', false)
         ->toContain('invoice-pdf-sans-label">Payment</span>', false)
         ->toContain('invoice-print-page-label__screen', false)
-        ->toContain('invoice-print-page-label__print', false)
-        ->toContain('invoice-print-page-label__ar-word', false)
-        ->not->toContain('>Page 1 / 1 ·', false)
+        ->not->toContain('invoice-print-page-label__print', false)
         ->not->toContain('print-tpl-modern__sheet-footer--screen', false);
 
     expect(substr_count($html, 'invoice-print-page-label__screen'))->toBe(1);

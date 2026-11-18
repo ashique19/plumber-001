@@ -64,6 +64,21 @@ final class InvoicePrintMetaRows
     }
 
     /**
+     * Two-column meta grid for modern quotation print / PDF (matches invoice layout).
+     *
+     * @return list<array{en: string, ar: string, value?: ?string, html?: string, nowrap?: bool, label_nowrap?: bool}>
+     */
+    public static function modernQuotationMeta(array $t): array
+    {
+        return self::filterFilled([
+            ['en' => 'Quotation number', 'ar' => 'رقم العرض', 'value' => (string) ($t['document_number'] ?? ''), 'label_nowrap' => true, 'nowrap' => true],
+            ['en' => 'Issue date', 'ar' => 'تاريخ الإصدار', 'value' => $t['issue_datetime_print'] ?? $t['issue_date'] ?? null, 'label_nowrap' => true, 'nowrap' => true],
+            ['en' => 'Payment terms', 'ar' => 'شروط الدفع', 'value' => $t['payment_terms_en'] ?? null, 'label_nowrap' => true, 'nowrap' => true],
+            ['en' => 'Valid until', 'ar' => 'صالح حتى', 'value' => $t['validity_until'] ?? null, 'label_nowrap' => true, 'nowrap' => true],
+        ]);
+    }
+
+    /**
      * @return list<array{en: string, ar: string, value?: ?string, html?: string, nowrap?: bool, label_nowrap?: bool}>
      */
     public static function cashMeta(array $t): array

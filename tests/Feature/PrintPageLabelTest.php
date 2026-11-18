@@ -17,17 +17,17 @@ beforeEach(function () {
     app()->setLocale('en');
 });
 
-it('uses named page counters only inside the print page label', function () {
+it('hides the HTML footer page label in browser print because CSS page counters are unreliable', function () {
     $css = (string) file_get_contents(resource_path('css/invoice-print.css'));
 
     expect($css)
-        ->toContain('counter(page)')
-        ->toContain('counter(pages)')
-        ->toContain('.invoice-print-page-label__en::after')
-        ->not->toContain("counter(page) ' of '");
+        ->toContain('@media print')
+        ->toContain('.invoice-print-page-label')
+        ->toContain('display: none !important')
+        ->not->toContain('counter(page)');
 });
 
-it('prints template A and B footers with page 1 of 1 and the document number', function (string $template) {
+it('prints template A and B footers with a screen-only document label', function (string $template) {
     $invoice = Invoice::query()->create([
         'branch_id' => Branch::query()->first()?->id,
         'document_number' => 'SIMP-PAGE-001',
@@ -50,11 +50,11 @@ it('prints template A and B footers with page 1 of 1 and the document number', f
         ]))
         ->assertOk()
         ->assertSee('invoice-print-page-label__screen', false)
-        ->assertSee('invoice-print-page-label__print', false)
-        ->assertSee('invoice-print-page-label__ar-word', false)
         ->assertSee('SIMP-PAGE-001', false)
-        ->assertDontSee('>Page 1 / 1 ·', false)
-        ->assertDontSee('Page 0 of 0', false);
+        ->assertDontSee('invoice-print-page-label__print', false)
+        ->assertDontSee('صفحة', false)
+        ->assertDontSee('Page 0 of 0', false)
+        ->assertDontSee('Page 0 / 0', false);
 })->with(['modern', 'classic']);
 
 it('prints quotation templates without Page 0 of 0', function (string $template) {
