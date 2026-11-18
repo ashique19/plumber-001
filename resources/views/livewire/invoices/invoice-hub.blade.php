@@ -52,29 +52,37 @@
         </x-field.select>
     </section>
 
-    <nav class="hub-doc-table__tabs hub-doc-table__tabs--scroll mb-4" aria-label="{{ __('invoices.lifecycle_tabs_label') }}" data-testid="hub-invoice-lifecycle-tabs">
-        <button type="button" @class(['hub-doc-table__tab', 'hub-doc-table__tab--active' => $lifecycleTab === 'all']) wire:click="$set('lifecycleTab', 'all')">
-            {{ __('invoices.lifecycle_tab_all') }}
-        </button>
-        <button type="button" @class(['hub-doc-table__tab', 'hub-doc-table__tab--active' => $lifecycleTab === 'drafts']) wire:click="$set('lifecycleTab', 'drafts')">
-            {{ __('invoices.lifecycle_tab_drafts') }}
-            @if (($draftCount ?? 0) > 0)
-                <span class="hub-doc-table__tab-badge">{{ $draftCount }}</span>
-            @endif
-        </button>
-        <button type="button" @class(['hub-doc-table__tab', 'hub-doc-table__tab--active' => $lifecycleTab === 'issued']) wire:click="$set('lifecycleTab', 'issued')">
-            {{ __('invoices.lifecycle_tab_issued') }}
-        </button>
-        <button type="button" @class(['hub-doc-table__tab', 'hub-doc-table__tab--active' => $lifecycleTab === 'awaiting_clearance']) wire:click="$set('lifecycleTab', 'awaiting_clearance')">
-            {{ __('invoices.lifecycle_tab_awaiting_clearance') }}
-        </button>
-        <button type="button" @class(['hub-doc-table__tab', 'hub-doc-table__tab--active' => $lifecycleTab === 'unpaid']) wire:click="$set('lifecycleTab', 'unpaid')">
-            {{ __('invoices.lifecycle_tab_unpaid') }}
-        </button>
-    </nav>
+    <div
+        class="mb-4 flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-center lg:justify-between lg:gap-x-4 lg:gap-y-2"
+        data-testid="hub-invoice-filter-chips"
+    >
+        <nav
+            class="hub-doc-table__tabs hub-doc-table__tabs--scroll min-w-0 lg:max-w-full lg:flex-1"
+            aria-label="{{ __('invoices.lifecycle_tabs_label') }}"
+            data-testid="hub-invoice-lifecycle-tabs"
+        >
+            <button type="button" @class(['hub-doc-table__tab', 'hub-doc-table__tab--active' => $lifecycleTab === 'all']) wire:click="$set('lifecycleTab', 'all')">
+                {{ __('invoices.lifecycle_tab_all') }}
+            </button>
+            <button type="button" @class(['hub-doc-table__tab', 'hub-doc-table__tab--active' => $lifecycleTab === 'drafts']) wire:click="$set('lifecycleTab', 'drafts')">
+                {{ __('invoices.lifecycle_tab_drafts') }}
+                @if (($draftCount ?? 0) > 0)
+                    <span class="hub-doc-table__tab-badge">{{ $draftCount }}</span>
+                @endif
+            </button>
+            <button type="button" @class(['hub-doc-table__tab', 'hub-doc-table__tab--active' => $lifecycleTab === 'issued']) wire:click="$set('lifecycleTab', 'issued')">
+                {{ __('invoices.lifecycle_tab_issued') }}
+            </button>
+            <button type="button" @class(['hub-doc-table__tab', 'hub-doc-table__tab--active' => $lifecycleTab === 'awaiting_clearance']) wire:click="$set('lifecycleTab', 'awaiting_clearance')">
+                {{ __('invoices.lifecycle_tab_awaiting_clearance') }}
+            </button>
+            <button type="button" @class(['hub-doc-table__tab', 'hub-doc-table__tab--active' => $lifecycleTab === 'unpaid']) wire:click="$set('lifecycleTab', 'unpaid')">
+                {{ __('invoices.lifecycle_tab_unpaid') }}
+            </button>
+        </nav>
 
-    <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <nav class="hub-doc-table__tabs" aria-label="{{ __('invoices.zatca_tabs_label') }}">
+        <div class="flex min-w-0 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between lg:shrink-0 lg:justify-end lg:gap-3">
+        <nav class="hub-doc-table__tabs min-w-0" aria-label="{{ __('invoices.zatca_tabs_label') }}" data-testid="hub-invoice-zatca-tabs">
             <button type="button" @class(['hub-doc-table__tab', 'hub-doc-table__tab--active' => $zatcaTab === 'all']) wire:click="$set('zatcaTab', 'all')">
                 {{ __('invoices.zatca_tab_all') }}
             </button>
@@ -115,6 +123,7 @@
                 {{ __('invoices.zatca_resubmit_all_pending') }}
             </button>
         @endif
+        </div>
     </div>
 
     @if ($invoices->isNotEmpty())
