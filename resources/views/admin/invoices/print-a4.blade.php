@@ -26,27 +26,7 @@
             </p>
         @endif
 
-        <section class="invoice-a4__header">
-            <div class="invoice-a4__seller-side">
-                <strong>{{ $t['seller_en'] }}</strong>
-                @if ($t['address_en'])
-                    <p class="m-0">{{ $t['address_en'] }}</p>
-                @endif
-            </div>
-            <div>
-                @if ($t['logo_url'])
-                    <img src="{{ asset($t['logo_url']) }}" alt="" class="invoice-a4__logo">
-                @endif
-            </div>
-            <div class="invoice-a4__seller-side invoice-a4__seller-side--ar">
-                <strong>{{ $t['seller_ar'] }}</strong>
-                @if ($t['address_ar_html'] ?? null)
-                    <p class="m-0">{!! $t['address_ar_html'] !!}</p>
-                @elseif ($t['address_ar'])
-                    <p class="m-0 invoice-print-ar" dir="rtl">{{ $t['address_ar'] }}</p>
-                @endif
-            </div>
-        </section>
+        @include('print.partials.seller-header-with-ids', ['t' => $t])
         <x-invoices.print-document-title :t="$t" />
 
         <x-invoices.print-info-grid :rows="\App\Support\Invoicing\InvoicePrintMetaRows::legacyA4IntroGrid($t)" />

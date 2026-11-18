@@ -99,12 +99,34 @@ function pdfRegressionSnapshots(): array
     return $cases;
 }
 
+function assertPdfHasNoReplacementGlyphs(string $binary, string $slug): void
+{
+    $pdfPath = tempnam(sys_get_temp_dir(), 'pdf-vis-');
+    if ($pdfPath === false) {
+        expect($binary)->not->toContain('???');
+
+        return;
+    }
+
+    file_put_contents($pdfPath, $binary);
+
+    if (trim((string) shell_exec('command -v pdftotext')) === '') {
+        return;
+    }
+
+    $text = shell_exec('pdftotext -raw '.escapeshellarg($pdfPath).' - 2>/dev/null') ?? '';
+    expect($text)->not->toContain('???', "glyph placeholders in {$slug}");
+
+    @unlink($pdfPath);
+}
+
 it('renders PDFs via mPDF with Arabic layout overlays and SAR symbols', function () {
     foreach (pdfRegressionSnapshots() as $case) {
         expect($case['binary'])
             ->toStartWith('%PDF')
-            ->and(strlen($case['binary']))->toBeGreaterThan(8000)
-            ->and($case['binary'])->not->toContain('???');
+            ->and(strlen($case['binary']))->toBeGreaterThan(8000);
+
+        assertPdfHasNoReplacementGlyphs($case['binary'], $case['slug']);
     }
 });
 

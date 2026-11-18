@@ -20,11 +20,8 @@
             @if ($t['address_en'])
                 <p class="m-0">{{ $t['address_en'] }}</p>
             @endif
-            @if ($t['trn'])
-                <div class="invoice-print-seller-ids">
-                    <x-invoices.print-labeled-row en="VAT No." ar="الرقم الضريبي" :value="$t['trn']" :nowrap="true" />
-                </div>
-            @endif
+            <x-invoices.print-seller-header-ids :t="$t" side="en" />
+            <x-invoices.print-seller-header-ids :t="$t" side="ar" />
         </section>
 
         <x-invoices.print-meta-grid :rows="[

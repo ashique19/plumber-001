@@ -12,41 +12,7 @@
         @include('print.partials.toolbar-invoice')
 
         <div class="print-tpl-modern__intro">
-        <section class="invoice-a4__header print-tpl-modern__seller">
-            <div class="invoice-a4__seller-side">
-                <strong>{{ $t['seller_en'] }}</strong>
-                @if ($t['address_en'])
-                    <p class="m-0">{{ $t['address_en'] }}</p>
-                @endif
-            </div>
-            <div>
-                @if ($t['logo_url'])
-                    <img src="{{ asset($t['logo_url']) }}" alt="" class="invoice-a4__logo">
-                @endif
-            </div>
-            <div class="invoice-a4__seller-side invoice-a4__seller-side--ar invoice-print-ar" dir="rtl">
-                <strong>{{ $t['seller_ar'] }}</strong>
-                @php
-                    $na = (array) ($t['national_address'] ?? []);
-                    $structuredAddressLines = $na !== [] ? \App\Support\BusinessProfile::formatNationalAddressArPdfLineHtml($na) : [];
-                @endphp
-                @if ($structuredAddressLines !== [])
-                    <div @class(['invoice-national-address-ar-lines', 'invoice-national-address-ar--pdf' => $isPdf ?? false]) lang="ar">
-                        @foreach ($structuredAddressLines as $line)
-                            <div @class([
-                                'invoice-national-address-ar__line',
-                                'invoice-pdf-ar-address-line' => $isPdf ?? false,
-                                'invoice-pdf-ar-block' => $isPdf ?? false,
-                            ]) dir="rtl" style="text-align:right">{!! $line !!}</div>
-                        @endforeach
-                    </div>
-                @elseif ($t['address_ar_html'] ?? null)
-                    <p class="m-0">{!! $t['address_ar_html'] !!}</p>
-                @elseif ($t['address_ar'])
-                    <p @class(['m-0', 'invoice-print-ar', 'invoice-pdf-ar-block invoice-national-address-ar--pdf' => $isPdf ?? false]) dir="rtl" lang="ar">{{ $t['address_ar'] }}</p>
-                @endif
-            </div>
-        </section>
+        @include('print.partials.seller-header-with-ids', ['t' => $t])
         <hr class="print-tpl-modern__rule" />
 
         <x-invoices.print-document-title :t="$t" />

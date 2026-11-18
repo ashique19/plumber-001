@@ -44,7 +44,7 @@ final class InvoicePrintMetaRows
      */
     public static function cashIntroGrid(array $t): array
     {
-        return self::filterFilled(array_merge(self::sellerIdRows($t), self::cashMeta($t)));
+        return self::filterFilled(self::cashMeta($t));
     }
 
     /**
@@ -52,7 +52,7 @@ final class InvoicePrintMetaRows
      */
     public static function legacyA4IntroGrid(array $t): array
     {
-        return self::filterFilled(array_merge(self::sellerIdRows($t), self::legacyA4Meta($t)));
+        return self::filterFilled(self::legacyA4Meta($t));
     }
 
     /**
@@ -60,7 +60,7 @@ final class InvoicePrintMetaRows
      */
     public static function modernIntroGrid(array $t): array
     {
-        return self::filterFilled(array_merge(self::sellerIdRows($t, includeUnified: true), self::modernInvoiceMeta($t)));
+        return self::filterFilled(self::modernInvoiceMeta($t));
     }
 
     /**

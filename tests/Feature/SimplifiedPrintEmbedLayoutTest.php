@@ -70,9 +70,7 @@ it('renders embed modern print with aligned grid, bidi payment, address lines, a
     expect($html)
         ->toContain('print-tpl-modern', false)
         ->toContain('invoice-print-info-grid__col-en', false)
-        ->toMatch(
-            '/VAT No\.<\/td>\s*<td[^>]*invoice-print-info-grid__value[^>]*>.*?<\/td>\s*<td[^>]*invoice-print-info-grid__ar[^>]*>الرقم الضريبي/s',
-        )
+        ->toContain('invoice-print-seller-header-ids', false)
         ->toContain('invoice-national-address-ar__line', false)
         ->toContain('invoice-a4__qr-note-en', false)
         ->toContain('invoice-a4__qr-note-ar', false)

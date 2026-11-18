@@ -23,6 +23,9 @@
     <div @class(['invoice-print-root', 'invoice-print-sheet', 'print-tpl-classic', 'invoice-print-root--pdf' => $isPdf ?? false]) data-invoice-print data-document-number="{{ $t['document_number'] }}">
         @include('print.partials.toolbar-invoice')
 
+        @include('print.partials.seller-header-with-ids', ['t' => $t])
+        <hr class="print-tpl-modern__rule" />
+
         <header class="print-classic__top">
             <div></div>
             <div class="print-classic__top-center">

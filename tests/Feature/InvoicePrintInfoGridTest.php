@@ -53,18 +53,20 @@ it('uses one fixed info grid table for seller ids and document meta on modern pr
     expect($html)
         ->toContain('<table class="invoice-print-info-grid"', false)
         ->toContain('invoice-print-info-grid__col-en', false)
-        ->toContain('VAT No.', false)
+        ->toContain('invoice-print-seller-header-ids', false)
+        ->toContain('CR No.', false)
+        ->toContain('Invoice No.', false)
         ->toContain('Issue date', false)
         ->toContain('invoice-print-info-grid__label--nowrap', false)
         ->not->toContain('invoice-print-seller-ids', false)
         ->not->toContain('invoice-print-labeled-row', false);
 
-    $vatPos = strpos($html, 'VAT No.');
-    $invoicePos = strpos($html, 'Invoice No.');
-    expect($vatPos)->toBeLessThan($invoicePos);
+    $headerVatPos = strpos($html, 'invoice-print-seller-header-ids');
+    $gridInvoicePos = strpos($html, 'invoice-print-info-grid');
+    expect($headerVatPos)->toBeLessThan($gridInvoicePos);
 
-    expect($html)->toMatch(
-        '/VAT No\.<\/td>\s*<td[^>]*invoice-print-info-grid__value[^>]*>.*?<\/td>\s*<td[^>]*invoice-print-info-grid__ar[^>]*>الرقم الضريبي/s',
+    expect($html)->not->toMatch(
+        '/VAT No\.<\/td>\s*<td[^>]*invoice-print-info-grid__value[^>]*>/s',
     )->toContain('invoice-national-address-ar__line', false);
 });
 
