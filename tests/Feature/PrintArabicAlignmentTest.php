@@ -75,6 +75,8 @@ it('marks Arabic print labels with invoice-print-ar, dir rtl, and right-align CS
         'invoice_mode' => 'simplified',
         'validity_until' => now()->addDays(7)->toDateString(),
         'payload' => [
+            'buyer_name_en' => 'QA Buyer',
+            'buyer_name_ar' => 'مشتري اختبار',
             'lines' => [
                 ['name' => 'Valve', 'name_ar' => 'صمام', 'quantity' => 1, 'unit_price_ex_vat' => 40, 'vat_rate' => 15],
             ],
@@ -100,8 +102,12 @@ it('marks Arabic print labels with invoice-print-ar, dir rtl, and right-align CS
 function assertModernArabicPrintCells(string $html): void
 {
     expect($html)
-        ->toMatch('/invoice-a4__buyer-table-label ar invoice-print-ar[^>]*dir="rtl"/')
+        ->toMatch('/invoice-print-info-grid__ar invoice-print-ar[^>]*dir="rtl"/')
         ->toMatch('/invoice-print-totals__ar invoice-print-ar[^>]*dir="rtl"/')
         ->toMatch('/invoice-a4__desc-ar invoice-print-ar[^>]*dir="rtl"/')
         ->toMatch('/invoice-a4__seller-side--ar invoice-print-ar[^>]*dir="rtl"/');
+
+    if (str_contains($html, 'invoice-a4__buyer-table')) {
+        expect($html)->toMatch('/invoice-a4__buyer-table-label ar invoice-print-ar[^>]*dir="rtl"/');
+    }
 }
