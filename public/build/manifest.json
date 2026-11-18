@@ -474,7 +474,7 @@
     "isEntry": true
   },
   "resources/css/invoice-print.css": {
-    "file": "assets/invoice-print-CCX7sA0z.css",
+    "file": "assets/invoice-print-DKw04bYx.css",
     "name": "invoice-print",
     "names": [
       "invoice-print.css"
@@ -501,7 +501,7 @@
     "isEntry": true
   },
   "resources/css/print-template-modern.css": {
-    "file": "assets/print-template-modern-BRZ0b_Xe.css",
+    "file": "assets/print-template-modern-Cqlh_lk2.css",
     "name": "print-template-modern",
     "names": [
       "print-template-modern.css"
@@ -548,7 +548,7 @@
     ]
   },
   "resources/js/invoice-print-preview.js": {
-    "file": "assets/invoice-print-preview-BWZw9VfO.js",
+    "file": "assets/invoice-print-preview-BXEQzy5C.js",
     "name": "invoice-print-preview",
     "src": "resources/js/invoice-print-preview.js",
     "isEntry": true

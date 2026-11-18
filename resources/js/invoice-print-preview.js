@@ -1,13 +1,16 @@
 function estimatePrintPages(root) {
     if (! root) {
-        return 0;
+        return 1;
     }
 
     const mm = 96 / 25.4;
     const printableHeightPx = (297 - 28) * mm;
-    const height = root.scrollHeight;
+    const style = window.getComputedStyle(root);
+    let height = root.scrollHeight;
+    height -= parseFloat(style.paddingBottom) || 0;
+
     if (height <= 0 || printableHeightPx <= 0) {
-        return 0;
+        return 1;
     }
 
     return Math.max(1, Math.ceil(height / printableHeightPx));
@@ -20,9 +23,8 @@ function formatPageLabel(pageEnTpl, pageArTpl, doc, current, total) {
     return `${pageEn} · ${pageAr} — ${doc}`.trim();
 }
 
-function fillPrintPageLabels() {
+function fillPrintPageLabels(isPrintEvent = false) {
     const root = document.querySelector('[data-invoice-print]');
-    const pages = estimatePrintPages(root);
     const el = root?.querySelector('[data-print-page-label]');
     if (! el) {
         return;
@@ -32,13 +34,17 @@ function fillPrintPageLabels() {
     const pageEnTpl = el.getAttribute('data-page-en') || '';
     const pageArTpl = el.getAttribute('data-page-ar') || '';
 
-    if (! pageEnTpl.includes(':current') || ! pageEnTpl.includes(':total')) {
+    if (! pageEnTpl.includes(':current') || ! pageArTpl.includes(':total')) {
         el.textContent = doc;
 
         return;
     }
 
-  const total = pages > 0 ? pages : 1;
+    if (! isPrintEvent) {
+        return;
+    }
+
+    const total = estimatePrintPages(root);
     el.textContent = formatPageLabel(pageEnTpl, pageArTpl, doc, 1, total);
 }
 
@@ -53,6 +59,7 @@ function scaleClassicPreviewToViewport() {
     if (targetWidth <= viewport) {
         root.style.transform = '';
         root.style.width = '';
+
         return;
     }
 
@@ -64,8 +71,7 @@ function scaleClassicPreviewToViewport() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    fillPrintPageLabels();
     scaleClassicPreviewToViewport();
     window.addEventListener('resize', scaleClassicPreviewToViewport);
-    window.addEventListener('beforeprint', fillPrintPageLabels);
+    window.addEventListener('beforeprint', () => fillPrintPageLabels(true));
 });
