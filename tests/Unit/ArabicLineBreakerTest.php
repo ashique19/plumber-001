@@ -1,0 +1,24 @@
+<?php
+
+use App\Support\Invoicing\ArabicLineBreaker;
+
+it('keeps short arabic on one line', function () {
+    $text = 'تسليك وتصوير تلفزيوني';
+    expect(ArabicLineBreaker::breakLines($text, 40))->toBe([$text]);
+});
+
+it('breaks long arabic on spaces within budget', function () {
+    $text = 'تسليك وتصوير تلفزيوني لتدفق الصرف الصحي مع عدة مواد كيميائية وضمان جودة العمل';
+    $lines = ArabicLineBreaker::breakLines($text, 28);
+    expect(count($lines))->toBeGreaterThan(1);
+    foreach ($lines as $line) {
+        expect(mb_strlen($line))->toBeLessThanOrEqual(28);
+    }
+    expect(implode(' ', $lines))->toBe($text);
+});
+
+it('hard chunks a single long arabic token', function () {
+    $word = str_repeat('ا', 40);
+    $lines = ArabicLineBreaker::breakLines($word, 12);
+    expect($lines)->toHaveCount(4);
+});
