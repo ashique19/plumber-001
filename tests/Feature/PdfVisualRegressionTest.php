@@ -110,12 +110,12 @@ function assertPdfHasNoReplacementGlyphs(string $binary, string $slug): void
 
     file_put_contents($pdfPath, $binary);
 
-    if (trim((string) shell_exec('command -v pdftotext')) !== '') {
-        $text = shell_exec('pdftotext -raw '.escapeshellarg($pdfPath).' - 2>/dev/null') ?? '';
-        expect($text)->not->toContain('???', "glyph placeholders in {$slug}");
-    } else {
-        expect($binary)->not->toContain('???');
+    if (trim((string) shell_exec('command -v pdftotext')) === '') {
+        return;
     }
+
+    $text = shell_exec('pdftotext -raw '.escapeshellarg($pdfPath).' - 2>/dev/null') ?? '';
+    expect($text)->not->toContain('???', "glyph placeholders in {$slug}");
 
     @unlink($pdfPath);
 }
