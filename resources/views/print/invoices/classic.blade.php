@@ -2,15 +2,14 @@
     /** @var array<string, mixed> $t */
     $tClassic = array_merge($t, ['classic_title_stack' => true]);
     $isQuotation = ($t['document_kind'] ?? 'invoice') === 'quotation';
-    $metaRows = array_values(array_filter([
-        ['en' => 'Invoice number', 'ar' => 'رقم الفاتورة', 'value' => $isQuotation ? null : $t['document_number'], 'nowrap' => ! $isQuotation],
-        ['en' => 'Quotation number', 'ar' => 'رقم العرض', 'value' => $isQuotation ? $t['document_number'] : null, 'nowrap' => $isQuotation],
-        ['en' => 'Issue date & time', 'ar' => 'تاريخ ووقت الإصدار', 'value' => $t['issue_datetime_print'] ?? $t['issue_datetime'] ?? $t['issue_date']],
-        ['en' => 'Supply date', 'ar' => 'تاريخ التوريد', 'value' => (! $isQuotation && ! ($t['is_simplified'] ?? false)) ? ($t['supply_date'] ?? null) : null],
-        ['en' => 'Due Date', 'ar' => 'تاريخ الاستحقاق', 'value' => $isQuotation ? null : ($t['due_date'] ?? null)],
-        ['en' => 'Valid until', 'ar' => 'صالح حتى', 'value' => $isQuotation ? ($t['validity_until'] ?? null) : null],
-        ['en' => 'Payment terms', 'ar' => 'شروط الدفع', 'value' => $t['payment_terms_en'] ?? null],
-    ], fn (array $row): bool => filled($row['value'] ?? null)));
+    $introRows = $isQuotation
+        ? array_values(array_filter([
+            ['en' => 'Quotation number', 'ar' => 'رقم العرض', 'value' => $t['document_number'], 'nowrap' => true],
+            ['en' => 'Issue date & time', 'ar' => 'تاريخ ووقت الإصدار', 'value' => $t['issue_datetime_print'] ?? $t['issue_datetime'] ?? $t['issue_date'], 'label_nowrap' => true, 'nowrap' => true],
+            ['en' => 'Valid until', 'ar' => 'صالح حتى', 'value' => $t['validity_until'] ?? null, 'nowrap' => true],
+            ['en' => 'Payment terms', 'ar' => 'شروط الدفع', 'value' => $t['payment_terms_en'] ?? null, 'nowrap' => true],
+        ], fn (array $row): bool => filled($row['value'] ?? null)))
+        : \App\Support\Invoicing\InvoicePrintMetaRows::modernIntroGrid($t);
     $sellerRows = \App\Support\Invoicing\ClassicPartyPrintBlock::sellerRows($t);
     $buyerRows = \App\Support\Invoicing\ClassicPartyPrintBlock::buyerRows($t['customer'] ?? null);
     $tot = $t['totals'];
@@ -42,17 +41,7 @@
             </div>
         </header>
 
-        <table class="print-classic__meta-table">
-            <tbody>
-                @foreach ($metaRows as $row)
-                    <tr>
-                        <td class="print-classic__cell-label">{{ $row['en'] }}</td>
-                        <td @class(['print-classic__cell-value', 'invoice-a4__buyer-table-value--nowrap' => ! empty($row['nowrap'])])>{{ $row['value'] }}</td>
-                        <td class="print-classic__cell-label ar invoice-print-ar" dir="rtl">{{ $row['ar'] }}</td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
+        <x-invoices.print-info-grid :rows="$introRows" class="print-classic__intro-grid" />
 
         <div class="print-classic__parties">
             <div class="print-classic__party">

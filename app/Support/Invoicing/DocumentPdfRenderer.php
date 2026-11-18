@@ -4,9 +4,9 @@ namespace App\Support\Invoicing;
 
 use ArPHP\I18N\Arabic;
 use DOMDocument;
-use DOMXPath;
 use Dompdf\Dompdf;
 use Dompdf\Options;
+use DOMXPath;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
@@ -221,10 +221,18 @@ final class DocumentPdfRenderer
             .'.invoice-print-root--pdf .print-tpl-modern__lines thead th .ar{font-size:8pt!important}'
             .'.invoice-print-labeled-row{display:grid!important;grid-template-columns:22% 1fr 24%!important;align-items:center!important;width:100%!important;gap:4px 6px!important}'
             .'.invoice-print-labeled-row__en{text-align:left!important;font-family:'.$latin.'!important;font-weight:600!important}'
-            .'.invoice-print-labeled-row__value{text-align:center!important;font-family:'.$latin.'!important}'
+            .'.invoice-print-labeled-row__value{text-align:left!important;font-family:'.$latin.'!important}'
             .'.invoice-print-labeled-row__ar{text-align:right!important}'
-            .'.invoice-print-meta-grid{width:100%!important;border-collapse:collapse!important;margin-bottom:6px!important}'
-            .'.invoice-print-meta-grid td{width:50%!important;padding:2px 4px!important;vertical-align:middle!important}'
+            .'.invoice-print-info-grid,.invoice-print-meta-grid{width:100%!important;max-width:100%!important;table-layout:fixed!important;border-collapse:collapse!important;margin-bottom:6px!important;font-size:9pt!important}'
+            .'.invoice-print-info-grid__col-en{width:17%!important}'
+            .'.invoice-print-info-grid__col-value{width:16%!important}'
+            .'.invoice-print-info-grid__col-ar{width:17%!important}'
+            .'.invoice-print-info-grid td{padding:2px 4px!important;vertical-align:middle!important}'
+            .'.invoice-print-info-grid__en{text-align:left!important;font-weight:600!important;font-size:8.5pt!important;color:#444!important}'
+            .'.invoice-print-info-grid__value{text-align:left!important;font-family:'.$latin.'!important;font-size:9pt!important}'
+            .'.invoice-print-info-grid__value--nowrap{white-space:nowrap!important}'
+            .'.invoice-print-info-grid__ar{text-align:right!important;font-size:8pt!important;font-weight:600!important}'
+            .'.invoice-print-info-grid__label--nowrap{white-space:nowrap!important;font-size:7.5pt!important;line-height:1.2!important}'
             .'.invoice-a4__table--product-lines th.col-index,.invoice-a4__table--product-lines td.col-index{text-align:center!important}'
             .'.invoice-a4__table--product-lines th.col-num,.invoice-a4__table--product-lines td.col-num{text-align:right!important}'
             .'.invoice-a4__table--product-lines th.col-desc,.invoice-a4__table--product-lines td.col-desc{text-align:left!important}'

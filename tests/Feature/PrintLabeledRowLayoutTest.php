@@ -5,7 +5,8 @@ it('defines print labeled-row, meta grid, and product line column alignment in i
 
     expect($css)
         ->toContain('.invoice-print-labeled-row')
-        ->toContain('.invoice-print-meta-grid')
+        ->toContain('.invoice-print-info-grid')
+        ->toContain('table-layout: fixed')
         ->toContain('.invoice-print-th-label')
         ->toContain('.invoice-a4__table--product-lines th.col-num')
         ->toContain('.invoice-a4__table--product-lines th.col-index');
