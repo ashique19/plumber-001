@@ -373,13 +373,33 @@
 }
 
 .invoice-a4__header {
-    display: grid;
-    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.75fr) minmax(0, 1fr);
-    gap: 6px;
-    align-items: start;
     border-bottom: 2px solid var(--inv-border);
     padding-bottom: 8px;
     margin-bottom: 8px;
+}
+
+.invoice-a4__header-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.invoice-a4__header-cell--logo {
+    text-align: center;
+}
+
+.invoice-a4__header-row--ids .invoice-print-seller-header-ids__line {
+    margin: 0;
+    line-height: 1.25;
+}
+
+.invoice-a4__header-row--ids td {
+    padding-top: 2px;
+    vertical-align: top;
+}
+
+.invoice-a4__header-row--ids .invoice-a4__header-cell--ar {
+    text-align: right;
 }
 
 .invoice-a4__seller-side {

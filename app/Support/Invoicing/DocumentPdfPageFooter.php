@@ -34,8 +34,13 @@ final class DocumentPdfPageFooter
         $total = $enWidth + $sepWidth + $arWidth;
         $x = max(18, ($canvas->get_width() - $total) / 2);
 
-        $canvas->text($x, $y, $en, $latin, $size, $color);
-        $canvas->text($x + $enWidth, $y, $sep, $latin, $size, $color);
-        $canvas->text($x + $enWidth + $sepWidth, $y, $ar, $arabic, $size, $color);
+        $latinBaseline = $fontMetrics->getFontBaseline($latin, $size);
+        $arabicBaseline = $fontMetrics->getFontBaseline($arabic, $size);
+        $yLatin = $y;
+        $yArabic = $y + ($latinBaseline - $arabicBaseline);
+
+        $canvas->text($x, $yLatin, $en, $latin, $size, $color);
+        $canvas->text($x + $enWidth, $yLatin, $sep, $latin, $size, $color);
+        $canvas->text($x + $enWidth + $sepWidth, $yArabic, $ar, $arabic, $size, $color);
     }
 }

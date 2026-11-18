@@ -5,6 +5,8 @@ use App\Enums\InvoiceStatus;
 use App\Models\Branch;
 use App\Models\BusinessSetting;
 use App\Models\Invoice;
+use App\Models\Quotation;
+use App\Models\StaffUser;
 use App\Support\Invoicing\DocumentPdfRenderer;
 use App\Support\Invoicing\PrintSheetFactory;
 use App\Support\Invoicing\ZatcaPhase1QrEncoder;
@@ -45,6 +47,13 @@ $standardQrTlv = ZatcaPhase1QrEncoder::encodeBase64(
     vatTotal: '3.75',
 );
 
+$artifactDir = is_dir('/opt/cursor/artifacts') && is_writable('/opt/cursor/artifacts')
+    ? '/opt/cursor/artifacts'
+  : storage_path('framework/testing/pdf-artifacts');
+if (! is_dir($artifactDir)) {
+    mkdir($artifactDir, 0755, true);
+}
+
 $cases = [
     'dompdf-render-simplified' => [
         'type' => InvoiceDocumentType::Simplified,
@@ -84,6 +93,8 @@ $cases = [
     ],
 ];
 
+$ownerId = StaffUser::query()->where('email', 'owner@example.test')->value('id');
+
 foreach ($cases as $slug => $case) {
     $invoice = Invoice::query()->create([
         'branch_id' => $branchId,
@@ -99,13 +110,38 @@ foreach ($cases as $slug => $case) {
     $sheet = PrintSheetFactory::invoice($invoice, Request::create('/', 'GET', ['template' => 'modern']), true);
     $html = view($sheet['view'], $sheet['data'])->render();
     $binary = DocumentPdfRenderer::render($html);
-    $pdfPath = "/opt/cursor/artifacts/{$slug}.pdf";
+    $pdfPath = "{$artifactDir}/{$slug}.pdf";
     file_put_contents($pdfPath, $binary);
 
-    $prefix = "/opt/cursor/artifacts/{$slug}";
+    $prefix = "{$artifactDir}/{$slug}";
     passthru('pdftoppm -png -r 144 -singlefile '.escapeshellarg($pdfPath).' '.escapeshellarg($prefix));
 
     echo $slug.': pages='.DocumentPdfRenderer::pageCountInBinary($binary)
         .' producer='.(DocumentPdfRenderer::pdfProducerLine($binary) ?? '?')
         .' png='.(is_file($prefix.'.png') ? 'yes' : 'no')."\n";
 }
+
+$quotation = Quotation::query()->create([
+    'branch_id' => $branchId,
+    'quotation_number' => 'HARNESS-QUO-'.uniqid(),
+    'invoice_mode' => 'standard',
+    'validity_until' => now()->addDays(14)->toDateString(),
+    'payload' => [
+        'lines' => [
+            ['name' => 'QA Product A', 'name_ar' => 'منتج اختبار أ', 'quantity' => 1, 'unit_price_ex_vat' => 25, 'vat_rate' => 15],
+        ],
+        'buyer_name_en' => 'TaskenLab Company',
+        'buyer_name_ar' => 'شركة تاسكنلاب',
+    ],
+    'created_by_staff_user_id' => $ownerId,
+]);
+$quoSheet = PrintSheetFactory::quotation($quotation, Request::create('/', 'GET', ['template' => 'modern']), true);
+$quoHtml = view($quoSheet['view'], $quoSheet['data'])->render();
+$quoBinary = DocumentPdfRenderer::render($quoHtml);
+$quoSlug = 'dompdf-render-quotation';
+$quoPdf = "{$artifactDir}/{$quoSlug}.pdf";
+file_put_contents($quoPdf, $quoBinary);
+$quoPrefix = "{$artifactDir}/{$quoSlug}";
+passthru('pdftoppm -png -r 144 -singlefile '.escapeshellarg($quoPdf).' '.escapeshellarg($quoPrefix));
+echo $quoSlug.': pages='.DocumentPdfRenderer::pageCountInBinary($quoBinary)
+    .' png='.(is_file($quoPrefix.'.png') ? 'yes' : 'no')."\n";

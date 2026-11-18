@@ -50,12 +50,20 @@ final class DocumentPdfArabicLineWrap
                     continue;
                 }
 
-                $lines = ArabicLineBreaker::breakLines($text, $maxChars);
+                if ($class === 'invoice-print-words-block__ar') {
+                    $wrapped = ArabicLineBreaker::breakForPdfBlock($text, $maxChars, 2);
+                    $lines = $wrapped['lines'];
+                    $compact = $wrapped['compact'];
+                } else {
+                    $lines = ArabicLineBreaker::breakLines($text, $maxChars);
+                    $compact = false;
+                }
+
                 if (count($lines) <= 1) {
                     continue;
                 }
 
-                self::replaceWithPrelines($dom, $node, $lines);
+                self::replaceWithPrelines($dom, $node, $lines, $compact);
             }
         }
 
@@ -71,7 +79,7 @@ final class DocumentPdfArabicLineWrap
             if (count($lines) <= 1) {
                 continue;
             }
-            self::replaceWithPrelines($dom, $node, $lines);
+            self::replaceWithPrelines($dom, $node, $lines, false);
         }
 
         $out = $dom->saveHTML();
@@ -82,9 +90,12 @@ final class DocumentPdfArabicLineWrap
     /**
      * @param  list<string>  $lines
      */
-    private static function replaceWithPrelines(DOMDocument $dom, DOMElement $node, array $lines): void
+    private static function replaceWithPrelines(DOMDocument $dom, DOMElement $node, array $lines, bool $compact): void
     {
         $existingClass = trim($node->getAttribute('class'));
+        if ($compact) {
+            $existingClass = trim($existingClass.' invoice-pdf-ar-lines--compact');
+        }
         $dir = $node->getAttribute('dir');
         $lang = $node->getAttribute('lang');
 
@@ -108,7 +119,11 @@ final class DocumentPdfArabicLineWrap
 
         foreach ($lines as $line) {
             $lineEl = $dom->createElement('div');
-            $lineEl->setAttribute('class', trim($existingClass.' invoice-pdf-ar-preline'));
+            $lineClass = trim($existingClass.' invoice-pdf-ar-preline');
+            if ($compact) {
+                $lineClass = trim($lineClass.' invoice-pdf-ar-preline--compact');
+            }
+            $lineEl->setAttribute('class', $lineClass);
             $lineEl->setAttribute('dir', 'rtl');
             $lineEl->setAttribute('lang', 'ar');
             $lineEl->appendChild($dom->createTextNode($line));

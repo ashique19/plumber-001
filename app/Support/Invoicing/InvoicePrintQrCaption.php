@@ -23,9 +23,9 @@ final class InvoicePrintQrCaption
      */
     public static function arLines(): array
     {
-        return [
-            'تم ترميز هذا الرمز وفقاً لمتطلبات هيئة الزكاة والضريبة والجمارك',
-            'للفاتورة الإلكترونية',
-        ];
+        return ArabicLineBreaker::breakLines(
+            'تم ترميز هذا الرمز وفقاً لمتطلبات هيئة الزكاة والضريبة والجمارك للفاتورة الإلكترونية',
+            46,
+        );
     }
 }
