@@ -33,7 +33,7 @@ final class BuyerAddressPrintHtml
 
         $enHtml = '';
         foreach ($enLines as $line) {
-            $enHtml .= '<div class="invoice-a4__buyer-address-en__line invoice-pdf-sans-label">'.e($line).'</div>';
+            $enHtml .= '<div class="invoice-a4__buyer-address-en__line invoice-pdf-sans-value">'.e($line).'</div>';
         }
 
         return '<div class="invoice-a4__buyer-address-cell">'

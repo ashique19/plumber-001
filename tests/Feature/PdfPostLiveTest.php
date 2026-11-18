@@ -220,7 +220,7 @@ it('keeps modern totals as three fixed columns in PDF overlay CSS', function () 
     expect($wrapped)
         ->toContain('table-layout:fixed!important')
         ->toContain('invoice-print-totals__value{white-space:nowrap!important')
-        ->toContain('dejavusans, sans-serif')
+        ->toContain('font-family:dejavusans!important')
         ->toContain('print-tpl-modern__totals-net td{border-top:1px solid #1a1a1a!important')
         ->toContain('invoice-print-money{display:inline!important;white-space:nowrap!important');
 });

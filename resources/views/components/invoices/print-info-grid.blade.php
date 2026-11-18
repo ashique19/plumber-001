@@ -39,7 +39,7 @@
                                         @if (! empty($row['html']))
                                             {!! $row['html'] !!}
                                         @else
-                                            <span @if (! empty($row['nowrap'])) dir="ltr" @endif>{{ $row['value'] ?? '' }}</span>
+                                            <span @class(['invoice-pdf-sans-value' => true]) @if (! empty($row['nowrap'])) dir="ltr" @endif>{{ $row['value'] ?? '' }}</span>
                                         @endif
                                     </td>
                                     <td @class([
