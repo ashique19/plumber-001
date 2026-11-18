@@ -35,8 +35,6 @@ final class DashboardQuickActionTiles
             return [];
         }
 
-        $defaultIssueMode = $business->defaultInvoiceDocumentType()->value;
-
         $definitions = [
             [
                 'key' => 'create_invoice',
@@ -44,7 +42,7 @@ final class DashboardQuickActionTiles
                 'label' => __('dashboard.tiles.create_invoice'),
                 'subtitle' => __('dashboard.tiles.subtitles.create_invoice'),
                 'visible' => $user->can('invoices.issue'),
-                'route' => ['admin.invoices.issue', ['mode' => $defaultIssueMode]],
+                'route' => ['admin.invoices.issue', ['mode' => 'standard']],
             ],
             [
                 'key' => 'create_quotation',

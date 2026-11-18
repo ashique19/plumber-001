@@ -19,6 +19,17 @@ beforeEach(function () {
     $this->cashier = StaffUser::query()->where('email', 'cashier@example.test')->firstOrFail();
 });
 
+it('links create invoice to the standard issue page on desktop and mobile tiles', function () {
+    $standardIssueUrl = route('admin.invoices.issue', ['mode' => 'standard']);
+
+    expect($standardIssueUrl)->toContain('/admin/invoices/issue/standard');
+
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(AdminDashboard::class)
+        ->assertSeeHtml('href="'.$standardIssueUrl.'"')
+        ->assertSeeHtml('dashboard-action-tile');
+});
+
 it('redirects staff login to the dashboard when reports access is granted', function () {
     $this->get('/');
 
@@ -33,8 +44,6 @@ it('redirects staff login to the dashboard when reports access is granted', func
 });
 
 it('shows seven dashboard action tiles for the owner in grid order', function () {
-  $defaultMode = $this->business->defaultInvoiceDocumentType()->value;
-
     Livewire::actingAs($this->owner, 'staff')
         ->test(AdminDashboard::class)
         ->assertSee(__('dashboard.tiles.create_invoice'), false)
@@ -49,7 +58,7 @@ it('shows seven dashboard action tiles for the owner in grid order', function ()
         ->assertSee(__('dashboard.tiles.view_reports'), false)
         ->assertSeeHtml('data-testid="admin-dashboard"')
         ->assertSeeHtml('dashboard-action-grid')
-        ->assertSeeHtml('href="'.route('admin.invoices.issue', ['mode' => $defaultMode]).'"')
+        ->assertSeeHtml('href="'.route('admin.invoices.issue', ['mode' => 'standard']).'"')
         ->assertSeeHtml('create=product')
         ->assertSeeHtml('create=customer')
         ->assertSeeHtml('href="'.route('admin.stock.search').'"')
