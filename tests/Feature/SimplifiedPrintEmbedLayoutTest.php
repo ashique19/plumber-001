@@ -75,7 +75,7 @@ it('renders embed modern print with aligned grid, bidi payment, address lines, a
         ->toContain('invoice-a4__qr-note-en', false)
         ->toContain('invoice-a4__qr-note-ar', false)
         ->not->toContain('data-testid="print-screen-toolbar"', false)
-        ->toContain('>Payment</td>', false)
+        ->toContain('invoice-pdf-sans-label">Payment</span>', false)
         ->toContain('invoice-print-page-label__screen', false)
         ->toContain('invoice-print-page-label__print', false)
         ->toContain('invoice-print-page-label__ar-word', false)

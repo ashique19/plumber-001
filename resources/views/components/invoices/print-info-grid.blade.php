@@ -25,13 +25,13 @@
                                 <colgroup>
                                     <col class="invoice-print-info-grid__col-en" style="width:20%">
                                     <col class="invoice-print-info-grid__col-value" style="width:52%">
-                                    <col class="invoice-print-info-grid__col-ar" style="width:28%">
+                                    <col class="invoice-print-info-grid__col-ar" style="width:32%">
                                 </colgroup>
                                 <tr>
                                     <td @class([
                                         'invoice-print-info-grid__en',
                                         'invoice-print-info-grid__label--nowrap' => ! empty($row['label_nowrap']),
-                                    ]) width="18%">{{ $row['en'] }}</td>
+                                    ]) width="18%"><span class="invoice-pdf-sans-label">{{ $row['en'] }}</span></td>
                                     <td @class([
                                         'invoice-print-info-grid__value',
                                         'invoice-print-info-grid__value--nowrap' => ! empty($row['nowrap']),

@@ -182,7 +182,7 @@
 }
 
 .invoice-print-info-grid__col-ar {
-    width: 28%;
+    width: 32%;
 }
 
 .invoice-print-info-grid__pair {
@@ -229,8 +229,10 @@
     padding-right: 0;
     padding-left: 4px;
     white-space: nowrap;
-    width: 28%;
+    width: 32%;
+    min-width: 5.75rem;
     padding-left: 6px;
+    overflow: visible;
 }
 
 .invoice-print-bidi-value {
@@ -465,36 +467,31 @@
 }
 
 .invoice-a4__buyer-name-cell {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 8px;
+    display: block;
     width: 100%;
+    line-height: 1.35;
 }
 
 .invoice-a4__buyer-name-ar {
+    display: block;
     direction: rtl;
     font-family: Tajawal, sans-serif;
     font-weight: 600;
     text-align: right;
-    flex: 1 1 auto;
-    min-width: 0;
+    margin-top: 2px;
 }
 
 .invoice-a4__buyer-name-en {
+    display: block;
     font-size: 9pt;
     color: #111;
     text-align: left;
-    flex: 1 1 auto;
-    min-width: 0;
 }
 
 .invoice-a4__buyer-address-cell {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 8px 12px;
+    display: block;
     width: 100%;
-    align-items: start;
+    max-width: 100%;
 }
 
 .invoice-a4__buyer-address-en {
@@ -504,17 +501,11 @@
 
 .invoice-a4__buyer-address-en__line {
     display: block;
-    white-space: nowrap;
-}
-
-.invoice-a4__buyer-address-ar {
-    text-align: right;
     line-height: 1.35;
 }
 
-.invoice-a4__buyer-address-ar__line {
-    display: block;
-    white-space: nowrap;
+.invoice-pdf-sans-label {
+    font-family: Instrument Sans, system-ui, sans-serif;
 }
 
 .invoice-a4__buyer-table-split-cell {
