@@ -171,9 +171,9 @@ final class InvoicePrintPresenter
             'address_en' => filled($legal['address'] ?? $legal['address_en'] ?? null)
                 ? (string) ($legal['address'] ?? $legal['address_en'])
                 : BusinessProfile::formatNationalAddressEn($na),
-            'address_ar' => filled($legal['address_ar'] ?? null)
+            'address_ar' => self::normalizeArabicAddress(filled($legal['address_ar'] ?? null)
                 ? (string) $legal['address_ar']
-                : BusinessProfile::formatNationalAddressAr($na),
+                : BusinessProfile::formatNationalAddressAr($na)),
             'address_ar_html' => filled($legal['address_ar'] ?? null)
                 ? null
                 : BusinessProfile::formatNationalAddressArHtml($na),
@@ -387,6 +387,17 @@ final class InvoicePrintPresenter
             ?? (filled($addr['short_national'] ?? $addr['short_national_address'] ?? null)
                 ? (string) ($addr['short_national'] ?? $addr['short_national_address'])
                 : null);
+    }
+
+    private static function normalizeArabicAddress(?string $address): ?string
+    {
+        if ($address === null || trim($address) === '') {
+            return null;
+        }
+
+        $address = trim(preg_replace('/^[\s،,]+/u', '', trim($address)) ?? '');
+
+        return $address !== '' ? $address : null;
     }
 
     /**

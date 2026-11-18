@@ -30,6 +30,13 @@
 .print-tpl-modern__vat-cell {
     text-align: end;
     line-height: 1.25;
+    min-width: 4.5rem;
+}
+
+.print-tpl-modern__vat-cell .invoice-print-money,
+.print-tpl-modern__vat-cell > span:first-child {
+    white-space: nowrap;
+    display: inline-block;
 }
 
 .print-tpl-modern__vat-pct {
@@ -41,10 +48,10 @@
 
 .print-tpl-modern__closing {
     display: flex;
+    flex-direction: column;
     flex-wrap: nowrap;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 20px 24px;
+    align-items: flex-end;
+    gap: 10px 12px;
     margin-top: 12px;
     page-break-inside: avoid;
     break-inside: avoid;
@@ -66,6 +73,11 @@
     font-size: 7pt;
     line-height: 1.35;
     max-width: 14rem;
+}
+
+.print-tpl-modern__qr-wrap {
+    width: 100%;
+    max-width: 26rem;
 }
 
 .print-tpl-modern__qr-wrap--empty {

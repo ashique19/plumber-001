@@ -42,7 +42,7 @@ it('uses one fixed info grid table for seller ids and document meta on modern pr
 
     expect($html)
         ->toContain('<table class="invoice-print-info-grid"', false)
-        ->toContain('invoice-print-info-grid__col-en', false)
+        ->not->toContain('<colgroup', false)
         ->toContain('VAT No.', false)
         ->toContain('Issue date &amp; time', false)
         ->toContain('invoice-print-info-grid__label--nowrap', false)
