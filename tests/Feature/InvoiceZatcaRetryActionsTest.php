@@ -116,8 +116,9 @@ it('renders resubmit on invoice view when pending', function () {
         ->getContent();
 
     expect($html)
-        ->toContain('data-testid="invoice-view-zatca-panel"', false)
+        ->toContain('data-testid="invoice-view-status"', false)
         ->toContain('data-testid="invoice-toolbar-zatca-resubmit"', false)
+        ->not->toContain(__('invoices.zatca_view_last_status'), false)
         ->toContain(__('invoices.action_send_report_zatca'), false);
 });
 
