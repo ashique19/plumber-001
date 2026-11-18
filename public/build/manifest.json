@@ -474,7 +474,7 @@
     "isEntry": true
   },
   "resources/css/invoice-print.css": {
-    "file": "assets/invoice-print-B19rPAJS.css",
+    "file": "assets/invoice-print-C4buIYWN.css",
     "name": "invoice-print",
     "names": [
       "invoice-print.css"
@@ -548,7 +548,7 @@
     ]
   },
   "resources/js/invoice-print-preview.js": {
-    "file": "assets/invoice-print-preview-CZevQ91s.js",
+    "file": "assets/invoice-print-preview-DRSh8QPJ.js",
     "name": "invoice-print-preview",
     "src": "resources/js/invoice-print-preview.js",
     "isEntry": true

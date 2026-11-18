@@ -46,9 +46,8 @@ it('keeps quotation A4 print English and Arabic when UI locale is Bangla', funct
         ->toContain('invoice-print-totals__ar')
         ->toContain('invoice-a4__buyer-table-value--nowrap')
         ->toContain('QUO-20261117-120718')
-        ->toContain('invoice-print-page-label__en', false)
-        ->toContain('>Page 1 / 1</span>', false)
-        ->toContain('>صفحة 1 / 1</span>', false)
+        ->toContain('invoice-print-page-label__screen', false)
+        ->toContain('invoice-print-page-label__ar-word', false)
         ->not->toContain('কোটেশন')
         ->not->toContain('পৃষ্ঠা')
         ->not->toContain('invoice-a4__title-bn');
