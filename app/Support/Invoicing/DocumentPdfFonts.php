@@ -4,7 +4,9 @@ namespace App\Support\Invoicing;
 
 use Dompdf\Options;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use RuntimeException;
+use Throwable;
 
 final class DocumentPdfFonts
 {
@@ -22,10 +24,87 @@ final class DocumentPdfFonts
         return self::storageDir().'/cache';
     }
 
+    /**
+     * Called on app boot: cheap presence check only; install only when files are missing.
+     */
+    public static function warmAtBoot(): void
+    {
+        if (self::fontsPresent()) {
+            return;
+        }
+
+        try {
+            self::installIfNeeded();
+        } catch (Throwable $e) {
+            Log::warning('document_pdf_fonts_boot_install_failed', [
+                'message' => $e->getMessage(),
+            ]);
+        }
+    }
+
     public static function ensureInstalled(): void
     {
-        File::ensureDirectoryExists(self::storageDir());
-        File::ensureDirectoryExists(self::cacheDir());
+        if (self::fontsPresent()) {
+            return;
+        }
+
+        self::installIfNeeded();
+    }
+
+    public static function assertReady(): void
+    {
+        self::ensureInstalled();
+
+        foreach (['Amiri-Regular.ttf', 'Amiri-Bold.ttf'] as $file) {
+            if (! is_file(self::storageDir().'/'.$file)) {
+                throw new RuntimeException('Document PDF font missing: '.$file);
+            }
+        }
+
+        $vendorDejaVu = base_path('vendor/dompdf/dompdf/lib/fonts/DejaVuSans.ttf');
+        if (! is_file($vendorDejaVu) && ! is_file(self::storageDir().'/DejaVuSans.ttf')) {
+            throw new RuntimeException('Bundled Dompdf DejaVuSans font missing.');
+        }
+
+        if (! is_dir(self::cacheDir())) {
+            throw new RuntimeException('Document PDF font cache is missing: '.self::cacheDir());
+        }
+
+        if (! is_writable(self::cacheDir())) {
+            throw new RuntimeException('Document PDF font cache is not writable: '.self::cacheDir());
+        }
+    }
+
+    public static function applyTo(Options $options): void
+    {
+        self::ensureInstalled();
+        $options->set('fontDir', self::storageDir());
+        $options->set('fontCache', self::cacheDir());
+    }
+
+    public static function fontsPresent(): bool
+    {
+        $dir = self::storageDir();
+
+        foreach (['Amiri-Regular.ttf', 'Amiri-Bold.ttf', 'DejaVuSans.ttf', 'installed-fonts.json'] as $file) {
+            if (! is_file($dir.'/'.$file)) {
+                return false;
+            }
+        }
+
+        return is_dir(self::cacheDir());
+    }
+
+    private static function installIfNeeded(): void
+    {
+        try {
+            File::ensureDirectoryExists(self::storageDir());
+            File::ensureDirectoryExists(self::cacheDir());
+        } catch (Throwable $e) {
+            Log::warning('document_pdf_fonts_directory_failed', ['message' => $e->getMessage()]);
+
+            return;
+        }
 
         self::copyIfMissing(
             self::storageDir().'/Amiri-Regular.ttf',
@@ -51,40 +130,20 @@ final class DocumentPdfFonts
         self::writeInstalledFontsManifest();
     }
 
-    public static function assertReady(): void
-    {
-        self::ensureInstalled();
-
-        foreach (['Amiri-Regular.ttf', 'Amiri-Bold.ttf'] as $file) {
-            if (! is_file(self::storageDir().'/'.$file)) {
-                throw new RuntimeException('Document PDF font missing: '.$file);
-            }
-        }
-
-        $vendorDejaVu = base_path('vendor/dompdf/dompdf/lib/fonts/DejaVuSans.ttf');
-        if (! is_file($vendorDejaVu)) {
-            throw new RuntimeException('Bundled Dompdf DejaVuSans font missing.');
-        }
-
-        if (! is_writable(self::cacheDir())) {
-            throw new RuntimeException('Document PDF font cache is not writable: '.self::cacheDir());
-        }
-    }
-
-    public static function applyTo(Options $options): void
-    {
-        self::ensureInstalled();
-        $options->set('fontDir', self::storageDir());
-        $options->set('fontCache', self::cacheDir());
-    }
-
     private static function copyIfMissing(string $target, string $source): void
     {
         if (is_file($target) || ! is_file($source)) {
             return;
         }
 
-        File::copy($source, $target);
+        try {
+            File::copy($source, $target);
+        } catch (Throwable $e) {
+            Log::warning('document_pdf_fonts_copy_failed', [
+                'target' => $target,
+                'message' => $e->getMessage(),
+            ]);
+        }
     }
 
     private static function writeInstalledFontsManifest(): void
@@ -110,8 +169,17 @@ final class DocumentPdfFonts
             return;
         }
 
-        if (! is_file($path) || file_get_contents($path) !== $encoded) {
+        if (is_file($path) && @file_get_contents($path) === $encoded) {
+            return;
+        }
+
+        try {
             file_put_contents($path, $encoded);
+        } catch (Throwable $e) {
+            Log::warning('document_pdf_fonts_manifest_write_failed', [
+                'path' => $path,
+                'message' => $e->getMessage(),
+            ]);
         }
     }
 }

@@ -21,7 +21,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $livewireTmp = storage_path('app/'.(config('livewire.temporary_file_upload.directory') ?: 'livewire-tmp'));
         File::ensureDirectoryExists($livewireTmp);
-        DocumentPdfFonts::ensureInstalled();
+        DocumentPdfFonts::warmAtBoot();
 
         Livewire::addPersistentMiddleware([
             \App\Http\Middleware\LoadBusinessSettings::class,

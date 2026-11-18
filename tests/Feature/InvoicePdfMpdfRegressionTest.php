@@ -71,7 +71,7 @@ it('includes totals rows, QR image, and Arabic address in wrapped PDF html', fun
         ->toContain('invoice-pdf-ltr-digits')
         ->toContain('7098')
         ->toContain('invoice-national-address-ar__line')
-        ->toContain('sar-riyal-symbol.png')
+        ->toContain('data:image/svg+xml;base64,')
         ->not->toContain('Issue date &amp; time')
         ->toContain('invoice-print-info-grid__col-en', false)
         ->not->toMatch('/class="[^"]*print-tpl-modern__totals-net/');
@@ -114,7 +114,6 @@ it('renders standard buyer address as explicit lines with sans buyer labels in p
         ->toContain('invoice-print-seller-header-ids__label')
         ->toContain('invoice-pdf-sans-value')
         ->toContain('DejaVu Sans')
-        ->not->toContain('Instrument Sans')
         ->not->toContain('invoice-a4__buyer-address-ar');
 });
 

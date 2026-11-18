@@ -8,6 +8,7 @@ use App\Models\Invoice;
 use App\Models\StaffUser;
 use App\Support\BusinessProfile;
 use App\Support\Invoicing\DocumentPdfRenderer;
+use Tests\Support\DocumentPdfHtmlExpectations;
 use App\Support\Invoicing\InvoicePrintPresenter;
 use App\Support\Invoicing\PrintSheetFactory;
 use Carbon\Carbon;
@@ -120,8 +121,9 @@ it('does not embed screen status card in PDF html', function () {
 
     $sheet = PrintSheetFactory::invoice($invoice, Request::create('/', 'GET', ['template' => 'modern']), true);
     $wrapped = DocumentPdfRenderer::wrapHtml(view($sheet['view'], $sheet['data'])->render());
+    $decoded = html_entity_decode($wrapped, ENT_QUOTES | ENT_HTML5, 'UTF-8');
 
-    expect($wrapped)
+    expect($decoded)
         ->not->toContain('data-testid="invoice-view-status"')
-        ->toContain('تاريخ ووقت الإصدار');
+        ->toContain(DocumentPdfHtmlExpectations::shapedArabicSubstring('تاريخ ووقت الإصدار'));
 });

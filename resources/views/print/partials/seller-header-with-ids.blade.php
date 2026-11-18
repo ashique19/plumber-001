@@ -5,11 +5,21 @@
     $sellerEnLines = $na !== [] ? \App\Support\BusinessProfile::formatNationalAddressEnPrintLines($na) : [];
 @endphp
 <section class="invoice-a4__header print-tpl-modern__seller">
-    <div class="invoice-a4__seller-side">
-        <strong class="invoice-a4__seller-name-en">{{ $t['seller_en'] }}</strong>
+    <div class="invoice-a4__seller-side invoice-a4__seller-side--en">
+        <strong
+            class="invoice-a4__seller-name-en"
+            @if ($isPdf ?? false)
+                style="{{ \App\Support\Invoicing\DocumentPdfEnLineFit::inlineStyle((string) $t['seller_en'], 74, 8) }}"
+            @endif
+        >{{ $t['seller_en'] }}</strong>
         @if ($sellerEnLines !== [])
             @foreach ($sellerEnLines as $line)
-                <span class="invoice-a4__seller-address-en__line">{{ $line }}</span>
+                <span
+                    class="invoice-a4__seller-address-en__line"
+                    @if ($isPdf ?? false)
+                        style="{{ \App\Support\Invoicing\DocumentPdfEnLineFit::inlineStyle((string) $line, 74, 7.5) }}"
+                    @endif
+                >{{ $line }}</span>
             @endforeach
         @elseif ($t['address_en'])
             <p class="m-0">{{ $t['address_en'] }}</p>
