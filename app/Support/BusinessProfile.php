@@ -155,6 +155,58 @@ final class BusinessProfile
     }
 
     /**
+     * Two explicit RTL lines for mPDF seller address (building/street, then district/city/postal).
+     *
+     * @param  array<string, mixed>  $na
+     * @return list<string>
+     */
+    public static function formatNationalAddressArPdfLineHtml(array $na): array
+    {
+        $building = trim(self::scalarString($na['building'] ?? ''));
+        $street = trim(self::scalarString($na['street_ar'] ?? $na['street'] ?? ''));
+
+        $lines = [];
+
+        $line1Text = match (true) {
+            $building !== '' && $street !== '' => $building.' '.$street,
+            $building !== '' => $building,
+            $street !== '' => $street,
+            default => null,
+        };
+        if ($line1Text !== null) {
+            $lines[] = self::pdfAddressDigitRunsHtml($line1Text.'،');
+        }
+
+        $district = trim(self::scalarString($na['district_ar'] ?? $na['district'] ?? ''));
+        $city = trim(self::scalarString($na['city_ar'] ?? $na['city'] ?? ''));
+        $postal = trim(self::scalarString($na['postal_code'] ?? ''));
+
+        $cityPostal = trim($city.($postal !== '' ? ' '.$postal : ''));
+        $line2Text = match (true) {
+            $district !== '' && $cityPostal !== '' => $district.'، '.$cityPostal,
+            $district !== '' => $district,
+            $cityPostal !== '' => $cityPostal,
+            default => null,
+        };
+        if ($line2Text !== null) {
+            $lines[] = self::pdfAddressDigitRunsHtml($line2Text);
+        }
+
+        return $lines;
+    }
+
+    private static function pdfAddressDigitRunsHtml(string $text): string
+    {
+        $escaped = e($text);
+
+        return preg_replace_callback(
+            '/(\d+)/u',
+            static fn (array $m): string => '<span dir="ltr" class="invoice-pdf-ltr-digits">'.$m[1].'</span>',
+            $escaped,
+        ) ?? $escaped;
+    }
+
+    /**
      * @param  array<string, mixed>  $na
      * @return list<string>
      */

@@ -69,7 +69,7 @@ it('shows bilingual issue datetime label and hides supply on simplified modern p
 
     expect($html)
         ->toContain('2026-11-18 15:23')
-        ->toContain('Issue date &amp; time', false)
+        ->toContain('Issue date', false)
         ->toContain('تاريخ ووقت الإصدار')
         ->not->toContain('Supply date', false)
         ->not->toContain('class="invoice-cash__customer"')

@@ -27,7 +27,17 @@
             <div class="invoice-a4__seller-side invoice-a4__seller-side--ar invoice-print-ar" dir="rtl">
                 <strong>{{ $t['seller_ar'] }}</strong>
                 @if ($isPdf ?? false)
-                    @if ($t['address_ar'])
+                    @php
+                        $na = (array) ($t['national_address'] ?? []);
+                        $pdfAddressLines = $na !== [] ? \App\Support\BusinessProfile::formatNationalAddressArPdfLineHtml($na) : [];
+                    @endphp
+                    @if ($pdfAddressLines !== [])
+                        <div class="invoice-national-address-ar--pdf" lang="ar">
+                            @foreach ($pdfAddressLines as $line)
+                                <div class="invoice-pdf-ar-address-line invoice-pdf-ar-block" dir="rtl" style="text-align:right">{!! $line !!}</div>
+                            @endforeach
+                        </div>
+                    @elseif ($t['address_ar'])
                         <p class="m-0 invoice-pdf-ar-block invoice-national-address-ar--pdf" dir="rtl" lang="ar">{{ $t['address_ar'] }}</p>
                     @endif
                 @elseif ($t['address_ar_html'] ?? null)
