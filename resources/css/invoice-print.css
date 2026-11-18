@@ -337,8 +337,8 @@
 
 .invoice-a4__header {
     display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    gap: 8px;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.75fr) minmax(0, 1fr);
+    gap: 6px;
     align-items: start;
     border-bottom: 2px solid var(--inv-border);
     padding-bottom: 8px;
@@ -356,9 +356,14 @@
     font-family: Tajawal, sans-serif;
 }
 
+.invoice-a4__seller-side--en .invoice-a4__seller-name-en,
+.invoice-a4__seller-side--en .invoice-a4__seller-address-en__line {
+    display: block;
+}
+
 .invoice-a4__logo {
-    max-height: 96px;
-    max-width: 200px;
+    max-height: 88px;
+    max-width: 140px;
     margin: 0 auto;
     display: block;
     object-fit: contain;
