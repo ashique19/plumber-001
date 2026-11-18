@@ -27,7 +27,9 @@
             @if ($t['address_en'])
                 <p class="m-0">{{ $t['address_en'] }}</p>
             @endif
-            @if ($t['address_ar'])
+            @if ($t['address_ar_html'] ?? null)
+                <p class="m-0 invoice-cash__seller-ar">{!! $t['address_ar_html'] !!}</p>
+            @elseif ($t['address_ar'])
                 <p class="m-0 invoice-cash__seller-ar invoice-print-ar" dir="rtl">{{ $t['address_ar'] }}</p>
             @endif
             <div class="invoice-print-seller-ids">
@@ -45,14 +47,9 @@
             </div>
         </section>
 
-        <x-invoices.print-meta-grid :rows="array_values(array_filter([
-            ['en' => 'Invoice No.', 'ar' => 'رقم الفاتورة', 'value' => $t['document_number'], 'nowrap' => true],
-            ['en' => 'Issue date', 'ar' => 'تاريخ الإصدار', 'value' => $t['issue_date']],
-            ['en' => 'Supply date', 'ar' => 'تاريخ التوريد', 'value' => $t['supply_date'] ?? $t['issue_date']],
-            ['en' => 'Payment', 'ar' => 'الدفع', 'html' => e($t['payment_display_en']).' / '.e($t['payment_display_ar'])],
-        ], fn (array $row): bool => filled($row['value'] ?? $row['html'] ?? null)))" />
+        <x-invoices.print-meta-grid :rows="\App\Support\Invoicing\InvoicePrintMetaRows::cashMeta($t)" />
 
-        @if ($t['customer'])
+        @if (\App\Support\Invoicing\InvoicePrintCustomerBlock::hasVisibleContent($t['customer'] ?? null))
             <div class="invoice-cash__customer">
                 @if (! empty($t['customer']['name']))
                     <div class="invoice-cash__customer-name">{{ $t['customer']['name'] }}</div>

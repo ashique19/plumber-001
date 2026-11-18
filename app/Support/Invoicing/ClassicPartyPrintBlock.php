@@ -20,6 +20,8 @@ final class ClassicPartyPrintBlock
 
         if (filled($t['address_en'] ?? null)) {
             $rows[] = ['en' => 'Address', 'ar' => 'العنوان', 'value' => (string) $t['address_en']];
+        } elseif (filled($t['address_ar_html'] ?? null)) {
+            $rows[] = ['en' => 'Address', 'ar' => 'العنوان', 'html' => (string) $t['address_ar_html']];
         } elseif (filled($t['address_ar'] ?? null)) {
             $rows[] = ['en' => 'Address', 'ar' => 'العنوان', 'value' => (string) $t['address_ar']];
         }

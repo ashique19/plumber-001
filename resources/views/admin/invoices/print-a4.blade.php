@@ -40,8 +40,10 @@
             </div>
             <div class="invoice-a4__seller-side invoice-a4__seller-side--ar">
                 <strong>{{ $t['seller_ar'] }}</strong>
-                @if ($t['address_ar'])
-                    <p class="m-0">{{ $t['address_ar'] }}</p>
+                @if ($t['address_ar_html'] ?? null)
+                    <p class="m-0">{!! $t['address_ar_html'] !!}</p>
+                @elseif ($t['address_ar'])
+                    <p class="m-0 invoice-print-ar" dir="rtl">{{ $t['address_ar'] }}</p>
                 @endif
             </div>
         </section>
@@ -61,14 +63,12 @@
 
         <x-invoices.print-document-title :t="$t" />
 
-        <x-invoices.print-meta-grid :rows="array_values(array_filter([
-            ['en' => 'Invoice No.', 'ar' => 'رقم الفاتورة', 'value' => $t['document_number'], 'nowrap' => true],
-            ['en' => 'Issue date', 'ar' => 'تاريخ الإصدار', 'value' => $t['issue_date']],
-            ['en' => 'Supply date', 'ar' => 'تاريخ التوريد', 'value' => $t['supply_date'] ?? null],
-            ['en' => 'Due date', 'ar' => 'تاريخ الاستحقاق', 'value' => $t['due_date'] ?? null],
-        ], fn (array $row): bool => filled($row['value'] ?? null)))" />
+        <x-invoices.print-meta-grid :rows="\App\Support\Invoicing\InvoicePrintMetaRows::legacyA4Meta($t)" />
 
-        <x-invoices.print-buyer-table :rows="\App\Support\Invoicing\BuyerPrintBlock::rows($t['customer'] ?? null)" />
+        @php($a4BuyerRows = \App\Support\Invoicing\BuyerPrintBlock::rows($t['customer'] ?? null))
+        @if (count($a4BuyerRows) > 0)
+            <x-invoices.print-buyer-table :rows="$a4BuyerRows" />
+        @endif
 
         <table class="invoice-a4__table invoice-a4__table--product-lines">
             <thead>

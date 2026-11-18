@@ -102,20 +102,22 @@ final class InvoicePrintPresenter
         $contact = self::contactLines($legal, $content);
         $na = (array) ($legal['national_address'] ?? []);
 
-        $issueAt = $meta['paid_at'] ?? $invoice->issued_at;
-        $issueDate = $issueAt?->format('Y-m-d');
-        $issueTime = $issueAt?->format('H:i:s');
+        $issueAt = $invoice->issued_at ?? $meta['paid_at'] ?? null;
+        $issueRiyadh = $issueAt?->copy()->timezone('Asia/Riyadh');
+        $issueDate = $issueRiyadh?->format('Y-m-d');
+        $issueTime = $issueRiyadh?->format('H:i:s');
+        $issueDatetimePrint = $issueRiyadh?->format('Y-m-d H:i');
         $payloadSupply = trim((string) (data_get($invoice->payload, 'supply_date') ?? ''));
         $supplyDate = $payloadSupply !== '' ? $payloadSupply : $issueDate;
 
         $paymentMethod = (string) ($meta['payment_method'] ?? 'cash');
         $paymentLabels = self::paymentLabels($paymentMethod);
-        $paymentTermsCode = \App\Support\Invoicing\DocumentPaymentTerms::normalizeCode(
+        $paymentTermsCode = DocumentPaymentTerms::normalizeCode(
             (string) ($payload['payment_terms'] ?? ''),
             max(0, (int) data_get($business->settings, 'invoicing.payment_terms_days', 30)),
         );
-        $paymentTermsEn = \App\Support\Invoicing\DocumentPaymentTerms::label($paymentTermsCode, 'en');
-        $paymentTermsAr = \App\Support\Invoicing\DocumentPaymentTerms::label($paymentTermsCode, 'ar');
+        $paymentTermsEn = DocumentPaymentTerms::label($paymentTermsCode, 'en');
+        $paymentTermsAr = DocumentPaymentTerms::label($paymentTermsCode, 'ar');
 
         $trn = $legal['vat_number'] ?? null;
         $cr = $legal['cr_number'] ?? null;
@@ -172,6 +174,9 @@ final class InvoicePrintPresenter
             'address_ar' => filled($legal['address_ar'] ?? null)
                 ? (string) $legal['address_ar']
                 : BusinessProfile::formatNationalAddressAr($na),
+            'address_ar_html' => filled($legal['address_ar'] ?? null)
+                ? null
+                : BusinessProfile::formatNationalAddressArHtml($na),
             'short_national_address' => $legal['short_national_address'] ?? self::formatShortNational($na),
             'national_address' => $na,
             'phone' => $contact['phone'],
@@ -187,6 +192,7 @@ final class InvoicePrintPresenter
             'document_number' => $invoice->document_number,
             'issue_date' => $issueDate,
             'issue_time' => $issueTime,
+            'issue_datetime_print' => $issueDatetimePrint,
             'supply_date' => $supplyDate,
             'due_date' => $invoice->due_date?->format('Y-m-d'),
             'customer' => $meta['customer'],
@@ -211,10 +217,9 @@ final class InvoicePrintPresenter
             'branch' => $meta['branch'],
             'document_kind' => 'invoice',
             'show_qr' => ! $draftPreview && (($isSimplified && $qr !== null) || (! $isSimplified && $cleared && $qrSigned !== null)),
-            'issue_datetime' => $issueAt?->timezone(config('app.timezone'))->format('Y/m/d h:i A'),
+            'issue_datetime' => $issueDatetimePrint,
         ];
     }
-
 
     /**
      * @param  list<array<string, mixed>>  $rawLines
@@ -318,7 +323,7 @@ final class InvoicePrintPresenter
             $cr = $altNumber;
         }
 
-        return array_filter([
+        $customer = array_filter([
             'name' => $displayName !== '' ? $displayName : null,
             'name_en' => $nameEn !== '' ? $nameEn : null,
             'name_ar' => $nameAr !== '' ? $nameAr : null,
@@ -331,7 +336,11 @@ final class InvoicePrintPresenter
             'address_parts' => $na !== [] ? $na : null,
             'country_code' => $countryCode,
             'city' => trim((string) ($na['city'] ?? '')) ?: null,
-        ]) ?: null;
+        ]);
+
+        $printable = array_diff_key($customer, ['country_code' => true, 'address_parts' => true]);
+
+        return $printable === [] ? null : $customer;
     }
 
     /**

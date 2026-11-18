@@ -26,7 +26,9 @@
             </div>
             <div class="invoice-a4__seller-side invoice-a4__seller-side--ar invoice-print-ar" dir="rtl">
                 <strong>{{ $t['seller_ar'] }}</strong>
-                @if ($t['address_ar'])
+                @if ($t['address_ar_html'] ?? null)
+                    <p class="m-0">{!! $t['address_ar_html'] !!}</p>
+                @elseif ($t['address_ar'])
                     <p class="m-0 invoice-print-ar" dir="rtl">{{ $t['address_ar'] }}</p>
                 @endif
             </div>
@@ -67,14 +69,21 @@
                 ];
         @endphp
 
-        <x-invoices.print-buyer-table
-            :rows="\App\Support\Invoicing\BuyerPrintBlock::rows($t['customer'] ?? null)"
-            :split-left="$splitLeft"
-            :split-right="[
-                ['en' => 'Issue date', 'ar' => 'تاريخ الإصدار', 'value' => $t['issue_date']],
-                ['en' => 'Supply date', 'ar' => 'تاريخ التوريد', 'value' => $t['supply_date'] ?? null],
-            ]"
-        />
+        @php($buyerRows = \App\Support\Invoicing\BuyerPrintBlock::rows($t['customer'] ?? null))
+        @if ($isQuotation)
+            <x-invoices.print-buyer-table
+                :rows="$buyerRows"
+                :split-left="$splitLeft"
+                :split-right="[
+                    ['en' => 'Issue date', 'ar' => 'تاريخ الإصدار', 'value' => $t['issue_date']],
+                ]"
+            />
+        @else
+            <x-invoices.print-meta-grid :rows="\App\Support\Invoicing\InvoicePrintMetaRows::modernInvoiceMeta($t)" />
+            @if (count($buyerRows) > 0)
+                <x-invoices.print-buyer-table :rows="$buyerRows" />
+            @endif
+        @endif
         </div>
 
         <table class="invoice-a4__table invoice-a4__table--product-lines print-tpl-modern__lines">
