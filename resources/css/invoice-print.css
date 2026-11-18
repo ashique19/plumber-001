@@ -173,22 +173,42 @@
     vertical-align: top;
 }
 
+.invoice-print-info-grid__col-en {
+    width: 18%;
+}
+
+.invoice-print-info-grid__col-value {
+    width: 55%;
+}
+
+.invoice-print-info-grid__col-ar {
+    width: 27%;
+}
+
+.invoice-print-info-grid__pair {
+    width: 50%;
+}
+
 .invoice-print-info-grid__en {
-    text-align: start;
+    text-align: left;
+    direction: ltr;
     font-weight: 600;
     font-size: 8pt;
     color: var(--inv-muted);
-    padding-inline-start: 0;
+    padding-left: 0;
+    padding-right: 4px;
     white-space: nowrap;
     width: 18%;
 }
 
 .invoice-print-info-grid__value {
-    text-align: start;
+    text-align: left;
+    direction: ltr;
     font-size: 8.5pt;
     font-variant-numeric: tabular-nums;
     overflow-wrap: anywhere;
     width: 55%;
+    min-width: 0;
 }
 
 .invoice-print-info-grid__value--nowrap {
@@ -198,12 +218,14 @@
 }
 
 .invoice-print-info-grid__ar {
-    text-align: end;
+    text-align: right;
+    direction: rtl;
     font-family: Tajawal, sans-serif;
     font-size: 8pt;
     font-weight: 600;
     color: var(--inv-muted);
-    padding-inline-end: 0;
+    padding-right: 0;
+    padding-left: 4px;
     white-space: nowrap;
     width: 27%;
 }
@@ -536,13 +558,33 @@
 .invoice-a4__qr {
     margin: 12px auto;
     text-align: center;
-    max-width: 200px;
+    width: 100%;
+    max-width: none;
 }
 
-.invoice-a4__qr-note {
+.invoice-a4__qr canvas,
+.invoice-a4__qr-img {
+    display: block;
+    margin: 0 auto;
+    max-width: 200px;
+    height: auto;
+}
+
+.invoice-a4__qr-note,
+.invoice-a4__qr-note-en,
+.invoice-a4__qr-note-ar {
     font-size: 8pt;
+    line-height: 1.35;
     color: var(--inv-muted);
-    margin-top: 4px;
+    margin: 4px 0 0;
+    max-width: none;
+    width: 100%;
+    text-align: center;
+}
+
+.invoice-a4__qr-note-ar {
+    direction: rtl;
+    font-family: Tajawal, sans-serif;
 }
 
 .invoice-a4__footer {

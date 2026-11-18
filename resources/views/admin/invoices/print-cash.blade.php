@@ -27,7 +27,22 @@
             @if ($t['address_en'])
                 <p class="m-0">{{ $t['address_en'] }}</p>
             @endif
-            @if ($isPdf ?? false)
+            @php
+                $na = (array) ($t['national_address'] ?? []);
+                $structuredAddressLines = $na !== [] ? \App\Support\BusinessProfile::formatNationalAddressArPdfLineHtml($na) : [];
+            @endphp
+            @if ($structuredAddressLines !== [])
+                <div @class(['invoice-national-address-ar-lines', 'invoice-national-address-ar--pdf' => $isPdf ?? false]) lang="ar">
+                    @foreach ($structuredAddressLines as $line)
+                        <div @class([
+                            'invoice-national-address-ar__line',
+                            'invoice-cash__seller-ar',
+                            'invoice-print-ar',
+                            'invoice-pdf-ar-address-line' => $isPdf ?? false,
+                        ]) dir="rtl" style="text-align:right">{!! $line !!}</div>
+                    @endforeach
+                </div>
+            @elseif ($isPdf ?? false)
                 @if ($t['address_ar'])
                     <p class="m-0 invoice-cash__seller-ar invoice-print-ar invoice-national-address-ar--pdf" dir="rtl" lang="ar">{{ $t['address_ar'] }}</p>
                 @endif
