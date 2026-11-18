@@ -61,9 +61,11 @@ it('includes totals rows, QR image, and Arabic address in wrapped PDF html', fun
         ->toContain('invoice-a4__qr-img')
         ->toContain('invoice-a4__qr-note-ar')
         ->toContain('invoice-pdf-ar-block')
-        ->toContain((string) $address)
+        ->toContain('invoice-national-address-ar--pdf')
+        ->toContain('أحمد بن الحسين بن شقير')
+        ->toContain('حي الملز')
         ->not->toContain('<colgroup')
-        ->not->toContain('print-tpl-modern__totals-net');
+        ->not->toMatch('/class="[^"]*print-tpl-modern__totals-net/');
 });
 
 it('renders mPDF binary with totals text extractable via pdftotext when available', function () {

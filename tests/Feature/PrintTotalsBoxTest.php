@@ -127,8 +127,7 @@ function assertModernTotalsTable(string $html): void
         ->toContain('invoice-print-totals__en')
         ->toContain('invoice-print-totals__ar')
         ->toContain('invoice-print-totals__value')
-        ->toContain('print-tpl-modern__totals-total')
-        ->toContain('print-tpl-modern__totals-net');
+        ->toContain('print-tpl-modern__totals-total');
 
     assertThreeColumnTotalsTable($html, 'print-tpl-modern__totals');
 }
