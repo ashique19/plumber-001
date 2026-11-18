@@ -70,7 +70,7 @@ it('uses one fixed info grid table for seller ids and document meta on modern pr
     )->toContain('invoice-national-address-ar__line', false);
 });
 
-it('includes mPDF-friendly fixed column rules in pdf wrapper css', function () {
+it('includes fixed column rules in Dompdf wrapper css', function () {
     $invoice = Invoice::query()->create([
         'branch_id' => $this->branchId,
         'document_number' => 'SIMP-MPDF-GRID',

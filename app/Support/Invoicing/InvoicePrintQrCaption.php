@@ -3,7 +3,7 @@
 namespace App\Support\Invoicing;
 
 /**
- * Pre-broken QR captions for modern invoice print (mPDF-safe Arabic lines).
+ * Pre-broken QR captions for modern invoice print (Dompdf-safe Arabic lines).
  */
 final class InvoicePrintQrCaption
 {

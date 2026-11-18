@@ -5,8 +5,9 @@ it('scales fixed A4 width print sheets in the preview script', function () {
 
     expect($js)
         ->toContain('invoice-print-root.invoice-print-sheet')
-        ->toContain('794')
-        ->toContain('scale(');
+        ->toContain('invoice-print-preview-scale')
+        ->toContain('ResizeObserver')
+        ->toContain('794');
 });
 
 it('defines screen preview host and print reset for A4 sheets in CSS', function () {
@@ -15,6 +16,7 @@ it('defines screen preview host and print reset for A4 sheets in CSS', function 
     expect($css)
         ->toContain('invoice-print-preview-host')
         ->toContain('--inv-print-a4-width: 794px')
+        ->toContain('.invoice-print-preview-scale')
         ->toContain('.invoice-print-root.invoice-print-sheet')
         ->toContain('transform: none !important');
 });
