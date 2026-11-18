@@ -17,15 +17,13 @@ beforeEach(function () {
     app()->setLocale('en');
 });
 
-it('does not use CSS page counters that render as 0 of 0', function () {
-    $css = implode("\n", [
-        (string) file_get_contents(resource_path('css/invoice-print.css')),
-        (string) file_get_contents(resource_path('css/print-template-modern.css')),
-        (string) file_get_contents(resource_path('css/print-template-classic.css')),
-    ]);
+it('uses named page counters only inside the print page label', function () {
+    $css = (string) file_get_contents(resource_path('css/invoice-print.css'));
 
     expect($css)
-        ->not->toContain('counter(pages)')
+        ->toContain('counter(page)')
+        ->toContain('counter(pages)')
+        ->toContain('.invoice-print-page-label__en::after')
         ->not->toContain("counter(page) ' of '");
 });
 
@@ -51,13 +49,11 @@ it('prints template A and B footers with page 1 of 1 and the document number', f
             'locale' => 'en',
         ]))
         ->assertOk()
-        ->assertSee('data-print-page-label', false)
-        ->assertSee('invoice-print-page-label__en', false)
-        ->assertSee('invoice-print-page-label__ar', false)
-        ->assertSee('>Page 1 / 1</span>', false)
-        ->assertSee('>صفحة 1 / 1</span>', false)
-        ->assertSee('data-page-en="Page :current / :total"', false)
+        ->assertSee('invoice-print-page-label__screen', false)
+        ->assertSee('invoice-print-page-label__print', false)
+        ->assertSee('invoice-print-page-label__ar-word', false)
         ->assertSee('SIMP-PAGE-001', false)
+        ->assertDontSee('>Page 1 / 1 ·', false)
         ->assertDontSee('Page 0 of 0', false);
 })->with(['modern', 'classic']);
 
@@ -82,7 +78,7 @@ it('prints quotation templates without Page 0 of 0', function (string $template)
             'locale' => 'en',
         ]))
         ->assertOk()
-        ->assertSee('data-print-page-label', false)
+        ->assertSee('invoice-print-page-label__screen', false)
         ->assertSee('QUO-PAGE-001', false)
         ->assertDontSee('Page 0 of 0', false);
 })->with(['modern', 'classic']);

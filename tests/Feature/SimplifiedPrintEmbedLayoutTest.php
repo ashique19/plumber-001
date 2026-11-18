@@ -78,13 +78,13 @@ it('renders embed modern print with aligned grid, bidi payment, address lines, a
         ->toContain('invoice-a4__qr-note-ar', false)
         ->not->toContain('data-testid="print-screen-toolbar"', false)
         ->toContain('>Payment</td>', false)
-        ->toContain('invoice-print-page-label__en', false)
-        ->toContain('invoice-print-page-label__ar', false)
-        ->toContain('>Page 1 / 1</span>', false)
-        ->toContain('>صفحة 1 / 1</span>', false)
+        ->toContain('invoice-print-page-label__screen', false)
+        ->toContain('invoice-print-page-label__print', false)
+        ->toContain('invoice-print-page-label__ar-word', false)
+        ->not->toContain('>Page 1 / 1 ·', false)
         ->not->toContain('print-tpl-modern__sheet-footer--screen', false);
 
-    expect(substr_count($html, 'data-print-page-label'))->toBe(1);
+    expect(substr_count($html, 'invoice-print-page-label__screen'))->toBe(1);
 
     $cssHref = '/build/assets/'.basename((string) glob(public_path('build/assets/invoice-print-*.css'))[0]);
     expect($html)->toContain($cssHref, false);

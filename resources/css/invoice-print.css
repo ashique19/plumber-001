@@ -196,9 +196,10 @@
     font-size: 8pt;
     color: var(--inv-muted);
     padding-left: 0;
-    padding-right: 4px;
+    padding-right: 8px;
     white-space: nowrap;
     width: 24%;
+    min-width: 4.25rem;
 }
 
 .invoice-print-info-grid__value {
@@ -365,11 +366,43 @@
 
 .invoice-print-page-label {
     margin: 0;
+    direction: ltr;
+    unicode-bidi: isolate;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.print-tpl-modern__footer-page.invoice-print-page-label {
+    direction: ltr;
     unicode-bidi: isolate;
 }
 
-.invoice-print-page-label__ar {
+.invoice-print-page-label__screen {
+    font-size: 8pt;
+    font-weight: 600;
+    color: var(--inv-muted);
+}
+
+.invoice-print-page-label__print {
+    font-size: 8pt;
+    font-weight: 600;
+    color: var(--inv-muted);
+    direction: ltr;
     unicode-bidi: isolate;
+}
+
+.invoice-print-page-label__ar-word {
+    margin-inline: 0.15em;
+}
+
+@media print {
+    .invoice-print-page-label__en::after {
+        content: 'Page ' counter(page) ' / ' counter(pages);
+    }
+
+    .invoice-print-page-label__ar-num::after {
+        content: counter(page) ' / ' counter(pages);
+    }
 }
 
 .invoice-a4__buyer-table-label {
