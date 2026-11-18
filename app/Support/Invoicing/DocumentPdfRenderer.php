@@ -147,7 +147,6 @@ final class DocumentPdfRenderer
 
     private static function renderInvoiceWithMpdf(string $documentHtml): string
     {
-        $documentHtml = self::shapeArabic($documentHtml);
         $mpdf = self::newMpdfEngine(forDedicatedTemplate: true);
         $mpdf->WriteHTML($documentHtml);
 
@@ -156,7 +155,6 @@ final class DocumentPdfRenderer
 
     private static function renderWithMpdf(string $wrapped): string
     {
-        $wrapped = self::shapeArabic($wrapped);
         $mpdf = self::newMpdfEngine(forDedicatedTemplate: false);
         $mpdf->WriteHTML(
             '.invoice-print-root--pdf,.invoice-print-root--pdf table,.invoice-print-root--pdf td,.invoice-print-root--pdf th,.invoice-print-root--pdf p,.invoice-print-root--pdf span,.invoice-print-root--pdf div,.invoice-print-root--pdf strong,.invoice-print-root--pdf b{font-family:dejavusans;color:#111111;line-height:1.3}',
@@ -178,12 +176,13 @@ final class DocumentPdfRenderer
 
         $fontDefaults = (new FontVariables)->getDefaults();
         $fontData = $fontDefaults['fontdata'];
-        if (is_file(resource_path('fonts/Amiri-Regular.ttf'))) {
-            // Amiri GPOS triggers mPDF FontException (GPOS Lookup Type 5); shape via ArPHP instead.
+        if (self::amiriAvailable()) {
+            $bold = resource_path('fonts/Amiri-Bold.ttf');
+            // Per-font useOTL 0xFF on Amiri crashes mPDF 8.3 (GPOS Lookup Type 5); global useOTL below matches #177.
             $fontData['amiri'] = [
                 'R' => 'Amiri-Regular.ttf',
-                'useOTL' => 0,
-                'useKashida' => $forDedicatedTemplate ? 75 : 0,
+                'B' => is_file($bold) ? 'Amiri-Bold.ttf' : 'Amiri-Regular.ttf',
+                'useKashida' => 75,
             ];
         }
 
@@ -225,13 +224,44 @@ final class DocumentPdfRenderer
             'default_font' => 'dejavusans',
             'default_font_size' => 9,
             'defaultCSS' => $defaultCss,
-            'autoArabic' => $forDedicatedTemplate,
-            'autoScriptToLang' => $forDedicatedTemplate,
-            'autoLangToFont' => $forDedicatedTemplate,
-            'useSubstitutions' => false,
-            'useOTL' => 0,
+            'autoArabic' => false,
+            'autoScriptToLang' => false,
+            'autoLangToFont' => false,
+            'useSubstitutions' => true,
+            'useOTL' => self::amiriAvailable() ? 0xFF : 0,
             'tempDir' => $tmp,
         ]);
+    }
+
+    /**
+     * @return list<string> Lowercased font names embedded in a PDF binary (requires pdffonts).
+     */
+    public static function embeddedPdfFontNames(string $binary): array
+    {
+        $path = storage_path('app/pdf-font-probe-'.uniqid().'.pdf');
+        file_put_contents($path, $binary);
+        $raw = trim((string) shell_exec('pdffonts '.escapeshellarg($path).' 2>/dev/null'));
+        @unlink($path);
+
+        if ($raw === '') {
+            return [];
+        }
+
+        $names = [];
+        foreach (preg_split('/\R/', $raw) ?: [] as $line) {
+            $line = trim($line);
+            if ($line === '' || str_starts_with($line, 'name') || str_starts_with($line, '----')) {
+                continue;
+            }
+            if (! preg_match('/^(\S+)/', $line, $m)) {
+                continue;
+            }
+            $full = $m[1];
+            $base = str_contains($full, '+') ? substr($full, (int) strrpos($full, '+') + 1) : $full;
+            $names[] = strtolower($base);
+        }
+
+        return array_values(array_unique($names));
     }
 
     private static function renderWithDompdf(string $wrapped): string

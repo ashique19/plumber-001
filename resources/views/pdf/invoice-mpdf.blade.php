@@ -53,9 +53,9 @@
 <table width="100%" cellspacing="0" cellpadding="0" style="width:100%;margin-bottom:4px;border-bottom:3px double #1a1a1a;">
     <tr>
         <td width="33%" valign="top" style="width:33%;vertical-align:top;padding:0 3px 4px 0;">
-            <div style="font-family:dejavusans;font-size:9pt;font-weight:bold;line-height:1.25;max-width:62mm;">{{ $t['seller_en'] }}</div>
+            <div style="font-family:dejavusans;font-size:8.5pt;font-weight:bold;line-height:1.2;max-width:68mm;">{{ $t['seller_en'] }}</div>
             @foreach ($sellerEnLines as $line)
-                <p style="margin:1px 0 0;font-size:9pt;line-height:1.35;">{{ $line }}</p>
+                <p style="margin:1px 0 0;font-family:dejavusans;font-size:8pt;line-height:1.3;">{{ $line }}</p>
             @endforeach
             @if (filled($t['trn'] ?? null))
                 <p style="margin:3px 0 0;{{ $lbl }}">VAT No. <span style="{{ $val }}">{{ $t['trn'] }}</span></p>
@@ -75,10 +75,10 @@
                 <p class="ar" lang="ar" style="margin:1px 0 0;font-size:9pt;line-height:1.35;">{!! $line !!}</p>
             @endforeach
             @if (filled($t['trn'] ?? null))
-                <p class="ar" lang="ar" style="margin:3px 0 0;{{ $arLbl }}">الرقم الضريبي <span dir="ltr" style="{{ $val }}font-family:dejavusans;">{{ $t['trn'] }}</span></p>
+                <p class="ar" lang="ar" dir="rtl" style="margin:3px 0 0;{{ $arLbl }}">الرقم الضريبي&nbsp;&nbsp;<span dir="ltr" class="invoice-pdf-ltr-digits" style="{{ $val }}font-family:dejavusans;">{{ $t['trn'] }}</span></p>
             @endif
             @if (filled($t['cr_number'] ?? null))
-                <p class="ar" lang="ar" style="margin:1px 0 0;{{ $arLbl }}">السجل التجاري <span dir="ltr" style="{{ $val }}font-family:dejavusans;">{{ $t['cr_number'] }}</span></p>
+                <p class="ar" lang="ar" dir="rtl" style="margin:1px 0 0;{{ $arLbl }}">السجل التجاري&nbsp;&nbsp;<span dir="ltr" class="invoice-pdf-ltr-digits" style="{{ $val }}font-family:dejavusans;">{{ $t['cr_number'] }}</span></p>
             @endif
         </td>
     </tr>
@@ -141,7 +141,7 @@
 <table width="100%" cellspacing="0" cellpadding="0" style="width:100%;margin-bottom:6px;{{ $border }}font-size:8.5pt;">
     <thead>
         <tr style="background-color:#e8e8e8;">
-            <th width="6%" style="{{ $border }}{{ $cellPad }}text-align:center;font-size:8pt;">
+            <th width="5%" style="{{ $border }}{{ $cellPad }}text-align:center;font-size:7.5pt;">
                 <span style="font-family:dejavusans;font-weight:bold;">#</span><br>
                 <span class="ar" lang="ar" style="{{ $arLbl }}">م</span>
             </th>
@@ -149,19 +149,19 @@
                 <span style="font-family:dejavusans;font-weight:bold;">Description</span><br>
                 <span class="ar" lang="ar" style="{{ $arLbl }}">الوصف</span>
             </th>
-            <th width="8%" style="{{ $border }}{{ $cellPad }}text-align:right;">
+            <th width="7%" style="{{ $border }}{{ $cellPad }}text-align:right;font-size:7.5pt;">
                 <span style="font-family:dejavusans;font-weight:bold;">Qty</span><br>
                 <span class="ar" lang="ar" style="{{ $arLbl }}">الكمية</span>
             </th>
-            <th width="11%" style="{{ $border }}{{ $cellPad }}text-align:right;">
+            <th width="10%" style="{{ $border }}{{ $cellPad }}text-align:right;font-size:7.5pt;">
                 <span style="font-family:dejavusans;font-weight:bold;">Price</span><br>
                 <span class="ar" lang="ar" style="{{ $arLbl }}">السعر</span>
             </th>
-            <th width="13%" style="{{ $border }}{{ $cellPad }}text-align:right;">
-                <span style="font-family:dejavusans;font-weight:bold;">Taxable amount</span><br>
-                <span class="ar" lang="ar" style="{{ $arLbl }}">المبلغ الخاضع للضريبة</span>
+            <th width="14%" style="{{ $border }}{{ $cellPad }}text-align:right;font-size:7pt;white-space:nowrap;">
+                <span style="font-family:dejavusans;font-weight:bold;white-space:nowrap;">Taxable amount</span><br>
+                <span class="ar" lang="ar" style="{{ $arLbl }}font-size:7pt;">المبلغ الخاضع للضريبة</span>
             </th>
-            <th width="12%" style="{{ $border }}{{ $cellPad }}text-align:right;font-size:7pt;">
+            <th width="11%" style="{{ $border }}{{ $cellPad }}text-align:right;font-size:7pt;">
                 <span style="font-family:dejavusans;font-weight:bold;white-space:nowrap;">VAT amount (+%)</span><br>
                 <span class="ar" lang="ar" style="{{ $arLbl }}">القيمة المضافة</span>
             </th>
@@ -237,14 +237,14 @@
                     </tr>
                 @endif
             </table>
-            <table width="100%" cellspacing="0" cellpadding="0" style="width:100%;max-width:96mm;margin:4px 0 0 auto;{{ $border }}">
+            <table width="100%" cellspacing="0" cellpadding="0" style="width:100%;max-width:100%;margin:4px 0 0 auto;{{ $border }}table-layout:fixed;">
                 <tr>
-                    <td width="50%" valign="top" style="width:50%;{{ $cellPad }}font-size:7.5pt;line-height:1.25;vertical-align:top;">
+                    <td width="58%" valign="top" style="width:58%;{{ $cellPad }}font-family:dejavusans;font-size:7pt;line-height:1.2;vertical-align:top;white-space:nowrap;">
                         @if (filled($t['amount_words_en'] ?? null))
                             {{ $t['amount_words_en'] }}
                         @endif
                     </td>
-                    <td width="50%" class="ar" lang="ar" valign="top" style="width:50%;{{ $cellPad }}font-size:7.5pt;line-height:1.25;text-align:right;vertical-align:top;">
+                    <td width="42%" class="ar" lang="ar" dir="rtl" valign="top" style="width:42%;{{ $cellPad }}font-size:7pt;line-height:1.2;text-align:right;vertical-align:top;">
                         @if (filled($t['amount_words_ar'] ?? null))
                             {{ $t['amount_words_ar'] }}
                         @endif

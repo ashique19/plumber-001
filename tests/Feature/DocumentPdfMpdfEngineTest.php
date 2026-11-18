@@ -97,6 +97,13 @@ it('renders simplified and standard invoices with mPDF on one page without mpdf 
             ->and(stripos($binary, 'mPDF'))->not->toBeFalse()
             ->and(stripos($binary, 'dompdf'))->toBeFalse()
             ->and(DocumentPdfRenderer::pageCountInBinary($binary))->toBe(1);
+
+        if (trim((string) shell_exec('command -v pdffonts')) !== '') {
+            $fonts = DocumentPdfRenderer::embeddedPdfFontNames($binary);
+            expect($fonts)->not->toBeEmpty()
+                ->and(collect($fonts)->contains(fn (string $name): bool => str_contains($name, 'amiri')))->toBeTrue()
+                ->and(collect($fonts)->contains(fn (string $name): bool => str_contains($name, 'xbriyaz')))->toBeFalse();
+        }
     }
 
     Event::assertNotDispatched(MessageLogged::class, function (MessageLogged $event): bool {
