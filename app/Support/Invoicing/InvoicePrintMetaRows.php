@@ -15,15 +15,15 @@ final class InvoicePrintMetaRows
         $rows = [];
 
         if (filled($t['trn'] ?? null)) {
-            $rows[] = ['en' => 'VAT No.', 'ar' => 'الرقم الضريبي', 'value' => (string) $t['trn'], 'nowrap' => true];
+            $rows[] = ['en' => 'VAT No.', 'ar' => 'الرقم الضريبي', 'value' => (string) $t['trn'], 'nowrap' => true, 'label_nowrap' => true];
         }
 
         if ($includeUnified && filled($t['unified_number'] ?? null)) {
-            $rows[] = ['en' => 'Unified No.', 'ar' => 'الرقم الموحد', 'value' => (string) $t['unified_number'], 'nowrap' => true];
+            $rows[] = ['en' => 'Unified No.', 'ar' => 'الرقم الموحد', 'value' => (string) $t['unified_number'], 'nowrap' => true, 'label_nowrap' => true];
         }
 
         if (filled($t['cr_number'] ?? null)) {
-            $rows[] = ['en' => 'CR No.', 'ar' => 'السجل التجاري', 'value' => (string) $t['cr_number'], 'nowrap' => true];
+            $rows[] = ['en' => 'CR No.', 'ar' => 'السجل التجاري', 'value' => (string) $t['cr_number'], 'nowrap' => true, 'label_nowrap' => true];
         }
 
         if (filled($t['mobile'] ?? null)) {
@@ -31,7 +31,7 @@ final class InvoicePrintMetaRows
             if (filled($t['mobile_secondary'] ?? null)) {
                 $mobile .= ' · '.(string) $t['mobile_secondary'];
             }
-            $rows[] = ['en' => 'Mobile', 'ar' => 'الجوال', 'value' => $mobile, 'nowrap' => true];
+            $rows[] = ['en' => 'Mobile', 'ar' => 'الجوال', 'value' => $mobile, 'nowrap' => true, 'label_nowrap' => true];
         }
 
         return $rows;
@@ -69,7 +69,7 @@ final class InvoicePrintMetaRows
     public static function cashMeta(array $t): array
     {
         $rows = [
-            ['en' => 'Invoice No.', 'ar' => 'رقم الفاتورة', 'value' => (string) ($t['document_number'] ?? '')],
+            ['en' => 'Invoice No.', 'ar' => 'رقم الفاتورة', 'value' => (string) ($t['document_number'] ?? ''), 'label_nowrap' => true],
             ['en' => 'Issue date', 'ar' => 'تاريخ ووقت الإصدار', 'value' => $t['issue_datetime_print'] ?? null, 'label_nowrap' => true, 'nowrap' => true],
         ];
 
@@ -80,7 +80,10 @@ final class InvoicePrintMetaRows
         $rows[] = [
             'en' => 'Payment',
             'ar' => 'الدفع',
-            'value' => trim((string) ($t['payment_display_en'] ?? '')).' / '.trim((string) ($t['payment_display_ar'] ?? '')),
+            'html' => self::bidiSlashValue(
+                (string) ($t['payment_display_en'] ?? ''),
+                (string) ($t['payment_display_ar'] ?? ''),
+            ),
             'nowrap' => true,
             'label_nowrap' => true,
         ];
@@ -107,10 +110,10 @@ final class InvoicePrintMetaRows
     public static function modernInvoiceMeta(array $t): array
     {
         $rows = [
-            ['en' => 'Invoice No.', 'ar' => 'رقم الفاتورة', 'value' => (string) ($t['document_number'] ?? '')],
+            ['en' => 'Invoice No.', 'ar' => 'رقم الفاتورة', 'value' => (string) ($t['document_number'] ?? ''), 'label_nowrap' => true],
             ['en' => 'Issue date', 'ar' => 'تاريخ ووقت الإصدار', 'value' => $t['issue_datetime_print'] ?? null, 'label_nowrap' => true, 'nowrap' => true],
             ['en' => 'Payment terms', 'ar' => 'شروط الدفع', 'value' => $t['payment_terms_en'] ?? null, 'label_nowrap' => true, 'nowrap' => true],
-            ['en' => 'Due date', 'ar' => 'تاريخ الاستحقاق', 'value' => $t['due_date'] ?? null, 'nowrap' => true],
+            ['en' => 'Due date', 'ar' => 'تاريخ الاستحقاق', 'value' => $t['due_date'] ?? null, 'nowrap' => true, 'label_nowrap' => true],
         ];
 
         if (! ($t['is_simplified'] ?? false)) {
@@ -130,5 +133,21 @@ final class InvoicePrintMetaRows
             $rows,
             fn (array $row): bool => filled($row['value'] ?? null) || filled($row['html'] ?? null),
         ));
+    }
+
+    private static function bidiSlashValue(string $leading, string $trailing): string
+    {
+        $leading = trim($leading);
+        $trailing = trim($trailing);
+
+        if ($leading === '' && $trailing === '') {
+            return '';
+        }
+
+        if ($leading === '' || $trailing === '') {
+            return e($leading !== '' ? $leading : $trailing);
+        }
+
+        return '<bdi dir="ltr" class="invoice-print-bidi-value">'.e($leading).' / '.e($trailing).'</bdi>';
     }
 }

@@ -15,7 +15,17 @@ use Illuminate\Http\Request;
 beforeEach(function () {
     $this->withoutVite();
     (new DemoStaffSeeder)->run();
-    BusinessSetting::singleton();
+    $business = BusinessSetting::singleton();
+    $settings = $business->settings;
+    data_set($settings, 'legal_entity.national_address', [
+        'building' => '7098',
+        'street_ar' => 'أحمد بن الحسين بن شقير',
+        'district_ar' => 'حي الملز',
+        'city_ar' => 'الرياض',
+        'postal_code' => '12629',
+    ]);
+    $business->settings = $settings;
+    $business->save();
     $this->owner = StaffUser::query()->where('email', 'owner@example.test')->firstOrFail();
     $this->branchId = Branch::query()->first()?->id;
 });
@@ -52,6 +62,10 @@ it('uses one fixed info grid table for seller ids and document meta on modern pr
     $vatPos = strpos($html, 'VAT No.');
     $invoicePos = strpos($html, 'Invoice No.');
     expect($vatPos)->toBeLessThan($invoicePos);
+
+    expect($html)->toMatch(
+        '/VAT No\.<\/td>\s*<td[^>]*invoice-print-info-grid__value[^>]*>.*?<\/td>\s*<td[^>]*invoice-print-info-grid__ar[^>]*>الرقم الضريبي/s',
+    )->toContain('invoice-national-address-ar__line', false);
 });
 
 it('includes mPDF-friendly fixed column rules in pdf wrapper css', function () {
@@ -71,4 +85,24 @@ it('includes mPDF-friendly fixed column rules in pdf wrapper css', function () {
         ->toContain('invoice-print-info-grid', false)
         ->toContain('table-layout:fixed!important', false)
         ->toContain('invoice-print-info-grid__value{text-align:left!important', false);
+});
+
+it('renders cash payment values in LTR bidi order', function () {
+    $invoice = Invoice::query()->create([
+        'branch_id' => $this->branchId,
+        'document_number' => 'SIMP-PAY-BIDI',
+        'document_type' => InvoiceDocumentType::Simplified,
+        'status' => InvoiceStatus::Issued,
+        'issued_at' => now(),
+        'payload' => ['lines' => [['name' => 'Svc', 'quantity' => 1, 'unit_price_ex_vat' => 10, 'vat_rate' => 15]]],
+    ]);
+
+    $html = $this->actingAs($this->owner, 'staff')
+        ->get(route('admin.invoices.print', ['invoice' => $invoice, 'layout' => 'cash', 'template' => 'modern']))
+        ->assertOk()
+        ->getContent();
+
+    expect($html)
+        ->toContain('invoice-print-bidi-value', false)
+        ->toContain('Cash / نقداً', false);
 });
