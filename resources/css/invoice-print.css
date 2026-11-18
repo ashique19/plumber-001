@@ -444,7 +444,7 @@
 
 .invoice-a4__buyer-table-value {
     width: 60%;
-    text-align: center;
+    text-align: start;
 }
 
 .invoice-a4__buyer-table-value--nowrap {
@@ -464,18 +464,57 @@
     font-size: 8pt;
 }
 
+.invoice-a4__buyer-name-cell {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+}
+
 .invoice-a4__buyer-name-ar {
-    display: block;
     direction: rtl;
     font-family: Tajawal, sans-serif;
     font-weight: 600;
+    text-align: right;
+    flex: 1 1 auto;
+    min-width: 0;
 }
 
 .invoice-a4__buyer-name-en {
+    font-size: 9pt;
+    color: #111;
+    text-align: left;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.invoice-a4__buyer-address-cell {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 8px 12px;
+    width: 100%;
+    align-items: start;
+}
+
+.invoice-a4__buyer-address-en {
+    text-align: left;
+    line-height: 1.35;
+}
+
+.invoice-a4__buyer-address-en__line {
     display: block;
-    font-size: 8pt;
-    color: var(--inv-muted);
-    margin-top: 2px;
+    white-space: nowrap;
+}
+
+.invoice-a4__buyer-address-ar {
+    text-align: right;
+    line-height: 1.35;
+}
+
+.invoice-a4__buyer-address-ar__line {
+    display: block;
+    white-space: nowrap;
 }
 
 .invoice-a4__buyer-table-split-cell {
@@ -514,7 +553,7 @@
 }
 
 .invoice-a4__buyer-table-split-row .invoice-a4__buyer-table-value {
-    text-align: center;
+    text-align: start;
     vertical-align: middle;
 }
 

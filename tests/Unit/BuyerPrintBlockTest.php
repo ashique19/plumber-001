@@ -7,7 +7,15 @@ it('builds bilingual buyer rows with customer name and hides empty fields', func
     $rows = BuyerPrintBlock::rows([
         'name_ar' => 'شركة مثال',
         'name_en' => 'Example Co',
-        'address_print' => '7229, King Fahd Rd, Al Olaya, RIYADH, 12211, Kingdom of Saudi Arabia',
+        'address_en_lines' => ['7229, King Fahd Rd', 'Al Olaya, RIYADH 12211'],
+        'address_parts' => [
+            'building' => '7229',
+            'street' => 'King Fahd Rd',
+            'district' => 'Al Olaya',
+            'city' => 'RIYADH',
+            'postal_code' => '12211',
+            'country' => 'SA',
+        ],
         'email' => 'buyer@example.test',
         'phone' => '0562331303',
         'vat_registered' => true,
@@ -18,7 +26,10 @@ it('builds bilingual buyer rows with customer name and hides empty fields', func
         ->and($rows[0]['en'])->toBe('Customer')
         ->and($rows[0]['ar'])->toBe('العميل')
         ->and($rows[0]['html'])->toContain('شركة مثال')
-        ->and(collect($rows)->firstWhere('en', 'Address')['value'])->toContain('Kingdom of Saudi Arabia')
+        ->and($rows[0]['html'])->toContain('invoice-a4__buyer-name-cell')
+        ->and(collect($rows)->firstWhere('en', 'Address')['html'])->toContain('invoice-a4__buyer-address-en__line')
+        ->and(collect($rows)->firstWhere('en', 'Address')['html'])->not->toContain('Kingdom of Saudi Arabia')
+        ->and(collect($rows)->firstWhere('en', 'Address')['html'])->toContain('King Fahd Rd')
         ->and(collect($rows)->firstWhere('en', 'Phone')['value'])->toBe('+966 562331303')
         ->and(collect($rows)->firstWhere('en', 'VAT number')['ar'])->toBe('رقم التسجيل الضريبي');
 });
@@ -36,9 +47,12 @@ it('composes address from parts when address_print is absent', function () {
         'country_code' => 'SA',
     ]);
 
-    $address = collect($rows)->firstWhere('en', 'Address')['value'];
+    $addressHtml = collect($rows)->firstWhere('en', 'Address')['html'];
 
-    expect($address)->toBe('9261, Eastern Ring Road, Ar Riyadh, Riyadh, 11413, Kingdom of Saudi Arabia');
+    expect($addressHtml)
+        ->toContain('9261, Eastern Ring Road')
+        ->toContain('Ar Riyadh, Riyadh 11413')
+        ->not->toContain('Kingdom of Saudi Arabia');
 });
 
 it('shows alternative id row when buyer is not vat registered', function () {

@@ -255,21 +255,66 @@ final class BusinessProfile
      */
     public static function formatNationalAddressEn(array $na): ?string
     {
-        $parts = array_filter([
-            trim(self::scalarString($na['building'] ?? '')),
-            trim(self::scalarString($na['street'] ?? '')),
-            trim(self::scalarString($na['district'] ?? '')),
-            trim(self::scalarString($na['city'] ?? '')),
-            trim(self::scalarString($na['postal_code'] ?? '')),
-            trim(self::scalarString($na['additional'] ?? '')),
-        ], static fn (string $v): bool => $v !== '');
+        $lines = self::formatNationalAddressEnPrintLines($na);
+        if ($lines === []) {
+            return null;
+        }
+
+        return implode(', ', $lines);
+    }
+
+    /**
+     * Explicit EN lines for invoice print/PDF (building + street, district/city/postal, additional).
+     * Omits country when SA; never duplicates district when equal to city.
+     *
+     * @param  array<string, mixed>  $na
+     * @return list<string>
+     */
+    public static function formatNationalAddressEnPrintLines(array $na): array
+    {
+        $building = trim(self::scalarString($na['building'] ?? ''));
+        $street = trim(self::scalarString($na['street'] ?? ''));
+        $district = trim(self::scalarString($na['district'] ?? ''));
+        $city = trim(self::scalarString($na['city'] ?? ''));
+        $postal = trim(self::scalarString($na['postal_code'] ?? $na['postal'] ?? ''));
+        $additional = trim(self::scalarString($na['additional'] ?? ''));
+
+        $lines = [];
+
+        $line1 = match (true) {
+            $building !== '' && $street !== '' => $building.', '.$street,
+            $building !== '' => $building,
+            $street !== '' => $street,
+            default => null,
+        };
+        if ($line1 !== null) {
+            $lines[] = $line1;
+        }
+
+        $cityPostal = trim($city.($postal !== '' ? ' '.$postal : ''));
+        $districtDistinct = $district !== ''
+            && ($city === '' || strcasecmp($district, $city) !== 0);
+
+        $line2 = match (true) {
+            $districtDistinct && $cityPostal !== '' => $district.', '.$cityPostal,
+            $districtDistinct => $district,
+            $cityPostal !== '' => $cityPostal,
+            default => null,
+        };
+        if ($line2 !== null) {
+            $lines[] = $line2;
+        }
+
+        if ($additional !== '') {
+            $lines[] = $additional;
+        }
 
         $country = strtoupper(self::scalarString($na['country'] ?? 'SA'));
         if ($country !== '' && $country !== 'SA') {
-            $parts[] = $country;
+            $lines[] = $country;
         }
 
-        return $parts === [] ? null : implode(', ', $parts);
+        return $lines;
     }
 
     /**

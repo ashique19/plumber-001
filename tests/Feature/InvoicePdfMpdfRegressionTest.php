@@ -77,6 +77,44 @@ it('includes totals rows, QR image, and Arabic address in wrapped PDF html', fun
         ->not->toMatch('/class="[^"]*print-tpl-modern__totals-net/');
 });
 
+it('renders standard buyer address as explicit lines with sans buyer labels in pdf html', function () {
+    $invoice = Invoice::query()->create([
+        'branch_id' => $this->branchId,
+        'document_number' => 'STD-PDF-BUY-'.uniqid(),
+        'document_type' => InvoiceDocumentType::Standard,
+        'status' => InvoiceStatus::Issued,
+        'issued_at' => now(),
+        'payload' => [
+            'buyer_name_en' => 'TaskenLab Company',
+            'buyer_name_ar' => 'شركة تاسكنلاب',
+            'buyer_national_address' => [
+                'building' => '7780',
+                'street' => 'Prince Abdulaziz bin Musaed bin Jalawi Street',
+                'district' => 'Al Murabba',
+                'city' => 'Riyadh',
+                'postal_code' => '12612',
+                'additional' => '3841',
+                'country' => 'SA',
+            ],
+            'lines' => [
+                ['name' => 'Item', 'quantity' => 1, 'unit_price_ex_vat' => 10, 'vat_rate' => 15],
+            ],
+        ],
+    ]);
+
+    $sheet = PrintSheetFactory::invoice($invoice, Request::create('/', 'GET', ['template' => 'modern']), true);
+    $html = view($sheet['view'], $sheet['data'])->render();
+    $wrapped = DocumentPdfRenderer::wrapHtml($html, forMpdf: true);
+
+    expect($wrapped)
+        ->toContain('invoice-a4__buyer-address-en__line')
+        ->toContain('invoice-a4__buyer-name-cell')
+        ->toContain('Prince Abdulaziz bin Musaed bin Jalawi Street')
+        ->toContain('Al Murabba, Riyadh 12612')
+        ->toContain('invoice-print-seller-header-ids__label')
+        ->toContain('font-family:dejavusans');
+});
+
 it('renders mPDF binary with totals text extractable via pdftotext when available', function () {
     if (trim((string) shell_exec('command -v pdftotext')) === '') {
         $this->markTestSkipped('pdftotext not installed');

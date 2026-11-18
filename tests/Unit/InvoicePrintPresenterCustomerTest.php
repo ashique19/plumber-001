@@ -16,7 +16,10 @@ it('builds full buyer address from national address parts for print', function (
     ]);
 
     expect($customer)->not->toBeNull()
-        ->and($customer['address'])->toContain('King Fahd Rd')
-        ->and($customer['address'])->toContain('RIYADH')
-        ->and($customer['address_print'])->toBe($customer['address']);
+        ->and($customer['address_en_lines'])->toBe([
+            '7229, King Fahd Rd',
+            'Al Olaya, RIYADH 12211',
+        ])
+        ->and($customer['address_print'] ?? null)->toBeNull()
+        ->and($customer['address'])->not->toContain('Kingdom of Saudi Arabia');
 });
