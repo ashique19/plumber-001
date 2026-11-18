@@ -37,6 +37,16 @@ it('lists issued invoices for owner', function () {
         ->assertSee($invoice->document_number, false);
 });
 
+it('groups lifecycle and ZATCA filter chips on one row at large breakpoints', function () {
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(InvoiceHub::class)
+        ->assertSeeHtml('data-testid="hub-invoice-filter-chips"')
+        ->assertSeeHtml('data-testid="hub-invoice-lifecycle-tabs"')
+        ->assertSeeHtml('data-testid="hub-invoice-zatca-tabs"')
+        ->assertSeeHtml('lg:justify-between')
+        ->assertSeeHtml('lg:flex-row');
+});
+
 it('puts invoice search guidance in the placeholder and aligns filter fields', function () {
     app()->setLocale('bn');
 

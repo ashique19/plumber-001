@@ -280,6 +280,14 @@ html[dir='rtl'] .hub-doc-table__actions {
     flex: 0 0 auto;
 }
 
+@media (min-width: 1024px) {
+    [data-testid='hub-invoice-filter-chips'] .hub-doc-table__tabs--scroll {
+        flex-wrap: wrap;
+        overflow-x: visible;
+        padding-bottom: 0;
+    }
+}
+
 .hub-doc-table__row-link {
     color: inherit;
     text-decoration: none;
