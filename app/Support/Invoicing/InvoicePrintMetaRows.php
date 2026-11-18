@@ -110,7 +110,7 @@ final class InvoicePrintMetaRows
     public static function modernInvoiceMeta(array $t): array
     {
         $simplified = (bool) ($t['is_simplified'] ?? false);
-        $paymentLabelEn = $simplified ? 'Payment' : 'Payment terms';
+        $paymentLabelEn = 'Payment';
         $paymentLabelAr = $simplified ? 'الدفع' : 'شروط الدفع';
 
         $rows = [

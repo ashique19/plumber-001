@@ -78,6 +78,7 @@ it('renders embed modern print with aligned grid, bidi payment, address lines, a
         ->toContain('invoice-a4__qr-note-ar', false)
         ->not->toContain('data-testid="print-screen-toolbar"', false)
         ->toContain('>Payment</td>', false)
+        ->toContain('Page 1 / 1 · صفحة 1 / 1 —', false)
         ->not->toContain('print-tpl-modern__sheet-footer--screen', false);
 
     expect(substr_count($html, 'data-print-page-label'))->toBe(1);

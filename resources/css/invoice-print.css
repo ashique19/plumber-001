@@ -174,11 +174,11 @@
 }
 
 .invoice-print-info-grid__col-en {
-    width: 22%;
+    width: 24%;
 }
 
 .invoice-print-info-grid__col-value {
-    width: 50%;
+    width: 48%;
 }
 
 .invoice-print-info-grid__col-ar {
@@ -198,9 +198,7 @@
     padding-left: 0;
     padding-right: 4px;
     white-space: nowrap;
-    width: 22%;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    width: 24%;
 }
 
 .invoice-print-info-grid__value {
@@ -209,7 +207,7 @@
     font-size: 8.5pt;
     font-variant-numeric: tabular-nums;
     overflow-wrap: anywhere;
-    width: 50%;
+    width: 48%;
     min-width: 0;
     padding-left: 6px;
 }

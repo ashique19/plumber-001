@@ -21,6 +21,49 @@ beforeEach(function () {
     $this->branchId = Branch::query()->first()?->id;
 });
 
+it('renders a one-page mPDF for a standard invoice with a buyer block', function () {
+    $business = BusinessSetting::singleton();
+    $settings = $business->settings;
+    data_set($settings, 'legal_entity.national_address', [
+        'building' => '7098',
+        'street_ar' => 'أحمد بن الحسين بن شقير',
+        'district_ar' => 'حي الملز',
+        'city_ar' => 'الرياض',
+        'postal_code' => '12629',
+    ]);
+    $business->settings = $settings;
+    $business->save();
+
+    $invoice = Invoice::query()->create([
+        'branch_id' => $this->branchId,
+        'document_number' => 'STD-ONE-PAGE-001',
+        'document_type' => InvoiceDocumentType::Standard,
+        'status' => InvoiceStatus::Issued,
+        'issued_at' => now(),
+        'payload' => [
+            'buyer_name' => 'TaskenLab Company',
+            'buyer_name_ar' => 'شركة تاسكن لاب',
+            'buyer_vat_number' => '314430837500003',
+            'buyer_email' => 'buyer@example.test',
+            'buyer_phone' => '+966 560231362',
+            'buyer_address' => '7780, Prince Abdulaziz Street, Riyadh',
+            'payment_terms_en' => 'Cash (due on invoice date)',
+            'lines' => [
+                ['name' => 'QA Product A', 'name_ar' => 'منتج اختبار أ', 'quantity' => 1, 'unit_price_ex_vat' => 25, 'vat_rate' => 15],
+            ],
+        ],
+    ]);
+
+    $sheet = PrintSheetFactory::invoice($invoice, Request::create('/', 'GET', ['template' => 'modern']), true);
+    $html = view($sheet['view'], $sheet['data'])->render();
+    $wrapped = DocumentPdfRenderer::wrapHtml($html, forMpdf: true);
+
+    expect(DocumentPdfRenderer::pageCountForHtml($html))->toBe(1)
+        ->and($wrapped)->toContain('invoice-national-address-ar__line')
+        ->toContain('invoice-a4__buyer-table-value')
+        ->not->toContain('text-overflow:ellipsis');
+});
+
 it('renders one-page PDFs for single-line invoices and quotations', function () {
     $invoice = Invoice::query()->create([
         'branch_id' => $this->branchId,
