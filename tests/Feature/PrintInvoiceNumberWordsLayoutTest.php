@@ -61,7 +61,7 @@ it('renders modern print HTML with amount words block beside totals width', func
         ->getContent();
 
     expect($html)
-        ->toContain('invoice-a4__buyer-table-value--nowrap')
+        ->toContain('invoice-print-labeled-row__value--nowrap')
         ->toContain($longNumber)
         ->toContain('invoice-print-words-block print-tpl-modern__words')
         ->toContain('invoice-print-words-block__en')

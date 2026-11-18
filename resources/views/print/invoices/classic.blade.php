@@ -5,7 +5,8 @@
     $metaRows = array_values(array_filter([
         ['en' => 'Invoice number', 'ar' => 'رقم الفاتورة', 'value' => $isQuotation ? null : $t['document_number'], 'nowrap' => ! $isQuotation],
         ['en' => 'Quotation number', 'ar' => 'رقم العرض', 'value' => $isQuotation ? $t['document_number'] : null, 'nowrap' => $isQuotation],
-        ['en' => 'Invoice Issue Date', 'ar' => 'تاريخ إصدار الفاتورة', 'value' => $t['issue_datetime'] ?? $t['issue_date']],
+        ['en' => 'Issue date & time', 'ar' => 'تاريخ ووقت الإصدار', 'value' => $t['issue_datetime_print'] ?? $t['issue_datetime'] ?? $t['issue_date']],
+        ['en' => 'Supply date', 'ar' => 'تاريخ التوريد', 'value' => (! $isQuotation && ! ($t['is_simplified'] ?? false)) ? ($t['supply_date'] ?? null) : null],
         ['en' => 'Due Date', 'ar' => 'تاريخ الاستحقاق', 'value' => $isQuotation ? null : ($t['due_date'] ?? null)],
         ['en' => 'Valid until', 'ar' => 'صالح حتى', 'value' => $isQuotation ? ($t['validity_until'] ?? null) : null],
         ['en' => 'Payment terms', 'ar' => 'شروط الدفع', 'value' => $t['payment_terms_en'] ?? null],
@@ -74,28 +75,28 @@
                     </tbody>
                 </table>
             </div>
-            <div class="print-classic__party">
-                <div class="print-classic__party-head">Buyer <span class="ar invoice-print-ar" dir="rtl">العميل</span></div>
-                <table class="print-classic__party-table">
-                    <tbody>
-                        @forelse ($buyerRows as $row)
-                            <tr>
-                                <td class="print-classic__cell-label">{{ $row['en'] }}</td>
-                                <td class="print-classic__cell-value" @if (! empty($row['html'])) dir="auto" @endif>
-                                    @if (! empty($row['html']))
-                                        {!! $row['html'] !!}
-                                    @else
-                                        {{ $row['value'] ?? '' }}
-                                    @endif
-                                </td>
-                                <td class="print-classic__cell-label ar invoice-print-ar" dir="rtl">{{ $row['ar'] }}</td>
-                            </tr>
-                        @empty
-                            <tr><td colspan="3" class="print-classic__cell-value">—</td></tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+            @if (count($buyerRows) > 0)
+                <div class="print-classic__party">
+                    <div class="print-classic__party-head">Buyer <span class="ar invoice-print-ar" dir="rtl">العميل</span></div>
+                    <table class="print-classic__party-table">
+                        <tbody>
+                            @foreach ($buyerRows as $row)
+                                <tr>
+                                    <td class="print-classic__cell-label">{{ $row['en'] }}</td>
+                                    <td class="print-classic__cell-value" @if (! empty($row['html'])) dir="auto" @endif>
+                                        @if (! empty($row['html']))
+                                            {!! $row['html'] !!}
+                                        @else
+                                            {{ $row['value'] ?? '' }}
+                                        @endif
+                                    </td>
+                                    <td class="print-classic__cell-label ar invoice-print-ar" dir="rtl">{{ $row['ar'] }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
         </div>
 
         <table class="print-classic__lines">

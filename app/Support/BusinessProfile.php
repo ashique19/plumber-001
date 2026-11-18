@@ -9,91 +9,91 @@ use App\Models\BusinessSetting;
  */
 final class BusinessProfile
 {
-  /**
-   * @return array<string, mixed>
-   */
-  public static function contentSlice(BusinessSetting $business): array
-  {
-      return (array) data_get($business->settings, 'content.plumber', []);
-  }
+    /**
+     * @return array<string, mixed>
+     */
+    public static function contentSlice(BusinessSetting $business): array
+    {
+        return (array) data_get($business->settings, 'content.plumber', []);
+    }
 
-  public static function contentKey(BusinessSetting $business): string
-  {
-      return 'content.plumber';
-  }
+    public static function contentKey(BusinessSetting $business): string
+    {
+        return 'content.plumber';
+    }
 
-  /**
-   * @return list<string>
-   */
-  public static function selectableBrandColorKeys(): array
-  {
-      return ['navy', 'steel', 'safety', 'accent'];
-  }
+    /**
+     * @return list<string>
+     */
+    public static function selectableBrandColorKeys(): array
+    {
+        return ['navy', 'steel', 'safety', 'accent'];
+    }
 
-  /**
-   * @return array<string, string>
-   */
-  public static function defaultThemeColors(): array
-  {
-      return (array) data_get(BusinessSetting::defaultSettings(), 'theme.colors', []);
-  }
+    /**
+     * @return array<string, string>
+     */
+    public static function defaultThemeColors(): array
+    {
+        return (array) data_get(BusinessSetting::defaultSettings(), 'theme.colors', []);
+    }
 
-  /**
-   * @return array<string, string>
-   */
-  public static function brandColorPalette(BusinessSetting $business): array
-  {
-      $defaults = self::defaultThemeColors();
-      $stored = $business->themeColors();
-      $out = [];
-      foreach (self::selectableBrandColorKeys() as $key) {
-          $value = $stored[$key] ?? $defaults[$key] ?? null;
-          if (is_string($value) && $value !== '') {
-              $out[$key] = $value;
-          }
-      }
+    /**
+     * @return array<string, string>
+     */
+    public static function brandColorPalette(BusinessSetting $business): array
+    {
+        $defaults = self::defaultThemeColors();
+        $stored = $business->themeColors();
+        $out = [];
+        foreach (self::selectableBrandColorKeys() as $key) {
+            $value = $stored[$key] ?? $defaults[$key] ?? null;
+            if (is_string($value) && $value !== '') {
+                $out[$key] = $value;
+            }
+        }
 
-      return $out !== [] ? $out : array_intersect_key($defaults, array_flip(self::selectableBrandColorKeys()));
-  }
+        return $out !== [] ? $out : array_intersect_key($defaults, array_flip(self::selectableBrandColorKeys()));
+    }
 
-  /**
-   * @return array<string, string>
-   */
-  public static function brandColorOptions(BusinessSetting $business): array
-  {
-      $labels = [
-          'navy' => __('business.colors.navy'),
-          'steel' => __('business.colors.steel'),
-          'safety' => __('business.colors.safety'),
-          'accent' => __('business.colors.accent'),
-      ];
+    /**
+     * @return array<string, string>
+     */
+    public static function brandColorOptions(BusinessSetting $business): array
+    {
+        $labels = [
+            'navy' => __('business.colors.navy'),
+            'steel' => __('business.colors.steel'),
+            'safety' => __('business.colors.safety'),
+            'accent' => __('business.colors.accent'),
+        ];
 
-      $out = [];
-      foreach (self::selectableBrandColorKeys() as $key) {
-          if (isset($labels[$key])) {
-              $out[$key] = $labels[$key];
-          }
-      }
+        $out = [];
+        foreach (self::selectableBrandColorKeys() as $key) {
+            if (isset($labels[$key])) {
+                $out[$key] = $labels[$key];
+            }
+        }
 
-      return $out;
-  }
+        return $out;
+    }
 
-  public static function normalizeBrandColorKey(BusinessSetting $business, mixed $key): string
-  {
-      $key = self::scalarString($key);
-      $allowed = array_keys(self::brandColorOptions($business));
+    public static function normalizeBrandColorKey(BusinessSetting $business, mixed $key): string
+    {
+        $key = self::scalarString($key);
+        $allowed = array_keys(self::brandColorOptions($business));
 
-      if ($key !== '' && in_array($key, $allowed, true)) {
-          return $key;
-      }
+        if ($key !== '' && in_array($key, $allowed, true)) {
+            return $key;
+        }
 
-      return self::primaryColorKey($business);
-  }
+        return self::primaryColorKey($business);
+    }
 
-  public static function primaryColorKey(BusinessSetting $business): string
-  {
-      return 'navy';
-  }
+    public static function primaryColorKey(BusinessSetting $business): string
+    {
+        return 'navy';
+    }
 
     /**
      * @param  array<string, mixed>  $settings
@@ -127,16 +127,74 @@ final class BusinessProfile
      */
     public static function formatNationalAddressAr(array $na): ?string
     {
-        $parts = array_filter([
-            trim(self::scalarString($na['building'] ?? '')),
-            trim(self::scalarString($na['street_ar'] ?? $na['street'] ?? '')),
+        $parts = self::nationalAddressArParts($na);
+
+        return $parts === [] ? null : implode('، ', $parts);
+    }
+
+    /**
+     * RTL-friendly HTML for seller Arabic national address (plain legal address strings unchanged).
+     *
+     * @param  array<string, mixed>  $na
+     */
+    public static function formatNationalAddressArHtml(array $na): ?string
+    {
+        $parts = self::nationalAddressArParts($na);
+        if ($parts === []) {
+            return null;
+        }
+
+        $htmlParts = array_map(
+            static fn (string $part): string => self::arabicAddressPartHtml($part),
+            $parts,
+        );
+
+        return '<span class="invoice-print-ar invoice-national-address-ar" dir="rtl">'
+            .implode('<span class="invoice-national-address-ar__sep" aria-hidden="true">، </span>', $htmlParts)
+            .'</span>';
+    }
+
+    /**
+     * @param  array<string, mixed>  $na
+     * @return list<string>
+     */
+    public static function nationalAddressArParts(array $na): array
+    {
+        $buildingStreet = self::nationalAddressBuildingStreetAr($na);
+
+        return array_values(array_filter([
+            $buildingStreet,
             trim(self::scalarString($na['district_ar'] ?? $na['district'] ?? '')),
             trim(self::scalarString($na['city_ar'] ?? $na['city'] ?? '')),
             trim(self::scalarString($na['postal_code'] ?? '')),
-            trim(self::scalarString($na['short_national'] ?? $na['short_national_address'] ?? '')),
-        ], static fn (string $v): bool => $v !== '');
+        ], static fn (string $v): bool => $v !== ''));
+    }
 
-        return $parts === [] ? null : implode('، ', $parts);
+    /**
+     * @param  array<string, mixed>  $na
+     */
+    private static function nationalAddressBuildingStreetAr(array $na): ?string
+    {
+        $building = trim(self::scalarString($na['building'] ?? ''));
+        $street = trim(self::scalarString($na['street_ar'] ?? $na['street'] ?? ''));
+
+        if ($building !== '' && $street !== '') {
+            return $building.' '.$street;
+        }
+
+        return $building !== '' ? $building : ($street !== '' ? $street : null);
+    }
+
+    private static function arabicAddressPartHtml(string $segment): string
+    {
+        $escaped = e($segment);
+        $withLtrNums = preg_replace_callback(
+            '/(\d+)/u',
+            static fn (array $m): string => '<span dir="ltr" class="invoice-print-ltr-num">'.$m[1].'</span>',
+            $escaped,
+        ) ?? $escaped;
+
+        return '<span class="invoice-national-address-ar__part" dir="rtl">'.$withLtrNums.'</span>';
     }
 
     /**
@@ -199,7 +257,6 @@ final class BusinessProfile
     }
 
     /**
-     * @param  mixed  $stored
      * @return list<array{key: string, closed: bool, open: string, close: string}>
      */
     public static function normalizeWeekdays(mixed $stored): array
