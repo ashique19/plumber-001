@@ -47,23 +47,9 @@
                 @endif
             </div>
         </section>
-        <div class="invoice-print-seller-ids">
-            @if ($t['trn'])
-                <x-invoices.print-labeled-row en="VAT No." ar="الرقم الضريبي" :value="$t['trn']" :nowrap="true" />
-            @endif
-            @if ($t['cr_number'])
-                <x-invoices.print-labeled-row en="CR No." ar="السجل التجاري" :value="$t['cr_number']" :nowrap="true" />
-            @endif
-            @if ($t['mobile'])
-                <x-invoices.print-labeled-row en="Mobile" ar="الجوال" :nowrap="true">
-                    {{ $t['mobile'] }}@if ($t['mobile_secondary']) / {{ $t['mobile_secondary'] }}@endif
-                </x-invoices.print-labeled-row>
-            @endif
-        </div>
-
         <x-invoices.print-document-title :t="$t" />
 
-        <x-invoices.print-meta-grid :rows="\App\Support\Invoicing\InvoicePrintMetaRows::legacyA4Meta($t)" />
+        <x-invoices.print-info-grid :rows="\App\Support\Invoicing\InvoicePrintMetaRows::legacyA4IntroGrid($t)" />
 
         @php($a4BuyerRows = \App\Support\Invoicing\BuyerPrintBlock::rows($t['customer'] ?? null))
         @if (count($a4BuyerRows) > 0)

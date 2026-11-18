@@ -33,23 +33,6 @@
                 @endif
             </div>
         </section>
-        <div class="invoice-print-seller-ids invoice-print-seller-ids--modern">
-            @if ($t['trn'])
-                <x-invoices.print-labeled-row en="VAT No." ar="الرقم الضريبي" :value="$t['trn']" :nowrap="true" />
-            @endif
-            @if ($t['unified_number'] ?? null)
-                <x-invoices.print-labeled-row en="Unified No." ar="الرقم الموحد" :value="$t['unified_number']" :nowrap="true" />
-            @endif
-            @if ($t['cr_number'] ?? null)
-                <x-invoices.print-labeled-row en="CR No." ar="السجل التجاري" :value="$t['cr_number']" :nowrap="true" />
-            @endif
-            @if ($t['mobile'] ?? null)
-                <x-invoices.print-labeled-row en="Mobile" ar="الجوال" :nowrap="true">
-                    {{ $t['mobile'] }}@if ($t['mobile_secondary'] ?? null) · {{ $t['mobile_secondary'] }}@endif
-                </x-invoices.print-labeled-row>
-            @endif
-        </div>
-
         <hr class="print-tpl-modern__rule" />
 
         <x-invoices.print-document-title :t="$t" />
@@ -79,7 +62,7 @@
                 ]"
             />
         @else
-            <x-invoices.print-meta-grid :rows="\App\Support\Invoicing\InvoicePrintMetaRows::modernInvoiceMeta($t)" />
+            <x-invoices.print-info-grid :rows="\App\Support\Invoicing\InvoicePrintMetaRows::modernIntroGrid($t)" />
             @if (count($buyerRows) > 0)
                 <x-invoices.print-buyer-table :rows="$buyerRows" />
             @endif

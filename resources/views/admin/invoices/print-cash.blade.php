@@ -32,22 +32,9 @@
             @elseif ($t['address_ar'])
                 <p class="m-0 invoice-cash__seller-ar invoice-print-ar" dir="rtl">{{ $t['address_ar'] }}</p>
             @endif
-            <div class="invoice-print-seller-ids">
-                @if ($t['trn'])
-                    <x-invoices.print-labeled-row en="VAT No." ar="الرقم الضريبي" :value="$t['trn']" :nowrap="true" />
-                @endif
-                @if ($t['cr_number'])
-                    <x-invoices.print-labeled-row en="CR No." ar="السجل التجاري" :value="$t['cr_number']" :nowrap="true" />
-                @endif
-                @if ($t['mobile'])
-                    <x-invoices.print-labeled-row en="Mobile" ar="الجوال" :nowrap="true">
-                        {{ $t['mobile'] }}@if ($t['mobile_secondary']) · {{ $t['mobile_secondary'] }}@endif
-                    </x-invoices.print-labeled-row>
-                @endif
-            </div>
         </section>
 
-        <x-invoices.print-meta-grid :rows="\App\Support\Invoicing\InvoicePrintMetaRows::cashMeta($t)" />
+        <x-invoices.print-info-grid :rows="\App\Support\Invoicing\InvoicePrintMetaRows::cashIntroGrid($t)" />
 
         @if (\App\Support\Invoicing\InvoicePrintCustomerBlock::hasVisibleContent($t['customer'] ?? null))
             <div class="invoice-cash__customer">
