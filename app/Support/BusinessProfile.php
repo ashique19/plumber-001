@@ -189,7 +189,11 @@ final class BusinessProfile
             default => null,
         };
         if ($line2Text !== null) {
-            // Keep district/city/postal in one RTL run so mPDF does not pull LTR digit spans to the line start.
+            $additional = trim(self::scalarString($na['additional'] ?? ''));
+            if ($additional !== '') {
+                $line2Text .= '، '.$additional;
+            }
+            // Keep district/city/postal in one RTL run so PDF engines do not pull LTR digit spans to the line start.
             $lines[] = e($line2Text);
         }
 
@@ -302,10 +306,11 @@ final class BusinessProfile
             default => null,
         };
         if ($line2 !== null) {
+            if ($additional !== '') {
+                $line2 .= ', '.$additional;
+            }
             $lines[] = $line2;
-        }
-
-        if ($additional !== '') {
+        } elseif ($additional !== '') {
             $lines[] = $additional;
         }
 

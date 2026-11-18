@@ -435,6 +435,24 @@
     .invoice-print-page-label__ar-num::after {
         content: counter(page) ' / ' counter(pages);
     }
+
+    .invoice-zatca-notice {
+        display: none !important;
+    }
+}
+
+.print-tpl-modern__seller .invoice-a4__seller-name-en {
+    display: block;
+    font-size: 8.75pt;
+    line-height: 1.25;
+    max-width: 68mm;
+}
+
+.print-tpl-modern__seller .invoice-a4__seller-address-en__line {
+    display: block;
+    font-size: 8.25pt;
+    line-height: 1.3;
+    margin: 0;
 }
 
 .invoice-a4__buyer-table-label {

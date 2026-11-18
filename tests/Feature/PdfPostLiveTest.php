@@ -56,7 +56,7 @@ it('renders a one-page mPDF for a standard invoice with a buyer block', function
 
     $sheet = PrintSheetFactory::invoice($invoice, Request::create('/', 'GET', ['template' => 'modern']), true);
     $html = view($sheet['view'], $sheet['data'])->render();
-    $wrapped = DocumentPdfRenderer::wrapHtml($html, forMpdf: true);
+    $wrapped = DocumentPdfRenderer::wrapHtml($html);
 
     expect(DocumentPdfRenderer::pageCountForHtml($html))->toBe(1)
         ->and($wrapped)->toContain('invoice-national-address-ar__line')
@@ -151,7 +151,7 @@ it('uses the SAR svg in PDF html and omits the Bangla quotation subtitle', funct
 
     $sheet = PrintSheetFactory::quotation($quotation, Request::create('/', 'GET', ['template' => 'modern']), true);
     $html = view($sheet['view'], $sheet['data'])->render();
-    $wrapped = DocumentPdfRenderer::wrapHtml($html, forMpdf: false);
+    $wrapped = DocumentPdfRenderer::wrapHtml($html);
 
     expect($wrapped)
         ->toContain('invoice-sar-symbol__svg')
@@ -164,7 +164,7 @@ it('uses the SAR svg in PDF html and omits the Bangla quotation subtitle', funct
 it('preserves digit order in Arabic seller address for mPDF output', function () {
     $html = '<div class="invoice-print-root--pdf"><p class="invoice-a4__seller-side--ar invoice-print-ar" dir="rtl">الرياض ، حي النخيل ، 709812629</p></div>';
 
-    $wrapped = DocumentPdfRenderer::wrapHtml($html, forMpdf: true);
+    $wrapped = DocumentPdfRenderer::wrapHtml($html);
     $decoded = html_entity_decode($wrapped, ENT_QUOTES | ENT_HTML5, 'UTF-8');
 
     expect($decoded)
@@ -181,7 +181,7 @@ it('keeps TRN digits in a separate LTR run beside Arabic labels', function () {
         .'<span dir="ltr" class="invoice-pdf-ltr-digits">123456789012345</span></p>'
         .'</div>';
 
-    $wrapped = DocumentPdfRenderer::wrapHtml($html, forMpdf: true);
+    $wrapped = DocumentPdfRenderer::wrapHtml($html);
     $decoded = html_entity_decode($wrapped, ENT_QUOTES | ENT_HTML5, 'UTF-8');
 
     expect($decoded)
@@ -195,7 +195,7 @@ it('keeps TRN digits in a separate LTR run beside Arabic labels', function () {
 it('inlines the SAR symbol as a dompdf-friendly data URI image', function () {
     $html = '<span class="invoice-sar-symbol"><svg class="invoice-sar-symbol__svg" xmlns="http://www.w3.org/2000/svg"></svg></span>';
 
-    $wrapped = DocumentPdfRenderer::wrapHtml($html, forMpdf: false);
+    $wrapped = DocumentPdfRenderer::wrapHtml($html);
 
     expect($wrapped)
         ->toContain('data:image/svg+xml;base64,')
@@ -203,24 +203,24 @@ it('inlines the SAR symbol as a dompdf-friendly data URI image', function () {
         ->not->toContain('<svg');
 });
 
-it('inlines the SAR symbol as a PNG file URI for mPDF', function () {
+it('inlines the SAR symbol as a data URI image for dompdf PDFs', function () {
     $html = '<span class="invoice-sar-symbol"><svg class="invoice-sar-symbol__svg" xmlns="http://www.w3.org/2000/svg"></svg></span>';
 
-    $wrapped = DocumentPdfRenderer::wrapHtml($html, forMpdf: true);
+    $wrapped = DocumentPdfRenderer::wrapHtml($html);
 
     expect($wrapped)
-        ->toContain('sar-riyal-symbol.png')
+        ->toContain('data:image/svg+xml;base64,')
         ->toContain('class="invoice-sar-symbol__svg"')
         ->not->toContain('<svg');
 });
 
 it('keeps modern totals as three fixed columns in PDF overlay CSS', function () {
-    $wrapped = DocumentPdfRenderer::wrapHtml('<div class="invoice-print-root--pdf"><table class="print-tpl-modern__totals invoice-print-totals"></table></div>', forMpdf: true);
+    $wrapped = DocumentPdfRenderer::wrapHtml('<div class="invoice-print-root--pdf"><table class="print-tpl-modern__totals invoice-print-totals"></table></div>');
 
     expect($wrapped)
         ->toContain('table-layout:fixed!important')
         ->toContain('invoice-print-totals__value{white-space:nowrap!important')
-        ->toContain('font-family:dejavusans!important')
+        ->toContain('DejaVu Sans')
         ->toContain('print-tpl-modern__totals-net td{border-top:1px solid #1a1a1a!important')
         ->toContain('invoice-print-money{display:inline!important;white-space:nowrap!important');
 });

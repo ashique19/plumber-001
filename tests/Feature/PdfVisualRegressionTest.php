@@ -120,7 +120,7 @@ function assertPdfHasNoReplacementGlyphs(string $binary, string $slug): void
     @unlink($pdfPath);
 }
 
-it('renders PDFs via mPDF with Arabic layout overlays and SAR symbols', function () {
+it('renders PDFs via dompdf with Arabic layout overlays and SAR symbols', function () {
     foreach (pdfRegressionSnapshots() as $case) {
         expect($case['binary'])
             ->toStartWith('%PDF')
