@@ -3,6 +3,10 @@
 ])
 
 @php
+    use App\Support\Invoicing\InvoicePrintInfoGrid;
+@endphp
+
+@php
     $filled = array_values(array_filter(
         $rows,
         fn (array $row): bool => filled($row['value'] ?? null) || filled($row['html'] ?? null),
@@ -23,9 +27,9 @@
                         <td class="invoice-print-info-grid__pair" width="50%" style="padding:0;vertical-align:middle">
                             <table class="invoice-print-info-grid-field" role="presentation" width="100%">
                                 <colgroup>
-                                    <col class="invoice-print-info-grid__col-en" style="width:20%">
-                                    <col class="invoice-print-info-grid__col-value" style="width:52%">
-                                    <col class="invoice-print-info-grid__col-ar" style="width:32%">
+                                    <col class="invoice-print-info-grid__col-en" style="width:{{ InvoicePrintInfoGrid::COL_EN_PCT }}%">
+                                    <col class="invoice-print-info-grid__col-value" style="width:{{ InvoicePrintInfoGrid::COL_VALUE_PCT }}%">
+                                    <col class="invoice-print-info-grid__col-ar" style="width:{{ InvoicePrintInfoGrid::COL_AR_PCT }}%">
                                 </colgroup>
                                 <tr>
                                     <td @class([

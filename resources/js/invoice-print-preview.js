@@ -1,26 +1,46 @@
-function scaleClassicPreviewToViewport() {
-    const root = document.querySelector('.invoice-print-root.print-tpl-classic');
-    if (! root || window.matchMedia('print').matches) {
+const A4_REFERENCE_PX = 794;
+
+function ensurePreviewHost(root) {
+    const parent = root.parentElement;
+    if (! parent) {
+        return root;
+    }
+    parent.classList.add('invoice-print-preview-host');
+
+    return parent;
+}
+
+function scalePrintSheetsToViewport() {
+    if (window.matchMedia('print').matches) {
         return;
     }
 
-    const targetWidth = Math.min(root.scrollWidth, 506);
-    const viewport = Math.max(320, document.documentElement.clientWidth - 24);
-    if (targetWidth <= viewport) {
-        root.style.transform = '';
-        root.style.width = '';
+    const sheets = document.querySelectorAll('.invoice-print-root.invoice-print-sheet');
+    sheets.forEach((root) => {
+        const host = ensurePreviewHost(root);
+        root.style.boxSizing = 'border-box';
+        root.style.width = `${A4_REFERENCE_PX}px`;
+        root.style.minWidth = `${A4_REFERENCE_PX}px`;
+        root.style.maxWidth = `${A4_REFERENCE_PX}px`;
 
-        return;
-    }
+        const hostWidth = Math.max(280, (host.clientWidth || document.documentElement.clientWidth) - 16);
+        if (A4_REFERENCE_PX <= hostWidth) {
+            root.style.transform = '';
+            host.style.minHeight = '';
 
-    const scale = viewport / targetWidth;
-    root.style.transform = `scale(${scale})`;
-    root.style.transformOrigin = 'top center';
-    root.style.width = `${targetWidth}px`;
-    root.parentElement?.classList.add('invoice-print-preview-host');
+            return;
+        }
+
+        const scale = hostWidth / A4_REFERENCE_PX;
+        root.style.transform = `scale(${scale})`;
+        root.style.transformOrigin = 'top center';
+
+        const layoutHeight = root.offsetHeight;
+        host.style.minHeight = `${Math.ceil(layoutHeight * scale)}px`;
+    });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    scaleClassicPreviewToViewport();
-    window.addEventListener('resize', scaleClassicPreviewToViewport);
+    scalePrintSheetsToViewport();
+    window.addEventListener('resize', scalePrintSheetsToViewport);
 });
