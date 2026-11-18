@@ -13,24 +13,33 @@ function estimatePrintPages(root) {
     return Math.max(1, Math.ceil(height / printableHeightPx));
 }
 
+function formatPageLabel(pageEnTpl, pageArTpl, doc, current, total) {
+    const pageEn = pageEnTpl.replace(':current', String(current)).replace(':total', String(total));
+    const pageAr = pageArTpl.replace(':current', String(current)).replace(':total', String(total));
+
+    return `${pageEn} · ${pageAr} — ${doc}`.trim();
+}
+
 function fillPrintPageLabels() {
-    document.querySelectorAll('[data-print-page-label]').forEach((el) => {
-        const root = el.closest('[data-invoice-print]') || document.querySelector('[data-invoice-print]');
-        const doc = el.getAttribute('data-document-number') || '';
-        const pageEnTpl = el.getAttribute('data-page-en') || '';
-        const pageArTpl = el.getAttribute('data-page-ar') || '';
-        const pages = estimatePrintPages(root);
+    const root = document.querySelector('[data-invoice-print]');
+    const pages = estimatePrintPages(root);
+    const el = root?.querySelector('[data-print-page-label]');
+    if (! el) {
+        return;
+    }
 
-        if (pages === 1 && pageEnTpl.includes(':current') && pageEnTpl.includes(':total')) {
-            const pageEn = pageEnTpl.replace(':current', '1').replace(':total', '1');
-            const pageAr = pageArTpl.replace(':current', '1').replace(':total', '1');
-            el.textContent = `${pageEn} · ${pageAr} - ${doc}`.trim();
+    const doc = el.getAttribute('data-document-number') || '';
+    const pageEnTpl = el.getAttribute('data-page-en') || '';
+    const pageArTpl = el.getAttribute('data-page-ar') || '';
 
-            return;
-        }
-
+    if (! pageEnTpl.includes(':current') || ! pageEnTpl.includes(':total')) {
         el.textContent = doc;
-    });
+
+        return;
+    }
+
+  const total = pages > 0 ? pages : 1;
+    el.textContent = formatPageLabel(pageEnTpl, pageArTpl, doc, 1, total);
 }
 
 function scaleClassicPreviewToViewport() {

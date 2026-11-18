@@ -136,20 +136,10 @@
             @endif
         </section>
 
-        <footer class="invoice-a4__footer print-tpl-modern__sheet-footer print-only" data-document-number="{{ $t['document_number'] }}">
-            <div class="print-tpl-modern__footer-names">
-                <div class="print-tpl-modern__footer-name-en">{{ $t['seller_en'] }}</div>
-                <div class="print-tpl-modern__footer-name-ar invoice-a4__footer-ar invoice-print-ar" dir="rtl">{{ $t['seller_ar'] }}</div>
-            </div>
+        <footer class="invoice-a4__footer print-tpl-modern__sheet-footer" data-document-number="{{ $t['document_number'] }}">
+            <div class="print-tpl-modern__footer-name-en">{{ $t['seller_en'] }}</div>
             <x-invoices.print-page-label :document-number="$t['document_number']" class="print-tpl-modern__footer-page" />
-        </footer>
-
-        <footer class="print-tpl-modern__sheet-footer print-tpl-modern__sheet-footer--screen no-print" aria-hidden="true">
-            <div class="print-tpl-modern__footer-names">
-                <div class="print-tpl-modern__footer-name-en">{{ $t['seller_en'] }}</div>
-                <div class="print-tpl-modern__footer-name-ar invoice-a4__footer-ar invoice-print-ar" dir="rtl">{{ $t['seller_ar'] }}</div>
-            </div>
-            <x-invoices.print-page-label :document-number="$t['document_number']" class="print-tpl-modern__footer-page" />
+            <div class="print-tpl-modern__footer-name-ar invoice-a4__footer-ar invoice-print-ar" dir="rtl">{{ $t['seller_ar'] }}</div>
         </footer>
     </div>
 </x-layouts.print>

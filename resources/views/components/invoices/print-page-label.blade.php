@@ -5,7 +5,7 @@
 @php
     $pageEn = 'Page 1 / 1';
     $pageAr = 'صفحة 1 / 1';
-    $label = trim("{$pageEn} · {$pageAr} - {$documentNumber}");
+    $label = trim("{$pageEn} · {$pageAr} — {$documentNumber}");
 @endphp
 <p
     {{ $attributes->class(['invoice-print-page-label']) }}

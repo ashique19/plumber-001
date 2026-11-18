@@ -154,40 +154,37 @@
     position: relative;
     margin-top: 20px;
     padding-top: 8px;
-    min-height: 2.5rem;
+    min-height: 2.75rem;
     border-top: none;
-}
-
-.print-tpl-modern__sheet-footer--screen {
-    text-align: center;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(12rem, auto) minmax(0, 1fr);
+    align-items: end;
+    gap: 8px 12px;
+    width: 100%;
     font-size: 8.5pt;
 }
 
-.print-tpl-modern__footer-names {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    align-items: baseline;
-    gap: 8px 16px;
-    line-height: 1.35;
-    width: 100%;
-    max-width: 100%;
+.print-tpl-modern__footer-name-en {
+    justify-self: start;
     text-align: start;
+    line-height: 1.35;
 }
 
-.print-tpl-modern__footer-names .invoice-a4__footer-ar {
+.print-tpl-modern__footer-name-ar {
+    justify-self: end;
     text-align: end;
     direction: rtl;
+    line-height: 1.35;
 }
 
 .print-tpl-modern__footer-page {
-    margin: 4px 0 0;
-    text-align: end;
+    justify-self: center;
+    margin: 0;
+    text-align: center;
     font-size: 8pt;
     color: var(--inv-muted);
-}
-
-.print-tpl-modern__sheet-footer--screen .print-tpl-modern__footer-page {
-    text-align: center;
+    white-space: nowrap;
+    line-height: 1.35;
 }
 
 @media print {
@@ -224,24 +221,17 @@
         margin: 0;
         padding: 4mm 12mm 6mm;
         background: #fff;
-        display: block;
+        display: grid;
         border-top: none;
     }
 
     .print-tpl-modern .invoice-a4__footer .invoice-print-page-label {
-        position: absolute;
-        inset-inline-end: 12mm;
-        bottom: 6mm;
+        position: static;
         margin: 0;
         font-size: 8pt;
         font-weight: 600;
         color: var(--inv-muted);
-        text-align: end;
-    }
-
-    .print-tpl-modern__footer-names {
-        padding-right: 0;
-        padding-left: 0;
+        text-align: center;
     }
 
     @page {
