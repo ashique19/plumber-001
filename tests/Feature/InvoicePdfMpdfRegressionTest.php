@@ -112,7 +112,9 @@ it('renders standard buyer address as explicit lines with sans buyer labels in p
         ->toContain('Prince Abdulaziz bin Musaed bin Jalawi Street')
         ->toContain('Al Murabba, Riyadh 12612')
         ->toContain('invoice-print-seller-header-ids__label')
-        ->toContain('font-family:dejavusans')
+        ->toContain('invoice-pdf-sans-value')
+        ->toContain('font-family:dejavusans;font-size:8pt;color:#444444;font-weight:normal')
+        ->toContain('font-family:dejavusans;font-size:9pt;color:#111111')
         ->not->toContain('invoice-a4__buyer-address-ar');
 });
 

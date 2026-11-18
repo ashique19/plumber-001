@@ -99,7 +99,7 @@ it('wraps PDF HTML with an Arabic-capable default font and SAR fallback, without
         ->toContain('invoice-sar-symbol__svg')
         ->toContain('sar-riyal-symbol.png')
         ->toContain('width:0.95em!important')
-        ->toContain('dejavusans, sans-serif')
+        ->toContain('font-family:dejavusans!important')
         ->not->toContain('???');
 
     $binary = DocumentPdfRenderer::render($html);

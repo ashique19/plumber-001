@@ -20,7 +20,7 @@
                         @if (! empty($row['html']))
                             {!! $row['html'] !!}
                         @else
-                            {{ $row['value'] ?? '' }}
+                            <span class="invoice-pdf-sans-value">{{ $row['value'] ?? '' }}</span>
                         @endif
                     </td>
                     <td class="invoice-a4__buyer-table-label ar invoice-print-ar" dir="rtl">{{ $row['ar'] }}</td>
@@ -36,7 +36,7 @@
                                     @if (filled($row['value'] ?? null))
                                         <div class="invoice-a4__buyer-table-split-row">
                                             <span class="invoice-a4__buyer-table-label"><span class="invoice-pdf-sans-label">{{ $row['en'] }}</span></span>
-                                            <span @class(['invoice-a4__buyer-table-value', 'invoice-a4__buyer-table-value--nowrap' => ! empty($row['nowrap'])])>{{ $row['value'] }}</span>
+                                            <span @class(['invoice-a4__buyer-table-value', 'invoice-a4__buyer-table-value--nowrap' => ! empty($row['nowrap'])])><span class="invoice-pdf-sans-value">{{ $row['value'] }}</span></span>
                                             <span class="invoice-a4__buyer-table-label ar invoice-print-ar" dir="rtl">{{ $row['ar'] }}</span>
                                         </div>
                                     @endif
@@ -47,7 +47,7 @@
                                     @if (filled($row['value'] ?? null))
                                         <div class="invoice-a4__buyer-table-split-row">
                                             <span class="invoice-a4__buyer-table-label"><span class="invoice-pdf-sans-label">{{ $row['en'] }}</span></span>
-                                            <span @class(['invoice-a4__buyer-table-value', 'invoice-a4__buyer-table-value--nowrap' => ! empty($row['nowrap'])])>{{ $row['value'] }}</span>
+                                            <span @class(['invoice-a4__buyer-table-value', 'invoice-a4__buyer-table-value--nowrap' => ! empty($row['nowrap'])])><span class="invoice-pdf-sans-value">{{ $row['value'] }}</span></span>
                                             <span class="invoice-a4__buyer-table-label ar invoice-print-ar" dir="rtl">{{ $row['ar'] }}</span>
                                         </div>
                                     @endif

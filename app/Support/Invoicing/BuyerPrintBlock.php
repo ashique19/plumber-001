@@ -79,7 +79,7 @@ final class BuyerPrintBlock
 
         if ($nameAr !== '' && $nameEn !== '' && $nameAr !== $nameEn) {
             return '<div class="invoice-a4__buyer-name-cell">'
-                .'<div class="invoice-a4__buyer-name-en invoice-pdf-sans-label">'.e($nameEn).'</div>'
+                .'<div class="invoice-a4__buyer-name-en invoice-pdf-sans-value">'.e($nameEn).'</div>'
                 .'<div class="invoice-a4__buyer-name-ar invoice-print-ar invoice-pdf-ar-block" dir="rtl">'.e($nameAr).'</div>'
                 .'</div>';
         }
