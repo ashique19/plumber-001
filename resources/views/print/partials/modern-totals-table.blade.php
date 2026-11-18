@@ -10,13 +10,14 @@
             - <x-invoices.sar-symbol /> {{ number_format($tot['invoice_discount_ex_vat'], 2) }}
         </x-invoices.print-totals-row>
     @endif
-    <x-invoices.print-totals-row en="Total VAT" ar="إجمالي ضريبة القيمة المضافة">
+    <x-invoices.print-totals-row en="Total VAT" ar="إجمالي ضريبة القيمة المضافة" :ar-nowrap="true">
         <x-invoices.sar-symbol /> {{ number_format($tot['total_vat'], 2) }}
     </x-invoices.print-totals-row>
     <x-invoices.print-totals-row
         en="Total"
         ar="المجموع شامل القيمة المضافة"
         :strong="true"
+        :ar-nowrap="true"
         row-class="print-tpl-modern__totals-total"
     >
         <x-invoices.sar-symbol /> {{ number_format($tot['total_inc_vat'], 2) }}

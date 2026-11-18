@@ -11,9 +11,15 @@
     <table class="print-tpl-modern__closing-grid" role="presentation" width="100%" cellspacing="0" cellpadding="0">
         <tr>
             @if ($showQr && ! $isQuotation)
-                <td class="print-tpl-modern__closing-qr" width="38%" valign="top">
+                <td class="print-tpl-modern__closing-qr" style="width:48mm" width="34%" valign="top">
                     <div class="print-tpl-modern__qr-wrap">
-                        <x-invoices.print-qr :tlv="$t['qr_tlv_base64']" :png="$t['qr_png'] ?? null" :fallback="(bool) ($t['qr_phase1_fallback'] ?? false)" />
+                        <x-invoices.print-qr
+                            :tlv="$t['qr_tlv_base64']"
+                            :png="$t['qr_png'] ?? null"
+                            :fallback="(bool) ($t['qr_phase1_fallback'] ?? false)"
+                            :split-captions="true"
+                            :is-pdf="$isPdf ?? false"
+                        />
                     </div>
                 </td>
             @endif
