@@ -373,7 +373,7 @@ it('maps resubmit outcomes to flash keys on the invoice view controller', functi
     expect($response->getSession()->get('success'))->toBe(__('invoices.zatca_resubmit_cleared', ['number' => $invoice->document_number]));
 });
 
-it('renders last z-heart response on invoice view without secrets', function () {
+it('renders user-facing z-heart errors on invoice view without debug metadata or secrets', function () {
     $invoice = clearancePendingStandardInvoice('STD-CLEAR-VIEW');
     Invoice::withoutEvents(function () use ($invoice): void {
         $invoice->forceFill([
@@ -395,8 +395,11 @@ it('renders last z-heart response on invoice view without secrets', function () 
         ->getContent();
 
     expect($html)
-        ->toContain('data-testid="invoice-zatca-last-response"', false)
+        ->toContain('data-testid="invoice-zatca-user-feedback"', false)
         ->toContain('Buyer VAT invalid')
+        ->not->toContain('data-testid="invoice-zatca-http-status"', false)
+        ->not->toContain(__('invoices.zatca_view_request_id'), false)
+        ->not->toContain(__('invoices.zatca_view_last_status'), false)
         ->not->toContain('secret-csid')
         ->not->toContain('123456');
 });

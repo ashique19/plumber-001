@@ -46,6 +46,22 @@ it('renders admin print preview shell on invoice hub with modal triggers', funct
     expect($page)->toContain('data-testid="admin-print-preview"');
 });
 
+it('does not render debug zatca metadata on issued invoice view', function () {
+    seedDemoPaidPosOrder();
+    $invoice = Invoice::query()->orderByDesc('id')->firstOrFail();
+
+    $html = (string) $this->actingAs($this->owner, 'staff')
+        ->get(route('admin.invoices.print', ['invoice' => $invoice, 'layout' => 'a4']))
+        ->assertOk()
+        ->getContent();
+
+    expect($html)
+        ->toContain('data-testid="invoice-view-status"', false)
+        ->not->toContain(__('invoices.zatca_view_last_status'), false)
+        ->not->toContain(__('invoices.zatca_view_request_id'), false)
+        ->not->toContain(__('invoices.zatca_view_zatca_http_status'), false);
+});
+
 it('hides screen toolbar on embedded invoice print and keeps it on direct visit', function () {
     $invoice = Invoice::query()->create([
         'document_number' => 'STD-PRINT-EMBED',
