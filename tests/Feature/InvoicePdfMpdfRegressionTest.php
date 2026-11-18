@@ -62,8 +62,8 @@ it('includes totals rows, QR image, and Arabic address in wrapped PDF html', fun
         ->toContain('invoice-a4__qr-note-ar')
         ->toContain('invoice-pdf-ar-block')
         ->toContain('invoice-national-address-ar--pdf')
-        ->toContain('أحمد بن الحسين بن شقير')
-        ->toContain('حي الملز')
+        ->toContain('sar-riyal-symbol.png')
+        ->toContain((string) $address)
         ->not->toContain('<colgroup')
         ->not->toMatch('/class="[^"]*print-tpl-modern__totals-net/');
 });
@@ -101,7 +101,7 @@ it('renders mPDF binary with totals text extractable via pdftotext when availabl
         if (! is_dir($artifactDir)) {
             mkdir($artifactDir, 0755, true);
         }
-        $pngBase = $artifactDir.'/invoice-pdf-mpdf-bidi-fix';
+        $pngBase = $artifactDir.'/invoice-pdf-mpdf-sar-polish';
         shell_exec('pdftoppm -f 1 -l 1 -png '.escapeshellarg($path).' '.escapeshellarg($pngBase).' 2>/dev/null');
         expect(is_file($pngBase.'-1.png'))->toBeTrue();
     }

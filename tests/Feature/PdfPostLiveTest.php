@@ -127,6 +127,17 @@ it('inlines the SAR symbol as a dompdf-friendly data URI image', function () {
         ->not->toContain('<svg');
 });
 
+it('inlines the SAR symbol as a PNG file URI for mPDF', function () {
+    $html = '<span class="invoice-sar-symbol"><svg class="invoice-sar-symbol__svg" xmlns="http://www.w3.org/2000/svg"></svg></span>';
+
+    $wrapped = DocumentPdfRenderer::wrapHtml($html, forMpdf: true);
+
+    expect($wrapped)
+        ->toContain('sar-riyal-symbol.png')
+        ->toContain('class="invoice-sar-symbol__svg"')
+        ->not->toContain('<svg');
+});
+
 it('keeps modern totals as three fixed columns in PDF overlay CSS', function () {
     $wrapped = DocumentPdfRenderer::wrapHtml('<div class="invoice-print-root--pdf"><table class="print-tpl-modern__totals invoice-print-totals"></table></div>', forMpdf: true);
 

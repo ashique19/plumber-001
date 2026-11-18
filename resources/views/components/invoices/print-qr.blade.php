@@ -8,6 +8,6 @@
             <canvas id="receipt-qr" data-tlv="{{ $tlv }}" width="180" height="180"></canvas>
         @endif
         <p class="invoice-a4__qr-note-en">This QR code is encoded as per ZATCA e-invoicing requirements</p>
-        <p class="invoice-a4__qr-note-ar invoice-pdf-ar-block invoice-print-ar" dir="rtl" lang="ar">تم ترميز هذا الرمز وفقاً لمتطلبات هيئة الزكاة والضريبة والجمارك للفاتورة الإلكترونية</p>
+        <p class="invoice-a4__qr-note-ar invoice-pdf-ar-block" dir="rtl" lang="ar">تم ترميز هذا الرمز وفقاً لمتطلبات هيئة الزكاة والضريبة والجمارك للفاتورة الإلكترونية</p>
     </div>
 @endif
