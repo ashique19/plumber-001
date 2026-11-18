@@ -58,7 +58,7 @@ it('renders a one-page mPDF for a standard invoice with a buyer block', function
     $html = view($sheet['view'], $sheet['data'])->render();
     $wrapped = DocumentPdfRenderer::wrapHtml($html, forMpdf: true);
 
-    expect(DocumentPdfRenderer::pageCountForHtml($html))->toBe(1)
+    expect(DocumentPdfRenderer::pageCountForPrintSheet($sheet))->toBe(1)
         ->and($wrapped)->toContain('invoice-national-address-ar__line')
         ->toContain('invoice-a4__buyer-table-value')
         ->toContain('font-family:dejavusans')
@@ -83,7 +83,7 @@ it('renders one-page PDFs for single-line invoices and quotations', function () 
     $invoiceSheet = PrintSheetFactory::invoice($invoice, Request::create('/', 'GET', ['template' => 'modern']), true);
     $invoiceHtml = view($invoiceSheet['view'], $invoiceSheet['data'])->render();
 
-    expect(DocumentPdfRenderer::pageCountForHtml($invoiceHtml))->toBe(1);
+    expect(DocumentPdfRenderer::pageCountForPrintSheet($invoiceSheet))->toBe(1);
 
     $quotation = Quotation::query()->create([
         'branch_id' => $this->branchId,
@@ -132,7 +132,7 @@ it('keeps simplified invoices with eight lines on one page with QR beside totals
         ->toContain('print-tpl-modern__closing-grid')
         ->toContain('print-tpl-modern__closing-qr');
 
-    expect(DocumentPdfRenderer::pageCountForHtml($html))->toBe(1);
+    expect(DocumentPdfRenderer::pageCountForPrintSheet($sheet))->toBe(1);
 });
 
 it('uses the SAR svg in PDF html and omits the Bangla quotation subtitle', function () {

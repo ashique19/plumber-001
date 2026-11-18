@@ -102,10 +102,11 @@ it('wraps PDF HTML with an Arabic-capable default font and SAR fallback, without
         ->toContain('font-family:dejavusans!important')
         ->not->toContain('???');
 
-    $binary = DocumentPdfRenderer::render($html);
+    $binary = DocumentPdfRenderer::renderPrintSheet($sheet);
     expect($binary)
         ->toStartWith('%PDF')
-        ->and($binary)->not->toContain('???');
+        ->and($binary)->not->toContain('???')
+        ->and(stripos($binary, 'mPDF'))->not->toBeFalse();
 });
 
 it('uses the SAR symbol and a page footer on classic template B prints', function () {

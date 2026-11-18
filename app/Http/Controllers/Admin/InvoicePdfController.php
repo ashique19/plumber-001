@@ -30,6 +30,7 @@ class InvoicePdfController extends Controller
             return DocumentPdfRenderer::download($html, $invoice->document_number.'.pdf', [
                 'invoice_id' => $invoice->id,
                 'document_number' => $invoice->document_number,
+                'print_sheet' => $sheet,
             ]);
         } catch (\Throwable) {
             return redirect()

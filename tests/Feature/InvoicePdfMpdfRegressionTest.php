@@ -159,7 +159,7 @@ it('renders mPDF binary with totals text extractable via pdftotext when availabl
 
     $sheet = PrintSheetFactory::invoice($invoice, Request::create('/', 'GET', ['template' => 'modern']), true);
     $html = view($sheet['view'], $sheet['data'])->render();
-    $binary = DocumentPdfRenderer::render($html);
+    $binary = DocumentPdfRenderer::render($html, ['print_sheet' => $sheet]);
     $path = storage_path('app/pdf-regression-'.uniqid().'.pdf');
     file_put_contents($path, $binary);
     $text = (string) shell_exec('pdftotext '.escapeshellarg($path).' - 2>/dev/null');

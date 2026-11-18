@@ -20,6 +20,19 @@ final class DocumentPdfRenderer
     /**
      * @param  array<string, mixed>  $context
      */
+    /**
+     * @param  array{view: string, data: array<string, mixed>}  $sheet
+     */
+    public static function renderPrintSheet(array $sheet, array $context = []): string
+    {
+        return self::render('', array_merge($context, ['print_sheet' => $sheet]));
+    }
+
+    public static function pageCountForPrintSheet(array $sheet): int
+    {
+        return self::pageCountInBinary(self::renderPrintSheet($sheet));
+    }
+
     public static function download(string $html, string $filename, array $context = []): Response
     {
         $binary = self::render($html, $context);
@@ -40,36 +53,61 @@ final class DocumentPdfRenderer
      */
     public static function render(string $html, array $context = []): string
     {
-        $wrapped = self::wrapHtml($html, forMpdf: true);
-
-        try {
-            return self::renderWithMpdf($wrapped);
-        } catch (\Throwable $mpdfError) {
-            Log::error('document_pdf_mpdf_failed', array_merge($context, [
-                'message' => $mpdfError->getMessage(),
-            ]));
-            Log::error('document_pdf_dompdf_fallback', array_merge($context, [
-                'mpdf_message' => $mpdfError->getMessage(),
-            ]));
-
-            $wrappedDompdf = self::wrapHtml($html, forMpdf: false);
+        $sheet = $context['print_sheet'] ?? null;
+        if (is_array($sheet) && self::shouldUseMpdfInvoiceTemplate($sheet)) {
+            $mpdfHtml = view('pdf.invoice-mpdf', $sheet['data'])->render();
 
             try {
-                return self::renderWithDompdf($wrappedDompdf);
-            } catch (\Throwable $dompdfError) {
-                Log::error('document_pdf_render_failed', array_merge($context, [
-                    'mpdf_message' => $mpdfError->getMessage(),
-                    'dompdf_message' => $dompdfError->getMessage(),
+                return self::renderInvoiceWithMpdf($mpdfHtml);
+            } catch (\Throwable $mpdfError) {
+                Log::error('document_pdf_mpdf_failed', array_merge($context, [
+                    'message' => $mpdfError->getMessage(),
                 ]));
-
-                throw $dompdfError;
+                Log::error('document_pdf_dompdf_fallback', array_merge($context, [
+                    'mpdf_message' => $mpdfError->getMessage(),
+                ]));
             }
+        } else {
+            $wrapped = self::wrapHtml($html, forMpdf: true);
+
+            try {
+                return self::renderWithMpdf($wrapped);
+            } catch (\Throwable $mpdfError) {
+                Log::error('document_pdf_mpdf_failed', array_merge($context, [
+                    'message' => $mpdfError->getMessage(),
+                ]));
+                Log::error('document_pdf_dompdf_fallback', array_merge($context, [
+                    'mpdf_message' => $mpdfError->getMessage(),
+                ]));
+            }
+        }
+
+        $wrappedDompdf = self::wrapHtml($html, forMpdf: false);
+
+        try {
+            return self::renderWithDompdf($wrappedDompdf);
+        } catch (\Throwable $dompdfError) {
+            Log::error('document_pdf_render_failed', array_merge($context, [
+                'dompdf_message' => $dompdfError->getMessage(),
+            ]));
+
+            throw $dompdfError;
         }
     }
 
-    public static function pageCountForHtml(string $html): int
+    /**
+     * @param  array{view: string, data: array<string, mixed>}  $sheet
+     */
+    private static function shouldUseMpdfInvoiceTemplate(array $sheet): bool
     {
-        return self::pageCountInBinary(self::render($html));
+        $t = $sheet['data']['t'] ?? [];
+
+        return ($t['document_kind'] ?? 'invoice') === 'invoice';
+    }
+
+    public static function pageCountForHtml(string $html, array $context = []): int
+    {
+        return self::pageCountInBinary(self::render($html, $context));
     }
 
     public static function pageCountInBinary(string $binary): int
@@ -107,7 +145,29 @@ final class DocumentPdfRenderer
         return self::localizeAssetUrls($wrapped);
     }
 
+    private static function renderInvoiceWithMpdf(string $documentHtml): string
+    {
+        $documentHtml = self::shapeArabic($documentHtml);
+        $mpdf = self::newMpdfEngine(forDedicatedTemplate: true);
+        $mpdf->WriteHTML($documentHtml);
+
+        return $mpdf->Output('', 'S');
+    }
+
     private static function renderWithMpdf(string $wrapped): string
+    {
+        $wrapped = self::shapeArabic($wrapped);
+        $mpdf = self::newMpdfEngine(forDedicatedTemplate: false);
+        $mpdf->WriteHTML(
+            '.invoice-print-root--pdf,.invoice-print-root--pdf table,.invoice-print-root--pdf td,.invoice-print-root--pdf th,.invoice-print-root--pdf p,.invoice-print-root--pdf span,.invoice-print-root--pdf div,.invoice-print-root--pdf strong,.invoice-print-root--pdf b{font-family:dejavusans;color:#111111;line-height:1.3}',
+            HTMLParserMode::HEADER_CSS,
+        );
+        $mpdf->WriteHTML($wrapped);
+
+        return $mpdf->Output('', 'S');
+    }
+
+    private static function newMpdfEngine(bool $forDedicatedTemplate): Mpdf
     {
         $tmp = storage_path('app/mpdf-tmp');
         File::ensureDirectoryExists($tmp);
@@ -119,8 +179,11 @@ final class DocumentPdfRenderer
         $fontDefaults = (new FontVariables)->getDefaults();
         $fontData = $fontDefaults['fontdata'];
         if (is_file(resource_path('fonts/Amiri-Regular.ttf'))) {
+            // Amiri GPOS triggers mPDF FontException (GPOS Lookup Type 5); shape via ArPHP instead.
             $fontData['amiri'] = [
                 'R' => 'Amiri-Regular.ttf',
+                'useOTL' => 0,
+                'useKashida' => $forDedicatedTemplate ? 75 : 0,
             ];
         }
 
@@ -142,18 +205,15 @@ final class DocumentPdfRenderer
             'TH' => [
                 'FONT-FAMILY' => 'dejavusans',
             ],
-            'SPAN' => [
-                'FONT-FAMILY' => 'dejavusans',
-            ],
-            'STRONG' => [
-                'FONT-FAMILY' => 'dejavusans',
-            ],
-            'B' => [
-                'FONT-FAMILY' => 'dejavusans',
-            ],
         ]);
 
-        $mpdf = new Mpdf([
+        if (! $forDedicatedTemplate) {
+            $defaultCss['SPAN'] = ['FONT-FAMILY' => 'dejavusans'];
+            $defaultCss['STRONG'] = ['FONT-FAMILY' => 'dejavusans'];
+            $defaultCss['B'] = ['FONT-FAMILY' => 'dejavusans'];
+        }
+
+        return new Mpdf([
             'mode' => 'utf-8',
             'format' => 'A4',
             'margin_left' => 9,
@@ -165,21 +225,13 @@ final class DocumentPdfRenderer
             'default_font' => 'dejavusans',
             'default_font_size' => 9,
             'defaultCSS' => $defaultCss,
-            'autoArabic' => false,
-            'autoScriptToLang' => false,
-            'autoLangToFont' => false,
+            'autoArabic' => $forDedicatedTemplate,
+            'autoScriptToLang' => $forDedicatedTemplate,
+            'autoLangToFont' => $forDedicatedTemplate,
             'useSubstitutions' => false,
             'useOTL' => 0,
             'tempDir' => $tmp,
         ]);
-
-        $mpdf->WriteHTML(
-            '.invoice-print-root--pdf,.invoice-print-root--pdf table,.invoice-print-root--pdf td,.invoice-print-root--pdf th,.invoice-print-root--pdf p,.invoice-print-root--pdf span,.invoice-print-root--pdf div,.invoice-print-root--pdf strong,.invoice-print-root--pdf b{font-family:dejavusans;color:#111111;line-height:1.3}',
-            HTMLParserMode::HEADER_CSS,
-        );
-        $mpdf->WriteHTML($wrapped);
-
-        return $mpdf->Output('', 'S');
     }
 
     private static function renderWithDompdf(string $wrapped): string
@@ -590,8 +642,11 @@ final class DocumentPdfRenderer
         }
 
         $out = $dom->saveHTML();
+        if (is_string($out)) {
+            return preg_replace('/^<\?xml[^>]*>/u', '', $out) ?: $html;
+        }
 
-        return is_string($out) ? $out : $html;
+        return $html;
     }
 
     private static function sarSymbolDataUri(): string

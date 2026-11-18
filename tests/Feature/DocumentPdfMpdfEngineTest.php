@@ -16,6 +16,8 @@ beforeEach(function () {
     (new DemoStaffSeeder)->run();
     $business = BusinessSetting::singleton();
     $settings = $business->settings;
+    data_set($settings, 'legal_entity.name_en', 'RAZAN HADI ALHAYANI Establishment');
+    data_set($settings, 'legal_entity.name_ar', 'مؤسسة رزان هادي الحياني');
     data_set($settings, 'legal_entity.national_address', [
         'building' => '7098',
         'street' => 'Ahmad Ibn Al Hussain Ibn Shuqair St',
@@ -43,7 +45,7 @@ it('renders simplified and standard invoices with mPDF on one page without mpdf 
             'number' => 'HARNESS-SIMP-MPDF',
             'payload' => [
                 'lines' => [
-                    ['name' => 'Test Modal Product', 'quantity' => 1, 'unit_price_ex_vat' => 10, 'vat_rate' => 15],
+                    ['name' => 'Test Modal Product', 'name_ar' => 'منتج اختبار', 'quantity' => 1, 'unit_price_ex_vat' => 10, 'vat_rate' => 15],
                 ],
             ],
         ],
@@ -52,9 +54,13 @@ it('renders simplified and standard invoices with mPDF on one page without mpdf 
             'number' => 'HARNESS-STD-MPDF',
             'payload' => [
                 'lines' => [
-                    ['name' => 'Test Modal Product', 'quantity' => 1, 'unit_price_ex_vat' => 25, 'vat_rate' => 15],
+                    ['name' => 'QA Product A', 'name_ar' => 'منتج اختبار أ', 'quantity' => 1, 'unit_price_ex_vat' => 25, 'vat_rate' => 15],
                 ],
                 'buyer_name_en' => 'TaskenLab Company',
+                'buyer_name_ar' => 'شركة تاسكنلاب',
+                'buyer_email' => 'taulutwashi@gmail.com',
+                'buyer_phone' => '+966560231362',
+                'buyer_vat' => '314430837500003',
                 'buyer_national_address' => [
                     'building' => '7780',
                     'street' => 'Prince Abdulaziz bin Musaed bin Jalawi Street',
@@ -79,8 +85,13 @@ it('renders simplified and standard invoices with mPDF on one page without mpdf 
         ]);
 
         $sheet = PrintSheetFactory::invoice($invoice, Request::create('/', 'GET', ['template' => 'modern']), true);
-        $html = view($sheet['view'], $sheet['data'])->render();
-        $binary = DocumentPdfRenderer::render($html);
+        $mpdfHtml = view('pdf.invoice-mpdf', $sheet['data'])->render();
+
+        expect($mpdfHtml)
+            ->not->toContain('<?xml')
+            ->not->toContain('<script');
+
+        $binary = DocumentPdfRenderer::renderPrintSheet($sheet);
 
         expect($binary)->toStartWith('%PDF')
             ->and(stripos($binary, 'mPDF'))->not->toBeFalse()
