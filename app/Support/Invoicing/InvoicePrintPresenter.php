@@ -302,12 +302,11 @@ final class InvoicePrintPresenter
     public static function customerFromPayload(array $payload): ?array
     {
         $na = (array) ($payload['buyer_national_address'] ?? []);
-        $address = self::formatBuyerAddress($payload);
+        $addressEnLines = $na !== [] ? BusinessProfile::formatNationalAddressEnPrintLines($na) : [];
+        $address = $addressEnLines !== []
+            ? implode("\n", $addressEnLines)
+            : self::formatBuyerAddress($payload);
         $countryCode = strtoupper(trim((string) ($na['country'] ?? 'SA'))) ?: 'SA';
-        $countryName = CountryPrintName::english($countryCode);
-        if ($address !== null && $countryName !== '' && ! str_contains($address, $countryName)) {
-            $address = $address.', '.$countryName;
-        }
 
         $vat = preg_replace('/\D/', '', (string) ($payload['buyer_vat'] ?? '')) ?? '';
         $nameEn = trim((string) ($payload['buyer_name_en'] ?? $payload['buyer_name'] ?? ''));
@@ -332,7 +331,9 @@ final class InvoicePrintPresenter
             'vat_number' => $vat !== '' ? $vat : null,
             'cr_number' => $cr !== '' ? $cr : null,
             'address' => $address,
-            'address_print' => $address,
+            'address_print' => $addressEnLines !== [] ? null : $address,
+            'address_en_lines' => $addressEnLines !== [] ? $addressEnLines : null,
+            'address_ar_line_html' => $na !== [] ? BusinessProfile::formatNationalAddressArPdfLineHtml($na) : null,
             'address_parts' => $na !== [] ? $na : null,
             'country_code' => $countryCode,
             'city' => trim((string) ($na['city'] ?? '')) ?: null,

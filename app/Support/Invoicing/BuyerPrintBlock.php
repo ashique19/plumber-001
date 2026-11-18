@@ -21,9 +21,9 @@ final class BuyerPrintBlock
             $rows[] = ['en' => 'Customer', 'ar' => 'العميل', 'html' => $nameHtml];
         }
 
-        $address = self::formatAddressLine($customer);
-        if ($address !== '') {
-            $rows[] = ['en' => 'Address', 'ar' => 'العنوان', 'value' => $address];
+        $addressHtml = BuyerAddressPrintHtml::fromCustomer($customer);
+        if ($addressHtml !== '') {
+            $rows[] = ['en' => 'Address', 'ar' => 'العنوان', 'html' => $addressHtml];
         }
 
         $email = trim((string) ($customer['email'] ?? ''));
@@ -68,35 +68,6 @@ final class BuyerPrintBlock
     /**
      * @param  array<string, mixed>  $customer
      */
-    private static function formatAddressLine(array $customer): string
-    {
-        $prepared = trim((string) ($customer['address_print'] ?? ''));
-        if ($prepared !== '') {
-            return $prepared;
-        }
-
-        $addr = (array) ($customer['address_parts'] ?? []);
-        $parts = array_values(array_filter([
-            trim((string) ($addr['building'] ?? '')),
-            trim((string) ($addr['street'] ?? '')),
-            trim((string) ($addr['district'] ?? '')),
-            trim((string) ($addr['city'] ?? $customer['city'] ?? '')),
-            trim((string) ($addr['postal_code'] ?? $addr['postal'] ?? $customer['postal_code'] ?? '')),
-            CountryPrintName::english(
-                (string) ($customer['country_code'] ?? $addr['country'] ?? 'SA'),
-            ),
-        ], fn (string $part): bool => $part !== ''));
-
-        if ($parts !== []) {
-            return implode(', ', $parts);
-        }
-
-        return trim((string) ($customer['address'] ?? $customer['address_line'] ?? ''));
-    }
-
-    /**
-     * @param  array<string, mixed>  $customer
-     */
     private static function formatCustomerCell(array $customer): string
     {
         $nameAr = trim((string) ($customer['name_ar'] ?? ''));
@@ -107,8 +78,10 @@ final class BuyerPrintBlock
         }
 
         if ($nameAr !== '' && $nameEn !== '' && $nameAr !== $nameEn) {
-            return '<span class="invoice-a4__buyer-name-ar invoice-print-ar" dir="rtl">'.$nameAr.'</span>'
-                .'<span class="invoice-a4__buyer-name-en">'.$nameEn.'</span>';
+            return '<div class="invoice-a4__buyer-name-cell">'
+                .'<span class="invoice-a4__buyer-name-en">'.e($nameEn).'</span>'
+                .'<span class="invoice-a4__buyer-name-ar invoice-print-ar" dir="rtl">'.e($nameAr).'</span>'
+                .'</div>';
         }
 
         return $nameAr !== '' ? $nameAr : $nameEn;

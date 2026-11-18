@@ -56,9 +56,9 @@ final class ClassicPartyPrintBlock
             $rows[] = ['en' => 'Name', 'ar' => 'الاسم', 'html' => $nameHtml];
         }
 
-        $address = trim((string) ($customer['address_print'] ?? $customer['address'] ?? ''));
-        if ($address !== '') {
-            $rows[] = ['en' => 'Address', 'ar' => 'العنوان', 'value' => $address];
+        $addressHtml = BuyerAddressPrintHtml::fromCustomer($customer);
+        if ($addressHtml !== '') {
+            $rows[] = ['en' => 'Address', 'ar' => 'العنوان', 'html' => $addressHtml];
         }
 
         $city = trim((string) ($customer['city'] ?? ''));

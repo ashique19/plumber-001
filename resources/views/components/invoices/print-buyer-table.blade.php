@@ -16,7 +16,7 @@
             @foreach ($rows as $row)
                 <tr>
                     <td class="invoice-a4__buyer-table-label">{{ $row['en'] }}</td>
-                    <td @class(['invoice-a4__buyer-table-value', 'invoice-a4__buyer-table-value--nowrap' => ! empty($row['nowrap'])]) @if (! empty($row['html'])) dir="auto" @endif>
+                    <td @class(['invoice-a4__buyer-table-value', 'invoice-a4__buyer-table-value--nowrap' => ! empty($row['nowrap'])]) dir="ltr">
                         @if (! empty($row['html']))
                             {!! $row['html'] !!}
                         @else
