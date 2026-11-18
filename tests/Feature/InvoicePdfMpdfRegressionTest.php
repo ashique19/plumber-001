@@ -59,9 +59,11 @@ it('includes totals rows, QR image, and Arabic address in wrapped PDF html', fun
         ->toContain('Subtotal')
         ->toContain('Total VAT')
         ->toContain('invoice-a4__qr-img')
-        ->toContain('invoice-a4__qr-note')
+        ->toContain('invoice-a4__qr-note-ar')
+        ->toContain('invoice-pdf-ar-block')
         ->toContain((string) $address)
-        ->not->toContain('<colgroup');
+        ->not->toContain('<colgroup')
+        ->not->toContain('print-tpl-modern__totals-net');
 });
 
 it('renders mPDF binary with totals text extractable via pdftotext when available', function () {
@@ -97,7 +99,7 @@ it('renders mPDF binary with totals text extractable via pdftotext when availabl
         if (! is_dir($artifactDir)) {
             mkdir($artifactDir, 0755, true);
         }
-        $pngBase = $artifactDir.'/invoice-pdf-mpdf-regression';
+        $pngBase = $artifactDir.'/invoice-pdf-mpdf-bidi-fix';
         shell_exec('pdftoppm -f 1 -l 1 -png '.escapeshellarg($path).' '.escapeshellarg($pngBase).' 2>/dev/null');
         expect(is_file($pngBase.'-1.png'))->toBeTrue();
     }

@@ -87,11 +87,26 @@
 .print-tpl-modern__totals {
     display: table !important;
     width: 100%;
-    min-width: 18.5rem;
+    min-width: 16rem;
     max-width: 26rem;
     margin-left: auto;
-    flex: 1 1 18rem;
     font-size: 9pt;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.print-tpl-modern__totals .invoice-print-totals__en {
+    text-align: end;
+    padding-inline-end: 6px;
+}
+
+.print-tpl-modern__totals .invoice-print-totals__ar {
+    text-align: end;
+    padding-inline-end: 4px;
+}
+
+.print-tpl-modern__totals .invoice-print-totals__value {
+    text-align: end;
 }
 
 .print-tpl-modern__totals tr {
