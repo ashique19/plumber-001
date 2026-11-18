@@ -70,7 +70,7 @@ final class InvoicePrintMetaRows
     {
         $rows = [
             ['en' => 'Invoice No.', 'ar' => 'رقم الفاتورة', 'value' => (string) ($t['document_number'] ?? '')],
-            ['en' => 'Issue date & time', 'ar' => 'تاريخ ووقت الإصدار', 'value' => $t['issue_datetime_print'] ?? null, 'label_nowrap' => true, 'nowrap' => true],
+            ['en' => 'Issue date', 'ar' => 'تاريخ ووقت الإصدار', 'value' => $t['issue_datetime_print'] ?? null, 'label_nowrap' => true, 'nowrap' => true],
         ];
 
         if (! ($t['is_simplified'] ?? false)) {
@@ -108,7 +108,7 @@ final class InvoicePrintMetaRows
     {
         $rows = [
             ['en' => 'Invoice No.', 'ar' => 'رقم الفاتورة', 'value' => (string) ($t['document_number'] ?? '')],
-            ['en' => 'Issue date & time', 'ar' => 'تاريخ ووقت الإصدار', 'value' => $t['issue_datetime_print'] ?? null, 'label_nowrap' => true, 'nowrap' => true],
+            ['en' => 'Issue date', 'ar' => 'تاريخ ووقت الإصدار', 'value' => $t['issue_datetime_print'] ?? null, 'label_nowrap' => true, 'nowrap' => true],
             ['en' => 'Payment terms', 'ar' => 'شروط الدفع', 'value' => $t['payment_terms_en'] ?? null, 'label_nowrap' => true, 'nowrap' => true],
             ['en' => 'Due date', 'ar' => 'تاريخ الاستحقاق', 'value' => $t['due_date'] ?? null, 'nowrap' => true],
         ];

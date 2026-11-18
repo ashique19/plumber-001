@@ -22,16 +22,16 @@
                                     <td @class([
                                         'invoice-print-info-grid__en',
                                         'invoice-print-info-grid__label--nowrap' => ! empty($row['label_nowrap']),
-                                    ]) width="16%">{{ $row['en'] }}</td>
+                                    ]) width="18%">{{ $row['en'] }}</td>
                                     <td @class([
                                         'invoice-print-info-grid__ar',
                                         'invoice-print-ar',
                                         'invoice-print-info-grid__label--nowrap' => ! empty($row['label_nowrap']),
-                                    ]) dir="rtl" width="23%">{{ $row['ar'] }}</td>
+                                    ]) dir="rtl" width="27%">{{ $row['ar'] }}</td>
                                     <td @class([
                                         'invoice-print-info-grid__value',
                                         'invoice-print-info-grid__value--nowrap' => ! empty($row['nowrap']),
-                                    ]) width="61%" @if (! empty($row['nowrap'])) dir="ltr" @endif>
+                                    ]) width="55%" @if (! empty($row['nowrap'])) dir="ltr" @endif>
                                         @if (! empty($row['html']))
                                             {!! $row['html'] !!}
                                         @else
