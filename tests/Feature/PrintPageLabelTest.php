@@ -52,7 +52,10 @@ it('prints template A and B footers with page 1 of 1 and the document number', f
         ]))
         ->assertOk()
         ->assertSee('data-print-page-label', false)
-        ->assertSee('Page 1 / 1 · صفحة 1 / 1 —', false)
+        ->assertSee('invoice-print-page-label__en', false)
+        ->assertSee('invoice-print-page-label__ar', false)
+        ->assertSee('>Page 1 / 1</span>', false)
+        ->assertSee('>صفحة 1 / 1</span>', false)
         ->assertSee('data-page-en="Page :current / :total"', false)
         ->assertSee('SIMP-PAGE-001', false)
         ->assertDontSee('Page 0 of 0', false);

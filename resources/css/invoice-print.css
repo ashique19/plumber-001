@@ -174,11 +174,11 @@
 }
 
 .invoice-print-info-grid__col-en {
-    width: 24%;
+    width: 20%;
 }
 
 .invoice-print-info-grid__col-value {
-    width: 48%;
+    width: 52%;
 }
 
 .invoice-print-info-grid__col-ar {
@@ -361,6 +361,15 @@
     border: 1px solid var(--inv-border);
     padding: 4px 8px;
     vertical-align: middle;
+}
+
+.invoice-print-page-label {
+    margin: 0;
+    unicode-bidi: isolate;
+}
+
+.invoice-print-page-label__ar {
+    unicode-bidi: isolate;
 }
 
 .invoice-a4__buyer-table-label {

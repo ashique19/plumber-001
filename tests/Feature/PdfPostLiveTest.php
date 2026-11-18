@@ -61,6 +61,9 @@ it('renders a one-page mPDF for a standard invoice with a buyer block', function
     expect(DocumentPdfRenderer::pageCountForHtml($html))->toBe(1)
         ->and($wrapped)->toContain('invoice-national-address-ar__line')
         ->toContain('invoice-a4__buyer-table-value')
+        ->toContain('invoice-print-root--pdf .invoice-a4__buyer-table-label')
+        ->toContain('font-weight:500')
+        ->toContain('color:#111')
         ->not->toContain('text-overflow:ellipsis');
 });
 

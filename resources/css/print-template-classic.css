@@ -2,6 +2,10 @@
     font-size: 9pt;
 }
 
+.print-classic__top-right .print-classic__page-label {
+    display: none;
+}
+
 @media screen and (max-width: 767px) {
     .invoice-print-preview-host {
         overflow-x: hidden;

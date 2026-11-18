@@ -20,7 +20,7 @@ function formatPageLabel(pageEnTpl, pageArTpl, doc, current, total) {
     const pageEn = pageEnTpl.replace(':current', String(current)).replace(':total', String(total));
     const pageAr = pageArTpl.replace(':current', String(current)).replace(':total', String(total));
 
-    return `${pageEn} · ${pageAr} — ${doc}`.trim();
+    return `\u2066${pageEn}\u2069 · \u2067${pageAr}\u2069 — ${doc}`.trim();
 }
 
 function fillPrintPageLabels(isPrintEvent = false) {
