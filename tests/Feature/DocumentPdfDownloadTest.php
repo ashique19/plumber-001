@@ -97,7 +97,7 @@ it('wraps PDF HTML with an Arabic-capable default font and SAR fallback, without
 
     expect($wrapped)
         ->toContain('invoice-sar-symbol__svg')
-        ->toContain('data:image/svg+xml;base64,')
+        ->toContain('sar-riyal-symbol.png')
         ->toContain('width:0.95em!important')
         ->toContain('dejavusans, sans-serif')
         ->not->toContain('???');

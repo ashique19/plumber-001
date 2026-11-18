@@ -28,16 +28,7 @@
                 <strong>{{ $t['seller_ar'] }}</strong>
                 @if ($isPdf ?? false)
                     @if ($t['address_ar'])
-                        @php
-                            $addressArLines = array_values(array_filter(
-                                preg_split('/\s*،\s*/u', (string) $t['address_ar'], -1, PREG_SPLIT_NO_EMPTY) ?: []
-                            ));
-                        @endphp
-                        <p class="m-0 invoice-pdf-ar-block invoice-national-address-ar--pdf" dir="rtl" lang="ar">
-                            @foreach ($addressArLines as $line)
-                                {{ $line }}@if (! $loop->last)<br>@endif
-                            @endforeach
-                        </p>
+                        <p class="m-0 invoice-pdf-ar-block invoice-national-address-ar--pdf" dir="rtl" lang="ar">{{ $t['address_ar'] }}</p>
                     @endif
                 @elseif ($t['address_ar_html'] ?? null)
                     <p class="m-0">{!! $t['address_ar_html'] !!}</p>
