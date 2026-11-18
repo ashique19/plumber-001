@@ -174,15 +174,15 @@
 }
 
 .invoice-print-info-grid__col-en {
-    width: 18%;
+    width: 22%;
 }
 
 .invoice-print-info-grid__col-value {
-    width: 55%;
+    width: 50%;
 }
 
 .invoice-print-info-grid__col-ar {
-    width: 27%;
+    width: 28%;
 }
 
 .invoice-print-info-grid__pair {
@@ -198,7 +198,9 @@
     padding-left: 0;
     padding-right: 4px;
     white-space: nowrap;
-    width: 18%;
+    width: 22%;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .invoice-print-info-grid__value {
@@ -207,8 +209,9 @@
     font-size: 8.5pt;
     font-variant-numeric: tabular-nums;
     overflow-wrap: anywhere;
-    width: 55%;
+    width: 50%;
     min-width: 0;
+    padding-left: 6px;
 }
 
 .invoice-print-info-grid__value--nowrap {
@@ -227,7 +230,8 @@
     padding-right: 0;
     padding-left: 4px;
     white-space: nowrap;
-    width: 27%;
+    width: 28%;
+    padding-left: 6px;
 }
 
 .invoice-print-bidi-value {

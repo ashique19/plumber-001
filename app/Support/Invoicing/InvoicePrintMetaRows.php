@@ -109,10 +109,14 @@ final class InvoicePrintMetaRows
      */
     public static function modernInvoiceMeta(array $t): array
     {
+        $simplified = (bool) ($t['is_simplified'] ?? false);
+        $paymentLabelEn = $simplified ? 'Payment' : 'Payment terms';
+        $paymentLabelAr = $simplified ? 'الدفع' : 'شروط الدفع';
+
         $rows = [
             ['en' => 'Invoice No.', 'ar' => 'رقم الفاتورة', 'value' => (string) ($t['document_number'] ?? ''), 'label_nowrap' => true],
             ['en' => 'Issue date', 'ar' => 'تاريخ ووقت الإصدار', 'value' => $t['issue_datetime_print'] ?? null, 'label_nowrap' => true, 'nowrap' => true],
-            ['en' => 'Payment terms', 'ar' => 'شروط الدفع', 'value' => $t['payment_terms_en'] ?? null, 'label_nowrap' => true, 'nowrap' => true],
+            ['en' => $paymentLabelEn, 'ar' => $paymentLabelAr, 'value' => $t['payment_terms_en'] ?? null, 'label_nowrap' => true],
             ['en' => 'Due date', 'ar' => 'تاريخ الاستحقاق', 'value' => $t['due_date'] ?? null, 'nowrap' => true, 'label_nowrap' => true],
         ];
 

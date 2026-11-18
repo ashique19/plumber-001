@@ -23,9 +23,9 @@
                         <td class="invoice-print-info-grid__pair" width="50%" style="padding:0;vertical-align:top">
                             <table class="invoice-print-info-grid-field" role="presentation" width="100%">
                                 <colgroup>
-                                    <col class="invoice-print-info-grid__col-en">
-                                    <col class="invoice-print-info-grid__col-value">
-                                    <col class="invoice-print-info-grid__col-ar">
+                                    <col class="invoice-print-info-grid__col-en" style="width:22%">
+                                    <col class="invoice-print-info-grid__col-value" style="width:50%">
+                                    <col class="invoice-print-info-grid__col-ar" style="width:28%">
                                 </colgroup>
                                 <tr>
                                     <td @class([
