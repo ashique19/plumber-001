@@ -20,7 +20,7 @@
             @foreach ($pairs as $pair)
                 <tr>
                     @foreach ($pair as $row)
-                        <td class="invoice-print-info-grid__pair" width="50%" style="padding:0;vertical-align:top">
+                        <td class="invoice-print-info-grid__pair" width="50%" style="padding:0;vertical-align:middle">
                             <table class="invoice-print-info-grid-field" role="presentation" width="100%">
                                 <colgroup>
                                     <col class="invoice-print-info-grid__col-en" style="width:20%">

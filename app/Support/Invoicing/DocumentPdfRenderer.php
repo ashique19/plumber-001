@@ -80,7 +80,7 @@ final class DocumentPdfRenderer
 
     public static function wrapHtml(string $html, bool $forMpdf = true): string
     {
-        $css = self::printCss();
+        $css = self::printCss($forMpdf);
         $body = self::inlineSarSymbolsForPdf($html, $forMpdf);
         if ($forMpdf) {
             $body = self::applyMpdfSansLabelStyles($body);
@@ -143,14 +143,15 @@ final class DocumentPdfRenderer
             'default_font_size' => 9,
             'defaultCSS' => $defaultCss,
             'autoArabic' => false,
+            'autoScriptToLang' => false,
             'autoLangToFont' => false,
             'useSubstitutions' => false,
-            'useOTL' => self::amiriAvailable() ? 0xFF : 0x00,
+            'useOTL' => 0,
             'tempDir' => $tmp,
         ]);
 
         $mpdf->WriteHTML(
-            '.invoice-print-root--pdf table,.invoice-print-root--pdf td,.invoice-print-root--pdf th,.invoice-print-root--pdf p,.invoice-print-root--pdf span,.invoice-print-root--pdf div,.invoice-print-root--pdf strong,.invoice-print-root--pdf b{font-family:dejavusans}',
+            '.invoice-print-root--pdf,.invoice-print-root--pdf table,.invoice-print-root--pdf td,.invoice-print-root--pdf th,.invoice-print-root--pdf p,.invoice-print-root--pdf span,.invoice-print-root--pdf div,.invoice-print-root--pdf strong,.invoice-print-root--pdf b{font-family:dejavusans;color:#111111;line-height:1.3}',
             HTMLParserMode::HEADER_CSS,
         );
         $mpdf->WriteHTML($wrapped);
@@ -221,7 +222,7 @@ final class DocumentPdfRenderer
             .'.invoice-sar-symbol__fallback{display:none!important}'
             .'.invoice-print-money{display:inline!important;white-space:nowrap!important}'
             .'.invoice-print-totals,.print-tpl-modern__totals{font-family:'.$latin.'!important;font-weight:normal!important;font-size:9pt!important}'
-            .'.invoice-print-root--pdf .invoice-print-totals__en{font-family:'.$latin.'!important;font-weight:normal!important;font-size:8pt!important;color:#444!important}'
+            .'.invoice-print-root--pdf .invoice-print-totals__en{font-family:'.$latin.'!important;font-weight:normal!important;font-size:8pt!important;color:#666!important}'
             .'.invoice-print-root--pdf .invoice-print-totals__ar{font-family:'.$arFont.'!important;font-weight:normal!important;font-size:8pt!important;color:#111!important;white-space:nowrap!important;overflow-wrap:normal!important;text-align:right!important;width:42%!important}'
             .'.invoice-print-totals__ar{text-align:right!important}'
             .'.invoice-print-totals__en{text-align:right!important;width:32%!important;padding-right:6px!important}'
@@ -230,12 +231,12 @@ final class DocumentPdfRenderer
             .'.invoice-print-totals strong{font-family:inherit!important;font-weight:bold!important}'
             .'.invoice-print-totals__row--strong td,.invoice-print-totals__row--strong .invoice-print-totals__en,.invoice-print-totals__row--strong .invoice-print-totals__value{font-weight:bold!important;font-family:'.$latin.'!important}'
             .'.invoice-print-totals__row--strong .invoice-print-totals__ar{font-weight:bold!important;font-family:'.$arFont.'!important}'
-            .'.invoice-print-root--pdf .invoice-a4__buyer-table-label{font-family:'.$latin.'!important;font-weight:normal!important;color:#444!important;font-size:8pt!important;vertical-align:middle!important}'
-            .'.invoice-print-root--pdf .invoice-a4__buyer-table-label.ar{font-family:'.$arFont.'!important;font-weight:normal!important;color:#444!important;font-size:8pt!important;text-align:right!important;vertical-align:middle!important}'
+            .'.invoice-print-root--pdf .invoice-a4__buyer-table-label{font-family:'.$latin.'!important;font-weight:normal!important;color:#666!important;font-size:8pt!important;vertical-align:middle!important;line-height:1.3!important}'
+            .'.invoice-print-root--pdf .invoice-a4__buyer-table-label.ar{font-family:'.$arFont.'!important;font-weight:normal!important;color:#666!important;font-size:8pt!important;text-align:right!important;vertical-align:middle!important;line-height:1.3!important}'
             .'.print-tpl-modern__totals-net td{border-top:1px solid #1a1a1a!important;padding-top:5px!important}'
             .'.invoice-print-root--pdf .invoice-a4__header{display:table!important;width:100%!important;table-layout:fixed!important;border-bottom:1px solid #1a1a1a;margin-bottom:3px;padding-bottom:2px}'
             .'.invoice-national-address-ar__line,.invoice-pdf-ar-address-line{display:block!important;margin:0!important;line-height:1.3!important;text-align:right!important;direction:rtl!important;font-family:'.$arFont.'!important;white-space:nowrap!important}'
-            .'.invoice-pdf-sans-label{font-family:dejavusans!important;font-style:normal!important;font-weight:normal!important;font-size:8pt!important;color:#444!important}'
+            .'.invoice-pdf-sans-label{font-family:dejavusans!important;font-style:normal!important;font-weight:normal!important;font-size:8pt!important;color:#666!important}'
             .'.invoice-pdf-sans-value{font-family:dejavusans!important;font-style:normal!important;font-weight:normal!important;font-size:9pt!important;color:#111!important}'
             .'.invoice-a4__buyer-name-cell{display:block!important;width:100%!important;max-width:100%!important}'
             .'.invoice-a4__buyer-name-en{display:block!important;text-align:left!important;font-family:dejavusans!important;font-size:9pt!important;line-height:1.3!important;margin:0!important;color:#111!important}'
@@ -243,14 +244,16 @@ final class DocumentPdfRenderer
             .'.invoice-a4__buyer-address-cell{display:block!important;width:100%!important;max-width:100%!important}'
             .'.invoice-a4__buyer-address-en{display:block!important;text-align:left!important;font-family:dejavusans!important;max-width:100%!important}'
             .'.invoice-a4__buyer-address-en__line{display:block!important;white-space:normal!important;line-height:1.3!important;margin:0!important;font-family:dejavusans!important;font-size:9pt!important;color:#111!important;overflow-wrap:normal!important;word-break:normal!important}'
-            .'.invoice-print-root--pdf .invoice-a4__buyer-table-value{overflow:hidden!important;max-width:56%!important;word-wrap:break-word!important;font-family:dejavusans!important;font-size:9pt!important;color:#111!important;vertical-align:middle!important}'
-            .'.invoice-a4__buyer-table-label .invoice-pdf-sans-label{font-family:dejavusans!important;font-weight:normal!important;font-style:normal!important;color:#444!important;font-size:8pt!important}'
-            .'.invoice-print-info-grid__en .invoice-pdf-sans-label{font-family:dejavusans!important;font-weight:normal!important;font-style:normal!important;color:#444!important;font-size:8pt!important}'
+            .'.invoice-print-root--pdf .invoice-a4__buyer-table-value{overflow:hidden!important;max-width:56%!important;word-wrap:break-word!important;font-family:dejavusans!important;font-size:9pt!important;color:#111!important;vertical-align:middle!important;line-height:1.3!important}'
+            .'.invoice-print-root--pdf .invoice-a4__buyer-table-value *:not(.invoice-print-ar):not(.ar):not([dir=rtl]){font-family:dejavusans!important;color:#111!important;line-height:1.3!important}'
+            .'.invoice-print-root--pdf .invoice-print-info-grid__value,.invoice-print-root--pdf .invoice-print-info-grid__value *{font-family:dejavusans!important;color:#111!important}'
+            .'.invoice-a4__buyer-table-label .invoice-pdf-sans-label{font-family:dejavusans!important;font-weight:normal!important;font-style:normal!important;color:#666!important;font-size:8pt!important}'
+            .'.invoice-print-info-grid__en .invoice-pdf-sans-label{font-family:dejavusans!important;font-weight:normal!important;font-style:normal!important;color:#666!important;font-size:8pt!important}'
             .'.invoice-print-root--pdf .invoice-a4__header>div{display:table-cell!important;vertical-align:top;width:33%!important;padding:0 4px!important}'
             .'.invoice-print-root--pdf .invoice-a4__seller-side{font-size:9pt!important;line-height:1.35!important;margin:0!important;word-wrap:break-word!important;overflow-wrap:break-word!important;font-family:'.$latin.'!important}'
             .'.invoice-print-root--pdf .invoice-a4__seller-side strong{font-family:'.$latin.'!important;font-weight:700!important}'
-            .'.invoice-print-seller-header-ids{margin-top:2px!important;line-height:1.3!important;color:#444!important;font-family:'.$latin.'!important;font-size:8pt!important}'
-            .'.invoice-print-seller-header-ids__label{font-family:'.$latin.'!important;font-size:8pt!important;font-weight:normal!important;color:#444!important}'
+            .'.invoice-print-seller-header-ids{margin-top:2px!important;line-height:1.3!important;color:#666!important;font-family:'.$latin.'!important;font-size:8pt!important}'
+            .'.invoice-print-seller-header-ids__label{font-family:'.$latin.'!important;font-size:8pt!important;font-weight:normal!important;color:#666!important}'
             .'.invoice-print-seller-header-ids__value{color:#111!important;font-family:'.$latin.'!important;font-size:9pt!important;font-weight:normal!important}'
             .'.invoice-print-seller-header-ids--ar,.invoice-print-seller-header-ids--ar .invoice-print-seller-header-ids__label{font-family:'.$arFont.'!important;text-align:right!important}'
             .'.invoice-national-address-ar--pdf{max-width:58mm!important;margin-left:auto!important;text-align:right!important}'
@@ -259,7 +262,7 @@ final class DocumentPdfRenderer
             .'.invoice-print-root--pdf .invoice-a4__title{margin:2px 0;font-size:13pt!important;font-weight:700}'
             .'.invoice-print-root--pdf .print-tpl-modern__rule{margin:0 0 3px!important}'
             .'.invoice-print-root--pdf .invoice-a4__buyer-table{width:100%!important;margin-bottom:3px;font-size:8.5pt!important;font-family:'.$latin.'!important;border-collapse:collapse!important;table-layout:fixed!important}'
-            .'.invoice-print-root--pdf .invoice-a4__buyer-table th,.invoice-print-root--pdf .invoice-a4__buyer-table td{padding:4px 6px!important;vertical-align:middle!important}'
+            .'.invoice-print-root--pdf .invoice-a4__buyer-table th,.invoice-print-root--pdf .invoice-a4__buyer-table td{padding:2px 4px!important;vertical-align:middle!important;line-height:1.3!important}'
             .'.invoice-print-root--pdf .invoice-a4__buyer-table tbody tr{border-bottom:1px solid #ccc!important}'
             .'.invoice-print-root--pdf .invoice-a4__buyer-table-label{width:22%!important;font-family:'.$latin.'!important}'
             .'.invoice-print-root--pdf .invoice-a4__buyer-table-value{width:56%!important;text-align:left!important;font-family:'.$latin.'!important}'
@@ -280,20 +283,23 @@ final class DocumentPdfRenderer
             .'.print-tpl-modern__words{align-items:flex-start!important}'
             .'.print-tpl-modern__vat-pct{text-align:right!important}'
             .'.invoice-print-root--pdf .print-tpl-modern__lines{font-size:8.5pt;margin-bottom:3px;width:100%!important}'
-            .'.invoice-print-root--pdf .print-tpl-modern__lines th,.invoice-print-root--pdf .print-tpl-modern__lines td{padding:2px 4px!important}'
+            .'.invoice-print-root--pdf .print-tpl-modern__lines th,.invoice-print-root--pdf .print-tpl-modern__lines td{padding:2px 4px!important;line-height:1.3!important;vertical-align:middle!important;font-family:'.$latin.'!important;color:#111!important}'
+            .'.invoice-print-root--pdf .invoice-a4__desc-en,.invoice-print-root--pdf .invoice-a4__desc-en *{font-family:'.$latin.'!important;color:#111!important}'
+            .'.invoice-print-root--pdf .invoice-print-th-label__en{font-family:'.$latin.'!important;color:#666!important;font-size:8pt!important;font-weight:normal!important}'
             .'.invoice-print-root--pdf .print-tpl-modern__lines thead th .ar{font-size:8pt!important}'
             .'.invoice-print-labeled-row{display:grid!important;grid-template-columns:22% 1fr 24%!important;align-items:center!important;width:100%!important;gap:4px 6px!important}'
             .'.invoice-print-labeled-row__en{text-align:left!important;font-family:'.$latin.'!important;font-weight:600!important}'
             .'.invoice-print-labeled-row__value{text-align:left!important;font-family:'.$latin.'!important}'
             .'.invoice-print-labeled-row__ar{text-align:right!important}'
-            .'.invoice-print-info-grid,.invoice-print-meta-grid{width:100%!important;max-width:100%!important;table-layout:fixed!important;border-collapse:collapse!important;margin-bottom:6px!important;font-size:9pt!important}'
-            .'.invoice-print-info-grid>tbody>tr>td{padding:4px 6px!important;vertical-align:middle!important}'
+            .'.invoice-print-info-grid,.invoice-print-meta-grid{width:100%!important;max-width:100%!important;table-layout:fixed!important;border-collapse:collapse!important;margin-bottom:3px!important;font-size:9pt!important;line-height:1.3!important}'
+            .'.invoice-print-info-grid>tbody>tr>td{padding:0 4px!important;vertical-align:middle!important;line-height:1.3!important}'
+            .'.invoice-print-info-grid__pair{padding:0!important;vertical-align:middle!important}'
             .'.invoice-print-info-grid-field{width:100%!important;table-layout:fixed!important;border-collapse:collapse!important}'
-            .'.invoice-print-info-grid-field td{padding:4px 6px!important;vertical-align:middle!important;overflow:visible!important}'
-            .'.invoice-print-info-grid__en{text-align:left!important;direction:ltr!important;unicode-bidi:embed!important;font-weight:normal!important;font-size:8pt!important;font-family:dejavusans!important;color:#444!important;width:20%!important;min-width:4.25rem!important;padding-right:8px!important;white-space:nowrap!important;line-height:1.3!important;vertical-align:middle!important}'
-            .'.invoice-print-info-grid__ar{text-align:right!important;font-size:8pt!important;font-weight:normal!important;color:#444!important;font-family:'.$arFont.'!important;width:30%!important;min-width:5.75rem!important;padding:0 4px!important;white-space:nowrap!important;line-height:1.3!important;overflow:visible!important;vertical-align:middle!important}'
+            .'.invoice-print-info-grid-field td{padding:2px 4px!important;vertical-align:middle!important;overflow:visible!important;line-height:1.3!important}'
+            .'.invoice-print-info-grid__en{text-align:left!important;direction:ltr!important;unicode-bidi:embed!important;font-weight:normal!important;font-size:8pt!important;font-family:dejavusans!important;color:#666!important;width:20%!important;min-width:4.25rem!important;padding:2px 4px!important;white-space:nowrap!important;line-height:1.3!important;vertical-align:middle!important}'
+            .'.invoice-print-info-grid__ar{text-align:right!important;font-size:8pt!important;font-weight:normal!important;color:#666!important;font-family:'.$arFont.'!important;width:30%!important;min-width:5.75rem!important;padding:2px 4px!important;white-space:nowrap!important;line-height:1.3!important;overflow:visible!important;vertical-align:middle!important}'
             .'.invoice-print-info-grid__col-ar{width:32%!important}'
-            .'.invoice-print-info-grid__value{text-align:left!important;direction:ltr!important;unicode-bidi:embed!important;font-family:'.$latin.'!important;font-size:9pt!important;color:#111!important;width:52%!important;padding-left:8px!important;overflow-wrap:normal!important;word-break:normal!important;vertical-align:middle!important}'
+            .'.invoice-print-info-grid__value{text-align:left!important;direction:ltr!important;unicode-bidi:embed!important;font-family:'.$latin.'!important;font-size:9pt!important;color:#111!important;width:52%!important;padding:2px 4px!important;overflow-wrap:normal!important;word-break:normal!important;vertical-align:middle!important;line-height:1.3!important}'
             .'.invoice-pdf-ar-address-line{margin:0!important;line-height:1.35!important;text-align:right!important}'
             .'.invoice-print-info-grid__value--nowrap{white-space:nowrap!important;overflow-wrap:normal!important;word-break:normal!important}'
             .'.invoice-print-info-grid__label--nowrap{white-space:nowrap!important;font-size:8pt!important;line-height:1.2!important}'
@@ -302,13 +308,14 @@ final class DocumentPdfRenderer
             .'.invoice-a4__table--product-lines th.col-num,.invoice-a4__table--product-lines td.col-num{text-align:right!important}'
             .'.invoice-a4__table--product-lines th.col-desc,.invoice-a4__table--product-lines td.col-desc{text-align:left!important}'
             .'.invoice-print-root--pdf td.tabular-nums{white-space:nowrap!important}'
-            .'.invoice-print-words-block__en,.invoice-print-words-block__ar,.invoice-a4__words{font-family:'.$latin.'!important;font-size:8.5pt!important}'
+            .'.invoice-print-words-block__en,.invoice-print-words-block__ar,.invoice-a4__words{font-family:'.$latin.'!important;font-size:8pt!important;line-height:1.25!important}'
+            .'.invoice-print-root--pdf .invoice-print-words-block__en{font-size:7.5pt!important;white-space:nowrap!important;color:#111!important;margin:0!important}'
             .'.invoice-print-words-block__ar{font-family:'.$arFont.'!important}'
             .'.print-tpl-modern__closing-grid{width:100%!important;table-layout:fixed!important;border-collapse:collapse!important}'
             .'.print-tpl-modern__closing-qr{width:48mm!important;max-width:48mm!important;vertical-align:top!important;padding-right:4px!important}'
             .'.print-tpl-modern__closing-main{width:62%!important;vertical-align:top!important;text-align:right!important}'
             .'.print-tpl-modern__closing--no-qr .print-tpl-modern__closing-main{width:100%!important}'
-            .'.invoice-print-root--pdf .print-tpl-modern__closing .print-tpl-modern__words{margin-top:3px!important;margin-left:auto!important;margin-bottom:3px!important;width:100%!important;max-width:26rem!important;min-width:0!important;border:1px solid #1a1a1a!important;padding:4px 6px!important;box-sizing:border-box!important;font-size:8.5pt;line-height:1.3;page-break-inside:avoid;display:block!important}'
+            .'.invoice-print-root--pdf .print-tpl-modern__closing .print-tpl-modern__words{margin-top:3px!important;margin-left:auto!important;margin-bottom:3px!important;width:100%!important;max-width:26rem!important;min-width:0!important;border:1px solid #1a1a1a!important;padding:4px 6px!important;box-sizing:border-box!important;font-size:7.5pt;line-height:1.25;page-break-inside:avoid;display:block!important}'
             .'.invoice-print-root--pdf .print-tpl-modern__qr-wrap{width:100%!important;max-width:45mm!important;margin:0!important}'
             .'.invoice-print-root--pdf .print-tpl-modern__qr-wrap .invoice-a4__qr{text-align:center!important;margin:0 auto!important;max-width:45mm!important}'
             .'.print-tpl-modern__closing .invoice-a4__qr-note-lines{width:100%!important;max-width:45mm!important;margin:4px auto 0!important}'
@@ -338,7 +345,7 @@ final class DocumentPdfRenderer
             .'@page{margin:6mm 9mm 7mm}';
     }
 
-    private static function printCss(): string
+    private static function printCss(bool $forMpdf = false): string
     {
         $files = [
             resource_path('css/invoice-print.css'),
@@ -353,6 +360,15 @@ final class DocumentPdfRenderer
             }
         }
 
+        return $forMpdf ? self::sanitizePrintCssForMpdf($css) : $css;
+    }
+
+    private static function sanitizePrintCssForMpdf(string $css): string
+    {
+        $css = preg_replace('/font-family\s*:[^;}\n]+(?:\s*!important)?\s*;/', '', $css) ?? $css;
+        $css = str_replace('var(--inv-muted)', '#666666', $css);
+        $css = preg_replace('/color\s*:\s*color-mix\([^;]+\)\s*;/', '', $css) ?? $css;
+
         return $css;
     }
 
@@ -362,7 +378,7 @@ final class DocumentPdfRenderer
             return $html;
         }
 
-        $labelStyle = 'font-family:dejavusans;font-size:8pt;color:#444444;font-weight:normal;font-style:normal';
+        $labelStyle = 'font-family:dejavusans;font-size:8pt;color:#666666;font-weight:normal;font-style:normal';
         $valueStyle = 'font-family:dejavusans;font-size:9pt;color:#111111;font-weight:normal;font-style:normal';
         $dom = new DOMDocument;
         libxml_use_internal_errors(true);
@@ -436,8 +452,46 @@ final class DocumentPdfRenderer
             if ($xpath->query('.//*[contains(@class, "invoice-print-ar")]', $node)->length > 0) {
                 continue;
             }
-            $existing = trim($node->getAttribute('style'));
-            $node->setAttribute('style', trim($existing.' '.$valueStyle));
+            $node->setAttribute('style', $valueStyle);
+        }
+
+        foreach ($xpath->query('//td[contains(@class, "invoice-print-info-grid__en")]') ?: [] as $node) {
+            if ($node instanceof \DOMElement) {
+                $node->setAttribute('style', $labelStyle);
+            }
+        }
+
+        foreach ($xpath->query('//td[contains(@class, "invoice-print-info-grid__value")]') ?: [] as $node) {
+            if ($node instanceof \DOMElement) {
+                $node->setAttribute('style', $valueStyle);
+            }
+        }
+
+        foreach ($xpath->query('//td[contains(@class, "invoice-a4__buyer-table-label") and not(contains(@class, " ar"))]') ?: [] as $node) {
+            if ($node instanceof \DOMElement) {
+                $node->setAttribute('style', $labelStyle);
+            }
+        }
+
+        foreach ($xpath->query('//*[contains(@class, "invoice-print-words-block__en")]') ?: [] as $node) {
+            if ($node instanceof \DOMElement) {
+                $node->setAttribute(
+                    'style',
+                    'font-family:dejavusans;font-size:7.5pt;color:#111111;font-weight:normal;font-style:normal;line-height:1.25;white-space:nowrap;margin:0',
+                );
+            }
+        }
+
+        foreach ($xpath->query('//*[contains(@class, "invoice-a4__desc-en")]') ?: [] as $node) {
+            if ($node instanceof \DOMElement) {
+                $node->setAttribute('style', $valueStyle);
+            }
+        }
+
+        foreach ($xpath->query('//*[contains(@class, "invoice-print-th-label__en")]') ?: [] as $node) {
+            if ($node instanceof \DOMElement) {
+                $node->setAttribute('style', $labelStyle.';font-weight:normal');
+            }
         }
 
         $out = $dom->saveHTML();
