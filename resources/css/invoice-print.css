@@ -157,18 +157,6 @@
     font-size: 9pt;
 }
 
-.invoice-print-info-grid__col-en {
-    width: 17%;
-}
-
-.invoice-print-info-grid__col-value {
-    width: 16%;
-}
-
-.invoice-print-info-grid__col-ar {
-    width: 17%;
-}
-
 .invoice-print-info-grid td {
     padding: 2px 4px;
     vertical-align: middle;

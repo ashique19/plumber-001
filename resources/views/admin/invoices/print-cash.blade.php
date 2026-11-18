@@ -27,7 +27,11 @@
             @if ($t['address_en'])
                 <p class="m-0">{{ $t['address_en'] }}</p>
             @endif
-            @if ($t['address_ar_html'] ?? null)
+            @if ($isPdf ?? false)
+                @if ($t['address_ar'])
+                    <p class="m-0 invoice-cash__seller-ar invoice-print-ar invoice-national-address-ar--pdf" dir="rtl" lang="ar">{{ $t['address_ar'] }}</p>
+                @endif
+            @elseif ($t['address_ar_html'] ?? null)
                 <p class="m-0 invoice-cash__seller-ar">{!! $t['address_ar_html'] !!}</p>
             @elseif ($t['address_ar'])
                 <p class="m-0 invoice-cash__seller-ar invoice-print-ar" dir="rtl">{{ $t['address_ar'] }}</p>
@@ -123,7 +127,7 @@
         </section>
 
         @if (($t['show_qr'] ?? false) && filled($t['qr_tlv_base64'] ?? null))
-            <x-invoices.print-qr :tlv="$t['qr_tlv_base64']" :fallback="(bool) ($t['qr_phase1_fallback'] ?? false)" />
+            <x-invoices.print-qr :tlv="$t['qr_tlv_base64']" :png="$t['qr_png'] ?? null" :fallback="(bool) ($t['qr_phase1_fallback'] ?? false)" />
         @endif
 
         <footer class="invoice-cash__footer print-only">

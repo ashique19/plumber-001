@@ -26,7 +26,11 @@
             </div>
             <div class="invoice-a4__seller-side invoice-a4__seller-side--ar invoice-print-ar" dir="rtl">
                 <strong>{{ $t['seller_ar'] }}</strong>
-                @if ($t['address_ar_html'] ?? null)
+                @if ($isPdf ?? false)
+                    @if ($t['address_ar'])
+                        <p class="m-0 invoice-print-ar invoice-national-address-ar invoice-national-address-ar--pdf" dir="rtl" lang="ar">{{ $t['address_ar'] }}</p>
+                    @endif
+                @elseif ($t['address_ar_html'] ?? null)
                     <p class="m-0">{!! $t['address_ar_html'] !!}</p>
                 @elseif ($t['address_ar'])
                     <p class="m-0 invoice-print-ar" dir="rtl">{{ $t['address_ar'] }}</p>
@@ -106,14 +110,12 @@
 
         @php($tot = $t['totals'])
         <section class="print-tpl-modern__closing">
+            @include('print.partials.modern-totals-table', ['tot' => $tot, 't' => $t])
             @if (($t['show_qr'] ?? true) && filled($t['qr_tlv_base64'] ?? null))
                 <div class="print-tpl-modern__qr-wrap">
                     <x-invoices.print-qr :tlv="$t['qr_tlv_base64']" :png="$t['qr_png'] ?? null" :fallback="(bool) ($t['qr_phase1_fallback'] ?? false)" />
                 </div>
-            @else
-                <div class="print-tpl-modern__qr-wrap print-tpl-modern__qr-wrap--empty" aria-hidden="true"></div>
             @endif
-            @include('print.partials.modern-totals-table', ['tot' => $tot, 't' => $t])
         </section>
 
         <div class="invoice-print-words-block print-tpl-modern__words">

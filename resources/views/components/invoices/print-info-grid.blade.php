@@ -11,15 +11,7 @@
 @endphp
 
 @if ($filled !== [])
-    <table {{ $attributes->class(['invoice-print-info-grid']) }} role="presentation">
-        <colgroup>
-            <col class="invoice-print-info-grid__col-en" />
-            <col class="invoice-print-info-grid__col-value" />
-            <col class="invoice-print-info-grid__col-ar" />
-            <col class="invoice-print-info-grid__col-en" />
-            <col class="invoice-print-info-grid__col-value" />
-            <col class="invoice-print-info-grid__col-ar" />
-        </colgroup>
+    <table {{ $attributes->class(['invoice-print-info-grid']) }} role="presentation" width="100%">
         <tbody>
             @foreach ($pairs as $pair)
                 <tr>
@@ -27,11 +19,11 @@
                         <td @class([
                             'invoice-print-info-grid__en',
                             'invoice-print-info-grid__label--nowrap' => ! empty($row['label_nowrap']),
-                        ])>{{ $row['en'] }}</td>
+                        ]) width="17%">{{ $row['en'] }}</td>
                         <td @class([
                             'invoice-print-info-grid__value',
                             'invoice-print-info-grid__value--nowrap' => ! empty($row['nowrap']),
-                        ]) @if (! empty($row['nowrap'])) dir="ltr" @endif>
+                        ]) width="16%" @if (! empty($row['nowrap'])) dir="ltr" @endif>
                             @if (! empty($row['html']))
                                 {!! $row['html'] !!}
                             @else
@@ -42,10 +34,10 @@
                             'invoice-print-info-grid__ar',
                             'invoice-print-ar',
                             'invoice-print-info-grid__label--nowrap' => ! empty($row['label_nowrap']),
-                        ]) dir="rtl">{{ $row['ar'] }}</td>
+                        ]) dir="rtl" width="17%">{{ $row['ar'] }}</td>
                     @endforeach
                     @if (count($pair) === 1)
-                        <td colspan="3" class="invoice-print-info-grid__spacer" aria-hidden="true"></td>
+                        <td colspan="3" class="invoice-print-info-grid__spacer" aria-hidden="true" width="50%"></td>
                     @endif
                 </tr>
             @endforeach
