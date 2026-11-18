@@ -112,7 +112,28 @@ it('renders standard buyer address as explicit lines with sans buyer labels in p
         ->toContain('Prince Abdulaziz bin Musaed bin Jalawi Street')
         ->toContain('Al Murabba, Riyadh 12612')
         ->toContain('invoice-print-seller-header-ids__label')
-        ->toContain('font-family:dejavusans');
+        ->toContain('font-family:dejavusans')
+        ->not->toContain('invoice-a4__buyer-address-ar');
+});
+
+it('uses full arabic payment label on simplified modern intro grid in pdf html', function () {
+    $invoice = Invoice::query()->create([
+        'branch_id' => $this->branchId,
+        'document_number' => 'SIMP-PAY-'.uniqid(),
+        'document_type' => InvoiceDocumentType::Simplified,
+        'status' => InvoiceStatus::Issued,
+        'issued_at' => now(),
+        'payload' => [
+            'lines' => [
+                ['name' => 'Svc', 'quantity' => 1, 'unit_price_ex_vat' => 10, 'vat_rate' => 15],
+            ],
+        ],
+    ]);
+
+    $sheet = PrintSheetFactory::invoice($invoice, Request::create('/', 'GET', ['template' => 'modern']), true);
+    $html = view($sheet['view'], $sheet['data'])->render();
+
+    expect($html)->toContain('شروط الدفع');
 });
 
 it('renders mPDF binary with totals text extractable via pdftotext when available', function () {

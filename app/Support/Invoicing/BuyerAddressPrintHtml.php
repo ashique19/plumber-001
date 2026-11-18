@@ -33,31 +33,11 @@ final class BuyerAddressPrintHtml
 
         $enHtml = '';
         foreach ($enLines as $line) {
-            $enHtml .= '<div class="invoice-a4__buyer-address-en__line">'.e($line).'</div>';
+            $enHtml .= '<div class="invoice-a4__buyer-address-en__line invoice-pdf-sans-label">'.e($line).'</div>';
         }
 
-        /** @var list<string>|null $arLines */
-        $arLines = $customer['address_ar_line_html'] ?? null;
-        if (! is_array($arLines) || $arLines === []) {
-            $arLines = $na !== [] ? BusinessProfile::formatNationalAddressArPdfLineHtml($na) : [];
-        }
-
-        $arHtml = '';
-        foreach ($arLines as $line) {
-            $arHtml .= '<div class="invoice-a4__buyer-address-ar__line invoice-pdf-ar-block invoice-pdf-ar-address-line" dir="rtl" style="text-align:right">'
-                .$line
-                .'</div>';
-        }
-
-        $html = '<div class="invoice-a4__buyer-address-cell">';
-        if ($enHtml !== '') {
-            $html .= '<div class="invoice-a4__buyer-address-en">'.$enHtml.'</div>';
-        }
-        if ($arHtml !== '') {
-            $html .= '<div class="invoice-a4__buyer-address-ar invoice-print-ar" dir="rtl">'.$arHtml.'</div>';
-        }
-        $html .= '</div>';
-
-        return $html;
+        return '<div class="invoice-a4__buyer-address-cell">'
+            .'<div class="invoice-a4__buyer-address-en">'.$enHtml.'</div>'
+            .'</div>';
     }
 }

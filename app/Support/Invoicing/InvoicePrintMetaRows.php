@@ -111,7 +111,7 @@ final class InvoicePrintMetaRows
     {
         $simplified = (bool) ($t['is_simplified'] ?? false);
         $paymentLabelEn = 'Payment';
-        $paymentLabelAr = $simplified ? 'الدفع' : 'شروط الدفع';
+        $paymentLabelAr = 'شروط الدفع';
 
         $rows = [
             ['en' => 'Invoice No.', 'ar' => 'رقم الفاتورة', 'value' => (string) ($t['document_number'] ?? ''), 'label_nowrap' => true],
