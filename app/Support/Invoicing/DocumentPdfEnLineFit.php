@@ -14,6 +14,14 @@ final class DocumentPdfEnLineFit
         return 'white-space:nowrap;font-size:'.self::formatPt($pt).';line-height:1.3;display:block;';
     }
 
+    public static function wrappedBoxStyle(string $text, float $maxMm, float $basePt): string
+    {
+        $pt = self::fitPointSize($text, $maxMm, $basePt);
+
+        return 'white-space:normal;overflow-wrap:break-word;word-wrap:break-word;word-break:normal;'
+            .'font-size:'.self::formatPt($pt).';line-height:1.25;display:block;max-width:100%;box-sizing:border-box;';
+    }
+
     public static function fitPointSize(string $text, float $maxMm, float $basePt, float $minPt = 5.5): float
     {
         $len = mb_strlen(trim($text));

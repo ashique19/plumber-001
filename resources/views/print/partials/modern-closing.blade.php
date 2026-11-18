@@ -27,7 +27,12 @@
                 @include('print.partials.modern-totals-table', ['tot' => $tot, 't' => $t])
                 <div class="invoice-print-words-block print-tpl-modern__words">
                     @if (filled($t['amount_words_en'] ?? null))
-                        <p class="invoice-print-words-block__en invoice-a4__words">{{ $t['amount_words_en'] }}</p>
+                        <p
+                            class="invoice-print-words-block__en invoice-a4__words"
+                            @if ($isPdf ?? false)
+                                style="{{ \App\Support\Invoicing\DocumentPdfEnLineFit::wrappedBoxStyle((string) $t['amount_words_en'], 62, 7) }}"
+                            @endif
+                        >{{ $t['amount_words_en'] }}</p>
                     @endif
                     @if (filled($t['amount_words_ar'] ?? null))
                         <p class="invoice-print-words-block__ar invoice-a4__words invoice-pdf-ar-block" dir="rtl" lang="ar">{{ $t['amount_words_ar'] }}</p>
