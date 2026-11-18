@@ -255,6 +255,34 @@
     padding: 0;
 }
 
+.invoice-print-seller-header-ids {
+    margin-top: 4px;
+    font-size: 8.5pt;
+    line-height: 1.35;
+    color: var(--inv-muted);
+}
+
+.invoice-print-seller-header-ids--ar {
+    text-align: right;
+}
+
+.invoice-print-seller-header-ids__line + .invoice-print-seller-header-ids__line {
+    margin-top: 2px;
+}
+
+.invoice-print-seller-header-ids__label {
+    font-weight: 600;
+}
+
+.invoice-print-seller-header-ids__label::after {
+    content: '\00a0';
+}
+
+.invoice-print-seller-header-ids__value {
+    font-variant-numeric: tabular-nums;
+    color: #111;
+}
+
 .invoice-print-seller-ids {
     margin: 6px auto 0;
     max-width: 100%;

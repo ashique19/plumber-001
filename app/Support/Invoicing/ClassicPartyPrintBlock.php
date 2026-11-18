@@ -37,11 +37,6 @@ final class ClassicPartyPrintBlock
             $rows[] = ['en' => 'Postal Code', 'ar' => 'الرمز البريدي', 'value' => $postal];
         }
 
-        $trn = preg_replace('/\D/', '', (string) ($t['trn'] ?? '')) ?? '';
-        if ($trn !== '') {
-            $rows[] = ['en' => 'Vat Number', 'ar' => 'رقم تسجيل قيمة الضريبة المضافة', 'value' => $trn];
-        }
-
         return $rows;
     }
 

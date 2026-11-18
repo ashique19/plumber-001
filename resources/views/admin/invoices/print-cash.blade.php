@@ -27,6 +27,7 @@
             @if ($t['address_en'])
                 <p class="m-0">{{ $t['address_en'] }}</p>
             @endif
+            <x-invoices.print-seller-header-ids :t="$t" side="en" />
             @php
                 $na = (array) ($t['national_address'] ?? []);
                 $structuredAddressLines = $na !== [] ? \App\Support\BusinessProfile::formatNationalAddressArPdfLineHtml($na) : [];
@@ -51,6 +52,7 @@
             @elseif ($t['address_ar'])
                 <p class="m-0 invoice-cash__seller-ar invoice-print-ar" dir="rtl">{{ $t['address_ar'] }}</p>
             @endif
+            <x-invoices.print-seller-header-ids :t="$t" side="ar" />
         </section>
 
         <x-invoices.print-info-grid :rows="\App\Support\Invoicing\InvoicePrintMetaRows::cashIntroGrid($t)" />
