@@ -189,7 +189,8 @@ final class BusinessProfile
             default => null,
         };
         if ($line2Text !== null) {
-            $lines[] = self::pdfAddressDigitRunsHtml($line2Text);
+            // Keep district/city/postal in one RTL run so mPDF does not pull LTR digit spans to the line start.
+            $lines[] = e($line2Text);
         }
 
         return $lines;

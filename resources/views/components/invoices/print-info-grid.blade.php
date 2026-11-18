@@ -23,8 +23,8 @@
                         <td class="invoice-print-info-grid__pair" width="50%" style="padding:0;vertical-align:top">
                             <table class="invoice-print-info-grid-field" role="presentation" width="100%">
                                 <colgroup>
-                                    <col class="invoice-print-info-grid__col-en" style="width:24%">
-                                    <col class="invoice-print-info-grid__col-value" style="width:48%">
+                                    <col class="invoice-print-info-grid__col-en" style="width:20%">
+                                    <col class="invoice-print-info-grid__col-value" style="width:52%">
                                     <col class="invoice-print-info-grid__col-ar" style="width:28%">
                                 </colgroup>
                                 <tr>
