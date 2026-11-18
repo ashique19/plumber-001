@@ -22,3 +22,15 @@ it('hard chunks a single long arabic token', function () {
     $lines = ArabicLineBreaker::breakLines($word, 12);
     expect($lines)->toHaveCount(4);
 });
+
+it('pulls a word from the previous line when the last line would be a lone word', function () {
+    expect(ArabicLineBreaker::balanceOrphanLastLine(['أحد عشر ريال و خمسة', 'فقط']))
+        ->toBe(['أحد عشر ريال و', 'خمسة فقط']);
+
+    $text = 'ثمانية و عشرون ريال و خمسة و سبعون هللة فقط';
+    $lines = ArabicLineBreaker::breakLines($text, 28);
+    if (count($lines) > 1) {
+        $lastWords = preg_split('/\s+/u', (string) end($lines)) ?: [];
+        expect(count($lastWords))->toBeGreaterThan(1);
+    }
+});

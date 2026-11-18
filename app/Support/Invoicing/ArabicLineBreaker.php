@@ -53,7 +53,79 @@ final class ArabicLineBreaker
             $lines[] = $current;
         }
 
-        return $lines === [] ? [$text] : $lines;
+        if ($lines === []) {
+            return [$text];
+        }
+
+        return self::balanceOrphanLastLine($lines);
+    }
+
+    /**
+     * @param  list<string>  $lines
+     * @return list<string>
+     */
+    public static function balanceOrphanLastLine(array $lines): array
+    {
+        if (count($lines) < 2) {
+            return $lines;
+        }
+
+        $last = array_pop($lines);
+        while (self::wordCount($last) === 1 && $lines !== []) {
+            $previous = array_pop($lines);
+            $previousWords = self::words($previous);
+            if (count($previousWords) < 2) {
+                $lines[] = $previous;
+
+                break;
+            }
+
+            $moved = array_pop($previousWords);
+            $last = $moved.' '.$last;
+            if ($previousWords !== []) {
+                $lines[] = implode(' ', $previousWords);
+            }
+        }
+
+        $lines[] = $last;
+
+        return $lines;
+    }
+
+    /**
+     * Prefer at most $maxLines after optional compact reflow (wider per-line budget).
+     *
+     * @return array{lines: list<string>, compact: bool}
+     */
+    public static function breakForPdfBlock(string $text, int $maxCharsPerLine, int $maxLines = 2): array
+    {
+        $lines = self::breakLines($text, $maxCharsPerLine);
+        $compact = false;
+
+        if (count($lines) > $maxLines) {
+            $expanded = self::breakLines($text, (int) round($maxCharsPerLine * 1.12));
+            if (count($expanded) <= $maxLines) {
+                $lines = $expanded;
+                $compact = true;
+            }
+        }
+
+        return ['lines' => $lines, 'compact' => $compact];
+    }
+
+    private static function wordCount(string $line): int
+    {
+        return count(self::words($line));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private static function words(string $line): array
+    {
+        $line = trim(preg_replace('/\s+/u', ' ', $line) ?? '');
+
+        return $line === '' ? [] : (preg_split('/\s+/u', $line) ?: []);
     }
 
     /**
