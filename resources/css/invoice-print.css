@@ -257,9 +257,10 @@
 
 .invoice-print-seller-header-ids {
     margin-top: 4px;
-    font-size: 8.5pt;
+    font-size: 9pt;
     line-height: 1.35;
     color: var(--inv-muted);
+    font-family: inherit;
 }
 
 .invoice-print-seller-header-ids--ar {

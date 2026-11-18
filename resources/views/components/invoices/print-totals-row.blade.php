@@ -3,6 +3,7 @@
     'ar',
     'strong' => false,
     'rowClass' => '',
+    'arNowrap' => false,
 ])
 
 <tr @class([$rowClass, 'invoice-print-totals__row--strong' => $strong])>
@@ -13,7 +14,11 @@
             {{ $en }}
         @endif
     </td>
-    <td class="invoice-print-totals__ar invoice-print-ar" dir="rtl">
+    <td @class([
+        'invoice-print-totals__ar',
+        'invoice-print-ar',
+        'invoice-print-totals__ar--nowrap' => $arNowrap,
+    ]) dir="rtl">
         @if ($strong)
             <strong>{{ $ar }}</strong>
         @else
