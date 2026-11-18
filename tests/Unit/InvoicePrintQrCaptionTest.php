@@ -2,7 +2,7 @@
 
 use App\Support\Invoicing\InvoicePrintQrCaption;
 
-it('exposes fixed EN and AR QR caption lines for mPDF', function () {
+it('exposes fixed EN and AR QR caption lines for PDF print', function () {
     expect(InvoicePrintQrCaption::enLines())->toBe([
         'This QR code is encoded as per',
         'ZATCA e-invoicing requirements',

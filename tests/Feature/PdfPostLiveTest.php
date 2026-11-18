@@ -22,7 +22,7 @@ beforeEach(function () {
     $this->branchId = Branch::query()->first()?->id;
 });
 
-it('renders a one-page mPDF for a standard invoice with a buyer block', function () {
+it('renders a one-page PDF for a standard invoice with a buyer block', function () {
     $business = BusinessSetting::singleton();
     $settings = $business->settings;
     data_set($settings, 'legal_entity.national_address', [
@@ -162,7 +162,7 @@ it('uses the SAR svg in PDF html and omits the Bangla quotation subtitle', funct
         ->not->toContain('display:inline!important;font-size:.85em;font-weight:700}');
 });
 
-it('preserves digit order in Arabic seller address for mPDF output', function () {
+it('preserves digit order in Arabic seller address in PDF output', function () {
     $html = '<div class="invoice-print-root--pdf"><p class="invoice-a4__seller-side--ar invoice-print-ar" dir="rtl">الرياض ، حي النخيل ، 709812629</p></div>';
 
     $wrapped = DocumentPdfRenderer::wrapHtml($html);

@@ -166,13 +166,12 @@ it('renders dompdf binary with totals text extractable via pdftotext when availa
         ->and($text)->toMatch('/Subtotal|Total VAT|Total/i');
 
     if (trim((string) shell_exec('command -v pdftoppm')) !== '') {
-        $artifactDir = '/opt/cursor/artifacts';
-        if (! is_dir($artifactDir)) {
-            mkdir($artifactDir, 0755, true);
+        $artifactDir = \Tests\Support\PdfTestArtifacts::directory();
+        if ($artifactDir !== null) {
+            $pngBase = $artifactDir.'/invoice-pdf-address-lines';
+            shell_exec('pdftoppm -f 1 -l 1 -png '.escapeshellarg($path).' '.escapeshellarg($pngBase).' 2>/dev/null');
+            expect(is_file($pngBase.'-1.png'))->toBeTrue();
         }
-        $pngBase = $artifactDir.'/invoice-pdf-address-lines';
-        shell_exec('pdftoppm -f 1 -l 1 -png '.escapeshellarg($path).' '.escapeshellarg($pngBase).' 2>/dev/null');
-        expect(is_file($pngBase.'-1.png'))->toBeTrue();
     }
 
     @unlink($path);

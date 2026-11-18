@@ -12,6 +12,11 @@ pest()->extend(TestCase::class)
     ->use(FakesZHeartSigning::class)
     ->beforeEach(function () {
         $this->fakeZHeartSigning();
+        config([
+            'app.locale' => 'bn',
+            'locales.default' => 'bn',
+            'app.enabled_locales' => ['en', 'bn', 'ar'],
+        ]);
     })
     ->afterEach(function () {
         BusinessContext::clear();

@@ -135,11 +135,12 @@ it('exports PDF regression PNGs when pdftoppm is available', function () {
         $this->markTestSkipped('pdftoppm is not installed');
     }
 
-    $artifactRoot = '/opt/cursor/artifacts/pdf-regression';
-    if (! is_dir($artifactRoot) && ! @mkdir($artifactRoot, 0775, true) && ! is_dir($artifactRoot)) {
-        $artifactRoot = storage_path('app/pdf-regression');
-        File::ensureDirectoryExists($artifactRoot);
+    $base = \Tests\Support\PdfTestArtifacts::directory();
+    if ($base === null) {
+        $this->markTestSkipped('No writable artifact directory');
     }
+    $artifactRoot = $base.'/pdf-regression';
+    File::ensureDirectoryExists($artifactRoot);
 
     foreach (pdfRegressionSnapshots() as $case) {
         $pdfPath = $artifactRoot.'/'.$case['slug'].'.pdf';

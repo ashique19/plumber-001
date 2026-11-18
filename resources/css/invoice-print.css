@@ -23,8 +23,14 @@
         -webkit-overflow-scrolling: touch;
     }
 
-    body:has(> .invoice-print-root.invoice-print-sheet) {
+    body:has(> .invoice-print-root.invoice-print-sheet),
+    body:has(> .invoice-print-preview-scale) {
         overflow-x: hidden;
+    }
+
+    .invoice-print-preview-scale {
+        display: block;
+        margin-inline: auto;
     }
 }
 
@@ -912,7 +918,14 @@
 }
 
 @media print {
+    .invoice-print-preview-scale {
+        width: auto !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+
     .invoice-print-root.invoice-print-sheet {
+        zoom: normal !important;
         transform: none !important;
         width: auto !important;
         min-width: 0 !important;
