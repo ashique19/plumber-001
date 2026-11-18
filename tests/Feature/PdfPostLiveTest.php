@@ -104,6 +104,37 @@ it('renders one-page PDFs for single-line invoices and quotations', function () 
     expect(DocumentPdfRenderer::pageCountForHtml($quoHtml))->toBe(1);
 });
 
+it('keeps simplified invoices with eight lines on one page with QR beside totals', function () {
+    $lines = [];
+    for ($i = 1; $i <= 8; $i++) {
+        $lines[] = [
+            'name' => "Line item {$i}",
+            'name_ar' => "بند {$i}",
+            'quantity' => 1,
+            'unit_price_ex_vat' => 12.5,
+            'vat_rate' => 15,
+        ];
+    }
+
+    $invoice = Invoice::query()->create([
+        'branch_id' => $this->branchId,
+        'document_number' => 'EIGHT-LINE-SIMP',
+        'document_type' => InvoiceDocumentType::Simplified,
+        'status' => InvoiceStatus::Issued,
+        'issued_at' => now(),
+        'payload' => ['lines' => $lines],
+    ]);
+
+    $sheet = PrintSheetFactory::invoice($invoice, Request::create('/', 'GET', ['template' => 'modern']), true);
+    $html = view($sheet['view'], $sheet['data'])->render();
+
+    expect($html)
+        ->toContain('print-tpl-modern__closing-grid')
+        ->toContain('print-tpl-modern__closing-qr');
+
+    expect(DocumentPdfRenderer::pageCountForHtml($html))->toBe(1);
+});
+
 it('uses the SAR svg in PDF html and omits the Bangla quotation subtitle', function () {
     $quotation = Quotation::query()->create([
         'branch_id' => $this->branchId,

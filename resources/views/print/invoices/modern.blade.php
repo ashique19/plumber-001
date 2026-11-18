@@ -84,23 +84,7 @@
             </tbody>
         </table>
 
-        @php($tot = $t['totals'])
-        <section class="print-tpl-modern__closing">
-            @include('print.partials.modern-totals-table', ['tot' => $tot, 't' => $t])
-            <div class="invoice-print-words-block print-tpl-modern__words">
-                @if (filled($t['amount_words_en'] ?? null))
-                    <p class="invoice-print-words-block__en invoice-a4__words">{{ $t['amount_words_en'] }}</p>
-                @endif
-                @if (filled($t['amount_words_ar'] ?? null))
-                    <p class="invoice-print-words-block__ar invoice-a4__words invoice-pdf-ar-block" dir="rtl" lang="ar">{{ $t['amount_words_ar'] }}</p>
-                @endif
-            </div>
-            @if (($t['show_qr'] ?? true) && filled($t['qr_tlv_base64'] ?? null))
-                <div class="print-tpl-modern__qr-wrap">
-                    <x-invoices.print-qr :tlv="$t['qr_tlv_base64']" :png="$t['qr_png'] ?? null" :fallback="(bool) ($t['qr_phase1_fallback'] ?? false)" />
-                </div>
-            @endif
-        </section>
+        @include('print.partials.modern-closing', ['t' => $t])
 
         <footer class="invoice-a4__footer print-tpl-modern__sheet-footer" data-document-number="{{ $t['document_number'] }}">
             <div class="print-tpl-modern__footer-name-en">{{ $t['seller_en'] }}</div>

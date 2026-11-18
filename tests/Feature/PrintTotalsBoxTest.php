@@ -24,7 +24,7 @@ it('keeps template A totals as a compact right-aligned three-column table', func
     $css = (string) file_get_contents(resource_path('css/print-template-modern.css'));
     expect($css)
         ->toContain('.print-tpl-modern__closing')
-        ->toContain('display: flex')
+        ->toContain('.print-tpl-modern__closing-grid')
         ->toContain('margin-left: auto')
         ->toContain('display: table !important')
         ->toContain('display: table-cell !important')
@@ -32,8 +32,8 @@ it('keeps template A totals as a compact right-aligned three-column table', func
 
     $invoice = Invoice::query()->create([
         'branch_id' => $this->branchId,
-        'document_number' => 'STD-TOTALS-BOX-001',
-        'document_type' => InvoiceDocumentType::Standard,
+        'document_number' => 'SIMP-TOTALS-BOX-001',
+        'document_type' => InvoiceDocumentType::Simplified,
         'status' => InvoiceStatus::Issued,
         'issued_at' => now(),
         'payload' => [
@@ -48,7 +48,17 @@ it('keeps template A totals as a compact right-aligned three-column table', func
         ->assertOk()
         ->getContent();
 
-    expect(strpos($html, 'print-tpl-modern__closing'))->toBeLessThan((int) strpos($html, 'print-tpl-modern__words'));
+    expect($html)
+        ->toContain('print-tpl-modern__closing-grid')
+        ->toContain('print-tpl-modern__closing-qr')
+        ->toContain('print-tpl-modern__closing-main');
+
+    $qrPos = strpos($html, 'print-tpl-modern__closing-qr');
+    $totalsPos = strpos($html, 'print-tpl-modern__totals');
+    expect($qrPos)->not->toBeFalse()
+        ->and($totalsPos)->not->toBeFalse()
+        ->and($qrPos)->toBeLessThan($totalsPos);
+
     assertModernTotalsTable($html);
 });
 
@@ -92,6 +102,10 @@ it('keeps template B and quotation totals as three-column tables', function () {
         ->assertOk()
         ->getContent();
 
+    expect($quoHtml)
+        ->toContain('print-tpl-modern__closing--no-qr')
+        ->not->toContain('print-tpl-modern__closing-qr');
+
     assertModernTotalsTable($quoHtml);
 });
 
@@ -114,7 +128,7 @@ it('applies the same totals table rules in PDF HTML', function () {
     $wrapped = DocumentPdfRenderer::wrapHtml($html);
 
     expect($wrapped)
-        ->toContain('display:flex!important')
+        ->toContain('print-tpl-modern__closing-grid')
         ->toContain('display:table-cell!important')
         ->not->toContain('grid-template-columns:110px');
 
