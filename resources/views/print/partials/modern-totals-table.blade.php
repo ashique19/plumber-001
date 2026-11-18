@@ -26,12 +26,14 @@
             - <x-invoices.sar-symbol /> {{ number_format($tot['retention_amount'], 2) }}
         </x-invoices.print-totals-row>
     @endif
-    <x-invoices.print-totals-row
-        en="Net due"
-        ar="المبلغ المستحق"
-        :strong="true"
-        row-class="print-tpl-modern__totals-net"
-    >
-        <x-invoices.sar-symbol /> {{ number_format($t['net_due_inc_vat'], 2) }}
-    </x-invoices.print-totals-row>
+    @if (\App\Support\Invoicing\InvoicePrintTotalsBlock::shouldShowNetDue($t, $tot))
+        <x-invoices.print-totals-row
+            en="Net due"
+            ar="المبلغ المستحق"
+            :strong="true"
+            row-class="print-tpl-modern__totals-net"
+        >
+            <x-invoices.sar-symbol /> {{ number_format($t['net_due_inc_vat'], 2) }}
+        </x-invoices.print-totals-row>
+    @endif
 </table>

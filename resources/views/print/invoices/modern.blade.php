@@ -28,7 +28,16 @@
                 <strong>{{ $t['seller_ar'] }}</strong>
                 @if ($isPdf ?? false)
                     @if ($t['address_ar'])
-                        <p class="m-0 invoice-print-ar invoice-national-address-ar invoice-national-address-ar--pdf" dir="rtl" lang="ar">{{ $t['address_ar'] }}</p>
+                        @php
+                            $addressArLines = array_values(array_filter(
+                                preg_split('/\s*،\s*/u', (string) $t['address_ar'], -1, PREG_SPLIT_NO_EMPTY) ?: []
+                            ));
+                        @endphp
+                        <p class="m-0 invoice-pdf-ar-block invoice-national-address-ar--pdf" dir="rtl" lang="ar">
+                            @foreach ($addressArLines as $line)
+                                {{ $line }}@if (! $loop->last)<br>@endif
+                            @endforeach
+                        </p>
                     @endif
                 @elseif ($t['address_ar_html'] ?? null)
                     <p class="m-0">{!! $t['address_ar_html'] !!}</p>
@@ -111,21 +120,20 @@
         @php($tot = $t['totals'])
         <section class="print-tpl-modern__closing">
             @include('print.partials.modern-totals-table', ['tot' => $tot, 't' => $t])
+            <div class="invoice-print-words-block print-tpl-modern__words">
+                @if (filled($t['amount_words_en'] ?? null))
+                    <p class="invoice-print-words-block__en invoice-a4__words">{{ $t['amount_words_en'] }}</p>
+                @endif
+                @if (filled($t['amount_words_ar'] ?? null))
+                    <p class="invoice-print-words-block__ar invoice-a4__words invoice-pdf-ar-block" dir="rtl" lang="ar">{{ $t['amount_words_ar'] }}</p>
+                @endif
+            </div>
             @if (($t['show_qr'] ?? true) && filled($t['qr_tlv_base64'] ?? null))
                 <div class="print-tpl-modern__qr-wrap">
                     <x-invoices.print-qr :tlv="$t['qr_tlv_base64']" :png="$t['qr_png'] ?? null" :fallback="(bool) ($t['qr_phase1_fallback'] ?? false)" />
                 </div>
             @endif
         </section>
-
-        <div class="invoice-print-words-block print-tpl-modern__words">
-            @if (filled($t['amount_words_en'] ?? null))
-                <p class="invoice-print-words-block__en invoice-a4__words">{{ $t['amount_words_en'] }}</p>
-            @endif
-            @if (filled($t['amount_words_ar'] ?? null))
-                <p class="invoice-print-words-block__ar invoice-a4__words invoice-print-ar" dir="rtl">{{ $t['amount_words_ar'] }}</p>
-            @endif
-        </div>
 
         <footer class="invoice-a4__footer print-tpl-modern__sheet-footer print-only" data-document-number="{{ $t['document_number'] }}">
             <div class="print-tpl-modern__footer-names">
