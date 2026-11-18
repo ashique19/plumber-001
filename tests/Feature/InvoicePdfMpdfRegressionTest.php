@@ -45,7 +45,7 @@ it('includes totals rows, QR image, and Arabic address in wrapped PDF html', fun
 
     $sheet = PrintSheetFactory::invoice($invoice, Request::create('/', 'GET', ['template' => 'modern']), true);
     $html = view($sheet['view'], $sheet['data'])->render();
-    $wrapped = DocumentPdfRenderer::wrapHtml($html, forMpdf: true);
+    $wrapped = DocumentPdfRenderer::wrapHtml($html);
     $address = BusinessProfile::formatNationalAddressAr([
         'building' => '7098',
         'street_ar' => 'أحمد بن الحسين بن شقير',
@@ -104,7 +104,7 @@ it('renders standard buyer address as explicit lines with sans buyer labels in p
 
     $sheet = PrintSheetFactory::invoice($invoice, Request::create('/', 'GET', ['template' => 'modern']), true);
     $html = view($sheet['view'], $sheet['data'])->render();
-    $wrapped = DocumentPdfRenderer::wrapHtml($html, forMpdf: true);
+    $wrapped = DocumentPdfRenderer::wrapHtml($html);
 
     expect($wrapped)
         ->toContain('invoice-a4__buyer-address-en__line')
@@ -113,9 +113,8 @@ it('renders standard buyer address as explicit lines with sans buyer labels in p
         ->toContain('Al Murabba, Riyadh 12612')
         ->toContain('invoice-print-seller-header-ids__label')
         ->toContain('invoice-pdf-sans-value')
-        ->toContain('font-family:dejavusans;font-size:8pt;color:#666666;font-weight:normal')
+        ->toContain('DejaVu Sans')
         ->not->toContain('Instrument Sans')
-        ->toContain('font-family:dejavusans;font-size:9pt;color:#111111')
         ->not->toContain('invoice-a4__buyer-address-ar');
 });
 
@@ -139,7 +138,7 @@ it('uses full arabic payment label on simplified modern intro grid in pdf html',
     expect($html)->toContain('شروط الدفع');
 });
 
-it('renders mPDF binary with totals text extractable via pdftotext when available', function () {
+it('renders dompdf binary with totals text extractable via pdftotext when available', function () {
     if (trim((string) shell_exec('command -v pdftotext')) === '') {
         $this->markTestSkipped('pdftotext not installed');
     }

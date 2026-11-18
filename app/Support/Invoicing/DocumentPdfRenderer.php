@@ -10,10 +10,6 @@ use DOMXPath;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
-use Mpdf\Config\ConfigVariables;
-use Mpdf\Config\FontVariables;
-use Mpdf\HTMLParserMode;
-use Mpdf\Mpdf;
 
 final class DocumentPdfRenderer
 {
@@ -40,27 +36,16 @@ final class DocumentPdfRenderer
      */
     public static function render(string $html, array $context = []): string
     {
-        $wrapped = self::wrapHtml($html, forMpdf: true);
+        $wrapped = self::wrapHtml($html);
 
         try {
-            return self::renderWithMpdf($wrapped);
-        } catch (\Throwable $mpdfError) {
-            Log::warning('document_pdf_mpdf_failed', array_merge($context, [
-                'message' => $mpdfError->getMessage(),
+            return self::renderWithDompdf($wrapped);
+        } catch (\Throwable $dompdfError) {
+            Log::error('document_pdf_render_failed', array_merge($context, [
+                'dompdf_message' => $dompdfError->getMessage(),
             ]));
 
-            $wrappedDompdf = self::wrapHtml($html, forMpdf: false);
-
-            try {
-                return self::renderWithDompdf($wrappedDompdf);
-            } catch (\Throwable $dompdfError) {
-                Log::error('document_pdf_render_failed', array_merge($context, [
-                    'mpdf_message' => $mpdfError->getMessage(),
-                    'dompdf_message' => $dompdfError->getMessage(),
-                ]));
-
-                throw $dompdfError;
-            }
+            throw $dompdfError;
         }
     }
 
@@ -78,94 +63,32 @@ final class DocumentPdfRenderer
         return 1;
     }
 
-    public static function wrapHtml(string $html, bool $forMpdf = true): string
+    public static function wrapHtml(string $html): string
     {
-        $css = self::printCss($forMpdf);
-        $body = self::inlineSarSymbolsForPdf($html, $forMpdf);
-        if ($forMpdf) {
-            $body = self::applyMpdfSansLabelStyles($body);
-        }
-        if (! $forMpdf) {
-            $body = self::shapeArabic($body);
-        }
+        $css = self::printCss();
+        $body = self::shapeArabic(self::inlineSarSymbolsForPdf($html));
 
-        $bodyAttrs = $forMpdf
-            ? ' style="font-family:dejavusans;font-size:9pt;color:#111111;line-height:1.35"'
-            : '';
         $wrapped = '<!DOCTYPE html><html><head><meta charset="utf-8"><style>'
-            .self::pdfFontFaceCss($forMpdf)
+            .self::pdfFontFaceCss()
             .$css
-            .self::pdfOverlayCss($forMpdf)
-            .'</style></head><body'.$bodyAttrs.'>'
+            .self::pdfOverlayCss()
+            .'</style></head><body>'
             .$body
             .'</body></html>';
 
         return self::localizeAssetUrls($wrapped);
     }
 
-    private static function renderWithMpdf(string $wrapped): string
-    {
-        $tmp = storage_path('app/mpdf-tmp');
-        File::ensureDirectoryExists($tmp);
-
-        $defaults = (new ConfigVariables)->getDefaults();
-        $fontDirs = $defaults['fontDir'];
-        $fontDirs[] = resource_path('fonts');
-
-        $fontDefaults = (new FontVariables)->getDefaults();
-        $fontData = $fontDefaults['fontdata'];
-        if (is_file(resource_path('fonts/Amiri-Regular.ttf'))) {
-            $fontData['amiri'] = [
-                'R' => 'Amiri-Regular.ttf',
-            ];
-        }
-
-        $defaultCss = array_merge($defaults['defaultCSS'] ?? [], [
-            'BODY' => 'font-family: dejavusans; font-size: 9pt; color: #111111',
-            'P' => 'font-family: dejavusans',
-            'TD' => 'font-family: dejavusans; font-size: 9pt',
-            'TH' => 'font-family: dejavusans',
-            'SPAN' => 'font-family: dejavusans',
-            'STRONG' => 'font-family: dejavusans',
-            'B' => 'font-family: dejavusans',
-        ]);
-
-        $mpdf = new Mpdf([
-            'mode' => 'utf-8',
-            'format' => 'A4',
-            'margin_left' => 9,
-            'margin_right' => 9,
-            'margin_top' => 7,
-            'margin_bottom' => 7,
-            'fontDir' => $fontDirs,
-            'fontdata' => $fontData,
-            'default_font' => 'dejavusans',
-            'default_font_size' => 9,
-            'defaultCSS' => $defaultCss,
-            'autoArabic' => false,
-            'autoScriptToLang' => false,
-            'autoLangToFont' => false,
-            'useSubstitutions' => false,
-            'useOTL' => 0,
-            'tempDir' => $tmp,
-        ]);
-
-        $mpdf->WriteHTML(
-            '.invoice-print-root--pdf,.invoice-print-root--pdf table,.invoice-print-root--pdf td,.invoice-print-root--pdf th,.invoice-print-root--pdf p,.invoice-print-root--pdf span,.invoice-print-root--pdf div,.invoice-print-root--pdf strong,.invoice-print-root--pdf b{font-family:dejavusans;color:#111111;line-height:1.3}',
-            HTMLParserMode::HEADER_CSS,
-        );
-        $mpdf->WriteHTML($wrapped);
-
-        return $mpdf->Output('', 'S');
-    }
-
     private static function renderWithDompdf(string $wrapped): string
     {
+        DocumentPdfFonts::assertReady();
+
         $options = new Options;
         $options->set('isRemoteEnabled', true);
         $options->set('isHtml5ParserEnabled', true);
-        $options->set('defaultFont', self::amiriAvailable() ? 'AmiriPdf' : 'DejaVu Sans');
+        $options->set('defaultFont', DocumentPdfFonts::FAMILY_LATIN);
         $options->setChroot(base_path());
+        DocumentPdfFonts::applyTo($options);
 
         $dompdf = new Dompdf($options);
         $dompdf->setPaper('A4', 'portrait');
@@ -175,40 +98,81 @@ final class DocumentPdfRenderer
         return $dompdf->output();
     }
 
-    private static function amiriAvailable(): bool
+    /**
+     * @return list<string>
+     */
+    public static function pdfProducerLine(string $binary): ?string
     {
-        return is_file(resource_path('fonts/Amiri-Regular.ttf'));
+        $path = storage_path('app/pdf-producer-probe-'.uniqid().'.pdf');
+        file_put_contents($path, $binary);
+        $info = trim((string) shell_exec('pdfinfo '.escapeshellarg($path).' 2>/dev/null'));
+        @unlink($path);
+
+        if ($info === '' || ! preg_match('/^Producer:\s*(.+)$/m', $info, $m)) {
+            return preg_match('/dompdf/i', $binary) ? 'dompdf' : null;
+        }
+
+        return trim($m[1]);
     }
 
-    private static function pdfFontFaceCss(bool $forMpdf): string
+    /**
+     * @return list<string>
+     */
+    public static function embeddedPdfFontNames(string $binary): array
     {
-        if ($forMpdf) {
+        $path = storage_path('app/pdf-font-probe-'.uniqid().'.pdf');
+        file_put_contents($path, $binary);
+        $raw = trim((string) shell_exec('pdffonts '.escapeshellarg($path).' 2>/dev/null'));
+        @unlink($path);
+
+        if ($raw === '') {
+            return [];
+        }
+
+        $names = [];
+        foreach (preg_split('/\R/', $raw) ?: [] as $line) {
+            $line = trim($line);
+            if ($line === '' || str_starts_with($line, 'name') || str_starts_with($line, '----')) {
+                continue;
+            }
+            if (! preg_match('/^(\S+)/', $line, $m)) {
+                continue;
+            }
+            $full = $m[1];
+            $base = str_contains($full, '+') ? substr($full, (int) strrpos($full, '+') + 1) : $full;
+            $names[] = strtolower($base);
+        }
+
+        return array_values(array_unique($names));
+    }
+
+    private static function pdfFontFaceCss(): string
+    {
+        $regular = DocumentPdfFonts::storageDir().'/Amiri-Regular.ttf';
+        $bold = DocumentPdfFonts::storageDir().'/Amiri-Bold.ttf';
+        if (! is_file($regular)) {
             return '';
         }
 
-        $fontPath = resource_path('fonts/Amiri-Regular.ttf');
+        $rules = '@font-face{font-family:'.DocumentPdfFonts::FAMILY_ARABIC.';src:url(\'file://'.$regular.'\') format(\'truetype\');font-weight:normal;font-style:normal}';
+        if (is_file($bold)) {
+            $rules .= '@font-face{font-family:'.DocumentPdfFonts::FAMILY_ARABIC.';src:url(\'file://'.$bold.'\') format(\'truetype\');font-weight:bold;font-style:normal}';
+        }
 
-        return is_file($fontPath)
-            ? '@font-face{font-family:AmiriPdf;src:url(\'file://'.$fontPath.'\') format(\'truetype\');font-weight:normal;font-style:normal;}'
-            : '';
+        return $rules;
     }
 
-    private static function pdfOverlayCss(bool $forMpdf): string
+    private static function pdfOverlayCss(): string
     {
-        $latin = $forMpdf ? 'dejavusans' : 'DejaVu Sans,sans-serif';
-        $arFont = $forMpdf
-            ? (self::amiriAvailable() ? 'amiri' : 'dejavusans')
-            : (self::amiriAvailable() ? 'AmiriPdf,DejaVu Sans,sans-serif' : 'DejaVu Sans,sans-serif');
+        $latin = DocumentPdfFonts::FAMILY_LATIN.',sans-serif';
+        $arFont = is_file(DocumentPdfFonts::storageDir().'/Amiri-Regular.ttf')
+            ? DocumentPdfFonts::FAMILY_ARABIC.','.$latin
+            : $latin;
 
         $arSelectors = '.invoice-print-root .invoice-print-ar,.invoice-print-root .ar,.invoice-a4__title-ar,.invoice-a4__desc-ar,.invoice-a4__footer-ar,.invoice-a4__seller-side--ar,.invoice-print-label__ar,.invoice-print-labeled-row__ar,.invoice-a4__buyer-name-ar,.invoice-a4__table th .ar,.invoice-print-th-label__ar,.invoice-print-info-grid__ar,.print-classic__title-ar,.print-classic__cell-label.ar,.classic-party__name-ar,.print-classic__lines th .ar';
         $arBlocks = '.invoice-pdf-ar-block,.invoice-national-address-ar--pdf,.invoice-a4__qr-note-ar,.invoice-a4__qr-note-ar__line,.invoice-print-words-block__ar';
 
-        $mpdfLatinLock = $forMpdf
-            ? '.invoice-print-root--pdf strong,.invoice-print-root--pdf b{font-family:dejavusans!important;font-style:normal!important}'
-            : '';
-
-        return '.invoice-print-toolbar,.no-print{display:none!important}'
-            .$mpdfLatinLock
+        return '.invoice-print-toolbar,.no-print,.invoice-zatca-notice{display:none!important}'
             .'html,body,.invoice-print-root{font-family:'.$latin.'!important;font-size:9pt;line-height:1.35;color:#111}'
             .'.invoice-print-root :not([class*="invoice-print-ar"]):not(.ar):not([dir=rtl]):not([class*="invoice-pdf-ar"]){font-family:'.$latin.'!important}'
             .$arSelectors.'{font-family:'.$arFont.'!important;direction:rtl!important;text-align:right!important;unicode-bidi:embed!important}'
@@ -223,10 +187,10 @@ final class DocumentPdfRenderer
             .'.invoice-print-money{display:inline!important;white-space:nowrap!important}'
             .'.invoice-print-totals,.print-tpl-modern__totals{font-family:'.$latin.'!important;font-weight:normal!important;font-size:9pt!important}'
             .'.invoice-print-root--pdf .invoice-print-totals__en{font-family:'.$latin.'!important;font-weight:normal!important;font-size:8pt!important;color:#666!important}'
-            .'.invoice-print-root--pdf .invoice-print-totals__ar{font-family:'.$arFont.'!important;font-weight:normal!important;font-size:8pt!important;color:#111!important;white-space:nowrap!important;overflow-wrap:normal!important;text-align:right!important;width:42%!important}'
+            .'.invoice-print-root--pdf .invoice-print-totals__ar{font-family:'.$arFont.'!important;font-weight:normal!important;font-size:8pt!important;color:#111!important;white-space:nowrap!important;overflow-wrap:normal!important;text-align:right!important;width:40%!important;padding-left:8px!important}'
             .'.invoice-print-totals__ar{text-align:right!important}'
-            .'.invoice-print-totals__en{text-align:right!important;width:32%!important;padding-right:6px!important}'
-            .'.invoice-print-totals__value{white-space:nowrap!important;direction:ltr!important;text-align:right!important;font-size:9pt!important;font-family:'.$latin.'!important;width:26%!important}'
+            .'.invoice-print-totals__en{text-align:right!important;width:30%!important;padding-right:8px!important}'
+            .'.invoice-print-totals__value{white-space:nowrap!important;direction:ltr!important;text-align:right!important;font-size:9pt!important;font-family:'.$latin.'!important;width:30%!important}'
             .'.invoice-print-totals td{padding:3px 4px!important;vertical-align:middle!important;font-family:inherit!important;font-weight:normal!important}'
             .'.invoice-print-totals strong{font-family:inherit!important;font-weight:bold!important}'
             .'.invoice-print-totals__row--strong td,.invoice-print-totals__row--strong .invoice-print-totals__en,.invoice-print-totals__row--strong .invoice-print-totals__value{font-weight:bold!important;font-family:'.$latin.'!important}'
@@ -250,8 +214,9 @@ final class DocumentPdfRenderer
             .'.invoice-a4__buyer-table-label .invoice-pdf-sans-label{font-family:dejavusans!important;font-weight:normal!important;font-style:normal!important;color:#666!important;font-size:8pt!important}'
             .'.invoice-print-info-grid__en .invoice-pdf-sans-label{font-family:dejavusans!important;font-weight:normal!important;font-style:normal!important;color:#666!important;font-size:8pt!important}'
             .'.invoice-print-root--pdf .invoice-a4__header>div{display:table-cell!important;vertical-align:top;width:33%!important;padding:0 4px!important}'
-            .'.invoice-print-root--pdf .invoice-a4__seller-side{font-size:9pt!important;line-height:1.35!important;margin:0!important;word-wrap:break-word!important;overflow-wrap:break-word!important;font-family:'.$latin.'!important}'
-            .'.invoice-print-root--pdf .invoice-a4__seller-side strong{font-family:'.$latin.'!important;font-weight:700!important}'
+            .'.invoice-print-root--pdf .invoice-a4__seller-side{font-size:8pt!important;line-height:1.3!important;margin:0!important;word-wrap:break-word!important;overflow-wrap:break-word!important;font-family:'.$latin.'!important}'
+            .'.invoice-print-root--pdf .invoice-a4__seller-side strong{font-family:'.$latin.'!important;font-weight:700!important;font-size:8.5pt!important;line-height:1.25!important;display:block!important;max-width:68mm!important}'
+            .'.invoice-print-root--pdf .invoice-a4__seller-address-en__line{display:block!important;margin:0!important;line-height:1.3!important;font-size:8pt!important;font-family:'.$latin.'!important}'
             .'.invoice-print-seller-header-ids{margin-top:2px!important;line-height:1.3!important;color:#666!important;font-family:'.$latin.'!important;font-size:8pt!important}'
             .'.invoice-print-seller-header-ids__label{font-family:'.$latin.'!important;font-size:8pt!important;font-weight:normal!important;color:#666!important}'
             .'.invoice-print-seller-header-ids__value{color:#111!important;font-family:'.$latin.'!important;font-size:9pt!important;font-weight:normal!important}'
@@ -286,7 +251,10 @@ final class DocumentPdfRenderer
             .'.invoice-print-root--pdf .print-tpl-modern__lines th,.invoice-print-root--pdf .print-tpl-modern__lines td{padding:2px 4px!important;line-height:1.3!important;vertical-align:middle!important;font-family:'.$latin.'!important;color:#111!important}'
             .'.invoice-print-root--pdf .invoice-a4__desc-en,.invoice-print-root--pdf .invoice-a4__desc-en *{font-family:'.$latin.'!important;color:#111!important}'
             .'.invoice-print-root--pdf .invoice-print-th-label__en{font-family:'.$latin.'!important;color:#666!important;font-size:8pt!important;font-weight:normal!important}'
-            .'.invoice-print-root--pdf .print-tpl-modern__lines thead th .ar{font-size:8pt!important}'
+            .'.invoice-print-root--pdf .print-tpl-modern__lines thead th{font-size:7.5pt!important;line-height:1.2!important;vertical-align:middle!important;padding:2px 3px!important}'
+            .'.invoice-print-root--pdf .print-tpl-modern__lines thead th .invoice-print-th-label__en{font-size:7pt!important;white-space:nowrap!important;display:block!important}'
+            .'.invoice-print-root--pdf .print-tpl-modern__lines thead th .ar{font-size:7pt!important;display:block!important;margin-top:1px!important}'
+            .'.invoice-print-root--pdf .print-tpl-modern__lines th.col-taxable,.invoice-print-root--pdf .print-tpl-modern__lines th.col-vat{white-space:nowrap!important;font-size:7pt!important}'
             .'.invoice-print-labeled-row{display:grid!important;grid-template-columns:22% 1fr 24%!important;align-items:center!important;width:100%!important;gap:4px 6px!important}'
             .'.invoice-print-labeled-row__en{text-align:left!important;font-family:'.$latin.'!important;font-weight:600!important}'
             .'.invoice-print-labeled-row__value{text-align:left!important;font-family:'.$latin.'!important}'
@@ -309,7 +277,8 @@ final class DocumentPdfRenderer
             .'.invoice-a4__table--product-lines th.col-desc,.invoice-a4__table--product-lines td.col-desc{text-align:left!important}'
             .'.invoice-print-root--pdf td.tabular-nums{white-space:nowrap!important}'
             .'.invoice-print-words-block__en,.invoice-print-words-block__ar,.invoice-a4__words{font-family:'.$latin.'!important;font-size:8pt!important;line-height:1.25!important}'
-            .'.invoice-print-root--pdf .invoice-print-words-block__en{font-size:7.5pt!important;white-space:nowrap!important;color:#111!important;margin:0!important}'
+            .'.invoice-print-root--pdf .invoice-print-words-block__en{font-size:7pt!important;white-space:nowrap!important;color:#111!important;margin:0!important}'
+            .'.invoice-print-root--pdf .print-tpl-modern__closing .print-tpl-modern__words{max-width:100%!important;width:100%!important}'
             .'.invoice-print-words-block__ar{font-family:'.$arFont.'!important}'
             .'.print-tpl-modern__closing-grid{width:100%!important;table-layout:fixed!important;border-collapse:collapse!important}'
             .'.print-tpl-modern__closing-qr{width:48mm!important;max-width:48mm!important;vertical-align:top!important;padding-right:4px!important}'
@@ -345,7 +314,7 @@ final class DocumentPdfRenderer
             .'@page{margin:6mm 9mm 7mm}';
     }
 
-    private static function printCss(bool $forMpdf = false): string
+    private static function printCss(): string
     {
         $files = [
             resource_path('css/invoice-print.css'),
@@ -360,143 +329,7 @@ final class DocumentPdfRenderer
             }
         }
 
-        return $forMpdf ? self::sanitizePrintCssForMpdf($css) : $css;
-    }
-
-    private static function sanitizePrintCssForMpdf(string $css): string
-    {
-        $css = preg_replace('/font-family\s*:[^;}\n]+(?:\s*!important)?\s*;/', '', $css) ?? $css;
-        $css = str_replace('var(--inv-muted)', '#666666', $css);
-        $css = preg_replace('/color\s*:\s*color-mix\([^;]+\)\s*;/', '', $css) ?? $css;
-
         return $css;
-    }
-
-    private static function applyMpdfSansLabelStyles(string $html): string
-    {
-        if (! str_contains($html, 'invoice-print-root')) {
-            return $html;
-        }
-
-        $labelStyle = 'font-family:dejavusans;font-size:8pt;color:#666666;font-weight:normal;font-style:normal';
-        $valueStyle = 'font-family:dejavusans;font-size:9pt;color:#111111;font-weight:normal;font-style:normal';
-        $dom = new DOMDocument;
-        libxml_use_internal_errors(true);
-        $dom->loadHTML('<?xml encoding="UTF-8">'.$html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
-        libxml_clear_errors();
-
-        $xpath = new DOMXPath($dom);
-
-        foreach ($xpath->query('//*[contains(@class, "invoice-pdf-sans-label")]') ?: [] as $node) {
-            if ($node instanceof \DOMElement) {
-                $node->setAttribute('style', $labelStyle);
-            }
-        }
-
-        foreach ($xpath->query('//*[contains(@class, "invoice-pdf-sans-value")]') ?: [] as $node) {
-            if ($node instanceof \DOMElement) {
-                $node->setAttribute('style', $valueStyle);
-            }
-        }
-
-        foreach ($xpath->query('//*[contains(@class, "invoice-print-totals__en")]') ?: [] as $node) {
-            if ($node instanceof \DOMElement) {
-                $node->setAttribute('style', $labelStyle);
-            }
-        }
-
-        foreach ($xpath->query('//*[contains(@class, "invoice-print-seller-header-ids__label")]') ?: [] as $node) {
-            if (! $node instanceof \DOMElement) {
-                continue;
-            }
-            $parent = $node->parentNode;
-            while ($parent instanceof \DOMElement) {
-                if (str_contains($parent->getAttribute('class'), 'invoice-print-seller-header-ids--ar')) {
-                    continue 2;
-                }
-                $parent = $parent->parentNode;
-            }
-            $node->setAttribute('style', $labelStyle);
-        }
-
-        foreach ($xpath->query('//*[contains(@class, "invoice-print-seller-header-ids__value")]') ?: [] as $node) {
-            if (! $node instanceof \DOMElement) {
-                continue;
-            }
-            $parent = $node->parentNode;
-            while ($parent instanceof \DOMElement) {
-                if (str_contains($parent->getAttribute('class'), 'invoice-print-seller-header-ids--ar')) {
-                    continue 2;
-                }
-                $parent = $parent->parentNode;
-            }
-            $node->setAttribute('style', $valueStyle);
-        }
-
-        foreach ($xpath->query('//*[contains(@class, "invoice-a4__seller-side") and not(contains(@class, "--ar"))]//strong') ?: [] as $node) {
-            if ($node instanceof \DOMElement) {
-                $node->setAttribute('style', 'font-family:dejavusans;font-size:9pt;color:#111111;font-weight:bold;font-style:normal');
-            }
-        }
-
-        foreach ($xpath->query('//*[contains(@class, "invoice-a4__seller-side") and not(contains(@class, "--ar"))]//p') ?: [] as $node) {
-            if ($node instanceof \DOMElement) {
-                $node->setAttribute('style', $valueStyle);
-            }
-        }
-
-        foreach ($xpath->query('//*[contains(@class, "invoice-a4__buyer-table-value")]') ?: [] as $node) {
-            if (! $node instanceof \DOMElement) {
-                continue;
-            }
-            if ($xpath->query('.//*[contains(@class, "invoice-print-ar")]', $node)->length > 0) {
-                continue;
-            }
-            $node->setAttribute('style', $valueStyle);
-        }
-
-        foreach ($xpath->query('//td[contains(@class, "invoice-print-info-grid__en")]') ?: [] as $node) {
-            if ($node instanceof \DOMElement) {
-                $node->setAttribute('style', $labelStyle);
-            }
-        }
-
-        foreach ($xpath->query('//td[contains(@class, "invoice-print-info-grid__value")]') ?: [] as $node) {
-            if ($node instanceof \DOMElement) {
-                $node->setAttribute('style', $valueStyle);
-            }
-        }
-
-        foreach ($xpath->query('//td[contains(@class, "invoice-a4__buyer-table-label") and not(contains(@class, " ar"))]') ?: [] as $node) {
-            if ($node instanceof \DOMElement) {
-                $node->setAttribute('style', $labelStyle);
-            }
-        }
-
-        foreach ($xpath->query('//*[contains(@class, "invoice-print-words-block__en")]') ?: [] as $node) {
-            if ($node instanceof \DOMElement) {
-                $node->setAttribute(
-                    'style',
-                    'font-family:dejavusans;font-size:7.5pt;color:#111111;font-weight:normal;font-style:normal;line-height:1.25;white-space:nowrap;margin:0',
-                );
-            }
-        }
-
-        foreach ($xpath->query('//*[contains(@class, "invoice-a4__desc-en")]') ?: [] as $node) {
-            if ($node instanceof \DOMElement) {
-                $node->setAttribute('style', $valueStyle);
-            }
-        }
-
-        foreach ($xpath->query('//*[contains(@class, "invoice-print-th-label__en")]') ?: [] as $node) {
-            if ($node instanceof \DOMElement) {
-                $node->setAttribute('style', $labelStyle.';font-weight:normal');
-            }
-        }
-
-        $out = $dom->saveHTML();
-
-        return is_string($out) ? $out : $html;
     }
 
     private static function shapeArabic(string $html): string
@@ -549,25 +382,13 @@ final class DocumentPdfRenderer
         return $uri;
     }
 
-    private static function sarSymbolImageSrc(bool $forMpdf): string
-    {
-        if ($forMpdf) {
-            $png = resource_path('images/sar-riyal-symbol.png');
-            if (is_file($png)) {
-                return 'file://'.$png;
-            }
-        }
-
-        return self::sarSymbolDataUri();
-    }
-
-    private static function inlineSarSymbolsForPdf(string $html, bool $forMpdf = true): string
+    private static function inlineSarSymbolsForPdf(string $html): string
     {
         if (! str_contains($html, 'invoice-sar-symbol__svg')) {
             return $html;
         }
 
-        $src = self::sarSymbolImageSrc($forMpdf);
+        $src = self::sarSymbolDataUri();
         $img = '<img class="invoice-sar-symbol__svg" alt="" src="'.$src.'" style="width:1em;height:1em;vertical-align:-0.12em;display:inline-block" />';
 
         return (string) preg_replace(

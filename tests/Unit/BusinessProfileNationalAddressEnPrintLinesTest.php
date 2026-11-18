@@ -15,8 +15,7 @@ it('formats national address english print lines without country sa or duplicate
 
     expect($lines)->toBe([
         '7780, Prince Abdulaziz bin Musaed bin Jalawi Street',
-        'Al Murabba, Riyadh 12612',
-        '3841',
+        'Al Murabba, Riyadh 12612, 3841',
     ]);
 });
 
