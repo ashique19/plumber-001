@@ -57,7 +57,7 @@
                     <th class="col-num" scope="col"><x-invoices.print-th-label en="Qty" ar="الكمية" align="end" /></th>
                     <th class="col-num" scope="col"><x-invoices.print-th-label en="Price" ar="السعر" align="end" /></th>
                     <th class="col-num" scope="col"><x-invoices.print-th-label en="Taxable amount" ar="المبلغ الخاضع للضريبة" align="end" /></th>
-                    <th class="col-num" scope="col"><x-invoices.print-th-label en="VAT amount (+%)" ar="القيمة المضافة" align="end" /></th>
+                    <th class="col-num print-tpl-modern__vat-th" scope="col"><x-invoices.print-th-label en="VAT amount (+%)" ar="القيمة المضافة" align="end" /></th>
                     <th class="col-num" scope="col"><x-invoices.print-th-label en="Line amount" ar="المجموع" align="end" /></th>
                 </tr>
             </thead>

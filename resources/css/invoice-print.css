@@ -706,6 +706,43 @@
     font-family: Tajawal, sans-serif;
 }
 
+.invoice-a4__qr-note-ar-lines .invoice-a4__qr-note-ar__line {
+    display: block;
+    text-align: center;
+    font-size: 7.5pt;
+    line-height: 1.3;
+    margin: 0;
+    direction: rtl;
+}
+
+.invoice-a4__qr-note-ar-lines .invoice-a4__qr-note-ar__line + .invoice-a4__qr-note-ar__line {
+    margin-top: 2px;
+}
+
+.invoice-a4__seller-address-en__line {
+    margin: 0;
+    line-height: 1.35;
+}
+
+.invoice-a4__seller-name-en {
+    display: block;
+    max-width: 58mm;
+    line-height: 1.25;
+}
+
+.print-tpl-modern__vat-th .invoice-print-th-label__en {
+    font-size: 7pt;
+    line-height: 1.15;
+    white-space: nowrap;
+}
+
+.print-tpl-modern__vat-th .invoice-print-th-label__ar {
+    display: block;
+    text-align: end;
+    font-size: 7.5pt;
+    line-height: 1.15;
+}
+
 .invoice-a4__footer {
     margin-top: 16px;
     padding-top: 8px;
@@ -919,6 +956,10 @@
         color: color-mix(in srgb, #b45309 45%, transparent);
         pointer-events: none;
         z-index: 5;
+    }
+
+    .invoice-zatca-notice {
+        display: none !important;
     }
 }
 

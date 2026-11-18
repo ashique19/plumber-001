@@ -156,7 +156,7 @@ it('uses the SAR svg in PDF html and omits the Bangla quotation subtitle', funct
     expect($wrapped)
         ->toContain('invoice-sar-symbol__svg')
         ->toContain('data:image/svg+xml;base64,')
-        ->toContain('width:0.95em!important')
+        ->toContain('height:0.85em!important')
         ->toContain('.invoice-a4__title-bn,.print-classic__title-bn{display:none!important}')
         ->not->toContain('display:inline!important;font-size:.85em;font-weight:700}');
 });

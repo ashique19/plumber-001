@@ -2,13 +2,16 @@
     /** @var array<string, mixed> $t */
     $na = (array) ($t['national_address'] ?? []);
     $structuredAddressLines = $na !== [] ? \App\Support\BusinessProfile::formatNationalAddressArPdfLineHtml($na) : [];
+    $sellerEnAddressLines = $na !== []
+        ? \App\Support\BusinessProfile::formatNationalAddressEnPrintLines($na)
+        : (filled($t['address_en'] ?? null) ? [(string) $t['address_en']] : []);
 @endphp
 <section class="invoice-a4__header print-tpl-modern__seller">
     <div class="invoice-a4__seller-side">
-        <strong>{{ $t['seller_en'] }}</strong>
-        @if ($t['address_en'])
-            <p class="m-0">{{ $t['address_en'] }}</p>
-        @endif
+        <strong class="invoice-a4__seller-name-en">{{ $t['seller_en'] }}</strong>
+        @foreach ($sellerEnAddressLines as $line)
+            <p class="m-0 invoice-a4__seller-address-en__line">{{ $line }}</p>
+        @endforeach
         <x-invoices.print-seller-header-ids :t="$t" side="en" />
     </div>
     <div>
