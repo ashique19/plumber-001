@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Support\Catalog\CategoryIconOptions;
 use App\Support\Storefront\PlumberStorefrontImagery;
 
 /**
@@ -55,8 +56,12 @@ final class PosProductImagery
 
     public static function iconForCategory(?string $iconKey, string $nameEn): string
     {
+        if (CategoryIconOptions::isSupported($iconKey)) {
+            return CategoryIconOptions::normalize($iconKey);
+        }
+
         if ($iconKey !== null && $iconKey !== '') {
-            return $iconKey;
+            return CategoryIconOptions::DEFAULT;
         }
 
         $slug = strtolower($nameEn);

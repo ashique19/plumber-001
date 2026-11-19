@@ -22,6 +22,7 @@ use App\Support\Catalog\CatalogI18n;
 use App\Support\Catalog\CatalogUnitsSizesSchema;
 use App\Support\Catalog\ProductReferenceGuard;
 use App\Support\Catalog\ProductSkuGenerator;
+use App\Support\Catalog\CategoryIconOptions;
 use App\Support\Catalog\ProductCostInput;
 use App\Support\Catalog\ProductCategorySchema;
 use App\Support\Catalog\ProductGallery;
@@ -353,7 +354,7 @@ class MenuManager extends Component
             $this->categoryDescriptionEn = ProductCategorySchema::hasDescriptionEnColumn() ? (string) ($cat->description_en ?? '') : '';
             $this->categoryDescriptionAr = ProductCategorySchema::hasDescriptionArColumn() ? (string) ($cat->description_ar ?? '') : '';
             $this->categoryDescriptionBn = ProductCategorySchema::hasDescriptionBnColumn() ? (string) ($cat->description_bn ?? '') : '';
-            $this->categoryIconKey = (string) ($cat->icon_key ?: 'cup');
+            $this->categoryIconKey = CategoryIconOptions::normalize($cat->icon_key);
             $this->categoryActive = (bool) $cat->is_active;
         }
     }
@@ -361,16 +362,25 @@ class MenuManager extends Component
     public function saveCategory(): void
     {
         $this->authorizeCatalogWrite();
-        $validated = $this->validate([
+        $rules = [
             'categoryNameEn' => ['required', 'string', 'max:120'],
             'categoryNameAr' => ['nullable', 'string', 'max:120'],
             'categoryNameBn' => ['nullable', 'string', 'max:120'],
             'categoryDescriptionEn' => ['nullable', 'string', 'max:2000'],
             'categoryDescriptionAr' => ['nullable', 'string', 'max:2000'],
             'categoryDescriptionBn' => ['nullable', 'string', 'max:2000'],
-            'categoryIconKey' => ['nullable', 'string', 'max:40'],
             'categoryActive' => ['boolean'],
-        ]);
+        ];
+
+        if (ProductCategorySchema::hasIconKeyColumn()) {
+            $rules['categoryIconKey'] = ['required', 'string', Rule::in(CategoryIconOptions::keys())];
+        }
+
+        $validated = $this->validate($rules);
+
+        if (ProductCategorySchema::hasIconKeyColumn()) {
+            $validated['categoryIconKey'] = CategoryIconOptions::normalize($validated['categoryIconKey'] ?? '');
+        }
 
         $payload = ProductCategorySchema::mutationPayload($validated);
 
@@ -1063,7 +1073,7 @@ class MenuManager extends Component
         $this->categoryDescriptionEn = '';
         $this->categoryDescriptionAr = '';
         $this->categoryDescriptionBn = '';
-        $this->categoryIconKey = 'cup';
+        $this->categoryIconKey = CategoryIconOptions::DEFAULT;
         $this->categoryActive = true;
     }
 

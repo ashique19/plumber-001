@@ -48,7 +48,7 @@
                 @forelse($categories as $cat)
                     <li class="app-card flex flex-wrap items-center justify-between gap-2 p-3">
                         <div class="flex items-center gap-2">
-                            <x-app.icon :name="$cat->icon_key ?: 'cup'" class="h-5 w-5 text-[var(--app-accent)]" />
+                            <x-app.icon :name="\App\Support\Catalog\CategoryIconOptions::normalize($cat->icon_key)" class="h-5 w-5 text-[var(--app-accent)]" />
                             <div>
                                 <p class="font-medium">{{ $cat->displayName() }}</p>
                                 @if($cat->name_ar && $cat->displayName() !== $cat->name_ar)
