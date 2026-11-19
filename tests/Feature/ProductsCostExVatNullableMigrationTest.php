@@ -2,15 +2,12 @@
 
 use App\Models\Product;
 use Database\Seeders\DemoStaffSeeder;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Schema;
 
 beforeEach(function () {
     if (config('database.default') !== 'sqlite') {
         $this->markTestSkipped('SQLite-only migration regression.');
     }
 
-    Artisan::call('migrate:fresh', ['--force' => true]);
     (new DemoStaffSeeder)->run();
 });
 

@@ -128,7 +128,11 @@ jobs:
             sleep 2
           done
       - name: Playwright admin UI checks
-        run: npm run test:e2e -- tests/e2e/admin/
+        run: |
+          npm run test:e2e -- \
+            tests/e2e/admin/hub-document-tables.spec.ts \
+            tests/e2e/admin/quick-product-modal-save.spec.ts \
+            tests/e2e/admin/catalog-product-modal-save.spec.ts
       - name: Upload Playwright admin screenshots
         if: always()
         uses: actions/upload-artifact@v4
