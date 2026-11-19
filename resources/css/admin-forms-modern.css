@@ -409,14 +409,14 @@
     }
 
     html.admin-app .catalog-product-form__basic-fields .catalog-product-form__modifiers,
-    html.admin-app .catalog-product-form__basic-fields .catalog-product-form__type-active-row,
+    html.admin-app .catalog-product-form__basic-fields .catalog-product-form__category-type-row,
     html.admin-app .catalog-product-form__basic-fields .catalog-product-form__descriptions,
     html.admin-app .catalog-product-form__basic-fields > .form-field--span-2,
     html.admin-app .catalog-product-form__basic-fields > .admin-modal-span-2 {
         grid-column: 1 / -1;
     }
 
-    html.admin-app .catalog-product-form__type-active-row {
+    html.admin-app .catalog-product-form__category-type-row {
         display: grid;
         gap: 0.875rem;
         grid-template-columns: minmax(0, 1fr);
@@ -425,10 +425,16 @@
     }
 
     @media (min-width: 768px) {
-        html.admin-app .catalog-product-form__type-active-row {
+        html.admin-app .catalog-product-form__category-type-row {
             grid-template-columns: repeat(2, minmax(0, 1fr));
             align-items: end;
         }
+    }
+
+    html.admin-app .catalog-product-form__basic-media {
+        display: flex;
+        flex-direction: column;
+        gap: 0.875rem;
     }
 
     html.admin-app .catalog-product-form__active-toggle {
@@ -436,6 +442,11 @@
         align-items: center;
         min-height: 3rem;
         padding-block-end: 0.125rem;
+    }
+
+    html.admin-app .catalog-product-form__active-toggle--under-media {
+        width: 100%;
+        max-width: 13.75rem;
     }
 
     html.admin-app .catalog-product-form__purchase-stock-row {
@@ -459,6 +470,56 @@
         align-items: flex-end;
         min-height: 3rem;
         padding-block-end: 0.125rem;
+    }
+
+    html.admin-app .catalog-product-form__descriptions-disclosure {
+        width: 100%;
+        min-width: 0;
+    }
+
+    html.admin-app .catalog-product-form__descriptions-disclosure-summary {
+        cursor: pointer;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        line-height: 1.35;
+        color: var(--app-text);
+        list-style: none;
+        margin-bottom: 0.5rem;
+    }
+
+    html.admin-app .catalog-product-form__descriptions-disclosure-summary::-webkit-details-marker {
+        display: none;
+    }
+
+    html.admin-app .catalog-product-form__descriptions-disclosure-summary::before {
+        content: '▸';
+        display: inline-block;
+        margin-inline-end: 0.35rem;
+        transition: transform 0.15s ease;
+    }
+
+    html.admin-app .catalog-product-form__descriptions-disclosure[open] .catalog-product-form__descriptions-disclosure-summary::before {
+        transform: rotate(90deg);
+    }
+
+    @media (max-width: 1023px) {
+        html.admin-app .catalog-product-form__descriptions-disclosure {
+            display: block;
+        }
+
+        html.admin-app .catalog-product-form__descriptions-disclosure-summary {
+            display: none;
+        }
+
+        html.admin-app .catalog-product-form__descriptions-disclosure .catalog-product-form__descriptions {
+            display: flex;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        html.admin-app .catalog-product-form__descriptions-disclosure:not([open]) .catalog-product-form__descriptions {
+            display: none;
+        }
     }
 
     html.admin-app .catalog-product-form__descriptions {
@@ -516,6 +577,41 @@
         width: 100%;
         max-width: 13.75rem;
         justify-self: start;
+    }
+
+    @media (min-width: 1024px) {
+        html.admin-app .catalog-product-form-tabs--tabbed-only {
+            display: none;
+        }
+
+        html.admin-app .catalog-product-form__more-details-btn {
+            display: none !important;
+        }
+
+        html.admin-app .catalog-product-form__panel--basic.hidden,
+        html.admin-app .catalog-product-form__panel--details.hidden {
+            display: block;
+        }
+
+        html.admin-app .catalog-product-form__panels--responsive {
+            display: grid;
+            grid-template-columns: 13.75rem minmax(0, 1fr);
+            column-gap: 1rem;
+            align-items: start;
+        }
+
+        html.admin-app .catalog-product-form__panel--basic {
+            grid-column: 1 / -1;
+        }
+
+        html.admin-app .catalog-product-form__panel--details {
+            grid-column: 2;
+            margin-top: -0.25rem;
+        }
+
+        html.admin-app .catalog-product-form__panel--details .catalog-product-form__tab-grid--dense {
+            padding-top: 0;
+        }
     }
 
     html.admin-app .catalog-product-form__tab-grid--dense {

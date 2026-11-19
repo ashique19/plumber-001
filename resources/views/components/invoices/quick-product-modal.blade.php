@@ -93,7 +93,7 @@
                         wire-click="goToQuickProductDetailsTab"
                         target="goToQuickProductDetailsTab"
                         loading="saving"
-                        class="tap-action-muted min-h-12 min-w-[9.5rem] px-5 text-sm font-semibold"
+                        class="catalog-product-form__more-details-btn tap-action-muted min-h-12 min-w-[9.5rem] px-5 text-sm font-semibold"
                         variant="muted"
                         data-testid="quick-product-form-more-details"
                     >

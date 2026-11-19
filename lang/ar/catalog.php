@@ -176,6 +176,7 @@ return [
     'product_tab_basic' => 'أساسي',
     'product_tab_details' => 'تفاصيل',
     'product_more_details' => 'المزيد من التفاصيل',
+    'product_descriptions_disclosure' => 'أوصاف المنتج (EN / AR / BN)',
     'product_tab_pricing' => 'التسعير والضريبة',
     'product_tab_stock' => 'المخزون',
     'product_form_tabs_label' => 'أقسام نموذج المنتج',

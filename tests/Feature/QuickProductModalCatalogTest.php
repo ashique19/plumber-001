@@ -119,6 +119,8 @@ it('renders quick product image upload markup in the modal', function () {
 
     expect($html)
         ->toContain('catalog-product-form-basic-layout')
+        ->toContain('catalog-product-form__category-type-row')
+        ->toContain('catalog-product-form__panels--responsive')
         ->toContain('quick-product-form-more-details')
         ->toContain('form-product-image-upload')
         ->toContain(__('catalog.product_tab_details'))
