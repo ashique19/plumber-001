@@ -158,5 +158,10 @@
         :show="$showQuickProductModal"
         :categories="$productCategories"
         :image-preview-url="$this->quickProductImagePreviewUrl()"
+        :form-tab="$quickProductFormTab"
+        :tab-error-counts="$this->quickProductFormTabErrorCounts()"
+        :product-stock-ready="\App\Support\Inventory\ProductStockSchema::ready()"
+        :catalog-i18n-ready="\App\Support\Catalog\CatalogI18n::columnsExist()"
+        :catalog-units-sizes-ready="\App\Support\Catalog\CatalogUnitsSizesSchema::ready()"
     />
 </div>

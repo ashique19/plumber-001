@@ -6,6 +6,7 @@ use App\Enums\ProductItemType;
 use App\Models\Product;
 use App\Models\BusinessSetting;
 use App\Models\ProductUnit;
+use App\Support\Catalog\CatalogI18n;
 use App\Support\Catalog\QuickProductCategoryOptions;
 use App\Support\Catalog\CatalogUnitsSizesSchema;
 use App\Support\Catalog\ProductCostInput;
@@ -16,9 +17,11 @@ use App\Support\Invoicing\InvoicingCatalogLookup;
 use App\Support\Inventory\ProductStockSchema;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 trait ManagesInvoicingCatalogPicker
 {
+    use ManagesQuickProductFormTabs;
     use ManagesQuickProductImageUpload;
     /** @var array<int, string> */
     public array $catalogLineSearch = [];
@@ -37,7 +40,7 @@ trait ManagesInvoicingCatalogPicker
 
     public string $quickProductVat = '15';
 
-    public string $quickProductItemType = 'service';
+    public string $quickProductItemType = 'item';
 
     public ?int $quickProductCategoryId = null;
 
@@ -131,8 +134,10 @@ trait ManagesInvoicingCatalogPicker
 
         $this->quickProductLineIndex = $lineIndex;
         $this->quickProductVat = '15';
-        $this->quickProductItemType = ProductItemType::Service->value;
+        $this->quickProductItemType = ProductItemType::cases()[0]->value;
         $this->quickProductCategoryId = QuickProductCategoryOptions::defaultId();
+        $this->quickProductActive = true;
+        $this->quickProductFormTab = 'basic';
         $this->resetQuickProductImageUpload();
         $this->showQuickProductModal = true;
     }
@@ -145,23 +150,16 @@ trait ManagesInvoicingCatalogPicker
 
         $this->resetErrorBag();
 
-        $rules = [
-            'quickProductNameEn' => ['required', 'string', 'max:160'],
-            'quickProductNameAr' => ['required', 'string', 'max:160'],
-            'quickProductPrice' => ['required', 'numeric', 'min:0'],
-            'quickProductVat' => ['required', 'numeric', 'min:0', 'max:100'],
-            'quickProductItemType' => ['required', Rule::in(array_map(fn (ProductItemType $t) => $t->value, ProductItemType::cases()))],
-            'quickProductCategoryId' => ['nullable', 'integer', 'exists:product_categories,id'],
-        ];
+        $rules = $this->quickProductValidationRuleSet();
 
-        if (ProductStockSchema::ready()) {
-            $rules['quickProductTrackStock'] = ['boolean'];
-            $rules['quickProductCost'] = ['nullable', 'numeric', 'min:0'];
+        try {
+            $this->validate($rules, $this->quickProductImageValidationMessages());
+        } catch (ValidationException $e) {
+            $this->focusQuickProductTabForErrors(array_keys($e->validator->errors()->messages()));
+            $this->toastError(__('catalog.modal_error_summary'), persistent: true);
+
+            throw $e;
         }
-
-        $rules = array_merge($rules, $this->quickProductImageValidationRules());
-
-        $this->validate($rules, $this->quickProductImageValidationMessages());
 
         $costExVat = ProductStockSchema::ready()
             ? ProductCostInput::parseOptional($this->quickProductCost)
@@ -175,7 +173,7 @@ trait ManagesInvoicingCatalogPicker
             'vat_rate' => round((float) $this->quickProductVat, 2),
             'product_category_id' => $this->quickProductCategoryId,
             'item_type' => $this->quickProductItemType,
-            'is_active' => true,
+            'is_active' => $this->quickProductActive,
             'show_on_menu' => true,
             'track_stock' => ProductStockSchema::ready() ? $this->quickProductTrackStock : false,
         ];
@@ -184,6 +182,10 @@ trait ManagesInvoicingCatalogPicker
             $attrs['sku'] = ProductSkuGenerator::next();
             $attrs['vat_zatca_category'] = 'S';
             $attrs['product_unit_id'] = ProductUnit::query()->where('code', 'PCS')->value('id');
+        }
+
+        if (CatalogI18n::columnsExist() && filled(trim($this->quickProductNameBn))) {
+            $attrs['name_bn'] = trim($this->quickProductNameBn);
         }
 
         $business = $this->resolveQuickProductBusiness();
@@ -257,15 +259,45 @@ trait ManagesInvoicingCatalogPicker
         }
     }
 
+    /**
+     * @return array<string, list<mixed>>
+     */
+    protected function quickProductValidationRuleSet(): array
+    {
+        $rules = [
+            'quickProductNameEn' => ['required', 'string', 'max:160'],
+            'quickProductNameAr' => ['required', 'string', 'max:160'],
+            'quickProductPrice' => ['required', 'numeric', 'min:0'],
+            'quickProductVat' => ['required', 'numeric', 'min:0', 'max:100'],
+            'quickProductItemType' => ['required', Rule::in(array_map(fn (ProductItemType $t) => $t->value, ProductItemType::cases()))],
+            'quickProductCategoryId' => ['nullable', 'integer', 'exists:product_categories,id'],
+            'quickProductActive' => ['boolean'],
+        ];
+
+        if (CatalogI18n::columnsExist()) {
+            $rules['quickProductNameBn'] = ['nullable', 'string', 'max:160'];
+        }
+
+        if (ProductStockSchema::ready()) {
+            $rules['quickProductTrackStock'] = ['boolean'];
+            $rules['quickProductCost'] = ['nullable', 'numeric', 'min:0'];
+        }
+
+        return array_merge($rules, $this->quickProductImageValidationRules());
+    }
+
     protected function resetQuickProductForm(): void
     {
         $this->quickProductNameEn = '';
         $this->quickProductNameAr = '';
+        $this->quickProductNameBn = '';
         $this->quickProductPrice = '';
         $this->quickProductVat = '15';
-        $this->quickProductItemType = ProductItemType::Service->value;
+        $this->quickProductItemType = ProductItemType::cases()[0]->value;
         $this->quickProductCategoryId = null;
         $this->quickProductTrackStock = false;
+        $this->quickProductActive = true;
+        $this->quickProductFormTab = 'basic';
         $this->resetQuickProductImageUpload();
         $this->quickProductCost = '';
         $this->resetValidation();

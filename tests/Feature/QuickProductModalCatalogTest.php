@@ -5,6 +5,7 @@ use App\Livewire\Quotations\ManageQuotation;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\StaffUser;
+use App\Enums\ProductItemType;
 use App\Support\Catalog\QuickProductCategoryOptions;
 use Database\Seeders\DemoStaffSeeder;
 use Illuminate\Http\UploadedFile;
@@ -17,14 +18,17 @@ beforeEach(function () {
     $this->owner = StaffUser::query()->where('email', 'owner@example.test')->firstOrFail();
 });
 
-it('preselects the first ordered category when the quick product modal opens on standard invoice', function () {
-    $expected = QuickProductCategoryOptions::defaultId();
-    expect($expected)->not->toBeNull();
+it('preselects the first ordered category and catalog type when the quick product modal opens on standard invoice', function () {
+    $expectedCategory = QuickProductCategoryOptions::defaultId();
+    $expectedType = ProductItemType::cases()[0]->value;
+    expect($expectedCategory)->not->toBeNull();
 
     Livewire::actingAs($this->owner, 'staff')
         ->test(IssueInvoice::class, ['mode' => 'standard'])
         ->call('openQuickProductModal')
-        ->assertSet('quickProductCategoryId', $expected);
+        ->assertSet('quickProductCategoryId', $expectedCategory)
+        ->assertSet('quickProductItemType', $expectedType)
+        ->assertSet('quickProductFormTab', 'basic');
 });
 
 it('preselects the first ordered category when the quick product modal opens on quotation create', function () {
@@ -44,6 +48,31 @@ it('keeps category blank when no categories exist', function () {
         ->test(IssueInvoice::class, ['mode' => 'simplified'])
         ->call('openQuickProductModal')
         ->assertSet('quickProductCategoryId', null);
+});
+
+it('saves from the quick modal basic tab without visiting details', function () {
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(IssueInvoice::class, ['mode' => 'simplified'])
+        ->call('openQuickProductModal')
+        ->set('quickProductNameEn', 'Quick Basic Save')
+        ->set('quickProductNameAr', 'سريع')
+        ->set('quickProductPrice', '22')
+        ->call('saveQuickProduct')
+        ->assertHasNoErrors();
+
+    expect(Product::query()->where('name_en', 'Quick Basic Save')->exists())->toBeTrue();
+});
+
+it('advances to details from the quick modal when basic fields validate', function () {
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(IssueInvoice::class, ['mode' => 'standard'])
+        ->call('openQuickProductModal')
+        ->set('quickProductNameEn', 'Tab Step')
+        ->set('quickProductNameAr', 'تبويب')
+        ->set('quickProductPrice', '5')
+        ->call('goToQuickProductDetailsTab')
+        ->assertHasNoErrors()
+        ->assertSet('quickProductFormTab', 'details');
 });
 
 it('persists an optional product image from the quick modal on simplified invoice', function () {
@@ -69,7 +98,9 @@ it('renders quick product image upload markup in the modal', function () {
         ->html();
 
     expect($html)
-        ->toContain('data-testid="quick-product-image-field"')
-        ->toContain('data-testid="quick-product-image-input"')
-        ->toContain(__('catalog.product_image.optional_hint'));
+        ->toContain('catalog-product-form-basic-layout')
+        ->toContain('quick-product-form-more-details')
+        ->toContain('form-product-image-upload')
+        ->toContain(__('catalog.product_tab_details'))
+        ->toContain('data-testid="quick-product-form-primary"');
 });

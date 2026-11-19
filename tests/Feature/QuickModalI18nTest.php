@@ -22,6 +22,7 @@ it('resolves quick modal translation keys in en, bn, and ar', function () {
     $files = [
         resource_path('views/components/invoices/quick-customer-modal.blade.php'),
         resource_path('views/components/invoices/quick-product-modal.blade.php'),
+        resource_path('views/components/catalog/partials/product-modal-body.blade.php'),
         resource_path('views/components/purchases/quick-supplier-modal.blade.php'),
         resource_path('views/components/modal/footer.blade.php'),
         resource_path('views/components/modal/validation-summary.blade.php'),
@@ -44,7 +45,7 @@ it('resolves quick modal translation keys in en, bn, and ar', function () {
             'suppliers.created',
         ])
         ->unique()
-        ->filter(fn (string $key) => str_contains($key, '.') && ! str_ends_with($key, '.'))
+        ->filter(fn (string $key) => str_contains($key, '.') && ! str_ends_with($key, '.') && ! str_ends_with($key, '_'))
         ->values();
 
     $loadLocale = function (string $locale, string $filename): array {

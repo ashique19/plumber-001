@@ -50,7 +50,7 @@ it('renders quick product modal with shared quick product fields and xl width', 
         ->call('openQuickProductModal')
         ->assertSeeHtml('data-testid="quick-product-modal"')
         ->assertSeeHtml('x-modal--xl')
-        ->assertSeeHtml('data-testid="quick-product-fields"');
+        ->assertSeeHtml('data-testid="catalog-product-form-basic-fields"');
 });
 
 it('renders quick customer modal outside the invoice form', function () {
