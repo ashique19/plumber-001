@@ -26,6 +26,7 @@ use App\Support\Catalog\CategoryIconOptions;
 use App\Support\Catalog\ProductCostInput;
 use App\Support\Catalog\ProductCategorySchema;
 use App\Support\Catalog\ProductGallery;
+use App\Support\Catalog\QuickProductCategoryOptions;
 use App\Support\Catalog\ProductStorefrontVisibility;
 use App\Support\Business\PlumberFeatures;
 use App\Support\Inventory\IngredientInventorySchema;
@@ -1087,7 +1088,7 @@ class MenuManager extends Component
         $this->productDescriptionEn = '';
         $this->productDescriptionAr = '';
         $this->productDescriptionBn = '';
-        $this->productCategoryId = null;
+        $this->productCategoryId = QuickProductCategoryOptions::defaultId();
         $this->productImageUpload = null;
         $this->productExistingImage = null;
         $this->productImageRemove = false;
