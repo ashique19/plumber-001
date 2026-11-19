@@ -5,6 +5,7 @@
         'pricing' => __('catalog.product_tab_pricing'),
         'stock' => __('catalog.product_tab_stock'),
     ];
+    $descriptionSpan = 'form-field--span-2 admin-modal-span-2 catalog-product-form__description-field';
 @endphp
 
 <nav class="catalog-product-form-tabs app-section-tabs app-section-tabs--scroll" role="tablist" aria-label="{{ __('catalog.product_form_tabs_label') }}">
@@ -46,7 +47,7 @@
                     required
                     hint-position="after"
                     :hint="' '"
-                    wrapper-class="quick-product-modal__name-field quick-product-modal__name-field--en"
+                    wrapper-class="catalog-product-form__aligned-field catalog-product-form__aligned-field--spacer-hint"
                 />
                 <x-field.input
                     :label="__('catalog.name_ar')"
@@ -56,27 +57,47 @@
                     wire:model="productNameAr"
                     dir="rtl"
                     required
-                    wrapper-class="quick-product-modal__name-field quick-product-modal__name-field--ar"
+                    wrapper-class="catalog-product-form__aligned-field"
                 />
                 @if($catalogI18nReady ?? false)
                     <x-field.input
                         :label="__('catalog.name_bn')"
                         :hint="__('catalog.name_bn_optional_hint')"
+                        hint-position="after"
                         name="productNameBn"
                         wire:model="productNameBn"
+                        wrapper-class="catalog-product-form__aligned-field"
                     />
                 @endif
                 @if($catalogUnitsSizesReady ?? false)
-                    <x-field.input :label="__('catalog.sku')" name="productSku" wire:model="productSku" readonly disabled />
+                    <x-field.input
+                        :label="__('catalog.sku')"
+                        name="productSku"
+                        wire:model="productSku"
+                        readonly
+                        disabled
+                        hint-position="after"
+                        :hint="' '"
+                        wrapper-class="catalog-product-form__aligned-field catalog-product-form__aligned-field--spacer-hint"
+                    />
                 @else
-                    <x-field.input :label="__('catalog.sku')" name="productSku" wire:model="productSku" />
+                    <x-field.input
+                        :label="__('catalog.sku')"
+                        name="productSku"
+                        wire:model="productSku"
+                        hint-position="after"
+                        :hint="' '"
+                        wrapper-class="catalog-product-form__aligned-field catalog-product-form__aligned-field--spacer-hint"
+                    />
                 @endif
+
                 <x-field.select :label="__('catalog.category')" name="productCategoryId" wire:model="productCategoryId" :required="($catalogUnitsSizesReady ?? false)">
                     <option value="">{{ __('catalog.none') }}</option>
                     @foreach($categories as $cat)
                         <option value="{{ $cat->id }}">{{ $cat->displayName() }}</option>
                     @endforeach
                 </x-field.select>
+
                 @if($catalogUnitsSizesReady ?? false)
                     <x-field.select :label="__('catalog.unit')" name="productUnitId" wire:model="productUnitId" :required="($catalogUnitsSizesReady ?? false)" data-testid="product-basic-unit">
                         <option value="">{{ __('catalog.none') }}</option>
@@ -91,16 +112,24 @@
                         @endforeach
                     </x-field.select>
                 @endif
-                <x-field.select :label="__('catalog.item_type')" name="productItemType" wire:model="productItemType">
-                    @foreach(\App\Enums\ProductItemType::cases() as $type)
-                        <option value="{{ $type->value }}">{{ $type->label() }}</option>
-                    @endforeach
-                </x-field.select>
-                <x-field.toggle wire:model="productActive" name="productActive" :label="__('catalog.active')" />
+
+                <div class="catalog-product-form__type-active-row" data-testid="catalog-product-type-active-row">
+                    <x-field.select :label="__('catalog.item_type')" name="productItemType" wire:model="productItemType">
+                        @foreach(\App\Enums\ProductItemType::cases() as $type)
+                            <option value="{{ $type->value }}">{{ $type->label() }}</option>
+                        @endforeach
+                    </x-field.select>
+                    <div class="catalog-product-form__active-toggle">
+                        <x-field.toggle wire:model="productActive" name="productActive" :label="__('catalog.active')" />
+                    </div>
+                </div>
+
                 @if($catalogI18nReady ?? false)
-                    <x-field.textarea :label="__('catalog.description_en')" name="productDescriptionEn" wire:model="productDescriptionEn" rows="3" />
-                    <x-field.textarea :label="__('catalog.description_ar')" name="productDescriptionAr" wire:model="productDescriptionAr" dir="rtl" rows="3" />
-                    <x-field.textarea :label="__('catalog.description_bn')" name="productDescriptionBn" wire:model="productDescriptionBn" wrapper-class="form-field--span-2 admin-modal-span-2" rows="3" />
+                    <div class="catalog-product-form__descriptions" data-testid="catalog-product-descriptions">
+                        <x-field.textarea :label="__('catalog.description_en')" name="productDescriptionEn" wire:model="productDescriptionEn" :wrapper-class="$descriptionSpan" rows="3" />
+                        <x-field.textarea :label="__('catalog.description_ar')" name="productDescriptionAr" wire:model="productDescriptionAr" dir="rtl" :wrapper-class="$descriptionSpan" rows="3" />
+                        <x-field.textarea :label="__('catalog.description_bn')" name="productDescriptionBn" wire:model="productDescriptionBn" :wrapper-class="$descriptionSpan" rows="3" />
+                    </div>
                 @endif
                 @if ($modifiersFeatureEnabled ?? false)
                     <fieldset class="catalog-product-form__modifiers" data-testid="catalog-product-modifiers">

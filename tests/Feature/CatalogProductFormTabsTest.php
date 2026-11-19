@@ -7,6 +7,7 @@ use App\Models\ProductCategory;
 use App\Models\ProductStockMovement;
 use App\Models\ProductUnit;
 use App\Models\StaffUser;
+use App\Support\Catalog\QuickProductCategoryOptions;
 use Database\Seeders\DemoStaffSeeder;
 use Livewire\Livewire;
 
@@ -56,8 +57,18 @@ it('keeps basic tab and errors when Next is used without required basic fields',
         ->test(MenuManager::class)
         ->call('startProduct')
         ->call('submitProductForm')
-        ->assertHasErrors(['productNameEn', 'productNameAr', 'productCategoryId'])
+        ->assertHasErrors(['productNameEn', 'productNameAr'])
         ->assertSet('productFormTab', 'basic');
+});
+
+it('preselects the first ordered category when starting a new product', function () {
+    $expected = QuickProductCategoryOptions::defaultId();
+    expect($expected)->not->toBeNull();
+
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(MenuManager::class)
+        ->call('startProduct')
+        ->assertSet('productCategoryId', $expected);
 });
 
 it('switches to the basic tab when required name fields fail validation', function () {
@@ -100,6 +111,11 @@ it('renders product form section tabs in the product sheet', function () {
     expect($html)->toContain('catalog-product-form-tabs')
         ->and($html)->toContain('catalog-product-form-basic-layout')
         ->and($html)->toContain('catalog-product-form-basic-fields')
+        ->and($html)->toContain('catalog-product-form__aligned-field')
+        ->and($html)->toContain('catalog-product-form__type-active-row')
+        ->and($html)->toContain('catalog-product-descriptions')
+        ->and($html)->toContain('form-field__hint--after')
+        ->and($html)->not->toContain('quick-product-modal__name-field')
         ->and($html)->toContain('x-modal--xl')
         ->and($html)->toContain(__('catalog.product_tab_basic'))
         ->and($html)->toContain("setProductFormTab('pricing')")
