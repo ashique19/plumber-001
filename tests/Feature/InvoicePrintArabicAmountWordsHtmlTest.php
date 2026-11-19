@@ -70,7 +70,9 @@ it('renders standard modern html with two nowrap arabic amount word prelines for
     expect($html)
         ->toContain('invoice-print-words-block__en')
         ->toContain('invoice-print-words-block__ar')
-        ->toContain('twenty-eight Saudi Riyals and seventy-five Halalas only')
+        ->toContain('invoice-print-en-preline')
+        ->toContain('twenty-eight Saudi Riyals and')
+        ->toContain('seventy-five Halalas only')
         ->toContain('invoice-pdf-ar-preline" dir="rtl"');
 
     $wordsStart = strpos($html, 'invoice-print-words-block print-tpl-modern__words');

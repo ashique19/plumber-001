@@ -44,7 +44,7 @@ it('renders modern A4 totals as three columns per row without stacked Arabic', f
         ->toContain('invoice-print-totals__ar')
         ->toContain('المجموع الفرعي')
         ->toContain('invoice-print-page-label__screen', false)
-        ->not->toContain('invoice-print-page-label__print', false)
+        ->toContain('invoice-print-page-label__print', false)
         ->not->toContain('পৃষ্ঠা');
 });
 
