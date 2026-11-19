@@ -19,6 +19,13 @@ beforeEach(function () {
 
 const SAMPLE_AMOUNT_WORDS_AR = 'ثمانية و عشرون ريال و خمسة و سبعون هللة فقط';
 
+it('keeps standard 28.75 SAR amount words on one pdf-sized line', function () {
+    $wrapped = InvoicePrintArabicPrelines::amountWordsBlockForPdf(SAMPLE_AMOUNT_WORDS_AR);
+
+    expect($wrapped['lines'])->toHaveCount(1)
+        ->and($wrapped['lines'][0])->toBe(SAMPLE_AMOUNT_WORDS_AR);
+});
+
 it('splits standard 28.75 SAR amount words into two html lines without trailing و', function () {
     $wrapped = InvoicePrintArabicPrelines::amountWordsBlock(SAMPLE_AMOUNT_WORDS_AR);
 
