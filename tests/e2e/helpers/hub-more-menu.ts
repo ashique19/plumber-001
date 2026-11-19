@@ -66,12 +66,11 @@ export async function prepareQuotationHub(page: Page): Promise<void> {
 export async function prepareCustomerHub(page: Page): Promise<void> {
     await page.goto(adminPath('/admin/customers', 'en'));
     await page.waitForLoadState('networkidle');
-    const scroll = page.locator('.admin-data-table-scroll');
-    if (await scroll.count()) {
-        await scroll.evaluate((el) => {
-            const max = el.scrollWidth - el.clientWidth;
-            el.scrollLeft = max > 0 ? max : 0;
-        });
+    await expect(page.locator('[data-testid="customers-table"]')).toBeVisible({ timeout: 20_000 });
+
+    const actionsCell = page.locator('.admin-data-table__actions-cell').first();
+    if (await actionsCell.count()) {
+        await actionsCell.scrollIntoViewIfNeeded();
     }
 }
 
@@ -99,7 +98,7 @@ export function quotationTableMoreButton(page: Page, viewport: 'table' | 'card')
 
 export function customerTableMoreButton(page: Page): Locator {
     return page
-        .locator('[data-testid="customers-table"]')
-        .locator('[data-testid^="hub-row-action-more-customer-"]')
+        .locator('[data-testid="customers-table"] [data-testid^="hub-row-action-more-customer-"]')
+        .filter({ visible: true })
         .first();
 }
