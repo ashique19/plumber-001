@@ -22,6 +22,7 @@ use App\Support\Catalog\CatalogI18n;
 use App\Support\Catalog\CatalogUnitsSizesSchema;
 use App\Support\Catalog\ProductReferenceGuard;
 use App\Support\Catalog\ProductSkuGenerator;
+use App\Support\Catalog\ProductCostInput;
 use App\Support\Catalog\ProductCategorySchema;
 use App\Support\Catalog\ProductGallery;
 use App\Support\Catalog\ProductStorefrontVisibility;
@@ -429,7 +430,9 @@ class MenuManager extends Component
             if (ProductStockSchema::ready()) {
                 $this->productTrackStock = (bool) $product->track_stock;
                 $this->productLowStockThreshold = (string) ($product->low_stock_threshold ?? 0);
-                $this->productCostInput = number_format((float) $product->cost_ex_vat, 2, '.', '');
+                $this->productCostInput = $product->cost_ex_vat !== null
+                    ? number_format((float) $product->cost_ex_vat, 2, '.', '')
+                    : '';
                 $this->productOpeningStock = '';
                 $this->productCurrentStock = number_format((float) $product->stock_quantity, 3, '.', '');
             }
@@ -588,7 +591,7 @@ class MenuManager extends Component
         if (ProductStockSchema::ready()) {
             $rules['productTrackStock'] = ['boolean'];
             $rules['productLowStockThreshold'] = ['nullable', 'numeric', 'min:0'];
-            $rules['productCostInput'] = ['required', 'numeric', 'min:0'];
+            $rules['productCostInput'] = ['nullable', 'numeric', 'min:0'];
             if (! $this->editingProductId) {
                 $rules['productOpeningStock'] = [Rule::requiredIf(fn (): bool => $this->productTrackStock), 'nullable', 'numeric', 'min:0'];
             }
@@ -692,7 +695,7 @@ class MenuManager extends Component
         if (ProductStockSchema::ready()) {
             $payload['track_stock'] = (bool) ($validated['productTrackStock'] ?? false);
             $payload['low_stock_threshold'] = round((float) ($validated['productLowStockThreshold'] ?? 0), 3);
-            $payload['cost_ex_vat'] = round((float) ($validated['productCostInput'] ?? 0), 2);
+            $payload['cost_ex_vat'] = ProductCostInput::parseOptional($validated['productCostInput'] ?? $this->productCostInput);
         }
 
         if ($this->editingProductId) {
@@ -712,7 +715,7 @@ class MenuManager extends Component
                 $stock->recordOpeningStock(
                     $product,
                     $opening,
-                    (float) $payload['cost_ex_vat'],
+                    ProductCostInput::parseOptional($validated['productCostInput'] ?? $this->productCostInput) ?? 0.0,
                     null,
                     auth('staff')->id(),
                 );

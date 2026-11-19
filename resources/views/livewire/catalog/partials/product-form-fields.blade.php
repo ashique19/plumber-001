@@ -139,7 +139,6 @@
                     name="productCostInput"
                     wire:model="productCostInput"
                     inputmode="decimal"
-                    :required="($catalogUnitsSizesReady ?? false)"
                 />
             @endif
             @if($catalogUnitsSizesReady ?? false)

@@ -185,13 +185,20 @@ class ProductStockService
     private function applyWeightedAverageCost(Product $product, float $incomingQty, float $unitCost): void
     {
         $onHand = (float) $product->stock_quantity;
-        $currentCost = (float) $product->cost_ex_vat;
         if ($onHand + $incomingQty <= 0) {
             $product->cost_ex_vat = round($unitCost, 2);
 
             return;
         }
 
+        $stored = $product->cost_ex_vat;
+        if ($stored === null) {
+            $product->cost_ex_vat = round($unitCost, 2);
+
+            return;
+        }
+
+        $currentCost = (float) $stored;
         $weighted = (($onHand * $currentCost) + ($incomingQty * $unitCost)) / ($onHand + $incomingQty);
         $product->cost_ex_vat = round($weighted, 2);
     }

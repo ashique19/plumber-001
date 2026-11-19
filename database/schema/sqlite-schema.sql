@@ -201,7 +201,7 @@ CREATE TABLE IF NOT EXISTS "products"(
   "track_stock" tinyint(1) not null default '0',
   "stock_quantity" numeric not null default '0',
   "low_stock_threshold" numeric not null default '0',
-  "cost_ex_vat" numeric not null default '0',
+  "cost_ex_vat" numeric,
   foreign key("branch_id") references "branches"("id") on delete set null,
   foreign key("product_category_id") references "product_categories"("id") on delete set null,
   foreign key("product_unit_id") references "product_units"("id") on delete set null,

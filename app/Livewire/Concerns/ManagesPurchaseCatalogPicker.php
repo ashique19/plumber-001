@@ -8,6 +8,7 @@ use App\Models\BusinessSetting;
 use App\Models\ProductUnit;
 use App\Support\Catalog\QuickProductCategoryOptions;
 use App\Support\Catalog\CatalogUnitsSizesSchema;
+use App\Support\Catalog\ProductCostInput;
 use App\Support\Catalog\ProductSkuGenerator;
 use App\Support\Invoicing\DocumentCatalogLineMerge;
 use App\Support\Invoicing\DocumentCreateUiSupport;
@@ -36,6 +37,8 @@ trait ManagesPurchaseCatalogPicker
     public ?int $quickProductCategoryId = null;
 
     public bool $quickProductTrackStock = true;
+
+    public string $quickProductCost = '';
 
     /**
      * @return Collection<int, Product>
@@ -105,7 +108,7 @@ trait ManagesPurchaseCatalogPicker
     {
         $this->lines[$index]['product_id'] = $product->id;
         $this->lines[$index]['quantity'] = $this->lines[$index]['quantity'] ?: '1';
-        if ($this->lines[$index]['unit_cost'] === '') {
+        if ($this->lines[$index]['unit_cost'] === '' && $product->cost_ex_vat !== null) {
             $this->lines[$index]['unit_cost'] = (string) round((float) $product->cost_ex_vat, 2);
         }
         $this->lines[$index]['vat_rate'] = DocumentCreateUiSupport::normalizeLineVatRate(null, $product->vat_rate);
@@ -144,6 +147,7 @@ trait ManagesPurchaseCatalogPicker
 
         if (ProductStockSchema::ready()) {
             $rules['quickProductTrackStock'] = ['boolean'];
+            $rules['quickProductCost'] = ['nullable', 'numeric', 'min:0'];
         }
 
         $rules = array_merge($rules, $this->quickProductImageValidationRules());
@@ -152,11 +156,15 @@ trait ManagesPurchaseCatalogPicker
 
         $trackStock = ProductStockSchema::ready() ? $this->quickProductTrackStock : true;
 
+        $costExVat = ProductStockSchema::ready()
+            ? ProductCostInput::parseOptional($this->quickProductCost)
+            : null;
+
         $attrs = [
             'name_en' => trim($this->quickProductNameEn),
             'name_ar' => trim($this->quickProductNameAr),
             'price_ex_vat' => round((float) $this->quickProductPrice, 2),
-            'cost_ex_vat' => round((float) $this->quickProductPrice, 2),
+            'cost_ex_vat' => $costExVat,
             'vat_rate' => round((float) $this->quickProductVat, 2),
             'product_category_id' => $this->quickProductCategoryId,
             'item_type' => $this->quickProductItemType,
@@ -198,6 +206,7 @@ trait ManagesPurchaseCatalogPicker
         $this->quickProductCategoryId = null;
         $this->quickProductTrackStock = true;
         $this->resetQuickProductImageUpload();
+        $this->quickProductCost = '';
         $this->resetValidation();
     }
 

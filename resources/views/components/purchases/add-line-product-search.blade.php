@@ -27,7 +27,12 @@
                             wire:click="addPurchaseLineFromProduct({{ $product->id }})"
                         >
                             <span class="font-medium">{{ $product->displayName() }}</span>
-                            <span class="text-xs text-[var(--app-muted)]">{{ $product->sku }} · {{ __('purchases.unit_cost_ex_vat') }} {{ number_format((float) $product->cost_ex_vat, 2) }}</span>
+                            <span class="text-xs text-[var(--app-muted)]">
+                                {{ $product->sku }}
+                                @if ($product->cost_ex_vat !== null)
+                                    · {{ __('purchases.unit_cost_ex_vat') }} {{ number_format((float) $product->cost_ex_vat, 2) }}
+                                @endif
+                            </span>
                         </button>
                     </li>
                 @empty

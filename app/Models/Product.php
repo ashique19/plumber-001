@@ -97,6 +97,11 @@ class Product extends Model
         return $this->unit?->ubl_unit_code ?? 'PCE';
     }
 
+    public function hasKnownCostExVat(): bool
+    {
+        return $this->cost_ex_vat !== null;
+    }
+
     public function unitPickerLabel(?string $locale = null): string
     {
         if ($this->unit !== null) {
