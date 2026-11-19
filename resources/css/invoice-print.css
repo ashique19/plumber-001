@@ -904,9 +904,11 @@
 .invoice-print-words-block__ar {
     flex: 1 1 0;
     min-width: 0;
+    max-width: 50%;
     margin: 0;
     font-size: 9pt;
     padding: 0 4px;
+    overflow-x: clip;
 }
 
 .invoice-print-words-block__en {

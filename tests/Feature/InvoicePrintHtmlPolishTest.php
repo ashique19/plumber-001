@@ -30,7 +30,7 @@ it('pre-breaks arabic amount words for html print without trailing و on a line'
     $text = 'ثمانية و عشرون ريال و خمسة و سبعون هللة فقط';
     $lines = InvoicePrintArabicPrelines::amountWordsBlock($text)['lines'];
 
-    expect(count($lines))->toBeLessThanOrEqual(2);
+    expect($lines)->toHaveCount(2);
 
     foreach ($lines as $line) {
         expect($line)->not->toMatch('/\sو$/u')

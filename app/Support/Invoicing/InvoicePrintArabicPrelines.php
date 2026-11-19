@@ -7,7 +7,13 @@ namespace App\Support\Invoicing;
  */
 final class InvoicePrintArabicPrelines
 {
-    public const AMOUNT_WORDS_CHARS_PER_LINE = 58;
+    /** PDF / dompdf overlay budget (see DocumentPdfArabicLineWrap). */
+    public const AMOUNT_WORDS_PDF_CHARS_PER_LINE = 58;
+
+    /**
+     * Narrower budget for on-screen HTML print (390px embed + 50/50 words columns).
+     */
+    public const AMOUNT_WORDS_HTML_CHARS_PER_LINE = 36;
 
     public const AMOUNT_WORDS_MAX_LINES = 2;
 
@@ -18,7 +24,7 @@ final class InvoicePrintArabicPrelines
     {
         return ArabicLineBreaker::breakForPdfBlock(
             $text,
-            self::AMOUNT_WORDS_CHARS_PER_LINE,
+            self::AMOUNT_WORDS_HTML_CHARS_PER_LINE,
             self::AMOUNT_WORDS_MAX_LINES,
         );
     }
