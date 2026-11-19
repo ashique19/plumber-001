@@ -8,4 +8,5 @@
     dir="ltr"
 >
     <span class="invoice-print-page-label__screen no-print">{{ $documentNumber }}</span>
+    <span class="invoice-print-page-label__print print-only">{{ $documentNumber }}</span>
 </p>

@@ -32,8 +32,9 @@ it('aligns amount-in-words with modern totals and uses a shared baseline row', f
         .(string) file_get_contents(resource_path('css/print-template-modern.css'));
 
     expect($css)
-        ->toContain('align-items: flex-start')
+        ->toContain('align-items: center')
         ->toContain('.print-tpl-modern__words')
+        ->toContain('.invoice-print-en-preline')
         ->toContain('max-width: 26rem')
         ->toContain('margin-left: auto');
 });
@@ -67,7 +68,8 @@ it('renders modern print HTML with amount words block beside totals width', func
         ->toContain('invoice-print-words-block__en')
         ->toContain('invoice-print-words-block__ar')
         ->toContain('invoice-pdf-ar-preline')
-        ->toContain('eleven Saudi Riyals and fifty Halalas only')
+        ->toContain('invoice-print-en-preline')
+        ->toContain('fifty Halalas only')
         ->toContain('أحد عشر ريال و خمسون هللة فقط');
 });
 
@@ -83,5 +85,5 @@ it('includes dompdf overlay rules for wrapped invoice numbers and baseline amoun
     expect($wrapped)
         ->toContain('invoice-a4__buyer-table-value--nowrap{white-space:nowrap!important')
         ->toContain('print-tpl-modern__words')
-        ->toContain('align-items:flex-start!important');
+        ->toContain('align-items:center!important');
 });

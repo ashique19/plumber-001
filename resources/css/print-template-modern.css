@@ -193,7 +193,7 @@
     border: 1px solid var(--inv-border);
     padding: 6px 8px;
     page-break-inside: avoid;
-    align-items: flex-start;
+    align-items: center;
 }
 
 .print-tpl-modern__words .invoice-print-words-block__en {
@@ -275,8 +275,29 @@
         margin: 0;
         padding: 4mm 12mm 6mm;
         background: #fff;
-        display: grid;
+        display: grid !important;
         border-top: none;
+        grid-template-columns: minmax(0, 1fr) minmax(12rem, auto) minmax(0, 1fr) !important;
+        align-items: end;
+        gap: 8px 12px;
+    }
+
+    .print-tpl-modern .print-tpl-modern__footer-name-en {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-width: 0;
+    }
+
+    .print-tpl-modern .print-tpl-modern__footer-name-ar {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-width: 0;
+    }
+
+    .print-tpl-modern .print-tpl-modern__footer-page {
+        justify-self: center;
     }
 
     .print-tpl-modern .invoice-a4__footer .invoice-print-page-label {
