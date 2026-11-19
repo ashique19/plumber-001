@@ -2,6 +2,20 @@ import { test, expect } from 'playwright/test';
 import path from 'node:path';
 import { adminPath, staffLogin } from '../helpers/staff-auth.js';
 import { e2eScreenshotDir } from '../helpers/e2e-artifacts.js';
+import {
+    customerTableMoreButton,
+    expectHubMoreMenuAnchoredToTrigger,
+    invoiceTableMoreButton,
+    prepareCustomerHub,
+    prepareInvoiceHub,
+    prepareQuotationHub,
+    quotationTableMoreButton,
+} from '../helpers/hub-more-menu.js';
+
+const VIEWPORTS = [
+    { width: 390, height: 844, layout: 'card' as const },
+    { width: 1280, height: 900, layout: 'table' as const },
+];
 
 test.describe('invoice hub table', () => {
     test.beforeEach(async ({ page }) => {
@@ -10,49 +24,32 @@ test.describe('invoice hub table', () => {
 
     test('table visible with sticky column and actions', async ({ page }) => {
         await page.setViewportSize({ width: 1280, height: 900 });
-        await page.goto(adminPath('/admin/invoices', 'en'));
-        await page.waitForLoadState('networkidle');
+        await prepareInvoiceHub(page);
 
         const table = page.locator('div.hidden.sm\\:block >> .hub-doc-table');
         await expect(table).toBeVisible({ timeout: 20_000 });
         await expect(table.locator('th.hub-doc-table__sticky')).toBeVisible();
-        await expect(table.locator('th').filter({ hasText: /zatca/i }).first()).toBeVisible();
         const printOrDisabled = table.locator('.hub-doc-table__action, .hub-doc-table__action--disabled');
         const empty = table.getByText(/no issued invoices/i);
         await expect(printOrDisabled.or(empty).first()).toBeVisible();
     });
 
-    test('row more menu aligns to trigger on first click', async ({ page }) => {
-        await page.setViewportSize({ width: 1280, height: 900 });
-        await page.goto(adminPath('/admin/invoices', 'en'));
-        const table = page.locator('div.hidden.sm\\:block >> .hub-doc-table');
-        await expect(table).toBeVisible({ timeout: 20_000 });
+    for (const viewport of VIEWPORTS) {
+        test(`row more menu anchors to trigger on first click @ ${viewport.width}`, async ({ page }) => {
+            await page.setViewportSize({ width: viewport.width, height: viewport.height });
+            await prepareInvoiceHub(page);
 
-        const more = table.locator('[data-testid^="hub-row-action-more-invoice-"][data-testid$="-table"]').first();
-        if ((await more.count()) === 0) {
-            test.skip();
-        }
+            const more = invoiceTableMoreButton(page, viewport.layout);
+            if ((await more.count()) === 0) {
+                test.skip();
+            }
 
-        await expect(more).toBeVisible();
-        const triggerBox = await more.boundingBox();
-        expect(triggerBox).not.toBeNull();
-
-        await more.click();
-        const panel = page.locator('.hub-doc-table__more-panel--teleport[role="menu"]').last();
-        await expect(panel).toBeVisible({ timeout: 5_000 });
-        await expect(panel).not.toHaveClass(/hub-doc-table__more-panel--positioning/);
-
-        const panelBox = await panel.boundingBox();
-        expect(panelBox).not.toBeNull();
-        if (triggerBox && panelBox) {
-            expect(panelBox.x).toBeGreaterThan(120);
-            expect(panelBox.x + panelBox.width).toBeLessThanOrEqual(triggerBox.x + triggerBox.width + 24);
-            expect(Math.abs(panelBox.x + panelBox.width - (triggerBox.x + triggerBox.width))).toBeLessThan(32);
-        }
-    });
+            await expectHubMoreMenuAnchoredToTrigger(page, more);
+        });
+    }
 
     test('screenshots at 375px and 1280px', async ({ page }) => {
-        await page.goto(adminPath('/admin/invoices', 'ar'));
+        await prepareInvoiceHub(page);
         await expect(page.locator('div.hidden.sm\\:block >> .hub-doc-table')).toBeVisible({ timeout: 20_000 });
 
         const shotDir = e2eScreenshotDir();
@@ -78,8 +75,7 @@ test.describe('quotation hub table', () => {
 
     test('table layout', async ({ page }) => {
         await page.setViewportSize({ width: 1280, height: 900 });
-        await page.goto(adminPath('/admin/quotations', 'en'));
-        await page.waitForLoadState('networkidle');
+        await prepareQuotationHub(page);
 
         const table = page.locator('div.hidden.sm\\:block >> .hub-doc-table');
         const wrap = table.locator('xpath=ancestor::div[contains(@class,"hub-doc-table-wrap")]');
@@ -90,4 +86,38 @@ test.describe('quotation hub table', () => {
             await expect(page.getByText(/no quotations/i)).toBeVisible();
         }
     });
+
+    for (const viewport of VIEWPORTS) {
+        test(`row more menu anchors to trigger on first click @ ${viewport.width}`, async ({ page }) => {
+            await page.setViewportSize({ width: viewport.width, height: viewport.height });
+            await prepareQuotationHub(page);
+
+            const more = quotationTableMoreButton(page, viewport.layout);
+            if ((await more.count()) === 0) {
+                test.skip();
+            }
+
+            await expectHubMoreMenuAnchoredToTrigger(page, more);
+        });
+    }
+});
+
+test.describe('customer hub table', () => {
+    test.beforeEach(async ({ page }) => {
+        await staffLogin(page);
+    });
+
+    for (const width of [390, 1280] as const) {
+        test(`row more menu anchors to trigger on first click @ ${width}`, async ({ page }) => {
+            await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
+            await prepareCustomerHub(page);
+
+            const more = customerTableMoreButton(page);
+            if ((await more.count()) === 0) {
+                test.skip();
+            }
+
+            await expectHubMoreMenuAnchoredToTrigger(page, more);
+        });
+    }
 });

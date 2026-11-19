@@ -34,7 +34,7 @@ it('renders shared alpine hub row more menu on invoice quotation and staff hubs'
         ->toContain('x-teleport="body"')
         ->toContain('wire:ignore.self')
         ->toContain('data-hub-row-more-menu="invoice-')
-        ->toContain('hub-doc-table__more-panel--positioning')
+        ->toContain('data-hub-row-more-panel-open')
         ->not->toContain('<details class="hub-doc-table__more');
 
     $quotationHtml = Livewire::actingAs($this->owner, 'staff')

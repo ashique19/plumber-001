@@ -10,9 +10,9 @@
         "outputSha256": "408f701687894c7db2ccd6676403c7dea1014c0dc8959a185041f4ad64deb15e"
     },
     "resources/css/app.css": {
-        "output": "assets/app-Dy-7dF3z.css",
+        "output": "assets/app-BdfJsq_E.css",
         "sourceSha256": "ede9d1cb14b4b54ddf7463f049edab637ae272191996449ab292992c0f86cfb2",
-        "outputSha256": "fab957a649294c3a545c04ac0c9fb51be95fe6bb42cf81517463b7098ccaff72"
+        "outputSha256": "9da0fdd1a19a08dab1020460603e5cd4b829bfc4f4f14f02577b2fefa7eaeb1b"
     },
     "resources/css/error-pages.css": {
         "output": "assets/error-pages-Z7snqgLZ.css",
@@ -60,9 +60,9 @@
         "outputSha256": "d855eb29785a7815d131a58c7799fde3285f808abcdf0295effcdfb0c7f091c2"
     },
     "resources/js/app.js": {
-        "output": "assets/app-9YQNKX71.js",
+        "output": "assets/app-ByCy_jBk.js",
         "sourceSha256": "e093072825483b0ab4ca990e0da7a0b3a70afe6d9906a3e3c686c04dcb09b19c",
-        "outputSha256": "d2ecce670382faf250082554a39ed6209a41743c7b214d604dd2ef8e90bea244"
+        "outputSha256": "2545e8fbbc9815a8d5c96b1d555b6fccf7ee3d62ffce9ffa45f8b72b51318b7d"
     },
     "resources/js/invoice-print-preview.js": {
         "output": "assets/invoice-print-preview-DPwrAWX7.js",

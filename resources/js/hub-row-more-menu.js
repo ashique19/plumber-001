@@ -4,13 +4,20 @@ export function registerHubRowMoreMenu(Alpine) {
         openId: null,
         /** @type {Record<string, HTMLElement>} */
         triggers: {},
-        requestOpen(id, trigger) {
+        /** @type {Record<string, DOMRect>} */
+        anchorRects: {},
+        scrollGuardUntil: 0,
+        requestOpen(id, trigger, rect) {
             if (this.openId && this.openId !== id) {
                 window.dispatchEvent(new CustomEvent('hub-row-more-menu-close', { detail: this.openId }));
             }
             this.openId = id;
+            this.scrollGuardUntil = Date.now() + 450;
             if (trigger instanceof HTMLElement) {
                 this.triggers[id] = trigger;
+            }
+            if (rect && typeof rect.width === 'number' && typeof rect.right === 'number') {
+                this.anchorRects[id] = rect;
             }
         },
         requestClose(id) {
@@ -18,20 +25,28 @@ export function registerHubRowMoreMenu(Alpine) {
                 this.openId = null;
             }
             delete this.triggers[id];
+            delete this.anchorRects[id];
             window.dispatchEvent(new CustomEvent('hub-row-more-menu-close', { detail: id }));
         },
         closeAll() {
             const previous = this.openId;
             this.openId = null;
             this.triggers = {};
-            if (previous) {
-                window.dispatchEvent(new CustomEvent('hub-row-more-menu-close', { detail: previous }));
-            }
+            this.anchorRects = {};
+            window.dispatchEvent(new CustomEvent('hub-row-more-menu-close', { detail: previous }));
         },
         triggerFor(id) {
             const el = this.triggers[id];
             if (el instanceof HTMLElement && isVisibleTrigger(el)) {
                 return el;
+            }
+
+            return null;
+        },
+        anchorFor(id) {
+            const rect = this.anchorRects[id];
+            if (rect && rect.width > 0 && rect.height > 0) {
+                return rect;
             }
 
             return null;
@@ -57,16 +72,8 @@ export function registerHubRowMoreMenu(Alpine) {
                 this.isOpen = nextOpen;
                 if (nextOpen) {
                     this.panelReady = false;
-                    this.panelStyle = {};
-                    this.$nextTick(() => {
-                        const trigger = this.resolveTrigger();
-                        if (! trigger || ! isVisibleTrigger(trigger)) {
-                            this.$store.hubRowMoreMenu.requestClose(this.menuId);
-
-                            return;
-                        }
-                        this.schedulePosition();
-                    });
+                    this.applyInitialPosition();
+                    this.$nextTick(() => this.refineVerticalPlacement());
                 } else {
                     this.panelReady = false;
                     this.panelStyle = {};
@@ -103,7 +110,8 @@ export function registerHubRowMoreMenu(Alpine) {
             if (!(clicked instanceof HTMLElement) || ! isVisibleTrigger(clicked)) {
                 return;
             }
-            this.$store.hubRowMoreMenu.requestOpen(this.menuId, clicked);
+            const rect = clicked.getBoundingClientRect();
+            this.$store.hubRowMoreMenu.requestOpen(this.menuId, clicked, rect);
         },
 
         close() {
@@ -117,148 +125,87 @@ export function registerHubRowMoreMenu(Alpine) {
             this.close();
         },
 
-        resolveTrigger() {
-            const fromStore = this.$store.hubRowMoreMenu.triggerFor(this.menuId);
-            if (fromStore) {
-                return fromStore;
+        triggerRect() {
+            const stored = this.$store.hubRowMoreMenu.anchorFor(this.menuId);
+            if (stored) {
+                return stored;
             }
 
-            const ref = this.$refs.trigger;
-            if (ref instanceof HTMLElement && isVisibleTrigger(ref)) {
-                return ref;
+            const trigger = this.$store.hubRowMoreMenu.triggerFor(this.menuId) ?? this.$refs.trigger;
+            if (trigger instanceof HTMLElement && isVisibleTrigger(trigger)) {
+                return trigger.getBoundingClientRect();
             }
 
             return null;
         },
 
-        schedulePosition() {
-            /** @param {number} attempt */
-            const tryPosition = (attempt = 0) => {
-                const trigger = this.resolveTrigger();
-                const panel = this.$refs.panel;
+        applyInitialPosition() {
+            const rect = this.triggerRect();
+            if (! rect || rect.width <= 0 || rect.height <= 0) {
+                this.$store.hubRowMoreMenu.requestClose(this.menuId);
 
-                if (! trigger || ! panel) {
-                    if (attempt < 12) {
-                        this.$nextTick(() => {
-                            requestAnimationFrame(() => tryPosition(attempt + 1));
-                        });
-                    }
-
-                    return;
-                }
-
-                if (! isVisibleTrigger(trigger)) {
-                    this.$store.hubRowMoreMenu.requestClose(this.menuId);
-
-                    return;
-                }
-
-                const positioned = this.positionPanel(trigger, panel);
-                if (! positioned && attempt < 12) {
-                    requestAnimationFrame(() => tryPosition(attempt + 1));
-
-                    return;
-                }
-
-                this.panelReady = positioned;
-            };
-
-            this.$nextTick(() => {
-                requestAnimationFrame(() => tryPosition());
-            });
-        },
-
-        measurePanel(panel) {
-            if (panel.offsetWidth > 0 && panel.offsetHeight > 0) {
-                return {
-                    width: panel.offsetWidth,
-                    height: panel.offsetHeight,
-                };
+                return;
             }
 
-            const previous = {
-                position: panel.style.position,
-                visibility: panel.style.visibility,
-                display: panel.style.display,
-                left: panel.style.left,
-                top: panel.style.top,
-                width: panel.style.width,
-            };
-
-            panel.style.visibility = 'hidden';
-            panel.style.display = 'block';
-            panel.style.position = 'fixed';
-            panel.style.left = '-10000px';
-            panel.style.top = '0';
-            panel.style.width = 'max-content';
-
-            const width = Math.max(panel.offsetWidth, panel.scrollWidth, 176);
-            const height = Math.max(panel.offsetHeight, panel.scrollHeight, 80);
-
-            panel.style.position = previous.position;
-            panel.style.visibility = previous.visibility;
-            panel.style.display = previous.display;
-            panel.style.left = previous.left;
-            panel.style.top = previous.top;
-            panel.style.width = previous.width;
-
-            return { width, height };
-        },
-
-        /**
-         * @param {HTMLElement} trigger
-         * @param {HTMLElement} panel
-         */
-        positionPanel(trigger, panel) {
-            if (! isVisibleTrigger(trigger)) {
-                return false;
-            }
-
-            const rect = trigger.getBoundingClientRect();
-            if (rect.width <= 0 || rect.height <= 0) {
-                return false;
-            }
-
-            const { width: panelWidth, height: panelHeight } = this.measurePanel(panel);
-
-            const margin = 8;
             const gap = 4;
-            const viewportH = window.innerHeight;
-            const viewportW = window.innerWidth;
-
-            let top = rect.bottom + gap;
-            let placement = 'bottom';
-            const spaceBelow = viewportH - rect.bottom - margin;
-            const spaceAbove = rect.top - margin;
-
-            if (panelHeight > spaceBelow && spaceAbove > spaceBelow) {
-                top = Math.max(margin, rect.top - panelHeight - gap);
-                placement = 'top';
-            }
-
+            const margin = 8;
             const rtl = document.documentElement.getAttribute('dir') === 'rtl';
-            let left;
-            if (rtl) {
-                left = Math.min(Math.max(margin, rect.left), viewportW - panelWidth - margin);
-            } else {
-                left = Math.max(margin, Math.min(rect.right - panelWidth, viewportW - panelWidth - margin));
-            }
+            const viewportH = window.innerHeight;
 
-            const maxHeight = placement === 'bottom'
-                ? Math.max(120, viewportH - top - margin)
-                : Math.max(120, rect.top - margin);
-
-            this.placement = placement;
-            this.panelStyle = {
+            /** @type {Record<string, string | number>} */
+            const style = {
                 position: 'fixed',
-                top: `${Math.round(top)}px`,
-                left: `${Math.round(left)}px`,
+                top: `${Math.round(rect.bottom + gap)}px`,
                 minWidth: '11rem',
-                maxHeight: `${Math.round(maxHeight)}px`,
+                maxHeight: `${Math.round(Math.max(120, viewportH - rect.bottom - gap - margin))}px`,
                 zIndex: '10050',
             };
 
-            return true;
+            if (rtl) {
+                style.left = `${Math.round(rect.left)}px`;
+                style.right = 'auto';
+            } else {
+                style.right = `${Math.round(window.innerWidth - rect.right)}px`;
+                style.left = 'auto';
+            }
+
+            this.placement = 'bottom';
+            this.panelStyle = style;
+            this.panelReady = true;
+        },
+
+        refineVerticalPlacement() {
+            const rect = this.triggerRect();
+            const panel = this.$refs.panel;
+            if (! rect || ! panel || ! this.isOpen) {
+                return;
+            }
+
+            const gap = 4;
+            const margin = 8;
+            const viewportH = window.innerHeight;
+            const panelHeight = panel.offsetHeight;
+            if (panelHeight <= 0) {
+                return;
+            }
+
+            const belowFits = rect.bottom + gap + panelHeight <= viewportH - margin;
+            if (belowFits) {
+                return;
+            }
+
+            const aboveTop = Math.max(margin, rect.top - gap - panelHeight);
+            const aboveFits = aboveTop >= margin;
+            if (! aboveFits) {
+                return;
+            }
+
+            this.placement = 'top';
+            this.panelStyle = {
+                ...this.panelStyle,
+                top: `${Math.round(aboveTop)}px`,
+                maxHeight: `${Math.round(Math.max(120, rect.top - margin))}px`,
+            };
         },
     }));
 }
@@ -290,7 +237,35 @@ function bindGlobalHubRowMoreDismiss(Alpine) {
         Alpine.store('hubRowMoreMenu')?.closeAll();
     };
 
-    window.addEventListener('scroll', closeAll, true);
+    const onScroll = (event) => {
+        const store = Alpine.store('hubRowMoreMenu');
+        if (! store?.openId) {
+            return;
+        }
+        if (Date.now() < store.scrollGuardUntil) {
+            return;
+        }
+        if (! event.isTrusted) {
+            return;
+        }
+
+        const target = event.target;
+        const scrollRoot = target === document ? document.documentElement : target;
+        if (!(scrollRoot instanceof Element)) {
+            return;
+        }
+
+        const hubScroll = scrollRoot.closest?.('.hub-doc-table-scroll, .admin-data-table-scroll');
+        const isPageScroll = scrollRoot === document.documentElement || scrollRoot === document.body;
+
+        if (! isPageScroll && ! hubScroll) {
+            return;
+        }
+
+        closeAll();
+    };
+
+    document.addEventListener('scroll', onScroll, true);
     window.addEventListener('resize', closeAll);
     window.addEventListener('keydown', (event) => {
         if (event.key === 'Escape') {

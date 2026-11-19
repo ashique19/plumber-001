@@ -4,9 +4,10 @@ it('measures and positions hub row more menu after teleport refs are ready', fun
     $source = (string) file_get_contents(resource_path('js/hub-row-more-menu.js'));
 
     expect($source)
-        ->toContain('panelReady')
-        ->toContain('measurePanel')
-        ->toContain('tryPosition')
+        ->toContain('applyInitialPosition')
+        ->toContain('refineVerticalPlacement')
+        ->toContain('style.right')
         ->toContain('currentTarget')
-        ->toContain('triggers');
+        ->toContain('scrollGuardUntil')
+        ->not->toContain('measurePanel');
 });
