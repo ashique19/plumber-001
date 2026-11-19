@@ -22,9 +22,24 @@ final class InvoicePrintArabicPrelines
      */
     public static function amountWordsBlock(string $text): array
     {
-        return ArabicLineBreaker::breakForPdfBlock(
+        $result = ArabicLineBreaker::breakForPdfBlock(
             $text,
             self::AMOUNT_WORDS_HTML_CHARS_PER_LINE,
+            self::AMOUNT_WORDS_MAX_LINES,
+        );
+        $result['lines'] = ArabicLineBreaker::avoidTrailingWa($result['lines']);
+
+        return $result;
+    }
+
+    /**
+     * @return array{lines: list<string>, compact: bool}
+     */
+    public static function amountWordsBlockForPdf(string $text): array
+    {
+        return ArabicLineBreaker::breakForPdfBlock(
+            $text,
+            self::AMOUNT_WORDS_PDF_CHARS_PER_LINE,
             self::AMOUNT_WORDS_MAX_LINES,
         );
     }

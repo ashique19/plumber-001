@@ -57,7 +57,7 @@ final class ArabicLineBreaker
             return [$text];
         }
 
-        return self::avoidTrailingWa(self::balanceOrphanLastLine($lines));
+        return self::balanceOrphanLastLine($lines);
     }
 
     /**
@@ -114,7 +114,7 @@ final class ArabicLineBreaker
             }
         }
 
-        return ['lines' => self::avoidTrailingWa($lines), 'compact' => $compact];
+        return ['lines' => $lines, 'compact' => $compact];
     }
 
     /**

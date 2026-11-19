@@ -160,6 +160,45 @@ it('keeps long invoice numbers on one nowrap line in pdf html', function () {
         ->toContain('white-space:nowrap!important', false);
 });
 
+it('renders pdf amount words as prebroken nowrap lines starting with the first word', function () {
+    $text = 'ثمانية و عشرون ريال و خمسة و سبعون هللة فقط';
+    $invoice = Invoice::query()->create([
+        'branch_id' => $this->branchId,
+        'document_number' => 'STD-2875-PDF-WORDS',
+        'document_type' => InvoiceDocumentType::Standard,
+        'status' => InvoiceStatus::Issued,
+        'issued_at' => now(),
+        'payload' => [
+            'amount_words_ar' => $text,
+            'lines' => [
+                ['name' => 'Line', 'quantity' => 1, 'unit_price_ex_vat' => 25, 'vat_rate' => 15],
+            ],
+        ],
+    ]);
+
+    $sheet = PrintSheetFactory::invoice($invoice, Request::create('/', 'GET', ['template' => 'modern']), true);
+    $html = view($sheet['view'], $sheet['data'])->render();
+
+    expect($html)
+        ->not->toMatch('/<p[^>]*invoice-print-words-block__ar/')
+        ->toContain('invoice-pdf-ar-preline');
+
+    $wordsBlockStart = strpos($html, 'invoice-print-words-block__ar" dir="rtl"');
+    expect($wordsBlockStart)->not->toBeFalse();
+    $segment = substr($html, (int) $wordsBlockStart, 2500) ?: '';
+
+    preg_match_all('/<div class="invoice-pdf-ar-preline"[^>]*>([^<]*)</', $segment, $lines);
+    expect($lines[1])->not->toBeEmpty()
+        ->and($lines[1][0])->toStartWith('ثمانية');
+
+    expect(implode(' ', $lines[1]))->toBe($text);
+
+    $wrapped = DocumentPdfRenderer::wrapHtml($html);
+    expect($wrapped)
+        ->not->toMatch('/<p[^>]*invoice-print-words-block__ar/')
+        ->toContain('invoice-pdf-ar-preline');
+});
+
 it('limits standard invoice arabic amount words to two pdf lines', function () {
     $invoice = Invoice::query()->create([
         'branch_id' => $this->branchId,
@@ -177,10 +216,10 @@ it('limits standard invoice arabic amount words to two pdf lines', function () {
     $sheet = PrintSheetFactory::invoice($invoice, Request::create('/', 'GET', ['template' => 'modern']), true);
     $wrapped = DocumentPdfRenderer::wrapHtml(view($sheet['view'], $sheet['data'])->render());
 
-    $wordsBlockStart = strpos($wrapped, 'invoice-print-words-block__ar');
-    expect($wordsBlockStart)->toBeInt();
+    $wordsBlockStart = strpos($wrapped, 'invoice-print-words-block__ar" dir="rtl"');
+    expect($wordsBlockStart)->not->toBeFalse();
 
-    $segment = substr($wrapped, $wordsBlockStart, 2500) ?: '';
+    $segment = substr($wrapped, (int) $wordsBlockStart, 2500) ?: '';
     preg_match_all('/<div class="[^"]*invoice-pdf-ar-preline/', $segment, $wordLineMatches);
     expect(count($wordLineMatches[0]))->toBeLessThanOrEqual(2);
 });
