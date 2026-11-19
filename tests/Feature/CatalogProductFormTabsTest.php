@@ -70,6 +70,12 @@ it('switches to the basic tab when required name fields fail validation', functi
         ->assertSet('productFormTab', 'basic');
 });
 
+it('uses VAT in catalog price suffix and purchase cost labels', function () {
+    expect(__('catalog.ex_short'))->toMatch('/VAT|ضريبة/i')
+        ->and(__('catalog.purchase_price'))->toMatch('/VAT|ضريبة/i')
+        ->and(__('catalog.purchase_price', [], 'en'))->toContain('excl. VAT');
+});
+
 it('renders product form section tabs in the product sheet', function () {
     $html = Livewire::actingAs($this->owner, 'staff')
         ->test(MenuManager::class)
