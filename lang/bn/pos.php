@@ -112,7 +112,7 @@ return [
     'receipt_tax_inclusive_ar' => 'الضريبة شاملة',
     'receipt_vat_col_tax' => 'ট্যাক্স#',
     'receipt_vat_col_pct' => 'VAT%',
-    'receipt_vat_col_before' => 'VATের আগে',
+    'receipt_vat_col_before' => 'VAT এর আগে',
     'receipt_vat_col_incl' => 'VAT সহ',
     'receipt_vat_col_vat' => 'VAT',
     'receipt_served_by' => 'পরিবেশন করেছেন',

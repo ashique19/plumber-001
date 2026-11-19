@@ -52,27 +52,33 @@
                 />
             @endforeach
 
-            <x-field.segmented
-                :label="__('customers.fields.vat_registered')"
-                name="{{ $fields['vat_registered'] }}"
-                wire:model.live="{{ $fields['vat_registered'] }}"
-                class="customer-identity-fields__vat customer-identity-fields__span-full"
-                :options="[
-                    '1' => __('customers.vat_status.registered'),
-                    '0' => __('customers.vat_status.not_registered'),
-                ]"
-            />
-
-            @if ($vatRegistered)
-                <x-field.input
-                    :label="__('customers.fields.vat_number')"
-                    :name="$fields['vat_number']"
-                    wire:model.blur="{{ $fields['vat_number'] }}"
-                    inputmode="numeric"
-                    required
-                    wrapper-class="customer-identity-fields__span-full"
+            <div @class([
+                'customer-identity-fields__vat-row customer-identity-fields__span-full',
+                'customer-identity-fields__vat-row--registered' => $vatRegistered,
+            ]) data-testid="customer-vat-row">
+                <x-field.segmented
+                    :label="__('customers.fields.vat_registered')"
+                    name="{{ $fields['vat_registered'] }}"
+                    wire:model.live="{{ $fields['vat_registered'] }}"
+                    class="customer-identity-fields__vat"
+                    :options="[
+                        '1' => __('customers.vat_status.registered'),
+                        '0' => __('customers.vat_status.not_registered'),
+                    ]"
                 />
-            @else
+
+                @if ($vatRegistered)
+                    <x-field.input
+                        :label="__('customers.fields.vat_number')"
+                        :name="$fields['vat_number']"
+                        wire:model.blur="{{ $fields['vat_number'] }}"
+                        inputmode="numeric"
+                        required
+                    />
+                @endif
+            </div>
+
+            @if (! $vatRegistered)
                 <x-field.select
                     :label="__('customers.fields.alt_id_type')"
                     :name="$fields['alt_id_type']"
@@ -121,7 +127,10 @@
         @endif
         <div class="customer-identity-fields__grid admin-modal-field-grid admin-modal-field-grid--2">
             @if ($saStandardBuyer)
-                <div class="form-field min-w-0" data-testid="customer-country-readonly">
+                <div @class([
+                    'form-field min-w-0',
+                    'customer-identity-fields__span-full' => $saBuyer || $showMore,
+                ]) data-testid="customer-country-readonly">
                     <span class="form-field__label type-label">{{ __('customers.fields.country_code') }}</span>
                     <div class="admin-field-wrap">
                         <p class="form-field__control m-0 flex min-h-12 items-center rounded-xl border border-[var(--app-border)] bg-[var(--app-surface-muted)]/60 px-3 text-sm font-medium text-[var(--app-text)]" dir="auto">
@@ -135,6 +144,7 @@
                     :label="__('customers.fields.country_code')"
                     :name="$fields['country_code']"
                     wire:model.live="{{ $fields['country_code'] }}"
+                    :wrapper-class="($saBuyer || $showMore) ? 'customer-identity-fields__span-full' : null"
                 >
                     @foreach ($countries as $code => $label)
                         <option value="{{ $code }}">{{ $code }} — {{ $label }}</option>
@@ -142,47 +152,41 @@
                 </x-field.select>
             @endif
 
-            @if ($saBuyer)
-                <x-field.select
-                    :label="__('business.fields.city')"
-                    :name="$fields['city']"
-                    wire:model.blur="{{ $fields['city'] }}"
-                    required
-                >
-                    @if ($currentCity !== '' && ! in_array($currentCity, $cityOptions, true))
-                        <option value="{{ $currentCity }}">{{ $currentCity }}</option>
-                    @endif
-                    @foreach ($cityOptions as $cityOption)
-                        <option value="{{ $cityOption }}">{{ $cityOption }}</option>
-                    @endforeach
-                </x-field.select>
-            @else
-                <x-field.input
-                    :label="__('business.fields.city')"
-                    :name="$fields['city']"
-                    wire:model.blur="{{ $fields['city'] }}"
-                />
-            @endif
-
             @if ($saBuyer || $showMore)
+                @if ($saBuyer)
+                    <x-field.select
+                        :label="__('business.fields.city')"
+                        :name="$fields['city']"
+                        wire:model.blur="{{ $fields['city'] }}"
+                        required
+                    >
+                        @if ($currentCity !== '' && ! in_array($currentCity, $cityOptions, true))
+                            <option value="{{ $currentCity }}">{{ $currentCity }}</option>
+                        @endif
+                        @foreach ($cityOptions as $cityOption)
+                            <option value="{{ $cityOption }}">{{ $cityOption }}</option>
+                        @endforeach
+                    </x-field.select>
+                @else
+                    <x-field.input
+                        :label="__('business.fields.city')"
+                        :name="$fields['city']"
+                        wire:model.blur="{{ $fields['city'] }}"
+                    />
+                @endif
                 <x-field.input
                     :label="__('business.fields.district')"
                     :name="$fields['addr_district']"
                     wire:model.blur="{{ $fields['addr_district'] }}"
                     :required="$saBuyer"
                 />
-            @endif
-
-            <x-field.textarea
-                :label="__('business.fields.street')"
-                :name="$fields['street_name']"
-                wire:model.blur="{{ $fields['street_name'] }}"
-                rows="2"
-                :required="$saBuyer"
-                wrapper-class="customer-identity-fields__span-full"
-            />
-
-            @if ($saBuyer || $showMore)
+                <x-field.textarea
+                    :label="__('business.fields.street')"
+                    :name="$fields['street_name']"
+                    wire:model.blur="{{ $fields['street_name'] }}"
+                    rows="2"
+                    :required="$saBuyer"
+                />
                 <x-field.input
                     :label="__('business.fields.building')"
                     :name="$fields['addr_building']"
@@ -202,16 +206,46 @@
                     :name="$fields['addr_additional']"
                     wire:model.blur="{{ $fields['addr_additional'] }}"
                 />
-            @elseif (! $saBuyer)
-                <div class="customer-identity-fields__span-full">
-                    <button
-                        type="button"
-                        class="tap-action-outline min-h-11 px-4 text-sm font-semibold"
-                        wire:click="$toggle('{{ $moreAddressProp }}')"
+            @else
+                @if ($saBuyer)
+                    <x-field.select
+                        :label="__('business.fields.city')"
+                        :name="$fields['city']"
+                        wire:model.blur="{{ $fields['city'] }}"
+                        required
                     >
-                        {{ __('customers.more_address_details') }}
-                    </button>
-                </div>
+                        @if ($currentCity !== '' && ! in_array($currentCity, $cityOptions, true))
+                            <option value="{{ $currentCity }}">{{ $currentCity }}</option>
+                        @endif
+                        @foreach ($cityOptions as $cityOption)
+                            <option value="{{ $cityOption }}">{{ $cityOption }}</option>
+                        @endforeach
+                    </x-field.select>
+                @else
+                    <x-field.input
+                        :label="__('business.fields.city')"
+                        :name="$fields['city']"
+                        wire:model.blur="{{ $fields['city'] }}"
+                    />
+                @endif
+                <x-field.textarea
+                    :label="__('business.fields.street')"
+                    :name="$fields['street_name']"
+                    wire:model.blur="{{ $fields['street_name'] }}"
+                    rows="2"
+                    wrapper-class="customer-identity-fields__span-full"
+                />
+                @if (! $saBuyer)
+                    <div class="customer-identity-fields__span-full">
+                        <button
+                            type="button"
+                            class="tap-action-outline min-h-11 px-4 text-sm font-semibold"
+                            wire:click="$toggle('{{ $moreAddressProp }}')"
+                        >
+                            {{ __('customers.more_address_details') }}
+                        </button>
+                    </div>
+                @endif
             @endif
         </div>
     </section>

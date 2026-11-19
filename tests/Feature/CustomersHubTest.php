@@ -76,6 +76,7 @@ it('renders customer modal as wide form sheet with street textarea', function ()
         ->assertSeeHtml('x-modal--form-sheet')
         ->assertSeeHtml('customer-identity-fields--sectioned')
         ->assertSeeHtml('customer-identity-fields__span-full')
+        ->assertSeeHtml('data-testid="customer-vat-row"')
         ->assertSeeHtml('<textarea');
 });
 

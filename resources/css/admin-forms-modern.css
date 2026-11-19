@@ -847,7 +847,7 @@
     html.admin-app .customer-identity-fields--sectioned {
         display: flex;
         flex-direction: column;
-        gap: 1.25rem;
+        gap: 1.5rem;
         width: 100%;
         min-width: 0;
     }
@@ -860,6 +860,10 @@
         min-width: 0;
     }
 
+    html.admin-app .customer-identity-fields__section:not(:first-child) {
+        padding-top: 0.25rem;
+    }
+
     html.admin-app .customer-identity-fields__heading {
         margin: 0;
         font-size: 0.8125rem;
@@ -867,6 +871,10 @@
         letter-spacing: 0.02em;
         text-transform: uppercase;
         color: var(--app-muted);
+    }
+
+    html.admin-app .customer-identity-fields__section:not(:first-child) .customer-identity-fields__heading {
+        padding-top: 0.25rem;
     }
 
     html.admin-app .customer-identity-fields__hint {
@@ -898,8 +906,31 @@
         grid-column: 1 / -1;
     }
 
+    html.admin-app .customer-identity-fields__vat-row {
+        display: grid;
+        gap: 0.875rem;
+        grid-template-columns: minmax(0, 1fr);
+        width: 100%;
+        min-width: 0;
+        grid-column: 1 / -1;
+    }
+
+    @media (min-width: 640px) {
+        html.admin-app .customer-identity-fields__vat-row--registered {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            align-items: end;
+        }
+    }
+
+    html.admin-app .customer-identity-fields__vat-row:not(.customer-identity-fields__vat-row--registered) .customer-identity-fields__vat .admin-segmented {
+        width: 100%;
+        max-width: none;
+    }
+
+    html.admin-app .customer-identity-fields__vat-row--registered .customer-identity-fields__vat .admin-segmented,
     html.admin-app .customer-identity-fields__vat .admin-segmented {
-        max-width: 26rem;
+        width: 100%;
+        max-width: none;
     }
 
     html.admin-app .customer-identity-fields__vat .admin-segmented__option {

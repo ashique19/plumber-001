@@ -10,9 +10,9 @@
         "outputSha256": "408f701687894c7db2ccd6676403c7dea1014c0dc8959a185041f4ad64deb15e"
     },
     "resources/css/app.css": {
-        "output": "assets/app-Dm8hobf2.css",
+        "output": "assets/app-COBbMJg2.css",
         "sourceSha256": "ede9d1cb14b4b54ddf7463f049edab637ae272191996449ab292992c0f86cfb2",
-        "outputSha256": "427b764eebb97cc8da2d8c79115d91d451dfb5a0b3147a9603b5ffe7993c82ad"
+        "outputSha256": "be59063170708daa385cb9e46e1c55f17b9c32cd5546f60482ecb324c89e5611"
     },
     "resources/css/error-pages.css": {
         "output": "assets/error-pages-Z7snqgLZ.css",
