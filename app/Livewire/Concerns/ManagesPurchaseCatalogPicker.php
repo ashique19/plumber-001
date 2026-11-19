@@ -13,6 +13,7 @@ use App\Support\Catalog\ProductSkuGenerator;
 use App\Support\Invoicing\DocumentCatalogLineMerge;
 use App\Support\Invoicing\DocumentCreateUiSupport;
 use App\Support\Invoicing\InvoicingCatalogLookup;
+use App\Services\Inventory\ProductStockService;
 use App\Support\Inventory\ProductStockSchema;
 use Illuminate\Support\Collection;
 use App\Support\Catalog\CatalogI18n;
@@ -42,6 +43,18 @@ trait ManagesPurchaseCatalogPicker
     public bool $quickProductTrackStock = true;
 
     public string $quickProductCost = '';
+
+    public string $quickProductSku = '';
+
+    public string $quickProductDescriptionEn = '';
+
+    public string $quickProductDescriptionAr = '';
+
+    public string $quickProductDescriptionBn = '';
+
+    public string $quickProductOpeningStock = '';
+
+    public string $quickProductLowStockThreshold = '';
 
     /**
      * @return Collection<int, Product>
@@ -133,7 +146,7 @@ trait ManagesPurchaseCatalogPicker
         $this->showQuickProductModal = true;
     }
 
-    public function saveQuickProduct(): void
+    public function saveQuickProduct(ProductStockService $stock): void
     {
         if (! $this->canCreateProductsFromPurchase()) {
             abort(403);
@@ -177,8 +190,21 @@ trait ManagesPurchaseCatalogPicker
             $attrs['product_unit_id'] = ProductUnit::query()->where('code', 'PCS')->value('id');
         }
 
-        if (CatalogI18n::columnsExist() && filled(trim($this->quickProductNameBn))) {
-            $attrs['name_bn'] = trim($this->quickProductNameBn);
+        if (CatalogI18n::columnsExist()) {
+            if (filled(trim($this->quickProductNameBn))) {
+                $attrs['name_bn'] = trim($this->quickProductNameBn);
+            }
+            $attrs['description_en'] = trim($this->quickProductDescriptionEn) ?: null;
+            $attrs['description_ar'] = trim($this->quickProductDescriptionAr) ?: null;
+            $attrs['description_bn'] = trim($this->quickProductDescriptionBn) ?: null;
+        }
+
+        if (ProductStockSchema::ready()) {
+            $attrs['low_stock_threshold'] = round((float) $this->quickProductLowStockThreshold, 3);
+        }
+
+        if (! CatalogUnitsSizesSchema::ready() && filled(trim($this->quickProductSku))) {
+            $attrs['sku'] = trim($this->quickProductSku);
         }
 
         $business = $this->resolveQuickProductBusiness();
@@ -191,6 +217,17 @@ trait ManagesPurchaseCatalogPicker
         }
 
         $product = Product::query()->create($attrs);
+
+        if (ProductStockSchema::ready() && $product->track_stock) {
+            $opening = (float) $this->quickProductOpeningStock;
+            $stock->recordOpeningStock(
+                $product,
+                $opening,
+                $costExVat ?? 0.0,
+                null,
+                auth('staff')->id(),
+            );
+        }
 
         $this->showQuickProductModal = false;
         $this->resetQuickProductForm();
@@ -220,6 +257,23 @@ trait ManagesPurchaseCatalogPicker
         if (ProductStockSchema::ready()) {
             $rules['quickProductTrackStock'] = ['boolean'];
             $rules['quickProductCost'] = ['nullable', 'numeric', 'min:0'];
+            $rules['quickProductOpeningStock'] = [
+                Rule::requiredIf(fn (): bool => $this->quickProductTrackStock),
+                'nullable',
+                'numeric',
+                'min:0',
+            ];
+            $rules['quickProductLowStockThreshold'] = ['nullable', 'numeric', 'min:0'];
+        }
+
+        if (! CatalogUnitsSizesSchema::ready()) {
+            $rules['quickProductSku'] = ['nullable', 'string', 'max:64'];
+        }
+
+        if (CatalogI18n::columnsExist()) {
+            $rules['quickProductDescriptionEn'] = ['nullable', 'string', 'max:2000'];
+            $rules['quickProductDescriptionAr'] = ['nullable', 'string', 'max:2000'];
+            $rules['quickProductDescriptionBn'] = ['nullable', 'string', 'max:2000'];
         }
 
         return array_merge($rules, $this->quickProductImageValidationRules());
@@ -239,6 +293,12 @@ trait ManagesPurchaseCatalogPicker
         $this->quickProductFormTab = 'basic';
         $this->resetQuickProductImageUpload();
         $this->quickProductCost = '';
+        $this->quickProductSku = '';
+        $this->quickProductDescriptionEn = '';
+        $this->quickProductDescriptionAr = '';
+        $this->quickProductDescriptionBn = '';
+        $this->quickProductOpeningStock = '';
+        $this->quickProductLowStockThreshold = '';
         $this->resetValidation();
     }
 

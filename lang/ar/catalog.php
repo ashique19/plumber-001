@@ -53,6 +53,7 @@ return [
         'document' => 'وثائق',
     ],
     'sku' => 'رمز SKU',
+    'sku_assigned_on_save' => 'يُعيَّن تلقائياً عند الحفظ',
     'item_type' => 'نوع الصنف',
     'item_type_item' => 'صنف قائمة',
     'item_type_service' => 'خدمة (أجور)',

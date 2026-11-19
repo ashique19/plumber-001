@@ -75,6 +75,26 @@ it('advances to details from the quick modal when basic fields validate', functi
         ->assertSet('quickProductFormTab', 'details');
 });
 
+it('renders catalog-aligned details tab fields and body padding in the quick modal', function () {
+    $html = Livewire::actingAs($this->owner, 'staff')
+        ->test(IssueInvoice::class, ['mode' => 'standard', 'locale' => 'bn'])
+        ->call('openQuickProductModal')
+        ->set('quickProductNameEn', 'Details Tab')
+        ->set('quickProductNameAr', 'تفاصيل')
+        ->set('quickProductPrice', '12')
+        ->call('goToQuickProductDetailsTab')
+        ->html();
+
+    expect($html)
+        ->toContain('catalog-product-form__body')
+        ->toContain('catalog-product-form-tabs')
+        ->toContain('catalog-product-purchase-stock-row')
+        ->toContain('data-testid="catalog-product-descriptions"')
+        ->toContain('name="quickProductDescriptionEn"')
+        ->toContain('name="quickProductCost"')
+        ->toContain('name="quickProductTrackStock"');
+});
+
 it('persists an optional product image from the quick modal on simplified invoice', function () {
     Livewire::actingAs($this->owner, 'staff')
         ->test(IssueInvoice::class, ['mode' => 'simplified'])

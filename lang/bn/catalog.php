@@ -53,6 +53,7 @@ return [
         'document' => 'ডকুমেন্টেশন',
     ],
     'sku' => 'SKU',
+    'sku_assigned_on_save' => 'সংরক্ষণ করলে স্বয়ংক্রিয়ভাবে নির্ধারিত হবে',
     'item_type' => 'ক্যাটালগ ধরন',
     'item_type_item' => 'মেনু আইটেম',
     'item_type_service' => 'সার্ভিস (শ্রম)',

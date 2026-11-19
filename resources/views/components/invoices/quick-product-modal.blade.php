@@ -23,6 +23,12 @@
         'quickProductTrackStock',
         'quickProductImageUpload',
         'quickProductCost',
+        'quickProductSku',
+        'quickProductDescriptionEn',
+        'quickProductDescriptionAr',
+        'quickProductDescriptionBn',
+        'quickProductOpeningStock',
+        'quickProductLowStockThreshold',
     ];
 @endphp
 
@@ -53,6 +59,12 @@
                 'activeModel' => 'quickProductActive',
                 'costModel' => 'quickProductCost',
                 'trackStockModel' => 'quickProductTrackStock',
+                'skuModel' => 'quickProductSku',
+                'descriptionEnModel' => 'quickProductDescriptionEn',
+                'descriptionArModel' => 'quickProductDescriptionAr',
+                'descriptionBnModel' => 'quickProductDescriptionBn',
+                'openingStockModel' => 'quickProductOpeningStock',
+                'lowStockModel' => 'quickProductLowStockThreshold',
                 'imageUploadModel' => 'quickProductImageUpload',
                 'imageRemoveAction' => 'removeQuickProductImage',
                 'imagePreviewUrl' => $imagePreviewUrl,

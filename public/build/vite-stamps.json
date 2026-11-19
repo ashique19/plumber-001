@@ -10,9 +10,9 @@
         "outputSha256": "408f701687894c7db2ccd6676403c7dea1014c0dc8959a185041f4ad64deb15e"
     },
     "resources/css/app.css": {
-        "output": "assets/app-CBzeP3IY.css",
+        "output": "assets/app-DTl6WebD.css",
         "sourceSha256": "ede9d1cb14b4b54ddf7463f049edab637ae272191996449ab292992c0f86cfb2",
-        "outputSha256": "5acb1af264df63c8ea2096c4889cb97115d592d1c4a5976f5c866284308ae3fb"
+        "outputSha256": "945dcd77297980bdb19f05c9ae099eca0045b07a9598b622492e101da2bec698"
     },
     "resources/css/error-pages.css": {
         "output": "assets/error-pages-Z7snqgLZ.css",

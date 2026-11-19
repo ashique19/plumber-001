@@ -84,7 +84,16 @@ trait ManagesQuickProductFormTabs
             'quickProductPrice', 'quickProductVat', 'quickProductCategoryId',
             'quickProductItemType', 'quickProductActive', 'quickProductImageUpload',
         ];
-        $details = ['quickProductCost', 'quickProductTrackStock'];
+        $details = [
+            'quickProductSku',
+            'quickProductDescriptionEn',
+            'quickProductDescriptionAr',
+            'quickProductDescriptionBn',
+            'quickProductCost',
+            'quickProductTrackStock',
+            'quickProductOpeningStock',
+            'quickProductLowStockThreshold',
+        ];
 
         if (in_array($field, $basic, true)) {
             return 'basic';

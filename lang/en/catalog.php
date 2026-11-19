@@ -53,6 +53,7 @@ return [
         'document' => 'Documentation',
     ],
     'sku' => 'SKU',
+    'sku_assigned_on_save' => 'Assigned automatically when you save',
     'item_type' => 'Catalog type',
     'item_type_item' => 'Menu item',
     'item_type_service' => 'Service (labor)',

@@ -363,12 +363,8 @@
 
     html.admin-app .catalog-product-form__panels {
         gap: 0;
-        padding-inline: 1.25rem;
+        padding-inline: 0;
         padding-bottom: 1rem;
-    }
-
-    html.admin-app .catalog-product-form-tabs {
-        margin-inline: 1.25rem;
     }
 
     html.admin-app .catalog-product-form__basic-layout {
@@ -438,6 +434,29 @@
     html.admin-app .catalog-product-form__active-toggle {
         display: flex;
         align-items: center;
+        min-height: 3rem;
+        padding-block-end: 0.125rem;
+    }
+
+    html.admin-app .catalog-product-form__purchase-stock-row {
+        display: grid;
+        gap: 0.875rem;
+        grid-template-columns: minmax(0, 1fr);
+        width: 100%;
+        min-width: 0;
+        grid-column: 1 / -1;
+    }
+
+    @media (min-width: 768px) {
+        html.admin-app .catalog-product-form__purchase-stock-row {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            align-items: end;
+        }
+    }
+
+    html.admin-app .catalog-product-form__track-stock-toggle {
+        display: flex;
+        align-items: flex-end;
         min-height: 3rem;
         padding-block-end: 0.125rem;
     }
