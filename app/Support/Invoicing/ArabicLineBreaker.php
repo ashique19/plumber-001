@@ -57,7 +57,7 @@ final class ArabicLineBreaker
             return [$text];
         }
 
-        return self::balanceOrphanLastLine($lines);
+        return self::avoidTrailingWa(self::balanceOrphanLastLine($lines));
     }
 
     /**
@@ -114,7 +114,48 @@ final class ArabicLineBreaker
             }
         }
 
-        return ['lines' => $lines, 'compact' => $compact];
+        return ['lines' => self::avoidTrailingWa($lines), 'compact' => $compact];
+    }
+
+    /**
+     * Do not leave a line ending with the conjunction و (moves it to the next line).
+     *
+     * @param  list<string>  $lines
+     * @return list<string>
+     */
+    public static function avoidTrailingWa(array $lines): array
+    {
+        if ($lines === []) {
+            return $lines;
+        }
+
+        $fixed = [];
+        for ($i = 0; $i < count($lines); $i++) {
+            $line = trim($lines[$i]);
+            if ($line === '') {
+                continue;
+            }
+
+            if (preg_match('/\sو$/u', $line) && isset($lines[$i + 1])) {
+                $line = trim((string) preg_replace('/\s+و$/u', '', $line));
+                if ($line !== '') {
+                    $fixed[] = $line;
+                }
+                $lines[$i + 1] = 'و '.ltrim($lines[$i + 1]);
+
+                continue;
+            }
+
+            if ($line === 'و' && isset($lines[$i + 1])) {
+                $lines[$i + 1] = 'و '.ltrim($lines[$i + 1]);
+
+                continue;
+            }
+
+            $fixed[] = $line;
+        }
+
+        return $fixed === [] ? $lines : $fixed;
     }
 
     private static function wordCount(string $line): int

@@ -42,3 +42,8 @@ it('fits typical total amount words into two lines for pdf blocks', function () 
     expect(count($result['lines']))->toBeLessThanOrEqual(2)
         ->and(implode(' ', $result['lines']))->toBe($text);
 });
+
+it('moves a trailing و to the next line', function () {
+    expect(ArabicLineBreaker::avoidTrailingWa(['ثمانية و عشرون ريال و خمسة و', 'سبعون هللة فقط']))
+        ->toBe(['ثمانية و عشرون ريال و خمسة', 'و سبعون هللة فقط']);
+});

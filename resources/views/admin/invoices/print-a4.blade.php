@@ -100,8 +100,15 @@
             @endif
         </table>
 
-        <p class="invoice-a4__words" dir="rtl">{{ $t['amount_words_ar'] }}</p>
-        <p class="invoice-a4__words">{{ $t['amount_words_en'] }}</p>
+        <div class="invoice-print-words-block">
+            @if (filled($t['amount_words_en'] ?? null))
+                <p class="invoice-print-words-block__en invoice-a4__words">{{ $t['amount_words_en'] }}</p>
+            @endif
+            <x-invoices.print-amount-words-ar
+                :text="$t['amount_words_ar'] ?? null"
+                class="invoice-print-words-block__ar invoice-print-ar"
+            />
+        </div>
 
         <x-invoices.print-qr :tlv="$t['qr_tlv_base64']" :fallback="(bool) ($t['qr_phase1_fallback'] ?? false)" />
 
