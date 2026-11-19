@@ -174,6 +174,8 @@ return [
     'created_size' => 'Size added.',
     'i18n_review_flag' => 'Review translation',
     'product_tab_basic' => 'Basic',
+    'product_tab_details' => 'Details',
+    'product_more_details' => 'More details',
     'product_tab_pricing' => 'Pricing & VAT',
     'product_tab_stock' => 'Stock',
     'product_form_tabs_label' => 'Product form sections',

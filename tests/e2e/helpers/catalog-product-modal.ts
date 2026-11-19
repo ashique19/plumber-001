@@ -12,7 +12,7 @@ export async function expectProductFormTabsFullyVisible(modal: Locator): Promise
     const tabs = modal.locator('.catalog-product-form-tabs [role="tab"]');
     const tabCount = await tabs.count();
 
-    expect(tabCount, 'product form tab buttons').toBeGreaterThanOrEqual(3);
+    expect(tabCount, 'product form tab buttons').toBeGreaterThanOrEqual(2);
 
     const headerBox = await header.boundingBox();
     const modalBox = await modal.boundingBox();

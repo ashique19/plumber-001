@@ -150,7 +150,7 @@ class MenuManager extends Component
 
     public string $productVatZatcaCategory = 'S';
 
-    /** @var 'basic'|'pricing'|'stock' */
+    /** @var 'basic'|'details' */
     public string $productFormTab = 'basic';
 
     /** @var 'item'|'service'|'part' */
@@ -315,17 +315,17 @@ class MenuManager extends Component
 
     public function setProductFormTab(string $tab): void
     {
-        if (in_array($tab, ['basic', 'pricing', 'stock'], true)) {
+        if (in_array($tab, ['basic', 'details'], true)) {
             $this->productFormTab = $tab;
         }
     }
 
     /**
-     * @return array{basic: int, pricing: int, stock: int}
+     * @return array{basic: int, details: int}
      */
     public function productFormTabErrorCounts(): array
     {
-        $counts = ['basic' => 0, 'pricing' => 0, 'stock' => 0];
+        $counts = ['basic' => 0, 'details' => 0];
 
         foreach ($this->getErrorBag()->getMessages() as $field => $messages) {
             $tab = $this->productFormTabForField((string) $field);
@@ -501,46 +501,19 @@ class MenuManager extends Component
 
     public function submitProductForm(ProductImageService $images, ProductStockService $stock): void
     {
-        if ($this->isLastProductFormTab()) {
-            $this->saveProduct($images, $stock);
-
-            return;
-        }
-
-        $this->validateCurrentProductFormTabAndAdvance();
+        $this->saveProduct($images, $stock);
     }
 
     public function productFormPrimaryLabel(): string
     {
-        return $this->isLastProductFormTab() ? __('catalog.save') : __('catalog.next');
+        return __('catalog.save');
     }
 
-    public function isLastProductFormTab(): bool
+    public function goToProductDetailsTab(): void
     {
-        $tabs = $this->productFormTabSequence();
-
-        return $this->productFormTab === $tabs[array_key_last($tabs)];
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function productFormTabSequence(): array
-    {
-        $tabs = ['basic', 'pricing'];
-        if (ProductStockSchema::ready()) {
-            $tabs[] = 'stock';
-        }
-
-        return $tabs;
-    }
-
-    private function validateCurrentProductFormTabAndAdvance(): void
-    {
-        $tab = $this->productFormTab;
-        $rules = $this->productValidationRulesForTab($tab);
+        $rules = $this->productValidationRulesForTab('basic');
         if ($rules === []) {
-            $this->advanceProductFormTab();
+            $this->productFormTab = 'details';
 
             return;
         }
@@ -554,18 +527,15 @@ class MenuManager extends Component
             throw $e;
         }
 
-        $this->advanceProductFormTab();
+        $this->productFormTab = 'details';
     }
 
-    private function advanceProductFormTab(): void
+    /**
+     * @return list<string>
+     */
+    private function productFormTabSequence(): array
     {
-        $tabs = $this->productFormTabSequence();
-        $index = array_search($this->productFormTab, $tabs, true);
-        if ($index === false || ! isset($tabs[$index + 1])) {
-            return;
-        }
-
-        $this->productFormTab = $tabs[$index + 1];
+        return ['basic', 'details'];
     }
 
     /**
@@ -1097,7 +1067,7 @@ class MenuManager extends Component
         $this->productActive = true;
         $this->productShowOnHomepage = false;
         $this->productShowOnMenu = true;
-        $this->productItemType = ProductItemType::Item->value;
+        $this->productItemType = ProductItemType::cases()[0]->value;
         $this->productModifierIds = [];
         $this->productTrackStock = false;
         $this->productLowStockThreshold = '0';
@@ -1136,7 +1106,7 @@ class MenuManager extends Component
 
     private function focusProductFormTabForErrors(array $errorKeys): void
     {
-        foreach (['basic', 'pricing', 'stock'] as $tab) {
+        foreach (['basic', 'details'] as $tab) {
             foreach ($errorKeys as $key) {
                 if ($this->productFormTabForField($key) === $tab) {
                     $this->productFormTab = $tab;
@@ -1153,22 +1123,22 @@ class MenuManager extends Component
 
         $basic = [
             'productNameEn', 'productNameAr', 'productNameBn',
-            'productDescriptionEn', 'productDescriptionAr', 'productDescriptionBn',
-            'productCategoryId', 'productSku', 'productUnitId', 'productSizeId',
-            'productImageUpload', 'productItemType', 'productModifierIds',
-            'productActive', 'productShowOnHomepage', 'productShowOnMenu',
+            'productCategoryId', 'productImageUpload', 'productItemType',
+            'productPriceInput', 'productVatRate', 'productActive',
         ];
-        $pricing = ['productCostInput', 'productPriceInput', 'productVatRate', 'productVatZatcaCategory'];
-        $stock = ['productTrackStock', 'productOpeningStock', 'productLowStockThreshold', 'productCurrentStock'];
+        $details = [
+            'productDescriptionEn', 'productDescriptionAr', 'productDescriptionBn',
+            'productSku', 'productUnitId', 'productSizeId', 'productModifierIds',
+            'productShowOnHomepage', 'productShowOnMenu',
+            'productCostInput', 'productVatZatcaCategory',
+            'productTrackStock', 'productOpeningStock', 'productLowStockThreshold', 'productCurrentStock',
+        ];
 
         if (in_array($field, $basic, true)) {
             return 'basic';
         }
-        if (in_array($field, $pricing, true)) {
-            return 'pricing';
-        }
-        if (in_array($field, $stock, true)) {
-            return 'stock';
+        if (in_array($field, $details, true)) {
+            return 'details';
         }
 
         return null;
