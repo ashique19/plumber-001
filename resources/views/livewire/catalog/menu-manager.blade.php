@@ -5,7 +5,6 @@
             <h1 class="app-page-title">{{ __('catalog.title') }}</h1>
             <p class="app-page-lead">{{ __('catalog.subtitle') }}</p>
         </div>
-        <p class="text-xs text-[var(--app-muted)]">{{ __('catalog.price_hint') }}</p>
     </header>
 
     <div class="app-section-tabs app-section-tabs--scroll min-w-0 max-w-full gap-2">
@@ -30,12 +29,13 @@
                 @if ($key === 'modifiers') data-testid="catalog-tab-modifiers" @endif
             >{{ $label }}</button>
         @endforeach
-        <label class="form-field ms-auto w-full min-w-0 sm:w-auto sm:max-w-xs">
+        <label class="form-field catalog-price-mode ms-auto w-full min-w-0 sm:w-auto sm:max-w-xs">
             <span class="form-field__label">{{ __('catalog.price_mode') }}</span>
-            <select wire:model.live="priceMode" class="form-field__control w-full sm:min-w-[12rem]">
+            <select wire:model.live="priceMode" class="form-field__control w-full sm:min-w-[12rem]" data-testid="catalog-price-mode">
                 <option value="ex">{{ __('catalog.price_ex_vat') }}</option>
                 <option value="inc">{{ __('catalog.price_inc_vat') }}</option>
             </select>
+            <span class="form-field__hint form-field__hint--after type-small">{{ __('catalog.price_hint') }}</span>
         </label>
     </div>
 

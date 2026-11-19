@@ -70,6 +70,21 @@ it('switches to the basic tab when required name fields fail validation', functi
         ->assertSet('productFormTab', 'basic');
 });
 
+it('renders price entry mode help under the select', function () {
+    app()->setLocale('bn');
+
+    $html = Livewire::actingAs($this->owner, 'staff')
+        ->test(MenuManager::class)
+        ->html();
+
+    expect($html)
+        ->toContain(__('catalog.price_mode'))
+        ->toContain('data-testid="catalog-price-mode"')
+        ->toContain(__('catalog.price_hint'))
+        ->toContain('form-field__hint--after')
+        ->and(__('catalog.price_ex_vat'))->toBe('VAT ছাড়া');
+});
+
 it('uses VAT in catalog price suffix and purchase cost labels', function () {
     expect(__('catalog.ex_short'))->toMatch('/VAT|ضريبة/i')
         ->and(__('catalog.purchase_price'))->toMatch('/VAT|ضريبة/i')
