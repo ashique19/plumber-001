@@ -1,4 +1,5 @@
 import { type Locator, type Page, expect } from 'playwright/test';
+import { adminPath } from './staff-auth.js';
 
 type Rect = { top: number; right: number; bottom: number; left: number; width: number; height: number };
 
@@ -65,6 +66,13 @@ export async function prepareQuotationHub(page: Page): Promise<void> {
 export async function prepareCustomerHub(page: Page): Promise<void> {
     await page.goto(adminPath('/admin/customers', 'en'));
     await page.waitForLoadState('networkidle');
+    const scroll = page.locator('.admin-data-table-scroll');
+    if (await scroll.count()) {
+        await scroll.evaluate((el) => {
+            const max = el.scrollWidth - el.clientWidth;
+            el.scrollLeft = max > 0 ? max : 0;
+        });
+    }
 }
 
 export function invoiceTableMoreButton(page: Page, viewport: 'table' | 'card'): Locator {
