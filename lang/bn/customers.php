@@ -75,7 +75,7 @@ return [
     ],
     'vat_status' => [
         'registered' => 'VAT নিবন্ধিত',
-        'not_registered' => 'VATে নিবন্ধিত নয়',
+        'not_registered' => 'VAT নিবন্ধিত নয়',
     ],
     'alt_id_type' => [
         'choose' => 'আইডি ধরন বেছে নিন',
