@@ -43,7 +43,10 @@ it('renders admin print preview shell on invoice hub with modal triggers', funct
         ->get(route('admin.invoices'))
         ->getContent();
 
-    expect($page)->toContain('data-testid="admin-print-preview"');
+    expect($page)
+        ->toContain('data-testid="admin-print-preview"')
+        ->toContain('admin-print-preview__close')
+        ->toContain('aria-label="'.e(__('print.close')).'"', false);
 });
 
 it('does not render debug zatca metadata on issued invoice view', function () {

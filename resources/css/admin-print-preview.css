@@ -8,6 +8,47 @@
     color: var(--app-text);
 }
 
+.admin-print-preview__close {
+    position: fixed;
+    z-index: 5;
+    top: max(0.65rem, env(safe-area-inset-top, 0px));
+    inset-inline-end: max(0.65rem, env(safe-area-inset-right, 0px));
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0;
+    border: none;
+    border-radius: 9999px;
+    background: var(--app-accent, #0f766e);
+    color: #fff;
+    cursor: pointer;
+    box-shadow:
+        0 4px 14px rgb(15 23 42 / 0.28),
+        0 1px 3px rgb(15 23 42 / 0.12);
+}
+
+.admin-print-preview__close:focus {
+    outline: none;
+}
+
+.admin-print-preview__close:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+    box-shadow:
+        0 0 0 4px color-mix(in srgb, var(--app-accent, #0f766e) 55%, transparent),
+        0 4px 14px rgb(15 23 42 / 0.28);
+}
+
+.admin-print-preview__close-icon {
+    width: 1.35rem;
+    height: 1.35rem;
+    stroke-width: 2.25;
+}
+
 .admin-print-preview__bar {
     position: sticky;
     top: 0;
@@ -18,6 +59,8 @@
     gap: 0.5rem;
     padding: 0.65rem 0.75rem;
     padding-top: max(0.65rem, env(safe-area-inset-top, 0px));
+    padding-inline-start: 0.75rem;
+    padding-inline-end: calc(44px + 1.25rem);
     border-bottom: 1px solid var(--app-border);
     background: color-mix(in srgb, var(--app-surface) 94%, transparent);
     backdrop-filter: blur(10px);
@@ -25,6 +68,8 @@
 
 [dir='rtl'] .admin-print-preview__bar {
     flex-direction: row-reverse;
+    padding-inline-start: calc(44px + 1.25rem);
+    padding-inline-end: 0.75rem;
 }
 
 .admin-print-preview__bar-actions {
