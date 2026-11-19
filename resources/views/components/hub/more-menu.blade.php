@@ -39,8 +39,8 @@
             x-bind:style="panelStyle"
             x-bind:class="{
                 'hub-doc-table__more-panel--flip-up': placement === 'top',
-                'hub-doc-table__more-panel--positioning': isOpen && ! panelReady,
             }"
+            x-bind:data-hub-row-more-panel-open="isOpen ? menuId : null"
             class="hub-doc-table__more-panel hub-doc-table__more-panel--teleport"
             role="menu"
         >

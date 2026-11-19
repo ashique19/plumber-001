@@ -75,7 +75,7 @@
                                     @endif
                                 </th>
                             @endforeach
-                            <th class="px-3 py-3 text-end font-medium" scope="col">{{ __('customers.col_actions') }}</th>
+                            <th class="admin-data-table__actions-head px-3 py-3 text-end font-medium" scope="col">{{ __('customers.col_actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -102,7 +102,7 @@
                                         <span class="text-[var(--app-muted)]">—</span>
                                     @endif
                                 </td>
-                                <td class="px-3 py-2.5 text-end">
+                                <td class="admin-data-table__actions-cell px-3 py-2.5 text-end">
                                     <x-hub.customer-row-actions :customer-id="$row->id" />
                                 </td>
                             </tr>
