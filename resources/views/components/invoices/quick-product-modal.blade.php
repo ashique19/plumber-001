@@ -1,4 +1,4 @@
-@props(['categories' => collect(), 'show' => false])
+@props(['categories' => collect(), 'show' => false, 'imagePreviewUrl' => null])
 
 @php
     $quickProductFields = [
@@ -9,6 +9,7 @@
         'quickProductItemType',
         'quickProductCategoryId',
         'quickProductTrackStock',
+        'quickProductImageUpload',
     ];
 @endphp
 
@@ -23,7 +24,7 @@
         <x-modal.validation-summary :fields="$quickProductFields" loading-target="saveQuickProduct" />
 
         <div class="x-modal-form__fields x-modal-form__fields--2">
-            <x-catalog.quick-product-fields :categories="$categories" />
+            <x-catalog.quick-product-fields :categories="$categories" :image-preview-url="$imagePreviewUrl" />
         </div>
 
         <div class="x-modal__footer x-modal__footer--in-form">

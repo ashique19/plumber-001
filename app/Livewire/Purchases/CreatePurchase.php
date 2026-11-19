@@ -8,7 +8,7 @@ use App\Livewire\Concerns\ManagesPurchaseCatalogPicker;
 use App\Livewire\Concerns\ResolvesBusinessContext;
 use App\Livewire\Concerns\ValidatesFieldsLive;
 use App\Models\Product;
-use App\Models\ProductCategory;
+use App\Support\Catalog\QuickProductCategoryOptions;
 use App\Models\Supplier;
 use App\Services\Inventory\PurchaseRecordingService;
 use App\Services\Inventory\SupplierService;
@@ -22,6 +22,7 @@ use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use Spatie\Permission\PermissionRegistrar;
 
 #[Layout('layouts.pos')]
@@ -31,6 +32,7 @@ class CreatePurchase extends Component
     use ManagesPurchaseCatalogPicker;
     use ResolvesBusinessContext;
     use ValidatesFieldsLive;
+    use WithFileUploads;
 
     public ?int $supplierId = null;
 
@@ -309,7 +311,7 @@ class CreatePurchase extends Component
             ? collect()
             : Product::query()->whereIn('id', $productIds)->get()->keyBy('id');
 
-        $productCategories = ProductCategory::query()->orderBy('name_en')->get();
+        $productCategories = QuickProductCategoryOptions::ordered();
 
         return view('livewire.purchases.create-purchase', [
             'supplierHits' => $supplierHits,

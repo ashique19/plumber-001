@@ -13,7 +13,7 @@ use App\Support\Invoicing\DocumentPaymentTerms;
 use App\Livewire\Concerns\ResolvesBusinessContext;
 use App\Livewire\Concerns\ValidatesFieldsLive;
 use App\Models\Customer;
-use App\Models\ProductCategory;
+use App\Support\Catalog\QuickProductCategoryOptions;
 use App\Models\Product;
 use App\Models\Quotation;
 use App\Support\Invoicing\InvoicingCustomerLookup;
@@ -26,6 +26,7 @@ use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use Spatie\Permission\PermissionRegistrar;
 
 #[Layout('layouts.pos')]
@@ -38,6 +39,7 @@ class ManageQuotation extends Component
     use ManagesInvoicingCatalogPicker;
     use ManagesInvoicingCustomerPicker;
     use ValidatesFieldsLive;
+    use WithFileUploads;
 
   public ?int $quotationId = null;
 
@@ -415,7 +417,7 @@ class ManageQuotation extends Component
           'addLineProductSearchResults' => $this->addLineProductSearchResults(),
           'canCreateCustomers' => $this->canCreateCustomersFromDocument(),
           'canCreateProducts' => $this->canCreateProductsFromDocument(),
-          'productCategories' => ProductCategory::query()->orderBy('name_en')->get(),
+          'productCategories' => QuickProductCategoryOptions::ordered(),
           'previewTotals' => $this->previewTotals(),
           'summaryTotals' => $this->documentSummaryTotals(),
           'stockHint' => DocumentCreateUiSupport::stockHintForLines($this->lines),

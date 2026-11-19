@@ -154,5 +154,9 @@
         :missing-keys="$standardBuyerMissingKeys"
         :customer-name="$buyerName"
     />
-    <x-invoices.quick-product-modal :show="$showQuickProductModal" :categories="$productCategories" />
+    <x-invoices.quick-product-modal
+        :show="$showQuickProductModal"
+        :categories="$productCategories"
+        :image-preview-url="$this->quickProductImagePreviewUrl()"
+    />
 </div>

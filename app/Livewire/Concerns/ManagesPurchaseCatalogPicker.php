@@ -4,8 +4,9 @@ namespace App\Livewire\Concerns;
 
 use App\Enums\ProductItemType;
 use App\Models\Product;
-use App\Models\ProductCategory;
+use App\Models\BusinessSetting;
 use App\Models\ProductUnit;
+use App\Support\Catalog\QuickProductCategoryOptions;
 use App\Support\Catalog\CatalogUnitsSizesSchema;
 use App\Support\Catalog\ProductSkuGenerator;
 use App\Support\Invoicing\DocumentCatalogLineMerge;
@@ -17,6 +18,7 @@ use Illuminate\Validation\Rule;
 
 trait ManagesPurchaseCatalogPicker
 {
+    use ManagesQuickProductImageUpload;
     public string $addLineProductSearch = '';
 
     public bool $showQuickProductModal = false;
@@ -118,6 +120,8 @@ trait ManagesPurchaseCatalogPicker
         $this->quickProductVat = '15';
         $this->quickProductItemType = ProductItemType::Item->value;
         $this->quickProductTrackStock = true;
+        $this->quickProductCategoryId = QuickProductCategoryOptions::defaultId();
+        $this->resetQuickProductImageUpload();
         $this->showQuickProductModal = true;
     }
 
@@ -142,7 +146,9 @@ trait ManagesPurchaseCatalogPicker
             $rules['quickProductTrackStock'] = ['boolean'];
         }
 
-        $this->validate($rules);
+        $rules = array_merge($rules, $this->quickProductImageValidationRules());
+
+        $this->validate($rules, $this->quickProductImageValidationMessages());
 
         $trackStock = ProductStockSchema::ready() ? $this->quickProductTrackStock : true;
 
@@ -165,6 +171,15 @@ trait ManagesPurchaseCatalogPicker
             $attrs['product_unit_id'] = ProductUnit::query()->where('code', 'PCS')->value('id');
         }
 
+        $business = $this->resolveQuickProductBusiness();
+        $imageUrl = $this->persistQuickProductImage($business);
+        if ($this->getErrorBag()->isNotEmpty()) {
+            return;
+        }
+        if ($imageUrl !== null) {
+            $attrs['image_url'] = $imageUrl;
+        }
+
         $product = Product::query()->create($attrs);
 
         $this->showQuickProductModal = false;
@@ -182,6 +197,16 @@ trait ManagesPurchaseCatalogPicker
         $this->quickProductItemType = ProductItemType::Item->value;
         $this->quickProductCategoryId = null;
         $this->quickProductTrackStock = true;
+        $this->resetQuickProductImageUpload();
         $this->resetValidation();
+    }
+
+    protected function resolveQuickProductBusiness(): BusinessSetting
+    {
+        if (property_exists($this, 'business') && $this->business instanceof BusinessSetting) {
+            return $this->business;
+        }
+
+        return BusinessSetting::singleton();
     }
 }
