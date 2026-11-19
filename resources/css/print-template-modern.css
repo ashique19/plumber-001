@@ -245,6 +245,15 @@
     .invoice-a4__buyer-table-value,
     .invoice-a4__buyer-table-value--nowrap {
         overflow: visible !important;
+        min-width: 0 !important;
+        overflow-wrap: anywhere !important;
+        word-break: normal !important;
+    }
+
+    .invoice-a4__buyer-address-en__line {
+        white-space: normal !important;
+        overflow-wrap: anywhere !important;
+        word-break: normal !important;
     }
 
     .print-tpl-modern {

@@ -44,7 +44,7 @@ final class ClassicPartyPrintBlock
      * @param  array<string, mixed>|null  $customer
      * @return list<array{en: string, ar: string, value?: string, html?: string}>
      */
-    public static function buyerRows(?array $customer): array
+    public static function buyerRows(?array $customer, bool $forPdf = false): array
     {
         if ($customer === null || $customer === []) {
             return [];
@@ -56,7 +56,7 @@ final class ClassicPartyPrintBlock
             $rows[] = ['en' => 'Name', 'ar' => 'الاسم', 'html' => $nameHtml];
         }
 
-        $addressHtml = BuyerAddressPrintHtml::fromCustomer($customer);
+        $addressHtml = BuyerAddressPrintHtml::fromCustomer($customer, $forPdf);
         if ($addressHtml !== '') {
             $rows[] = ['en' => 'Address', 'ar' => 'العنوان', 'html' => $addressHtml];
         }

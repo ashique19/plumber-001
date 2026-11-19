@@ -514,6 +514,9 @@
     width: 56%;
     text-align: start;
     vertical-align: middle;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: normal;
 }
 
 .invoice-a4__buyer-table-value--nowrap {
@@ -573,8 +576,8 @@
     display: block;
     line-height: 1.3;
     margin: 0;
-    white-space: nowrap;
-    overflow-wrap: normal;
+    white-space: normal;
+    overflow-wrap: anywhere;
     word-break: normal;
 }
 
@@ -926,7 +929,8 @@
     .invoice-print-root:not(.invoice-print-root--pdf) .invoice-print-words-block__en,
     .invoice-print-root:not(.invoice-print-root--pdf) .invoice-print-words-block__ar {
         max-width: 50%;
-        overflow-x: clip;
+        overflow-x: visible;
+        overflow: visible;
     }
 }
 

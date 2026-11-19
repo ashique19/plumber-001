@@ -228,6 +228,7 @@ final class DocumentPdfRenderer
             .'.invoice-a4__buyer-address-cell{display:block!important;width:100%!important;max-width:100%!important}'
             .'.invoice-a4__buyer-address-en{display:block!important;text-align:left!important;font-family:dejavusans!important;max-width:100%!important}'
             .'.invoice-a4__buyer-address-en__line{display:block!important;white-space:normal!important;line-height:1.3!important;margin:0!important;font-family:dejavusans!important;font-size:9pt!important;color:#111!important;overflow-wrap:normal!important;word-break:normal!important}'
+            .'.invoice-pdf-address-part{display:inline!important;white-space:nowrap!important}'
             .'.invoice-print-root--pdf .invoice-a4__buyer-table-value{overflow:hidden!important;max-width:56%!important;word-wrap:break-word!important;font-family:dejavusans!important;font-size:9pt!important;color:#111!important;vertical-align:middle!important;line-height:1.3!important}'
             .'.invoice-print-root--pdf .invoice-a4__buyer-table-value *:not(.invoice-print-ar):not(.ar):not([dir=rtl]){font-family:dejavusans!important;color:#111!important;line-height:1.3!important}'
             .'.invoice-print-root--pdf .invoice-print-info-grid__value,.invoice-print-root--pdf .invoice-print-info-grid__value *{font-family:dejavusans!important;color:#111!important}'

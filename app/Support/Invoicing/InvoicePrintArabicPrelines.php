@@ -13,7 +13,7 @@ final class InvoicePrintArabicPrelines
     /**
      * Narrower budget for on-screen HTML print (390px embed + 50/50 words columns).
      */
-    public const AMOUNT_WORDS_HTML_CHARS_PER_LINE = 36;
+    public const AMOUNT_WORDS_HTML_CHARS_PER_LINE = 32;
 
     public const AMOUNT_WORDS_MAX_LINES = 2;
 
