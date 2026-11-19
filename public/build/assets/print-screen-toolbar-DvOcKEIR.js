@@ -1,1 +1,0 @@
-document.addEventListener(`click`,e=>{e.target.closest(`[data-print-trigger]`)&&(e.preventDefault(),window.print())});

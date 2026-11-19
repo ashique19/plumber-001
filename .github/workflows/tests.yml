@@ -29,7 +29,10 @@ jobs:
       - name: Install Node dependencies
         run: npm ci
       - name: Verify committed public/build matches Vite sources
+        env:
+          SOURCE_DATE_EPOCH: 0
         run: |
+          rm -rf public/build
           npm run build
           git diff --exit-code public/build
       - name: Run suite (sqlite, excluding InstallSql MySQL testsuite)
