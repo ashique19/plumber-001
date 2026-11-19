@@ -20,6 +20,7 @@
                 :fields="\App\Support\Customers\CustomerIdentityRules::quickFields()"
                 more-address-prop="customerQuickShowMoreAddress"
                 :sa-standard-buyer="$standardBuyer"
+                :minimal-identity="! $standardBuyer"
             />
         </div>
 

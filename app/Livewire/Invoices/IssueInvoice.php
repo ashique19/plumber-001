@@ -24,6 +24,7 @@ use App\Models\Product;
 use App\Services\InvoiceIssueService;
 use App\Services\Invoicing\InvoiceDuesLedgerService;
 use App\Support\Customers\CustomerIdentityRules;
+use App\Support\Invoicing\StandardBuyerFieldGaps;
 use App\Support\Invoicing\DocumentCreateUiSupport;
 use App\Support\Invoicing\InvoiceDocumentTotals;
 use App\Support\Invoicing\IssueInvoicePrefill;
@@ -587,6 +588,9 @@ class IssueInvoice extends Component
             'pageTitle' => __('invoices.create_heading'),
             'isStandard' => $isStandard,
             'standardBuyerMissingKeys' => $isStandard ? $this->standardBuyerCompletionMissingKeys() : [],
+            'standardBuyerIncompleteLabels' => $isStandard && $this->selectedCustomerId !== null
+                ? StandardBuyerFieldGaps::labelsFor($this)
+                : [],
             'customerSearchResults' => $this->customerSearchResults(),
             'addLineProductSearchResults' => $this->addLineProductSearchResults(),
             'canCreateCustomers' => $this->canCreateCustomersFromDocument(),

@@ -8,6 +8,7 @@
     'compact' => false,
     'showWalkInContactFields' => false,
     'collapsed' => false,
+    'standardIncompleteLabels' => [],
 ])
 
 @if ($collapsed)
@@ -51,6 +52,28 @@
                 :compact="$compact"
                 :show-walk-in-hint="$showWalkInHint"
             />
+            @if ($selectedCustomerId && count($standardIncompleteLabels) > 0)
+                <div
+                    class="document-customer-incomplete mt-3 rounded-xl border border-amber-200 bg-amber-50/90 px-3 py-3 text-sm text-amber-950"
+                    data-testid="document-customer-standard-incomplete"
+                    role="status"
+                >
+                    <p class="m-0 font-semibold">{{ __('invoices.customer_standard_incomplete') }}</p>
+                    <ul class="m-0 mt-2 list-disc space-y-1 ps-5">
+                        @foreach ($standardIncompleteLabels as $label)
+                            <li>{{ $label }}</li>
+                        @endforeach
+                    </ul>
+                    <button
+                        type="button"
+                        class="tap-action-outline mt-3 min-h-11 w-full px-3 text-sm font-semibold sm:w-auto"
+                        wire:click="openEditSelectedCustomerModal"
+                        data-testid="document-customer-complete-profile"
+                    >
+                        {{ __('invoices.complete_customer_profile') }}
+                    </button>
+                </div>
+            @endif
             @if ($customerStrip !== null)
                 <div class="document-customer-strip" wire:key="customer-strip-{{ $selectedCustomerId }}-{{ md5($customerStrip['legal_name'] ?? '') }}">
                     <div class="document-customer-strip__actions">

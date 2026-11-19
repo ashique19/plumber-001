@@ -273,6 +273,8 @@ return array (
   'customer_meta_vat' => 'VAT :value',
   'customer_meta_cr' => 'সিআর :value',
   'gap_buyer_vat_or_cr' => 'VAT নম্বর বা সিআর নম্বর',
+  'gap_buyer_vat_number' => 'VAT নম্বর',
+  'complete_customer_profile' => 'গ্রাহকের তথ্য সম্পূর্ণ করুন',
   'edit_customer' => 'গ্রাহক সম্পাদনা',
   'save_customer_profile' => 'গ্রাহক সংরক্ষণ',
   'customer_profile_updated' => 'গ্রাহক আপডেট হয়েছে।',

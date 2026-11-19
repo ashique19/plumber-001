@@ -253,6 +253,8 @@ return array (
   'customer_meta_vat' => 'ض.ب :value',
   'customer_meta_cr' => 'س.ت :value',
   'gap_buyer_vat_or_cr' => 'الرقم الضريبي أو السجل التجاري',
+  'gap_buyer_vat_number' => 'الرقم الضريبي',
+  'complete_customer_profile' => 'إكمال بيانات العميل',
   'edit_customer' => 'تعديل العميل',
   'save_customer_profile' => 'حفظ العميل',
   'customer_profile_updated' => 'تم تحديث العميل.',

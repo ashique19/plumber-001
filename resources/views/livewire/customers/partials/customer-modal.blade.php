@@ -27,6 +27,7 @@
             <x-customers.identity-fields
                 :fields="\App\Support\Customers\CustomerIdentityRules::hubFields()"
                 more-address-prop="customerShowMoreAddress"
+                :minimal-identity="true"
             />
         </div>
 

@@ -254,6 +254,8 @@ return [
     'customer_meta_vat' => 'VAT :value',
     'customer_meta_cr' => 'CR :value',
     'gap_buyer_vat_or_cr' => 'VAT number or CR number',
+    'gap_buyer_vat_number' => 'VAT number',
+    'complete_customer_profile' => 'Complete customer details',
     'edit_customer' => 'Edit customer',
     'save_customer_profile' => 'Save customer',
     'customer_profile_updated' => 'Customer updated.',
