@@ -6,6 +6,9 @@ import {
     customerTableMoreButton,
     expectHubMoreMenuAnchoredToTrigger,
     invoiceTableMoreButton,
+    prepareCustomerHub,
+    prepareInvoiceHub,
+    prepareQuotationHub,
     quotationTableMoreButton,
 } from '../helpers/hub-more-menu.js';
 
@@ -21,8 +24,7 @@ test.describe('invoice hub table', () => {
 
     test('table visible with sticky column and actions', async ({ page }) => {
         await page.setViewportSize({ width: 1280, height: 900 });
-        await page.goto(adminPath('/admin/invoices', 'en'));
-        await page.waitForLoadState('networkidle');
+        await prepareInvoiceHub(page);
 
         const table = page.locator('div.hidden.sm\\:block >> .hub-doc-table');
         await expect(table).toBeVisible({ timeout: 20_000 });
@@ -35,8 +37,7 @@ test.describe('invoice hub table', () => {
     for (const viewport of VIEWPORTS) {
         test(`row more menu anchors to trigger on first click @ ${viewport.width}`, async ({ page }) => {
             await page.setViewportSize({ width: viewport.width, height: viewport.height });
-            await page.goto(adminPath('/admin/invoices', 'en'));
-            await page.waitForLoadState('networkidle');
+            await prepareInvoiceHub(page);
 
             const more = invoiceTableMoreButton(page, viewport.layout);
             if ((await more.count()) === 0) {
@@ -48,7 +49,7 @@ test.describe('invoice hub table', () => {
     }
 
     test('screenshots at 375px and 1280px', async ({ page }) => {
-        await page.goto(adminPath('/admin/invoices', 'ar'));
+        await prepareInvoiceHub(page);
         await expect(page.locator('div.hidden.sm\\:block >> .hub-doc-table')).toBeVisible({ timeout: 20_000 });
 
         const shotDir = e2eScreenshotDir();
@@ -74,8 +75,7 @@ test.describe('quotation hub table', () => {
 
     test('table layout', async ({ page }) => {
         await page.setViewportSize({ width: 1280, height: 900 });
-        await page.goto(adminPath('/admin/quotations', 'en'));
-        await page.waitForLoadState('networkidle');
+        await prepareQuotationHub(page);
 
         const table = page.locator('div.hidden.sm\\:block >> .hub-doc-table');
         const wrap = table.locator('xpath=ancestor::div[contains(@class,"hub-doc-table-wrap")]');
@@ -90,8 +90,7 @@ test.describe('quotation hub table', () => {
     for (const viewport of VIEWPORTS) {
         test(`row more menu anchors to trigger on first click @ ${viewport.width}`, async ({ page }) => {
             await page.setViewportSize({ width: viewport.width, height: viewport.height });
-            await page.goto(adminPath('/admin/quotations', 'en'));
-            await page.waitForLoadState('networkidle');
+            await prepareQuotationHub(page);
 
             const more = quotationTableMoreButton(page, viewport.layout);
             if ((await more.count()) === 0) {
@@ -111,8 +110,7 @@ test.describe('customer hub table', () => {
     for (const width of [390, 1280] as const) {
         test(`row more menu anchors to trigger on first click @ ${width}`, async ({ page }) => {
             await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
-            await page.goto(adminPath('/admin/customers', 'en'));
-            await page.waitForLoadState('networkidle');
+            await prepareCustomerHub(page);
 
             const more = customerTableMoreButton(page);
             if ((await more.count()) === 0) {

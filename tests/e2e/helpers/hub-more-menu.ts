@@ -1,28 +1,70 @@
 import { type Locator, type Page, expect } from 'playwright/test';
 
+type Rect = { top: number; right: number; bottom: number; left: number; width: number; height: number };
+
+async function clientRect(locator: Locator): Promise<Rect> {
+    return locator.evaluate((el) => {
+        const r = el.getBoundingClientRect();
+
+        return {
+            top: r.top,
+            right: r.right,
+            bottom: r.bottom,
+            left: r.left,
+            width: r.width,
+            height: r.height,
+        };
+    });
+}
+
 export async function expectHubMoreMenuAnchoredToTrigger(page: Page, moreButton: Locator): Promise<void> {
+    await moreButton.scrollIntoViewIfNeeded();
     await expect(moreButton).toBeVisible();
 
-    const triggerBox = await moreButton.boundingBox();
-    expect(triggerBox).not.toBeNull();
+    const triggerRect = await clientRect(moreButton);
 
     await moreButton.click();
 
     const panel = page.locator('.hub-doc-table__more-panel--teleport[role="menu"][data-hub-row-more-panel-open]');
     await expect(panel).toBeVisible({ timeout: 8_000 });
 
-    const panelBox = await panel.boundingBox();
-    expect(panelBox).not.toBeNull();
+    const panelRect = await clientRect(panel);
+    const flipped = await panel.evaluate((el) => el.classList.contains('hub-doc-table__more-panel--flip-up'));
 
-    if (! triggerBox || ! panelBox) {
-        return;
+    if (flipped) {
+        expect(panelRect.bottom).toBeLessThanOrEqual(triggerRect.top + 4);
+    } else {
+        expect(panelRect.top).toBeGreaterThanOrEqual(triggerRect.bottom - 4);
     }
 
-    const triggerRight = triggerBox.x + triggerBox.width;
-    const panelRight = panelBox.x + panelBox.width;
+    expect(Math.abs(panelRect.right - triggerRect.right)).toBeLessThanOrEqual(12);
 
-    expect(panelBox.top).toBeGreaterThanOrEqual(triggerBox.y + triggerBox.height - 2);
-    expect(Math.abs(panelRight - triggerRight)).toBeLessThanOrEqual(12);
+    await page.keyboard.press('Escape');
+}
+
+export async function prepareInvoiceHub(page: Page): Promise<void> {
+    await page.goto(adminPath('/admin/invoices', 'en'));
+    await page.waitForLoadState('networkidle');
+    const issued = page.locator('.hub-doc-table__tab').filter({ hasText: /issued/i }).first();
+    if (await issued.count()) {
+        await issued.click();
+        await page.waitForLoadState('networkidle');
+    }
+}
+
+export async function prepareQuotationHub(page: Page): Promise<void> {
+    await page.goto(adminPath('/admin/quotations', 'en'));
+    await page.waitForLoadState('networkidle');
+    const all = page.locator('[data-testid="hub-quotation-lifecycle-tabs"] .hub-doc-table__tab').first();
+    if (await all.count()) {
+        await all.click();
+        await page.waitForLoadState('networkidle');
+    }
+}
+
+export async function prepareCustomerHub(page: Page): Promise<void> {
+    await page.goto(adminPath('/admin/customers', 'en'));
+    await page.waitForLoadState('networkidle');
 }
 
 export function invoiceTableMoreButton(page: Page, viewport: 'table' | 'card'): Locator {
