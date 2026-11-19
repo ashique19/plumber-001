@@ -2,24 +2,39 @@
 export function registerHubRowMoreMenu(Alpine) {
     Alpine.store('hubRowMoreMenu', {
         openId: null,
-        requestOpen(id) {
+        /** @type {Record<string, HTMLElement>} */
+        triggers: {},
+        requestOpen(id, trigger) {
             if (this.openId && this.openId !== id) {
                 window.dispatchEvent(new CustomEvent('hub-row-more-menu-close', { detail: this.openId }));
             }
             this.openId = id;
+            if (trigger instanceof HTMLElement) {
+                this.triggers[id] = trigger;
+            }
         },
         requestClose(id) {
             if (this.openId === id) {
                 this.openId = null;
             }
+            delete this.triggers[id];
             window.dispatchEvent(new CustomEvent('hub-row-more-menu-close', { detail: id }));
         },
         closeAll() {
             const previous = this.openId;
             this.openId = null;
+            this.triggers = {};
             if (previous) {
                 window.dispatchEvent(new CustomEvent('hub-row-more-menu-close', { detail: previous }));
             }
+        },
+        triggerFor(id) {
+            const el = this.triggers[id];
+            if (el instanceof HTMLElement && isVisibleTrigger(el)) {
+                return el;
+            }
+
+            return null;
         },
     });
 
@@ -44,7 +59,8 @@ export function registerHubRowMoreMenu(Alpine) {
                     this.panelReady = false;
                     this.panelStyle = {};
                     this.$nextTick(() => {
-                        if (! this.isTriggerVisible()) {
+                        const trigger = this.resolveTrigger();
+                        if (! trigger || ! isVisibleTrigger(trigger)) {
                             this.$store.hubRowMoreMenu.requestClose(this.menuId);
 
                             return;
@@ -74,13 +90,20 @@ export function registerHubRowMoreMenu(Alpine) {
             window.removeEventListener('hub-row-more-menu-close', this.onCloseEvent);
         },
 
-        toggle() {
+        /**
+         * @param {MouseEvent} event
+         */
+        toggle(event) {
+            const clicked = event?.currentTarget;
             if (this.isOpen) {
                 this.close();
 
                 return;
             }
-            this.$store.hubRowMoreMenu.requestOpen(this.menuId);
+            if (!(clicked instanceof HTMLElement) || ! isVisibleTrigger(clicked)) {
+                return;
+            }
+            this.$store.hubRowMoreMenu.requestOpen(this.menuId, clicked);
         },
 
         close() {
@@ -94,10 +117,24 @@ export function registerHubRowMoreMenu(Alpine) {
             this.close();
         },
 
+        resolveTrigger() {
+            const fromStore = this.$store.hubRowMoreMenu.triggerFor(this.menuId);
+            if (fromStore) {
+                return fromStore;
+            }
+
+            const ref = this.$refs.trigger;
+            if (ref instanceof HTMLElement && isVisibleTrigger(ref)) {
+                return ref;
+            }
+
+            return null;
+        },
+
         schedulePosition() {
             /** @param {number} attempt */
             const tryPosition = (attempt = 0) => {
-                const trigger = this.$refs.trigger;
+                const trigger = this.resolveTrigger();
                 const panel = this.$refs.panel;
 
                 if (! trigger || ! panel) {
@@ -110,13 +147,13 @@ export function registerHubRowMoreMenu(Alpine) {
                     return;
                 }
 
-                if (! this.isTriggerVisible()) {
+                if (! isVisibleTrigger(trigger)) {
                     this.$store.hubRowMoreMenu.requestClose(this.menuId);
 
                     return;
                 }
 
-                const positioned = this.positionPanel();
+                const positioned = this.positionPanel(trigger, panel);
                 if (! positioned && attempt < 12) {
                     requestAnimationFrame(() => tryPosition(attempt + 1));
 
@@ -129,20 +166,6 @@ export function registerHubRowMoreMenu(Alpine) {
             this.$nextTick(() => {
                 requestAnimationFrame(() => tryPosition());
             });
-        },
-
-        isTriggerVisible() {
-            const trigger = this.$refs.trigger;
-            if (! trigger) {
-                return false;
-            }
-            const style = window.getComputedStyle(trigger);
-            if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
-                return false;
-            }
-            const rect = trigger.getBoundingClientRect();
-
-            return rect.width > 0 && rect.height > 0;
         },
 
         measurePanel(panel) {
@@ -182,14 +205,20 @@ export function registerHubRowMoreMenu(Alpine) {
             return { width, height };
         },
 
-        positionPanel() {
-            const trigger = this.$refs.trigger;
-            const panel = this.$refs.panel;
-            if (! trigger || ! panel || ! this.isTriggerVisible()) {
+        /**
+         * @param {HTMLElement} trigger
+         * @param {HTMLElement} panel
+         */
+        positionPanel(trigger, panel) {
+            if (! isVisibleTrigger(trigger)) {
                 return false;
             }
 
             const rect = trigger.getBoundingClientRect();
+            if (rect.width <= 0 || rect.height <= 0) {
+                return false;
+            }
+
             const { width: panelWidth, height: panelHeight } = this.measurePanel(panel);
 
             const margin = 8;
@@ -232,6 +261,22 @@ export function registerHubRowMoreMenu(Alpine) {
             return true;
         },
     }));
+}
+
+/**
+ * @param {Element | null | undefined} el
+ */
+function isVisibleTrigger(el) {
+    if (!(el instanceof HTMLElement)) {
+        return false;
+    }
+    const style = window.getComputedStyle(el);
+    if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
+        return false;
+    }
+    const rect = el.getBoundingClientRect();
+
+    return rect.width > 0 && rect.height > 0;
 }
 
 /** @param {typeof import('alpinejs').Alpine} Alpine */

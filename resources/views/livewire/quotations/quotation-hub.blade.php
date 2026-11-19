@@ -45,47 +45,6 @@
         </button>
     </nav>
 
-    @if ($quotations->isNotEmpty())
-        <ul class="mb-4 space-y-3 sm:hidden" data-testid="hub-quotation-cards">
-            @foreach ($quotations as $row)
-                @php
-                    $quotation = $row['quotation'];
-                    $urls = $row['print_urls'];
-                @endphp
-                <li wire:key="quotation-card-{{ $quotation->id }}" class="hub-doc-mobile-card">
-                    <div class="hub-doc-mobile-card__head">
-                        <div>
-                            <p class="font-semibold tabular-nums">{{ $quotation->quotation_number }}</p>
-                            <p class="text-xs text-[var(--app-muted)]">{{ $row['customer'] }}</p>
-                        </div>
-                    </div>
-                    <dl class="hub-doc-mobile-card__meta">
-                        <div class="hub-doc-mobile-card__meta-row">
-                            <dt class="text-[var(--app-muted)]">{{ __('quotations.col_valid_until') }}</dt>
-                            <dd class="tabular-nums">{{ $quotation->validity_until?->format('Y-m-d') ?? '—' }}</dd>
-                        </div>
-                        <div class="hub-doc-mobile-card__meta-row">
-                            <dt class="text-[var(--app-muted)]">{{ __('quotations.col_amount') }}</dt>
-                            <dd class="tabular-nums font-medium"><x-invoices.sar-symbol /> {{ number_format($row['total_inc_vat'], 2) }}</dd>
-                        </div>
-                    </dl>
-                    <div class="hub-doc-mobile-card__actions">
-                        <x-hub.quotation-row-actions
-                            :quotation-id="$quotation->id"
-                            :print-url="$urls['print']"
-                            :download-url="$urls['download']"
-                            :print-back-url="$urls['fallback_back'] ?? route('admin.quotations')"
-                            :can-manage="$canManageQuotations ?? false"
-                            menu-viewport="card"
-                        />
-                    </div>
-                </li>
-            @endforeach
-        </ul>
-    @else
-        <p class="mb-4 text-center text-sm text-[var(--app-muted)] sm:hidden">{{ __('quotations.empty') }}</p>
-    @endif
-
     <div class="hidden sm:block">
         <x-hub.document-table-shell :aria-label="__('quotations.table_caption')">
             <thead>
@@ -147,6 +106,47 @@
             </tbody>
         </x-hub.document-table-shell>
     </div>
+
+    @if ($quotations->isNotEmpty())
+        <ul class="mb-4 space-y-3 sm:hidden" data-testid="hub-quotation-cards">
+            @foreach ($quotations as $row)
+                @php
+                    $quotation = $row['quotation'];
+                    $urls = $row['print_urls'];
+                @endphp
+                <li wire:key="quotation-card-{{ $quotation->id }}" class="hub-doc-mobile-card">
+                    <div class="hub-doc-mobile-card__head">
+                        <div>
+                            <p class="font-semibold tabular-nums">{{ $quotation->quotation_number }}</p>
+                            <p class="text-xs text-[var(--app-muted)]">{{ $row['customer'] }}</p>
+                        </div>
+                    </div>
+                    <dl class="hub-doc-mobile-card__meta">
+                        <div class="hub-doc-mobile-card__meta-row">
+                            <dt class="text-[var(--app-muted)]">{{ __('quotations.col_valid_until') }}</dt>
+                            <dd class="tabular-nums">{{ $quotation->validity_until?->format('Y-m-d') ?? '—' }}</dd>
+                        </div>
+                        <div class="hub-doc-mobile-card__meta-row">
+                            <dt class="text-[var(--app-muted)]">{{ __('quotations.col_amount') }}</dt>
+                            <dd class="tabular-nums font-medium"><x-invoices.sar-symbol /> {{ number_format($row['total_inc_vat'], 2) }}</dd>
+                        </div>
+                    </dl>
+                    <div class="hub-doc-mobile-card__actions">
+                        <x-hub.quotation-row-actions
+                            :quotation-id="$quotation->id"
+                            :print-url="$urls['print']"
+                            :download-url="$urls['download']"
+                            :print-back-url="$urls['fallback_back'] ?? route('admin.quotations')"
+                            :can-manage="$canManageQuotations ?? false"
+                            menu-viewport="card"
+                        />
+                    </div>
+                </li>
+            @endforeach
+        </ul>
+    @else
+        <p class="mb-4 text-center text-sm text-[var(--app-muted)] sm:hidden">{{ __('quotations.empty') }}</p>
+    @endif
 
     <div class="mt-4">
         <x-admin.hub-pager :paginator="$quotations" />

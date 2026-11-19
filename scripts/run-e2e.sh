@@ -6,7 +6,7 @@ cd "$ROOT"
 
 E2E_PORT="${E2E_PORT:-8765}"
 E2E_BASE_URL="${E2E_BASE_URL:-http://127.0.0.1:${E2E_PORT}}"
-ARTIFACTS="${E2E_ARTIFACTS:-/opt/cursor/artifacts/e2e}"
+ARTIFACTS="${E2E_ARTIFACTS:-$ROOT/tests/e2e/test-results}"
 export E2E_BASE_URL
 
 mkdir -p "$ARTIFACTS"

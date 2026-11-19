@@ -74,8 +74,7 @@ jobs:
           vendor/bin/pest tests/Feature/InstallSqlMigrationParityTest.php
           vendor/bin/pest --testsuite=InstallSql
 
-  playwright-search-icon:
-    if: false
+  playwright-admin:
     runs-on: ubuntu-latest
     services:
       mysql:
@@ -101,7 +100,8 @@ jobs:
       DB_PASSWORD: plumber_e2e_test
       E2E_PORT: 8765
       E2E_BASE_URL: http://127.0.0.1:8765
-      E2E_ARTIFACTS: ${{ github.workspace }}/e2e-artifacts
+      E2E_ARTIFACTS: ${{ github.workspace }}/tests/e2e/test-results
+      E2E_SCREENSHOT_DIR: ${{ github.workspace }}/tests/e2e/test-results
     steps:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
@@ -134,5 +134,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: admin-e2e-screenshots
-          path: e2e-artifacts/**
+          path: tests/e2e/test-results/**
           if-no-files-found: ignore

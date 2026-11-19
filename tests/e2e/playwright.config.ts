@@ -13,7 +13,7 @@ export default defineConfig({
     expect: { timeout: 25_000 },
     retries: process.env.CI ? 1 : 0,
     reporter: [['list'], ['html', { open: 'never', outputFolder: path.join(root, 'report') }]],
-    outputDir: process.env.E2E_ARTIFACTS || '/opt/cursor/artifacts/e2e',
+    outputDir: process.env.E2E_ARTIFACTS || path.join(root, 'test-results'),
     use: {
         baseURL: process.env.E2E_BASE_URL || 'http://127.0.0.1:8765',
         trace: 'off',

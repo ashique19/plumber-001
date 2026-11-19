@@ -6,5 +6,7 @@ it('measures and positions hub row more menu after teleport refs are ready', fun
     expect($source)
         ->toContain('panelReady')
         ->toContain('measurePanel')
-        ->toContain('tryPosition');
+        ->toContain('tryPosition')
+        ->toContain('currentTarget')
+        ->toContain('triggers');
 });

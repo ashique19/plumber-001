@@ -62,7 +62,7 @@ it('renders draft row tools and payment dash', function () {
     expect($html)
         ->toContain('data-testid="hub-row-action-edit"')
         ->toContain('data-testid="hub-row-action-preview-draft"')
-        ->toContain('data-testid="hub-row-action-more"')
+        ->toMatch('/data-testid="hub-row-action-more-invoice-\d+-(?:table|card)"/')
         ->toContain('data-testid="hub-invoice-mobile-row-link"');
 });
 
