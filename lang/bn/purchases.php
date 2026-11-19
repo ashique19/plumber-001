@@ -12,7 +12,7 @@ return array_replace_recursive($en, [
     'supplier' => 'বিদ্যমান সরবরাহকারী',
     'supplier_new' => 'নতুন সরবরাহকারী',
     'supplier_name' => 'সরবরাহকারীর নাম',
-    'supplier_vat' => 'ভ্যাট নম্বর',
+    'supplier_vat' => 'VAT নম্বর',
     'supplier_phone' => 'ফোন',
     'notes' => 'নোট',
     'lines_heading' => 'লাইন আইটেম',

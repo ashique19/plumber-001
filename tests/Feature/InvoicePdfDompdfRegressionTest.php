@@ -229,8 +229,15 @@ it('renders dompdf harness pdfs with logo for simplified and standard', function
         $this->markTestSkipped('PdfTestArtifacts directory unavailable');
     }
 
+    $dbPath = storage_path('app/dompdf-harness-'.uniqid('', true).'.sqlite');
+    $cmd = sprintf(
+        'DB_CONNECTION=sqlite DB_DATABASE=%s php %s 2>&1',
+        escapeshellarg($dbPath),
+        escapeshellarg(base_path('scripts/render-dompdf-harness.php')),
+    );
     $exit = 0;
-    passthru('php '.escapeshellarg(base_path('scripts/render-dompdf-harness.php')).' 2>&1', $exit);
+    passthru($cmd, $exit);
+    @unlink($dbPath);
     expect($exit)->toBe(0);
 
     foreach (['dompdf-render-simplified', 'dompdf-render-standard'] as $slug) {

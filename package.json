@@ -3,7 +3,7 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "vite build && npm run build:toast-prime",
+        "build": "vite build && npm run build:toast-prime && php scripts/vite-public-build-stamps.php",
         "fonts:admin": "bash scripts/copy-admin-fonts.sh",
         "build:toast-prime": "npx --yes esbuild@0.28 resources/js/toast-prime.js --bundle --format=iife --outfile=public/js/toast-prime.js",
         "dev": "vite",

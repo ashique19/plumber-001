@@ -16,7 +16,7 @@ return [
         'customer_name_ar' => 'নাম (আরবি)',
         'customer_phone' => 'ফোন',
         'customer_email' => 'ইমেইল',
-        'customer_vat' => 'ভ্যাট নম্বর',
+        'customer_vat' => 'VAT নম্বর',
         'customer_cr' => 'বাণিজ্যিক নিবন্ধন (CR)',
         'customer_country' => 'দেশ',
         'building' => 'বিল্ডিং নম্বর',
@@ -28,8 +28,8 @@ return [
 
         'product_name_en' => 'নাম (ইংরেজি)',
         'product_name_ar' => 'নাম (আরবি)',
-        'product_price' => 'মূল্য (ভ্যাট বাদে)',
-        'product_vat' => 'ভ্যাট হার',
+        'product_price' => 'মূল্য (VAT বাদে)',
+        'product_vat' => 'VAT হার',
         'product_item_type' => 'আইটেম ধরন',
         'product_category' => 'ক্যাটাগরি',
         'product_track_stock' => 'স্টক ট্র্যাক',
@@ -37,6 +37,6 @@ return [
         'supplier_name' => 'সাপ্লায়ারের নাম',
         'supplier_name_ar' => 'সাপ্লায়ার নাম (আরবি)',
         'supplier_phone' => 'ফোন',
-        'supplier_vat' => 'ভ্যাট নম্বর',
+        'supplier_vat' => 'VAT নম্বর',
     ],
 ];
