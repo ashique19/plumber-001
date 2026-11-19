@@ -36,7 +36,10 @@
             x-on:click.outside="close()"
             x-on:click="onMenuItemActivate($event)"
             x-bind:style="panelStyle"
-            x-bind:class="placement === 'top' ? 'hub-doc-table__more-panel--flip-up' : ''"
+            x-bind:class="{
+                'hub-doc-table__more-panel--flip-up': placement === 'top',
+                'hub-doc-table__more-panel--positioning': isOpen && ! panelReady,
+            }"
             class="hub-doc-table__more-panel hub-doc-table__more-panel--teleport"
             role="menu"
         >

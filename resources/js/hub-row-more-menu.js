@@ -28,6 +28,7 @@ export function registerHubRowMoreMenu(Alpine) {
     Alpine.data('hubRowMoreMenu', (menuId) => ({
         menuId,
         isOpen: false,
+        panelReady: false,
         panelStyle: {},
         placement: 'bottom',
 
@@ -40,6 +41,8 @@ export function registerHubRowMoreMenu(Alpine) {
                 }
                 this.isOpen = nextOpen;
                 if (nextOpen) {
+                    this.panelReady = false;
+                    this.panelStyle = {};
                     this.$nextTick(() => {
                         if (! this.isTriggerVisible()) {
                             this.$store.hubRowMoreMenu.requestClose(this.menuId);
@@ -48,6 +51,9 @@ export function registerHubRowMoreMenu(Alpine) {
                         }
                         this.schedulePosition();
                     });
+                } else {
+                    this.panelReady = false;
+                    this.panelStyle = {};
                 }
             };
 
@@ -57,6 +63,8 @@ export function registerHubRowMoreMenu(Alpine) {
             this.onCloseEvent = (event) => {
                 if (event.detail === this.menuId) {
                     this.isOpen = false;
+                    this.panelReady = false;
+                    this.panelStyle = {};
                 }
             };
             window.addEventListener('hub-row-more-menu-close', this.onCloseEvent);
@@ -87,8 +95,39 @@ export function registerHubRowMoreMenu(Alpine) {
         },
 
         schedulePosition() {
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => this.positionPanel());
+            /** @param {number} attempt */
+            const tryPosition = (attempt = 0) => {
+                const trigger = this.$refs.trigger;
+                const panel = this.$refs.panel;
+
+                if (! trigger || ! panel) {
+                    if (attempt < 12) {
+                        this.$nextTick(() => {
+                            requestAnimationFrame(() => tryPosition(attempt + 1));
+                        });
+                    }
+
+                    return;
+                }
+
+                if (! this.isTriggerVisible()) {
+                    this.$store.hubRowMoreMenu.requestClose(this.menuId);
+
+                    return;
+                }
+
+                const positioned = this.positionPanel();
+                if (! positioned && attempt < 12) {
+                    requestAnimationFrame(() => tryPosition(attempt + 1));
+
+                    return;
+                }
+
+                this.panelReady = positioned;
+            };
+
+            this.$nextTick(() => {
+                requestAnimationFrame(() => tryPosition());
             });
         },
 
@@ -106,20 +145,57 @@ export function registerHubRowMoreMenu(Alpine) {
             return rect.width > 0 && rect.height > 0;
         },
 
+        measurePanel(panel) {
+            if (panel.offsetWidth > 0 && panel.offsetHeight > 0) {
+                return {
+                    width: panel.offsetWidth,
+                    height: panel.offsetHeight,
+                };
+            }
+
+            const previous = {
+                position: panel.style.position,
+                visibility: panel.style.visibility,
+                display: panel.style.display,
+                left: panel.style.left,
+                top: panel.style.top,
+                width: panel.style.width,
+            };
+
+            panel.style.visibility = 'hidden';
+            panel.style.display = 'block';
+            panel.style.position = 'fixed';
+            panel.style.left = '-10000px';
+            panel.style.top = '0';
+            panel.style.width = 'max-content';
+
+            const width = Math.max(panel.offsetWidth, panel.scrollWidth, 176);
+            const height = Math.max(panel.offsetHeight, panel.scrollHeight, 80);
+
+            panel.style.position = previous.position;
+            panel.style.visibility = previous.visibility;
+            panel.style.display = previous.display;
+            panel.style.left = previous.left;
+            panel.style.top = previous.top;
+            panel.style.width = previous.width;
+
+            return { width, height };
+        },
+
         positionPanel() {
             const trigger = this.$refs.trigger;
             const panel = this.$refs.panel;
             if (! trigger || ! panel || ! this.isTriggerVisible()) {
-                return;
+                return false;
             }
 
             const rect = trigger.getBoundingClientRect();
+            const { width: panelWidth, height: panelHeight } = this.measurePanel(panel);
+
             const margin = 8;
             const gap = 4;
             const viewportH = window.innerHeight;
             const viewportW = window.innerWidth;
-            const panelWidth = Math.max(panel.offsetWidth || 176, 176);
-            const panelHeight = panel.offsetHeight || panel.scrollHeight;
 
             let top = rect.bottom + gap;
             let placement = 'bottom';
@@ -152,6 +228,8 @@ export function registerHubRowMoreMenu(Alpine) {
                 maxHeight: `${Math.round(maxHeight)}px`,
                 zIndex: '10050',
             };
+
+            return true;
         },
     }));
 }

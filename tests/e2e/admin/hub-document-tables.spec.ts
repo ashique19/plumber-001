@@ -19,6 +19,32 @@ test.describe('invoice hub table', () => {
         await expect(printOrDisabled.or(empty).first()).toBeVisible();
     });
 
+    test('row more menu aligns to trigger on first click', async ({ page }) => {
+        await page.goto(adminPath('/admin/invoices', 'en'));
+        await expect(page.locator('.hub-doc-table')).toBeVisible({ timeout: 20_000 });
+
+        const more = page.locator('[data-testid="hub-row-action-more"]').first();
+        if ((await more.count()) === 0) {
+            test.skip();
+        }
+
+        const triggerBox = await more.boundingBox();
+        expect(triggerBox).not.toBeNull();
+
+        await more.click();
+        const panel = page.locator('.hub-doc-table__more-panel--teleport[role="menu"]').first();
+        await expect(panel).toBeVisible({ timeout: 5_000 });
+        await expect(panel).not.toHaveClass(/hub-doc-table__more-panel--positioning/);
+
+        const panelBox = await panel.boundingBox();
+        expect(panelBox).not.toBeNull();
+        if (triggerBox && panelBox) {
+            expect(panelBox.x).toBeGreaterThan(120);
+            expect(panelBox.x + panelBox.width).toBeLessThanOrEqual(triggerBox.x + triggerBox.width + 24);
+            expect(Math.abs(panelBox.x + panelBox.width - (triggerBox.x + triggerBox.width))).toBeLessThan(32);
+        }
+    });
+
     test('screenshots at 375px and 1280px', async ({ page }) => {
         await page.goto(adminPath('/admin/invoices', 'ar'));
         await expect(page.locator('.hub-doc-table')).toBeVisible({ timeout: 20_000 });
