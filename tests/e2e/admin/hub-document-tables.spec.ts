@@ -113,9 +113,9 @@ test.describe('customer hub table', () => {
             await prepareCustomerHub(page);
 
             const more = customerTableMoreButton(page);
-            if ((await more.count()) === 0) {
-                test.skip();
-            }
+            await expect(more, 'customer hub must expose a visible row more menu').toBeVisible({
+                timeout: 25_000,
+            });
 
             await expectHubMoreMenuAnchoredToTrigger(page, more);
         });

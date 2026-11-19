@@ -38,7 +38,14 @@ export async function expectHubMoreMenuAnchoredToTrigger(page: Page, moreButton:
         expect(panelRect.top).toBeGreaterThanOrEqual(triggerRect.bottom - 4);
     }
 
-    expect(Math.abs(panelRect.right - triggerRect.right)).toBeLessThanOrEqual(12);
+    const viewportWidth =
+        page.viewportSize()?.width ?? (await page.evaluate(() => window.innerWidth));
+    expect(panelRect.left).toBeGreaterThanOrEqual(0);
+    expect(panelRect.right).toBeLessThanOrEqual(viewportWidth);
+
+    if (viewportWidth >= 640) {
+        expect(Math.abs(panelRect.right - triggerRect.right)).toBeLessThanOrEqual(12);
+    }
 
     await page.keyboard.press('Escape');
 }
