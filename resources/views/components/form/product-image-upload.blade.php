@@ -6,7 +6,9 @@
 ])
 
 @php
-    $initialPreview = $previewUrl ? asset($previewUrl) : '';
+    $initialPreview = $previewUrl
+        ? (str_starts_with((string) $previewUrl, 'http') ? $previewUrl : asset($previewUrl))
+        : '';
     $imageLabels = [
         'choose' => __('catalog.product_image.choose'),
         'replace' => __('catalog.product_image.replace'),
