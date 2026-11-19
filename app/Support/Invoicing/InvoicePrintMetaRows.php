@@ -84,7 +84,7 @@ final class InvoicePrintMetaRows
     public static function cashMeta(array $t): array
     {
         $rows = [
-            ['en' => 'Invoice No.', 'ar' => 'رقم الفاتورة', 'value' => (string) ($t['document_number'] ?? ''), 'label_nowrap' => true],
+            ['en' => 'Invoice No.', 'ar' => 'رقم الفاتورة', 'value' => (string) ($t['document_number'] ?? ''), 'label_nowrap' => true, 'nowrap' => true],
             ['en' => 'Issue date', 'ar' => 'تاريخ ووقت الإصدار', 'value' => $t['issue_datetime_print'] ?? null, 'label_nowrap' => true, 'nowrap' => true],
         ];
 
@@ -129,7 +129,7 @@ final class InvoicePrintMetaRows
         $paymentLabelAr = 'شروط الدفع';
 
         $rows = [
-            ['en' => 'Invoice No.', 'ar' => 'رقم الفاتورة', 'value' => (string) ($t['document_number'] ?? ''), 'label_nowrap' => true],
+            ['en' => 'Invoice No.', 'ar' => 'رقم الفاتورة', 'value' => (string) ($t['document_number'] ?? ''), 'label_nowrap' => true, 'nowrap' => true],
             ['en' => 'Issue date', 'ar' => 'تاريخ ووقت الإصدار', 'value' => $t['issue_datetime_print'] ?? null, 'label_nowrap' => true, 'nowrap' => true],
             ['en' => $paymentLabelEn, 'ar' => $paymentLabelAr, 'value' => $t['payment_terms_en'] ?? null, 'label_nowrap' => true, 'nowrap' => true],
             ['en' => 'Due date', 'ar' => 'تاريخ الاستحقاق', 'value' => $t['due_date'] ?? null, 'nowrap' => true, 'label_nowrap' => true],

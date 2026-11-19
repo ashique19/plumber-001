@@ -137,6 +137,109 @@ it('uses full arabic payment label on simplified modern intro grid in pdf html',
     expect($html)->toContain('شروط الدفع');
 });
 
+it('keeps long invoice numbers on one nowrap line in pdf html', function () {
+    $invoice = Invoice::query()->create([
+        'branch_id' => $this->branchId,
+        'document_number' => 'SIMP-20261118-182356',
+        'document_type' => InvoiceDocumentType::Simplified,
+        'status' => InvoiceStatus::Issued,
+        'issued_at' => now(),
+        'payload' => [
+            'lines' => [
+                ['name' => 'Svc', 'quantity' => 1, 'unit_price_ex_vat' => 10, 'vat_rate' => 15],
+            ],
+        ],
+    ]);
+
+    $sheet = PrintSheetFactory::invoice($invoice, Request::create('/', 'GET', ['template' => 'modern']), true);
+    $wrapped = DocumentPdfRenderer::wrapHtml(view($sheet['view'], $sheet['data'])->render());
+
+    expect($wrapped)
+        ->toContain('SIMP-20261118-182356')
+        ->toContain('invoice-print-info-grid__value--nowrap')
+        ->toContain('white-space:nowrap!important', false);
+});
+
+it('limits standard invoice arabic amount words to two pdf lines', function () {
+    $invoice = Invoice::query()->create([
+        'branch_id' => $this->branchId,
+        'document_number' => 'STD-WORDS-WRAP',
+        'document_type' => InvoiceDocumentType::Standard,
+        'status' => InvoiceStatus::Issued,
+        'issued_at' => now(),
+        'payload' => [
+            'lines' => [
+                ['name' => 'QA Product A', 'quantity' => 1, 'unit_price_ex_vat' => 25, 'vat_rate' => 15],
+            ],
+        ],
+    ]);
+
+    $sheet = PrintSheetFactory::invoice($invoice, Request::create('/', 'GET', ['template' => 'modern']), true);
+    $wrapped = DocumentPdfRenderer::wrapHtml(view($sheet['view'], $sheet['data'])->render());
+
+    preg_match_all('/<div[^>]*invoice-pdf-ar-preline[^>]*>/', $wrapped, $matches);
+    $wordsBlockStart = strpos($wrapped, 'invoice-print-words-block__ar');
+  expect($wordsBlockStart)->toBeInt();
+
+    $segment = substr($wrapped, $wordsBlockStart, 2500) ?: '';
+    preg_match_all('/invoice-pdf-ar-preline/', $segment, $wordLineMatches);
+    expect(count($wordLineMatches[0]))->toBeLessThanOrEqual(2);
+});
+
+it('paints page x of y in dompdf output when pdftotext is available', function () {
+    if (trim((string) shell_exec('command -v pdftotext')) === '') {
+        $this->markTestSkipped('pdftotext not installed');
+    }
+
+    $business = BusinessSetting::singleton();
+    $settings = $business->settings;
+    data_set($settings, 'theme.logo_url', 'images/plumber/hero.webp');
+    $business->settings = $settings;
+    $business->save();
+
+    $invoice = Invoice::query()->create([
+        'branch_id' => $this->branchId,
+        'document_number' => 'SIMP-PAGE-FOOT-001',
+        'document_type' => InvoiceDocumentType::Simplified,
+        'status' => InvoiceStatus::Issued,
+        'issued_at' => now(),
+        'payload' => [
+            'lines' => [
+                ['name' => 'Svc', 'quantity' => 1, 'unit_price_ex_vat' => 10, 'vat_rate' => 15],
+            ],
+        ],
+    ]);
+
+    $sheet = PrintSheetFactory::invoice($invoice, Request::create('/', 'GET', ['template' => 'modern']), true);
+    $binary = DocumentPdfRenderer::render(view($sheet['view'], $sheet['data'])->render());
+    $path = storage_path('app/pdf-page-footer-'.uniqid().'.pdf');
+    file_put_contents($path, $binary);
+    $text = (string) shell_exec('pdftotext '.escapeshellarg($path).' - 2>/dev/null');
+    @unlink($path);
+
+    expect($text)->toMatch('/Page\s+1\s*\/\s*1/');
+});
+
+it('renders dompdf harness pdfs with logo for simplified and standard', function () {
+    if (trim((string) shell_exec('command -v pdftoppm')) === '') {
+        $this->markTestSkipped('pdftoppm not installed');
+    }
+
+    $artifactDir = \Tests\Support\PdfTestArtifacts::directory();
+    if ($artifactDir === null) {
+        $this->markTestSkipped('PdfTestArtifacts directory unavailable');
+    }
+
+    $exit = 0;
+    passthru('php '.escapeshellarg(base_path('scripts/render-dompdf-harness.php')).' 2>&1', $exit);
+    expect($exit)->toBe(0);
+
+    foreach (['dompdf-render-simplified', 'dompdf-render-standard'] as $slug) {
+        expect(is_file("{$artifactDir}/{$slug}.pdf"))->toBeTrue("{$slug}.pdf missing");
+        expect(is_file("{$artifactDir}/{$slug}.png"))->toBeTrue("{$slug}.png missing");
+    }
+});
+
 it('renders dompdf binary with totals text extractable via pdftotext when available', function () {
     if (trim((string) shell_exec('command -v pdftotext')) === '') {
         $this->markTestSkipped('pdftotext not installed');

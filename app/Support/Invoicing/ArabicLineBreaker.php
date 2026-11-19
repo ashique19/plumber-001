@@ -103,10 +103,14 @@ final class ArabicLineBreaker
         $compact = false;
 
         if (count($lines) > $maxLines) {
-            $expanded = self::breakLines($text, (int) round($maxCharsPerLine * 1.12));
-            if (count($expanded) <= $maxLines) {
-                $lines = $expanded;
-                $compact = true;
+            foreach ([1.12, 1.22, 1.35] as $factor) {
+                $expanded = self::breakLines($text, (int) round($maxCharsPerLine * $factor));
+                if (count($expanded) <= $maxLines) {
+                    $lines = $expanded;
+                    $compact = $factor > 1.12;
+
+                    break;
+                }
             }
         }
 
