@@ -66,6 +66,7 @@ it('renders modern print HTML with amount words block beside totals width', func
         ->toContain('invoice-print-words-block print-tpl-modern__words')
         ->toContain('invoice-print-words-block__en')
         ->toContain('invoice-print-words-block__ar')
+        ->toContain('invoice-pdf-ar-preline')
         ->toContain('eleven Saudi Riyals and fifty Halalas only')
         ->toContain('أحد عشر ريال و خمسون هللة فقط');
 });

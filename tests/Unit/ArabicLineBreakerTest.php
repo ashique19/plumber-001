@@ -34,3 +34,11 @@ it('pulls a word from the previous line when the last line would be a lone word'
         expect(count($lastWords))->toBeGreaterThan(1);
     }
 });
+
+it('fits typical total amount words into two lines for pdf blocks', function () {
+    $text = 'ثمانية و عشرون ريال و خمسة و سبعون هللة فقط';
+    $result = ArabicLineBreaker::breakForPdfBlock($text, 58, 2);
+
+    expect(count($result['lines']))->toBeLessThanOrEqual(2)
+        ->and(implode(' ', $result['lines']))->toBe($text);
+});

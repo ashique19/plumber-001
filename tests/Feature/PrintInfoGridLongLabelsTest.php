@@ -25,7 +25,7 @@ it('renders long meta labels in separate grid cells without nowrap on label colu
     expect($wrapped)
         ->toContain('invoice-print-info-grid__en')
         ->toContain('white-space:normal!important')
-        ->toContain('width:30%!important')
-        ->toContain('width:42%!important')
+        ->toContain('width:'.InvoicePrintInfoGrid::COL_EN_PCT.'%!important')
+        ->toContain('width:'.InvoicePrintInfoGrid::COL_VALUE_PCT.'%!important')
         ->not->toContain('invoice-print-info-grid__en{text-align:left!important;direction:ltr!important;unicode-bidi:embed!important;font-weight:normal!important;font-size:8pt!important;font-family:dejavusans!important;color:#666!important;width:20%!important');
 });

@@ -7,11 +7,11 @@ namespace App\Support\Invoicing;
  */
 final class InvoicePrintInfoGrid
 {
-    public const COL_EN_PCT = 30;
+    public const COL_EN_PCT = 28;
 
-    public const COL_VALUE_PCT = 42;
+    public const COL_VALUE_PCT = 46;
 
-    public const COL_AR_PCT = 28;
+    public const COL_AR_PCT = 26;
 
     /**
      * Fixture rows exercising the longest EN / AR label strings used in production templates.

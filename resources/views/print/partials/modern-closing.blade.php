@@ -34,9 +34,11 @@
                             @endif
                         >{{ $t['amount_words_en'] }}</p>
                     @endif
-                    @if (filled($t['amount_words_ar'] ?? null))
-                        <p class="invoice-print-words-block__ar invoice-a4__words invoice-pdf-ar-block" dir="rtl" lang="ar">{{ $t['amount_words_ar'] }}</p>
-                    @endif
+                    <x-invoices.print-amount-words-ar
+                        :text="$t['amount_words_ar'] ?? null"
+                        :is-pdf="$isPdf ?? false"
+                        class="invoice-print-words-block__ar"
+                    />
                 </div>
             </td>
         </tr>

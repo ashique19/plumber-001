@@ -16,7 +16,7 @@ final class DocumentPdfArabicLineWrap
     private const CLASS_BUDGETS = [
         'invoice-a4__desc-ar' => 34,
         'invoice-a4__buyer-name-ar' => 38,
-        'invoice-print-words-block__ar' => 42,
+        'invoice-print-words-block__ar' => 58,
         'invoice-a4__footer-ar' => 40,
         'print-tpl-modern__footer-name-ar' => 40,
     ];

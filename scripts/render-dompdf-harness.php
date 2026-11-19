@@ -34,6 +34,7 @@ data_set($settings, 'legal_entity.national_address', [
     'district_ar' => 'حي الملز',
     'city_ar' => 'الرياض',
 ]);
+data_set($settings, 'theme.logo_url', 'images/plumber/hero.webp');
 $business->settings = $settings;
 $business->save();
 
@@ -57,7 +58,7 @@ if (! is_dir($artifactDir)) {
 $cases = [
     'dompdf-render-simplified' => [
         'type' => InvoiceDocumentType::Simplified,
-        'number' => 'HARNESS-SIMP',
+        'number' => 'SIMP-20261118-182356',
         'payload' => [
             'lines' => [
                 ['name' => 'Test Modal Product', 'name_ar' => 'منتج اختبار', 'quantity' => 1, 'unit_price_ex_vat' => 10, 'vat_rate' => 15],
@@ -66,7 +67,7 @@ $cases = [
     ],
     'dompdf-render-standard' => [
         'type' => InvoiceDocumentType::Standard,
-        'number' => 'HARNESS-STD',
+        'number' => 'STD-20261118-998877',
         'due_date' => now()->addDays(30),
         'qr_tlv_base64' => $standardQrTlv,
         'payload' => [
@@ -98,7 +99,7 @@ $ownerId = StaffUser::query()->where('email', 'owner@example.test')->value('id')
 foreach ($cases as $slug => $case) {
     $invoice = Invoice::query()->create([
         'branch_id' => $branchId,
-        'document_number' => $case['number'].'-'.uniqid(),
+        'document_number' => $case['number'],
         'document_type' => $case['type'],
         'status' => InvoiceStatus::Issued,
         'issued_at' => now(),
