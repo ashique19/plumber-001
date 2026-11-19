@@ -11,10 +11,16 @@
     data-pdf-blocked-title="{{ __('invoices.pdf_available_after_clearance') }}"
     @if (config('locales.supported.'.app()->getLocale().'.dir', 'ltr') === 'rtl') dir="rtl" @endif
 >
+    <button
+        type="button"
+        class="admin-print-preview__close"
+        @click="close()"
+        data-testid="admin-print-preview-close"
+        aria-label="{{ __('print.close') }}"
+    >
+        <x-app.icon name="x" class="admin-print-preview__close-icon" aria-hidden="true" />
+    </button>
     <header class="admin-print-preview__bar">
-        <button type="button" class="tap-action-muted min-h-11 min-w-11 px-3" @click="close()" data-testid="admin-print-preview-close" aria-label="{{ __('print.close') }}">
-            <span aria-hidden="true">×</span>
-        </button>
         <div class="admin-print-preview__bar-actions">
             <div class="admin-print-preview__layout-toggle" x-show="showLayoutSwitch" x-cloak>
                 <button type="button" :aria-pressed="layout === 'a4'" @click="switchLayout('a4')">{{ __('print.layout_a4') }}</button>
