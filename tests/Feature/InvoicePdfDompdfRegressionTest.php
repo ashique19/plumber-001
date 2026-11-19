@@ -325,3 +325,13 @@ it('renders dompdf binary with totals text extractable via pdftotext when availa
 
     @unlink($path);
 });
+
+it('strips external stylesheets and scripts from wrapped pdf html', function () {
+    $html = '<link rel="stylesheet" href="https://example.test/build/app.css"><script src="https://example.test/build/app.js"></script><div class="invoice-print-root--pdf">Body</div>';
+    $wrapped = DocumentPdfRenderer::wrapHtml($html);
+
+    expect($wrapped)
+        ->toContain('invoice-print-root--pdf')
+        ->not->toMatch('/<link\\b[^>]*stylesheet/i')
+        ->not->toMatch('/<script\\b/i');
+});

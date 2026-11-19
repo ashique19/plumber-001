@@ -100,6 +100,8 @@
                 @endif
                 <x-field.input
                     type="number"
+                    step="0.01"
+                    min="0"
                     :label="__('catalog.selling_price').' ('.($priceMode === 'inc' ? __('catalog.inc_short') : __('catalog.ex_short')).')'"
                     :name="$priceModel"
                     :wire:model="$priceModel"
@@ -169,17 +171,16 @@
                             'hidden' => ! $productTrackStock,
                         ]) data-testid="catalog-product-stock-lg">
                             @if (! $editingProductId)
-                                <x-field.input
-                                    type="number"
-                                    step="0.001"
-                                    min="0"
-                                    :label="__('catalog.opening_stock')"
-                                    name="productOpeningStock"
-                                    wire:model="productOpeningStock"
-                                    inputmode="decimal"
-                                    required
-                                    :hint="__('catalog.opening_stock_hint')"
-                                />
+                            <x-field.input
+                                type="number"
+                                step="0.001"
+                                min="0"
+                                :label="__('catalog.opening_stock')"
+                                name="productOpeningStock"
+                                wire:model="productOpeningStock"
+                                inputmode="decimal"
+                                :hint="__('catalog.opening_stock_hint')"
+                            />
                             @else
                                 <x-field.input
                                     type="number"
@@ -193,6 +194,8 @@
                             @endif
                             <x-field.input
                                 type="number"
+                                step="0.001"
+                                min="0"
                                 :label="__('catalog.min_stock_level')"
                                 name="productLowStockThreshold"
                                 wire:model="productLowStockThreshold"
@@ -321,17 +324,16 @@
                     ]) data-testid="catalog-product-stock-tabbed">
                         @if($productTrackStock)
                             @if (! $editingProductId)
-                                <x-field.input
-                                    type="number"
-                                    step="0.001"
-                                    min="0"
-                                    :label="__('catalog.opening_stock')"
-                                    name="productOpeningStock"
-                                    wire:model="productOpeningStock"
-                                    inputmode="decimal"
-                                    required
-                                    :hint="__('catalog.opening_stock_hint')"
-                                />
+                            <x-field.input
+                                type="number"
+                                step="0.001"
+                                min="0"
+                                :label="__('catalog.opening_stock')"
+                                name="productOpeningStock"
+                                wire:model="productOpeningStock"
+                                inputmode="decimal"
+                                :hint="__('catalog.opening_stock_hint')"
+                            />
                             @else
                                 <x-field.input
                                     type="number"
@@ -345,6 +347,8 @@
                             @endif
                             <x-field.input
                                 type="number"
+                                step="0.001"
+                                min="0"
                                 :label="__('catalog.min_stock_level')"
                                 name="productLowStockThreshold"
                                 wire:model="productLowStockThreshold"

@@ -195,7 +195,7 @@
             size="xl"
             data-testid="catalog-product-modal"
         >
-            <form id="catalog-product-form" class="x-modal-form catalog-product-form" wire:submit="submitProductForm">
+            <form id="catalog-product-form" class="x-modal-form catalog-product-form" wire:submit="submitProductForm" novalidate>
                 <x-modal.validation-summary :fields="[
                     'productNameEn', 'productNameAr', 'productNameBn', 'productCategoryId', 'productUnitId', 'productSizeId',
                     'productCostInput', 'productPriceInput', 'productVatRate', 'productVatZatcaCategory', 'productOpeningStock', 'productImageUpload',

@@ -125,5 +125,6 @@ it('renders quick product image upload markup in the modal', function () {
         ->toContain('quick-product-form-more-details')
         ->toContain('form-product-image-upload')
         ->toContain(__('catalog.product_tab_details'))
-        ->toContain('data-testid="quick-product-form-primary"');
+        ->toContain('data-testid="quick-product-form-primary"')
+        ->toContain('novalidate');
 });

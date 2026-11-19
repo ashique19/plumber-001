@@ -7,6 +7,15 @@ export async function openAddProductModal(page: Page, locale: 'en' | 'bn' | 'ar'
     await expect(page.locator('#catalog-product-form')).toBeVisible({ timeout: 20_000 });
 }
 
+export async function fillCatalogProductBasicTab(
+    page: Page,
+    values: { nameEn: string; nameAr: string; price: string },
+): Promise<void> {
+    await page.locator('#productNameEn').fill(values.nameEn);
+    await page.locator('#productNameAr').fill(values.nameAr);
+    await page.locator('#productPriceInput').fill(values.price);
+}
+
 export async function expectProductFormTabsFullyVisible(modal: Locator): Promise<void> {
     const header = modal.locator('.x-modal__header').first();
     const tabs = modal.locator('.catalog-product-form-tabs [role="tab"]');

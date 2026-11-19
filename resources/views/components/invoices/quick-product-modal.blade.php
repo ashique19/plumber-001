@@ -39,7 +39,7 @@
     size="xl"
     data-testid="quick-product-modal"
 >
-    <form id="quick-product-form" class="x-modal-form catalog-product-form" wire:submit.prevent="saveQuickProduct">
+    <form id="quick-product-form" class="x-modal-form catalog-product-form" wire:submit.prevent="saveQuickProduct" novalidate>
         <x-modal.validation-summary :fields="$quickProductFields" loading-target="saveQuickProduct,goToQuickProductDetailsTab" />
 
         <div class="catalog-product-form__body min-h-0 flex flex-1 flex-col overflow-hidden">
