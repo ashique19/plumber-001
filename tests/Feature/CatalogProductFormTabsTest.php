@@ -126,6 +126,8 @@ it('renders product form section tabs in the product sheet', function () {
         ->and($html)->toContain('catalog-product-form__aligned-field')
         ->and($html)->toContain('catalog-product-form__category-type-row')
         ->and($html)->toContain('catalog-product-form__active-toggle--under-media')
+        ->and($html)->toContain('catalog-product-track-stock-media')
+        ->and($html)->toContain('catalog-product-form__media-switches')
         ->and($html)->toContain('catalog-product-form__panels--responsive')
         ->and($html)->toContain('catalog-product-form__descriptions-disclosure')
         ->and($html)->toContain('catalog-product-descriptions')

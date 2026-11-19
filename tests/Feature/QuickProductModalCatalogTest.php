@@ -88,6 +88,7 @@ it('renders catalog-aligned details tab fields and body padding in the quick mod
     expect($html)
         ->toContain('catalog-product-form__body')
         ->toContain('catalog-product-form-tabs')
+        ->toContain('catalog-product-track-stock-media')
         ->toContain('catalog-product-purchase-stock-row')
         ->toContain('data-testid="catalog-product-descriptions"')
         ->toContain('name="quickProductDescriptionEn"')

@@ -50,8 +50,19 @@
                     :preview-url="$imagePreviewUrl"
                     :remove-action="$imageRemoveAction"
                 />
-                <div class="catalog-product-form__active-toggle catalog-product-form__active-toggle--under-media">
-                    <x-field.toggle :wire:model="$activeModel" :name="$activeModel" :label="__('catalog.active')" />
+                <div class="catalog-product-form__media-switches">
+                    <div class="catalog-product-form__active-toggle catalog-product-form__active-toggle--under-media">
+                        <x-field.toggle :wire:model="$activeModel" :name="$activeModel" :label="__('catalog.active')" />
+                    </div>
+                    @if($productStockReady ?? false)
+                        <div class="catalog-product-form__track-stock-toggle catalog-product-form__track-stock-toggle--under-media" data-testid="catalog-product-track-stock-media">
+                            @if($variant === 'catalog')
+                                <x-field.toggle wire:model.live="productTrackStock" name="productTrackStock" :label="__('stock.track_stock')" />
+                            @else
+                                <x-field.toggle :wire:model.live="$trackStockModel" :name="$trackStockModel" :label="__('stock.track_stock')" />
+                            @endif
+                        </div>
+                    @endif
                 </div>
             </div>
             <div class="catalog-product-form__basic-fields" data-testid="catalog-product-form-basic-fields">
@@ -127,6 +138,96 @@
                         @endforeach
                     </x-field.select>
                 </div>
+                @if($productStockReady ?? false)
+                    <div class="catalog-product-form__purchase-main catalog-product-form__purchase-main--lg-only admin-modal-span-2 form-field--span-2" data-testid="catalog-product-purchase-lg">
+                        @if($variant === 'catalog')
+                            <x-field.input
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                :label="__('catalog.purchase_price')"
+                                name="productCostInput"
+                                wire:model="productCostInput"
+                                inputmode="decimal"
+                            />
+                        @else
+                            <x-field.input
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                :label="__('catalog.purchase_price')"
+                                :name="$costModel"
+                                :wire:model="$costModel"
+                                :liveValidate="false"
+                                inputmode="decimal"
+                            />
+                        @endif
+                    </div>
+                    @if($variant === 'catalog')
+                        <div @class([
+                            'catalog-product-form__stock-fields catalog-product-form__stock-fields--lg-only',
+                            'hidden' => ! $productTrackStock,
+                        ]) data-testid="catalog-product-stock-lg">
+                            @if (! $editingProductId)
+                                <x-field.input
+                                    type="number"
+                                    step="0.001"
+                                    min="0"
+                                    :label="__('catalog.opening_stock')"
+                                    name="productOpeningStock"
+                                    wire:model="productOpeningStock"
+                                    inputmode="decimal"
+                                    required
+                                    :hint="__('catalog.opening_stock_hint')"
+                                />
+                            @else
+                                <x-field.input
+                                    type="number"
+                                    :label="__('catalog.current_stock')"
+                                    name="productCurrentStock"
+                                    wire:model="productCurrentStock"
+                                    readonly
+                                    disabled
+                                    :hint="__('catalog.current_stock_hint')"
+                                />
+                            @endif
+                            <x-field.input
+                                type="number"
+                                :label="__('catalog.min_stock_level')"
+                                name="productLowStockThreshold"
+                                wire:model="productLowStockThreshold"
+                                inputmode="decimal"
+                                :hint="__('catalog.min_stock_level_hint')"
+                            />
+                        </div>
+                    @else
+                        <div @class([
+                            'catalog-product-form__stock-fields catalog-product-form__stock-fields--lg-only',
+                            'hidden' => ! $trackStockLive,
+                        ]) data-testid="catalog-product-stock-lg">
+                            <x-field.input
+                                type="number"
+                                step="0.001"
+                                min="0"
+                                :label="__('catalog.opening_stock')"
+                                :name="$openingStockModel"
+                                :wire:model="$openingStockModel"
+                                inputmode="decimal"
+                                :liveValidate="false"
+                                :hint="__('catalog.opening_stock_hint')"
+                            />
+                            <x-field.input
+                                type="number"
+                                :label="__('catalog.min_stock_level')"
+                                :name="$lowStockModel"
+                                :wire:model="$lowStockModel"
+                                inputmode="decimal"
+                                :liveValidate="false"
+                                :hint="__('catalog.min_stock_level_hint')"
+                            />
+                        </div>
+                    @endif
+                @endif
             </div>
         </div>
     </div>
@@ -200,7 +301,7 @@
                 @endif
 
                 @if($productStockReady ?? false)
-                    <div class="catalog-product-form__purchase-stock-row" data-testid="catalog-product-purchase-stock-row">
+                    <div class="catalog-product-form__purchase-stock-row catalog-product-form__purchase-stock-row--tabbed-only" data-testid="catalog-product-purchase-stock-row">
                         <x-field.input
                             type="number"
                             step="0.01"
@@ -210,43 +311,48 @@
                             wire:model="productCostInput"
                             inputmode="decimal"
                         />
-                        <div class="catalog-product-form__track-stock-toggle">
+                        <div class="catalog-product-form__track-stock-toggle catalog-product-form__track-stock-toggle--tabbed-only">
                             <x-field.toggle wire:model.live="productTrackStock" name="productTrackStock" :label="__('stock.track_stock')" />
                         </div>
                     </div>
-                    @if($productTrackStock)
-                        @if (! $editingProductId)
+                    <div @class([
+                        'catalog-product-form__stock-fields catalog-product-form__stock-fields--tabbed-only',
+                        'hidden' => ! $productTrackStock,
+                    ]) data-testid="catalog-product-stock-tabbed">
+                        @if($productTrackStock)
+                            @if (! $editingProductId)
+                                <x-field.input
+                                    type="number"
+                                    step="0.001"
+                                    min="0"
+                                    :label="__('catalog.opening_stock')"
+                                    name="productOpeningStock"
+                                    wire:model="productOpeningStock"
+                                    inputmode="decimal"
+                                    required
+                                    :hint="__('catalog.opening_stock_hint')"
+                                />
+                            @else
+                                <x-field.input
+                                    type="number"
+                                    :label="__('catalog.current_stock')"
+                                    name="productCurrentStock"
+                                    wire:model="productCurrentStock"
+                                    readonly
+                                    disabled
+                                    :hint="__('catalog.current_stock_hint')"
+                                />
+                            @endif
                             <x-field.input
                                 type="number"
-                                step="0.001"
-                                min="0"
-                                :label="__('catalog.opening_stock')"
-                                name="productOpeningStock"
-                                wire:model="productOpeningStock"
+                                :label="__('catalog.min_stock_level')"
+                                name="productLowStockThreshold"
+                                wire:model="productLowStockThreshold"
                                 inputmode="decimal"
-                                required
-                                :hint="__('catalog.opening_stock_hint')"
-                            />
-                        @else
-                            <x-field.input
-                                type="number"
-                                :label="__('catalog.current_stock')"
-                                name="productCurrentStock"
-                                wire:model="productCurrentStock"
-                                readonly
-                                disabled
-                                :hint="__('catalog.current_stock_hint')"
+                                :hint="__('catalog.min_stock_level_hint')"
                             />
                         @endif
-                        <x-field.input
-                            type="number"
-                            :label="__('catalog.min_stock_level')"
-                            name="productLowStockThreshold"
-                            wire:model="productLowStockThreshold"
-                            inputmode="decimal"
-                            :hint="__('catalog.min_stock_level_hint')"
-                        />
-                    @endif
+                    </div>
                 @else
                     <p class="admin-modal-span-2 form-field--span-2 text-sm text-[var(--app-muted)]">{{ __('catalog.product_stock_unavailable') }}</p>
                 @endif
@@ -282,7 +388,7 @@
                 @endif
 
                 @if($productStockReady ?? false)
-                    <div class="catalog-product-form__purchase-stock-row" data-testid="catalog-product-purchase-stock-row">
+                    <div class="catalog-product-form__purchase-stock-row catalog-product-form__purchase-stock-row--tabbed-only" data-testid="catalog-product-purchase-stock-row">
                         <x-field.input
                             type="number"
                             step="0.01"
@@ -293,32 +399,37 @@
                             :liveValidate="false"
                             inputmode="decimal"
                         />
-                        <div class="catalog-product-form__track-stock-toggle">
+                        <div class="catalog-product-form__track-stock-toggle catalog-product-form__track-stock-toggle--tabbed-only">
                             <x-field.toggle :wire:model.live="$trackStockModel" :name="$trackStockModel" :label="__('stock.track_stock')" />
                         </div>
                     </div>
-                    @if($trackStockLive)
-                        <x-field.input
-                            type="number"
-                            step="0.001"
-                            min="0"
-                            :label="__('catalog.opening_stock')"
-                            :name="$openingStockModel"
-                            :wire:model="$openingStockModel"
-                            inputmode="decimal"
-                            :liveValidate="false"
-                            :hint="__('catalog.opening_stock_hint')"
-                        />
-                        <x-field.input
-                            type="number"
-                            :label="__('catalog.min_stock_level')"
-                            :name="$lowStockModel"
-                            :wire:model="$lowStockModel"
-                            inputmode="decimal"
-                            :liveValidate="false"
-                            :hint="__('catalog.min_stock_level_hint')"
-                        />
-                    @endif
+                    <div @class([
+                        'catalog-product-form__stock-fields catalog-product-form__stock-fields--tabbed-only',
+                        'hidden' => ! $trackStockLive,
+                    ]) data-testid="catalog-product-stock-tabbed">
+                        @if($trackStockLive)
+                            <x-field.input
+                                type="number"
+                                step="0.001"
+                                min="0"
+                                :label="__('catalog.opening_stock')"
+                                :name="$openingStockModel"
+                                :wire:model="$openingStockModel"
+                                inputmode="decimal"
+                                :liveValidate="false"
+                                :hint="__('catalog.opening_stock_hint')"
+                            />
+                            <x-field.input
+                                type="number"
+                                :label="__('catalog.min_stock_level')"
+                                :name="$lowStockModel"
+                                :wire:model="$lowStockModel"
+                                inputmode="decimal"
+                                :liveValidate="false"
+                                :hint="__('catalog.min_stock_level_hint')"
+                            />
+                        @endif
+                    </div>
                 @else
                     <p class="admin-modal-span-2 form-field--span-2 text-sm text-[var(--app-muted)]">{{ __('catalog.product_stock_unavailable') }}</p>
                 @endif

@@ -437,16 +437,50 @@
         gap: 0.875rem;
     }
 
-    html.admin-app .catalog-product-form__active-toggle {
+    html.admin-app .catalog-product-form__media-switches {
+        display: flex;
+        flex-direction: column;
+        gap: 0.875rem;
+        width: 100%;
+        max-width: 13.75rem;
+    }
+
+    html.admin-app .catalog-product-form__active-toggle,
+    html.admin-app .catalog-product-form__track-stock-toggle--under-media {
         display: flex;
         align-items: center;
+        width: 100%;
         min-height: 3rem;
         padding-block-end: 0.125rem;
     }
 
-    html.admin-app .catalog-product-form__active-toggle--under-media {
+    html.admin-app .catalog-product-form__track-stock-toggle--under-media {
+        display: none;
+    }
+
+    html.admin-app .catalog-product-form__purchase-main--lg-only,
+    html.admin-app .catalog-product-form__stock-fields--lg-only {
+        display: none;
+    }
+
+    html.admin-app .catalog-product-form__basic-fields .catalog-product-form__purchase-main--lg-only,
+    html.admin-app .catalog-product-form__basic-fields .catalog-product-form__stock-fields--lg-only {
+        grid-column: 1 / -1;
+    }
+
+    html.admin-app .catalog-product-form__stock-fields--lg-only {
+        display: none;
+        gap: 0.875rem;
+        grid-template-columns: minmax(0, 1fr);
         width: 100%;
-        max-width: 13.75rem;
+        min-width: 0;
+    }
+
+    @media (min-width: 768px) {
+        html.admin-app .catalog-product-form__stock-fields--lg-only {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            align-items: end;
+        }
     }
 
     html.admin-app .catalog-product-form__purchase-stock-row {
@@ -611,6 +645,39 @@
 
         html.admin-app .catalog-product-form__panel--details .catalog-product-form__tab-grid--dense {
             padding-top: 0;
+        }
+
+        html.admin-app .catalog-product-form__track-stock-toggle--under-media {
+            display: flex;
+        }
+
+        html.admin-app .catalog-product-form__purchase-stock-row--tabbed-only,
+        html.admin-app .catalog-product-form__stock-fields--tabbed-only {
+            display: none !important;
+        }
+
+        html.admin-app .catalog-product-form__purchase-main--lg-only {
+            display: block;
+        }
+
+        html.admin-app .catalog-product-form__stock-fields--lg-only:not(.hidden) {
+            display: grid;
+        }
+    }
+
+    @media (max-width: 1023px) {
+        html.admin-app .catalog-product-form__stock-fields--tabbed-only:not(.hidden) {
+            display: grid;
+            gap: 0.875rem;
+            grid-template-columns: minmax(0, 1fr);
+            grid-column: 1 / -1;
+            width: 100%;
+        }
+
+        @media (min-width: 768px) {
+            html.admin-app .catalog-product-form__stock-fields--tabbed-only:not(.hidden) {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
         }
     }
 
