@@ -177,6 +177,7 @@ return [
     'product_tab_basic' => 'Basic',
     'product_tab_details' => 'Details',
     'product_more_details' => 'More details',
+    'product_descriptions_disclosure' => 'Product descriptions (EN / AR / BN)',
     'product_tab_pricing' => 'Pricing & VAT',
     'product_tab_stock' => 'Stock',
     'product_form_tabs_label' => 'Product form sections',

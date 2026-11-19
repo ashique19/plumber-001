@@ -220,7 +220,7 @@
                                 wire-click="goToProductDetailsTab"
                                 target="goToProductDetailsTab"
                                 loading="saving"
-                                class="tap-action-muted min-h-12 min-w-[9.5rem] px-5 text-sm font-semibold"
+                                class="catalog-product-form__more-details-btn tap-action-muted min-h-12 min-w-[9.5rem] px-5 text-sm font-semibold"
                                 variant="muted"
                                 data-testid="catalog-product-form-more-details"
                             >

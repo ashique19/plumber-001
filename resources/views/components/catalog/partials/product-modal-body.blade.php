@@ -16,7 +16,7 @@
     $trackStockLive = (bool) ($this->{$trackStockModel} ?? false);
 @endphp
 
-<nav class="catalog-product-form-tabs app-section-tabs app-section-tabs--scroll" role="tablist" aria-label="{{ __('catalog.product_form_tabs_label') }}">
+<nav class="catalog-product-form-tabs catalog-product-form-tabs--tabbed-only app-section-tabs app-section-tabs--scroll" role="tablist" aria-label="{{ __('catalog.product_form_tabs_label') }}">
     @foreach ($productTabs as $tabKey => $tabLabel)
         <button
             type="button"
@@ -37,8 +37,11 @@
     @endforeach
 </nav>
 
-<div class="catalog-product-form__panels min-h-0 flex-1 overflow-y-auto overscroll-contain">
-    <div @class(['hidden' => $formTab !== 'basic']) data-testid="catalog-product-form-basic-panel">
+<div class="catalog-product-form__panels catalog-product-form__panels--responsive min-h-0 flex-1 overflow-y-auto overscroll-contain">
+    <div @class([
+        'catalog-product-form__panel catalog-product-form__panel--basic',
+        'hidden' => $formTab !== 'basic',
+    ]) data-testid="catalog-product-form-basic-panel">
         <div class="catalog-product-form__basic-layout" data-testid="catalog-product-form-basic-layout">
             <div class="catalog-product-form__basic-media">
                 <x-form.product-image-upload
@@ -47,6 +50,9 @@
                     :preview-url="$imagePreviewUrl"
                     :remove-action="$imageRemoveAction"
                 />
+                <div class="catalog-product-form__active-toggle catalog-product-form__active-toggle--under-media">
+                    <x-field.toggle :wire:model="$activeModel" :name="$activeModel" :label="__('catalog.active')" />
+                </div>
             </div>
             <div class="catalog-product-form__basic-fields" data-testid="catalog-product-form-basic-fields">
                 <x-field.input
@@ -108,27 +114,27 @@
                     :hint="' '"
                     wrapper-class="catalog-product-form__aligned-field catalog-product-form__aligned-field--spacer-hint"
                 />
-                <x-field.select :label="__('catalog.category')" :name="$categoryModel" :wire:model="$categoryModel" :required="($catalogUnitsSizesReady ?? false)">
-                    <option value="">{{ __('catalog.none') }}</option>
-                    @foreach($categories as $cat)
-                        <option value="{{ $cat->id }}">{{ $cat->displayName() }}</option>
-                    @endforeach
-                </x-field.select>
-                <div class="catalog-product-form__type-active-row" data-testid="catalog-product-type-active-row">
+                <div class="catalog-product-form__category-type-row" data-testid="catalog-product-category-type-row">
+                    <x-field.select :label="__('catalog.category')" :name="$categoryModel" :wire:model="$categoryModel" :required="($catalogUnitsSizesReady ?? false)">
+                        <option value="">{{ __('catalog.none') }}</option>
+                        @foreach($categories as $cat)
+                            <option value="{{ $cat->id }}">{{ $cat->displayName() }}</option>
+                        @endforeach
+                    </x-field.select>
                     <x-field.select :label="__('catalog.item_type')" :name="$itemTypeModel" :wire:model="$itemTypeModel">
                         @foreach(\App\Enums\ProductItemType::cases() as $type)
                             <option value="{{ $type->value }}">{{ $type->label() }}</option>
                         @endforeach
                     </x-field.select>
-                    <div class="catalog-product-form__active-toggle">
-                        <x-field.toggle :wire:model="$activeModel" :name="$activeModel" :label="__('catalog.active')" />
-                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div @class(['hidden' => $formTab !== 'details']) data-testid="catalog-product-form-details-panel">
+    <div @class([
+        'catalog-product-form__panel catalog-product-form__panel--details',
+        'hidden' => $formTab !== 'details',
+    ]) data-testid="catalog-product-form-details-panel">
         <div class="admin-modal-field-grid admin-modal-field-grid--2 catalog-product-form__tab-grid--dense">
             @if($variant === 'catalog')
                 @if($catalogUnitsSizesReady ?? false)
@@ -169,11 +175,14 @@
                 @endif
 
                 @if($catalogI18nReady ?? false)
-                    <div class="catalog-product-form__descriptions admin-modal-span-2 form-field--span-2" data-testid="catalog-product-descriptions">
-                        <x-field.textarea :label="__('catalog.description_en')" name="productDescriptionEn" wire:model="productDescriptionEn" :wrapper-class="$descriptionSpan" rows="3" />
-                        <x-field.textarea :label="__('catalog.description_ar')" name="productDescriptionAr" wire:model="productDescriptionAr" dir="rtl" :wrapper-class="$descriptionSpan" rows="3" />
-                        <x-field.textarea :label="__('catalog.description_bn')" name="productDescriptionBn" wire:model="productDescriptionBn" :wrapper-class="$descriptionSpan" rows="3" />
-                    </div>
+                    <details class="catalog-product-form__descriptions-disclosure admin-modal-span-2 form-field--span-2" data-testid="catalog-product-descriptions">
+                        <summary class="catalog-product-form__descriptions-disclosure-summary">{{ __('catalog.product_descriptions_disclosure') }}</summary>
+                        <div class="catalog-product-form__descriptions">
+                            <x-field.textarea :label="__('catalog.description_en')" name="productDescriptionEn" wire:model="productDescriptionEn" :wrapper-class="$descriptionSpan" rows="3" />
+                            <x-field.textarea :label="__('catalog.description_ar')" name="productDescriptionAr" wire:model="productDescriptionAr" dir="rtl" :wrapper-class="$descriptionSpan" rows="3" />
+                            <x-field.textarea :label="__('catalog.description_bn')" name="productDescriptionBn" wire:model="productDescriptionBn" :wrapper-class="$descriptionSpan" rows="3" />
+                        </div>
+                    </details>
                 @endif
 
                 @if ($modifiersFeatureEnabled ?? false)
@@ -262,11 +271,14 @@
                 @endif
 
                 @if($catalogI18nReady ?? false)
-                    <div class="catalog-product-form__descriptions admin-modal-span-2 form-field--span-2" data-testid="catalog-product-descriptions">
-                        <x-field.textarea :label="__('catalog.description_en')" :name="$descriptionEnModel" :wire:model="$descriptionEnModel" :wrapper-class="$descriptionSpan" rows="3" :liveValidate="false" />
-                        <x-field.textarea :label="__('catalog.description_ar')" :name="$descriptionArModel" :wire:model="$descriptionArModel" dir="rtl" :wrapper-class="$descriptionSpan" rows="3" :liveValidate="false" />
-                        <x-field.textarea :label="__('catalog.description_bn')" :name="$descriptionBnModel" :wire:model="$descriptionBnModel" :wrapper-class="$descriptionSpan" rows="3" :liveValidate="false" />
-                    </div>
+                    <details class="catalog-product-form__descriptions-disclosure admin-modal-span-2 form-field--span-2" data-testid="catalog-product-descriptions">
+                        <summary class="catalog-product-form__descriptions-disclosure-summary">{{ __('catalog.product_descriptions_disclosure') }}</summary>
+                        <div class="catalog-product-form__descriptions">
+                            <x-field.textarea :label="__('catalog.description_en')" :name="$descriptionEnModel" :wire:model="$descriptionEnModel" :wrapper-class="$descriptionSpan" rows="3" :liveValidate="false" />
+                            <x-field.textarea :label="__('catalog.description_ar')" :name="$descriptionArModel" :wire:model="$descriptionArModel" dir="rtl" :wrapper-class="$descriptionSpan" rows="3" :liveValidate="false" />
+                            <x-field.textarea :label="__('catalog.description_bn')" :name="$descriptionBnModel" :wire:model="$descriptionBnModel" :wrapper-class="$descriptionSpan" rows="3" :liveValidate="false" />
+                        </div>
+                    </details>
                 @endif
 
                 @if($productStockReady ?? false)
