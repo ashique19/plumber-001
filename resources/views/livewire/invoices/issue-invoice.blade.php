@@ -94,6 +94,7 @@
                     :show-walk-in-hint="! $isStandard"
                     :show-walk-in-contact-fields="! $isStandard && $selectedCustomerId === null && $simplifiedCustomerExpanded"
                     :collapsed="! $isStandard && ! $simplifiedCustomerExpanded && $selectedCustomerId === null"
+                    :standard-incomplete-labels="$standardBuyerIncompleteLabels"
                 />
 
                 <div class="document-create-card document-create-card--products">
@@ -146,7 +147,7 @@
 
     <x-invoices.quick-customer-modal
         :show="$showQuickCustomerModal"
-        :standard-buyer="$isStandard || $customerQuickEditMode"
+        :standard-buyer="$isStandard"
         :edit-mode="$customerQuickEditMode"
     />
     <x-invoices.standard-buyer-completion-modal

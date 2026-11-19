@@ -13,7 +13,7 @@ final class StandardBuyerFieldGaps
         $gaps = [];
 
         if (self::missingBuyerIdentity($host)) {
-            $gaps[] = __('invoices.gap_buyer_vat_or_cr');
+            $gaps[] = __('invoices.gap_buyer_vat_number');
         }
 
         if (trim((string) ($host->addrBuilding ?? '')) === '') {
@@ -24,6 +24,9 @@ final class StandardBuyerFieldGaps
         }
         if (trim((string) ($host->addrCity ?? '')) === '') {
             $gaps[] = __('business.fields.city');
+        }
+        if (trim((string) ($host->addrDistrict ?? '')) === '') {
+            $gaps[] = __('business.fields.district');
         }
         if (trim((string) ($host->addrPostal ?? '')) === '') {
             $gaps[] = __('business.fields.postal');
@@ -61,6 +64,9 @@ final class StandardBuyerFieldGaps
         if (trim((string) ($host->addrCity ?? '')) === '') {
             $missing[] = 'addrCity';
         }
+        if (trim((string) ($host->addrDistrict ?? '')) === '') {
+            $missing[] = 'addrDistrict';
+        }
         if (trim((string) ($host->addrPostal ?? '')) === '') {
             $missing[] = 'addrPostal';
         }
@@ -75,18 +81,13 @@ final class StandardBuyerFieldGaps
 
     private static function missingBuyerIdentity(object $host): bool
     {
-        $vatRegistered = self::buyerVatRegistered($host);
-
-        if ($vatRegistered) {
-            $vat = preg_replace('/\D/', '', (string) ($host->buyerVat ?? '')) ?? '';
-
-            return $vat === '';
+        if (! self::buyerVatRegistered($host)) {
+            return false;
         }
 
-        $type = strtoupper(trim((string) ($host->buyerAltIdType ?? '')));
-        $number = trim((string) ($host->buyerAltIdNumber ?? ''));
+        $vat = preg_replace('/\D/', '', (string) ($host->buyerVat ?? '')) ?? '';
 
-        return $type === '' || $number === '';
+        return $vat === '';
     }
 
     private static function buyerVatRegistered(object $host): bool

@@ -37,7 +37,7 @@
                     <x-field.input :label="__('business.fields.street')" name="addrStreet" wire:model="addrStreet" :liveValidate="false" required wrapper-class="admin-modal-span-2" />
                 @endif
                 @if (in_array('addrDistrict', $missingKeys, true))
-                    <x-field.input :label="__('business.fields.district')" name="addrDistrict" wire:model="addrDistrict" :liveValidate="false" />
+                    <x-field.input :label="__('business.fields.district')" name="addrDistrict" wire:model="addrDistrict" :liveValidate="false" required />
                 @endif
                 @if (in_array('addrCity', $missingKeys, true))
                     <x-field.input :label="__('business.fields.city')" name="addrCity" wire:model="addrCity" :liveValidate="false" required />

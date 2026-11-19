@@ -10,13 +10,14 @@ final class CustomerIdentityRules
     /**
      * @param  object  $host  Livewire host with public identity properties
      * @param  array<string, string>  $fields
-     * @param  array{sa_standard_buyer?: bool, phone_unique?: bool, phone_unique_ignore_id?: int|null, relaxed_address?: bool}  $options
+     * @param  array{sa_standard_buyer?: bool, minimal_identity?: bool, phone_unique?: bool, phone_unique_ignore_id?: int|null, relaxed_address?: bool}  $options
      * @return array<string, mixed>
      */
     public static function forHost(object $host, array $fields, array $options = []): array
     {
+        $minimal = (bool) ($options['minimal_identity'] ?? false);
         $saStandard = (bool) ($options['sa_standard_buyer'] ?? false);
-        $relaxedAddress = (bool) ($options['relaxed_address'] ?? false);
+        $relaxedAddress = $minimal || (bool) ($options['relaxed_address'] ?? false);
         $ignoreId = $options['phone_unique_ignore_id'] ?? null;
 
         $phoneRules = FieldValidationRules::saudiMobileOptional();
@@ -45,24 +46,22 @@ final class CustomerIdentityRules
                 },
             ],
             $fields['legal_name_en'] => ['nullable', 'string', 'max:160'],
-            $fields['vat_registered'] => ['required', 'boolean'],
+            $fields['vat_registered'] => $minimal ? ['nullable', 'boolean'] : ['required', 'boolean'],
             $fields['vat_number'] => [
                 'nullable',
                 'string',
-                Rule::requiredIf(fn () => (bool) $host->{$fields['vat_registered']}),
+                Rule::requiredIf(fn () => ! $minimal && (bool) $host->{$fields['vat_registered']}),
                 new \App\Rules\SaudiVatNumber,
             ],
             $fields['alt_id_type'] => [
                 'nullable',
                 'string',
-                Rule::requiredIf(fn () => ! (bool) $host->{$fields['vat_registered']}),
                 Rule::in(ZatcaPartyIdScheme::SCHEMES),
             ],
             $fields['alt_id_number'] => [
                 'nullable',
                 'string',
                 'max:64',
-                Rule::requiredIf(fn () => ! (bool) $host->{$fields['vat_registered']}),
                 function (string $attribute, mixed $value, \Closure $fail) use ($host, $fields): void {
                     $type = strtoupper(trim((string) ($host->{$fields['alt_id_type']} ?? '')));
                     $number = trim((string) $value);
@@ -76,7 +75,11 @@ final class CustomerIdentityRules
             ],
             $fields['email'] => FieldValidationRules::emailOptional(),
             $fields['phone'] => $phoneRules,
-            $fields['country_code'] => ['required', 'string', 'size:2'],
+            $fields['country_code'] => $minimal
+                ? ['nullable', 'string', 'size:2']
+                : ($saStandard
+                    ? ['required', 'string', 'size:2', Rule::in(['SA'])]
+                    : ['required', 'string', 'size:2']),
             $fields['street_name'] => $relaxedAddress
                 ? ['nullable', 'string', 'max:120']
                 : ['required', 'string', 'max:120'],

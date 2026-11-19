@@ -58,6 +58,7 @@ return [
     'phone_optional' => 'الجوال (اختياري)',
     'email_optional' => 'البريد (اختياري)',
     'more_address_details' => 'تفاصيل عنوان إضافية',
+    'legal_name_one_required_hint' => 'مطلوب اسم قانوني واحد على الأقل (إنجليزي أو عربي).',
     'sections' => [
         'identity' => 'الهوية',
         'contact' => 'التواصل',

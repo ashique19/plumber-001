@@ -181,9 +181,11 @@ trait ManagesInvoicingCustomerPicker
         }
 
         $fields = CustomerIdentityRules::quickFields();
+        $standard = $this->documentStandardBuyerRequired();
         $this->validate(CustomerIdentityRules::forHost($this, $fields, [
-            'sa_standard_buyer' => $this->documentStandardBuyerRequired(),
-            'relaxed_address' => ! $this->documentStandardBuyerRequired(),
+            'sa_standard_buyer' => $standard,
+            'minimal_identity' => ! $standard,
+            'relaxed_address' => ! $standard,
             'phone_unique' => true,
         ]));
 
@@ -216,9 +218,11 @@ trait ManagesInvoicingCustomerPicker
         abort_if($customer === null, 404);
 
         $fields = CustomerIdentityRules::quickFields();
+        $standard = $this->documentStandardBuyerRequired();
         $this->validate(CustomerIdentityRules::forHost($this, $fields, [
-            'sa_standard_buyer' => $this->documentStandardBuyerRequired(),
-            'relaxed_address' => ! $this->documentStandardBuyerRequired(),
+            'sa_standard_buyer' => $standard,
+            'minimal_identity' => ! $standard,
+            'relaxed_address' => ! $standard,
             'phone_unique' => true,
             'phone_unique_ignore_id' => $customer->id,
         ]));

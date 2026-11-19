@@ -58,6 +58,7 @@ return [
     'phone_optional' => 'ফোন (ঐচ্ছিক)',
     'email_optional' => 'ইমেইল (ঐচ্ছিক)',
     'more_address_details' => 'আরও ঠিকানার বিবরণ',
+    'legal_name_one_required_hint' => 'অন্তত একটি আইনি নাম (ইংরেজি বা আরবি) প্রয়োজন।',
     'sections' => [
         'identity' => 'পরিচয়',
         'contact' => 'যোগাযোগ',

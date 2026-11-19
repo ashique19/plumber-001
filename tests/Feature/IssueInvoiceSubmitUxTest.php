@@ -23,6 +23,7 @@ function incompleteStandardCustomer(): Customer
         'phone' => '0533333333',
         'email' => null,
         'vat_number' => null,
+        'vat_registered' => false,
         'referral_code' => '',
         'points_balance' => 0,
         'profile' => [
@@ -42,7 +43,7 @@ it('opens completion modal when an incomplete customer is selected for standard 
         ->assertSee(__('invoices.standard_buyer_completion_title'));
 });
 
-it('renders wide standard buyer completion modal with readonly sa country and visible building', function () {
+it('renders standard buyer completion modal with missing address fields only', function () {
     $customer = incompleteStandardCustomer();
 
     $html = Livewire::actingAs($this->owner, 'staff')
@@ -52,10 +53,9 @@ it('renders wide standard buyer completion modal with readonly sa country and vi
 
     expect($html)
         ->toContain('x-modal--identity')
-        ->toContain('data-testid="customer-country-readonly"')
-        ->toContain(__('customers.country.SA'))
         ->toContain('name="addrBuilding"', false)
-        ->not->toContain(__('customers.country.AE'));
+        ->toContain('name="addrDistrict"', false)
+        ->not->toContain('data-testid="customer-country-readonly"');
 });
 
 it('opens completion modal on issue when buyer fields are still missing', function () {

@@ -168,7 +168,7 @@ trait ManagesStandardBuyerCompletion
         }
 
         if (in_array('addrDistrict', $missing, true)) {
-            $rules['addrDistrict'] = ['nullable', 'string', 'max:120'];
+            $rules['addrDistrict'] = ['required', 'string', 'max:120'];
         }
         if (in_array('buyerCountry', $missing, true)) {
             $rules['buyerCountry'] = ['required', 'string', 'size:2'];

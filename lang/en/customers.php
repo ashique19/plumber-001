@@ -58,6 +58,7 @@ return [
     'phone_optional' => 'Phone (optional)',
     'email_optional' => 'Email (optional)',
     'more_address_details' => 'More address details',
+    'legal_name_one_required_hint' => 'At least one legal name (English or Arabic) is required.',
     'sections' => [
         'identity' => 'Identity',
         'contact' => 'Contact',

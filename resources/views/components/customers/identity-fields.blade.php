@@ -2,6 +2,7 @@
     'fields',
     'moreAddressProp',
     'saStandardBuyer' => false,
+    'minimalIdentity' => false,
 ])
 
 @php
@@ -37,6 +38,9 @@
 <div class="customer-identity-fields customer-identity-fields--sectioned w-full min-w-0" data-testid="customer-identity-fields">
     <section class="customer-identity-fields__section" aria-labelledby="customer-identity-section-identity">
         <h3 id="customer-identity-section-identity" class="customer-identity-fields__heading">{{ __('customers.sections.identity') }}</h3>
+        @if ($minimalIdentity || $saStandardBuyer)
+            <p class="customer-identity-fields__hint m-0">{{ __('customers.legal_name_one_required_hint') }}</p>
+        @endif
         <div class="customer-identity-fields__grid admin-modal-field-grid admin-modal-field-grid--2">
             @foreach ($nameBlocks as $block)
                 <x-field.input
@@ -44,6 +48,7 @@
                     :name="$block['prop']"
                     wire:model.blur="{{ $block['prop'] }}"
                     :dir="$block['key'] === 'legal_name_ar' ? 'rtl' : 'auto'"
+                    :required="$minimalIdentity || $saStandardBuyer"
                 />
             @endforeach
 
@@ -72,7 +77,6 @@
                     :label="__('customers.fields.alt_id_type')"
                     :name="$fields['alt_id_type']"
                     wire:model.blur="{{ $fields['alt_id_type'] }}"
-                    required
                 >
                     <option value="">{{ __('customers.alt_id_type.choose') }}</option>
                     @foreach (ZatcaPartyIdScheme::options() as $code => $label)
@@ -83,7 +87,6 @@
                     :label="__('customers.fields.alt_id_number')"
                     :name="$fields['alt_id_number']"
                     wire:model.blur="{{ $fields['alt_id_number'] }}"
-                    :required="true"
                     inputmode="{{ $altType === 'CRN' ? 'numeric' : 'text' }}"
                     :maxlength="$altType === 'CRN' ? 10 : null"
                 />

@@ -286,6 +286,8 @@ class CustomerHub extends Component
     {
         $fields = CustomerIdentityRules::hubFields();
         $rules = CustomerIdentityRules::forHost($this, $fields, [
+            'minimal_identity' => true,
+            'relaxed_address' => true,
             'phone_unique' => true,
             'phone_unique_ignore_id' => $this->editingCustomerId,
         ]);
