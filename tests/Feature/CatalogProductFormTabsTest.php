@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\ProductItemType;
 use App\Livewire\Catalog\MenuManager;
 use App\Models\BusinessSetting;
 use App\Models\Product;
@@ -20,62 +21,73 @@ beforeEach(function () {
     \App\Business\BusinessContext::set($this->tenant);
 });
 
-it('shows Next on the basic tab and Save on the last tab', function () {
+it('shows Save on the basic tab and on the details tab', function () {
     $basic = Livewire::actingAs($this->owner, 'staff')
         ->test(MenuManager::class)
         ->call('startProduct')
         ->assertSet('productFormTab', 'basic');
 
-    expect($basic->instance()->productFormPrimaryLabel())->toBe(__('catalog.next'));
+    expect($basic->instance()->productFormPrimaryLabel())->toBe(__('catalog.save'));
 
-    $stock = Livewire::actingAs($this->owner, 'staff')
+    $details = Livewire::actingAs($this->owner, 'staff')
         ->test(MenuManager::class)
         ->call('startProduct')
-        ->set('productFormTab', 'stock');
+        ->set('productFormTab', 'details');
 
-    expect($stock->instance()->productFormPrimaryLabel())->toBe(__('catalog.save'));
+    expect($details->instance()->productFormPrimaryLabel())->toBe(__('catalog.save'));
 });
 
-it('advances from basic to pricing when basic fields validate via submitProductForm', function () {
-    $category = ProductCategory::query()->firstOrFail();
-    $unitId = ProductUnit::query()->where('code', 'PCS')->value('id');
+it('saves a new product from the basic tab without visiting details', function () {
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(MenuManager::class)
+        ->call('startProduct')
+        ->set('productNameEn', 'Basic Tab Save')
+        ->set('productNameAr', 'حفظ')
+        ->set('productPriceInput', '19.99')
+        ->call('submitProductForm')
+        ->assertHasNoErrors();
 
+    expect(Product::query()->where('name_en', 'Basic Tab Save')->exists())->toBeTrue();
+});
+
+it('advances to details when basic fields validate via goToProductDetailsTab', function () {
     Livewire::actingAs($this->owner, 'staff')
         ->test(MenuManager::class)
         ->call('startProduct')
         ->set('productNameEn', 'Step Product')
         ->set('productNameAr', 'منتج')
-        ->set('productCategoryId', $category->id)
-        ->set('productUnitId', $unitId)
-        ->call('submitProductForm')
+        ->set('productPriceInput', '10')
+        ->call('goToProductDetailsTab')
         ->assertHasNoErrors()
-        ->assertSet('productFormTab', 'pricing');
+        ->assertSet('productFormTab', 'details');
 });
 
-it('keeps basic tab and errors when Next is used without required basic fields', function () {
+it('keeps basic tab and errors when Save is used without required basic fields', function () {
     Livewire::actingAs($this->owner, 'staff')
         ->test(MenuManager::class)
         ->call('startProduct')
         ->call('submitProductForm')
-        ->assertHasErrors(['productNameEn', 'productNameAr'])
+        ->assertHasErrors(['productNameEn', 'productNameAr', 'productPriceInput'])
         ->assertSet('productFormTab', 'basic');
 });
 
-it('preselects the first ordered category when starting a new product', function () {
-    $expected = QuickProductCategoryOptions::defaultId();
-    expect($expected)->not->toBeNull();
+it('preselects the first ordered category and catalog type when starting a new product', function () {
+    $expectedCategory = QuickProductCategoryOptions::defaultId();
+    $expectedType = ProductItemType::cases()[0]->value;
+    expect($expectedCategory)->not->toBeNull();
 
     Livewire::actingAs($this->owner, 'staff')
         ->test(MenuManager::class)
         ->call('startProduct')
-        ->assertSet('productCategoryId', $expected);
+        ->assertSet('productCategoryId', $expectedCategory)
+        ->assertSet('productItemType', $expectedType);
 });
 
-it('switches to the basic tab when required name fields fail validation', function () {
+it('switches to the basic tab when required name fields fail validation on save', function () {
     Livewire::actingAs($this->owner, 'staff')
         ->test(MenuManager::class)
         ->call('startProduct')
-        ->set('productFormTab', 'stock')
+        ->set('productFormTab', 'details')
         ->call('saveProduct')
         ->assertHasErrors(['productNameEn'])
         ->assertSet('productFormTab', 'basic');
@@ -115,11 +127,14 @@ it('renders product form section tabs in the product sheet', function () {
         ->and($html)->toContain('catalog-product-form__type-active-row')
         ->and($html)->toContain('catalog-product-descriptions')
         ->and($html)->toContain('form-field__hint--after')
-        ->and($html)->not->toContain('quick-product-modal__name-field')
+        ->and($html)->toContain('catalog-product-form-more-details')
+        ->and($html)->toContain(__('catalog.product_more_details'))
         ->and($html)->toContain('x-modal--xl')
         ->and($html)->toContain(__('catalog.product_tab_basic'))
-        ->and($html)->toContain("setProductFormTab('pricing')")
-        ->and($html)->toContain(__('catalog.product_tab_stock'));
+        ->and($html)->toContain("setProductFormTab('details')")
+        ->and($html)->toContain(__('catalog.product_tab_details'))
+        ->and($html)->toContain('productPriceInput')
+        ->and($html)->not->toContain('quick-product-modal__name-field');
 
     $imagePos = strpos($html, 'form-product-image-upload');
     $namePos = strpos($html, 'productNameEn');
@@ -138,12 +153,12 @@ it('requires opening stock when tracking inventory and records an opening moveme
         ->set('productNameBn', 'ট্র্যাকড এলবো')
         ->set('productCategoryId', $category->id)
         ->set('productUnitId', $unitId)
-        ->set('productCostInput', '12')
         ->set('productPriceInput', '20')
+        ->set('productCostInput', '12')
         ->set('productTrackStock', true)
         ->call('saveProduct')
         ->assertHasErrors(['productOpeningStock'])
-        ->assertSet('productFormTab', 'stock');
+        ->assertSet('productFormTab', 'details');
 
     Livewire::actingAs($this->owner, 'staff')
         ->test(MenuManager::class)
@@ -170,7 +185,7 @@ it('requires opening stock when tracking inventory and records an opening moveme
     expect(ProductStockMovement::query()->where('product_id', $product->id)->where('type', 'opening')->count())->toBe(1);
 });
 
-it('shows unit and size selects on the basic tab for create and edit', function () {
+it('shows unit and size selects on the details tab for create and edit', function () {
     $product = Product::query()->create([
         'track_stock' => true,
         'stock_quantity' => 4,
@@ -189,7 +204,7 @@ it('shows unit and size selects on the basic tab for create and edit', function 
     $createHtml = Livewire::actingAs($this->owner, 'staff')
         ->test(MenuManager::class)
         ->call('startProduct')
-        ->set('productFormTab', 'basic')
+        ->set('productFormTab', 'details')
         ->html();
 
     expect($createHtml)
@@ -203,7 +218,7 @@ it('shows unit and size selects on the basic tab for create and edit', function 
     $editHtml = Livewire::actingAs($this->owner, 'staff')
         ->test(MenuManager::class)
         ->call('startProduct', $product->id)
-        ->set('productFormTab', 'basic')
+        ->set('productFormTab', 'details')
         ->html();
 
     expect($editHtml)
@@ -232,7 +247,7 @@ it('shows current stock read-only on edit and ignores quantity changes from the 
     $html = Livewire::actingAs($this->owner, 'staff')
         ->test(MenuManager::class)
         ->call('startProduct', $product->id)
-        ->set('productFormTab', 'stock')
+        ->set('productFormTab', 'details')
         ->assertSet('productCurrentStock', '11.000')
         ->html();
 

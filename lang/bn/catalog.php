@@ -173,6 +173,8 @@ return [
     'saved_size' => 'সাইজ আপডেট হয়েছে।',
     'created_size' => 'সাইজ যোগ হয়েছে।',
     'product_tab_basic' => 'মৌলিক',
+    'product_tab_details' => 'অতিরিক্ত',
+    'product_more_details' => 'আরও বিস্তারিত',
     'product_tab_pricing' => 'মূল্য ও VAT',
     'product_tab_stock' => 'স্টক',
     'product_form_tabs_label' => 'পণ্য ফর্মের ট্যাব',

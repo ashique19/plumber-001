@@ -204,12 +204,40 @@
                     @include('livewire.catalog.partials.product-form-fields')
                 </div>
                 <div class="x-modal__footer x-modal__footer--in-form">
-                    <x-modal.footer
-                        cancel-wire='$set("showProductForm", false)'
-                        submit-target="submitProductForm"
-                        :submit-label="$this->productFormPrimaryLabel()"
-                        data-testid="catalog-product-form-primary"
-                    />
+                    <div class="x-modal-footer-actions" data-testid="catalog-product-form-footer">
+                        <button
+                            type="button"
+                            class="tap-action-muted min-h-12 px-5 text-sm font-semibold"
+                            wire:click='$set("showProductForm", false)'
+                            wire:loading.attr="disabled"
+                            wire:target="submitProductForm,goToProductDetailsTab"
+                        >
+                            {{ __('catalog.cancel') }}
+                        </button>
+                        @if ($productFormTab === 'basic')
+                            <x-ui.livewire-action
+                                type="button"
+                                wire-click="goToProductDetailsTab"
+                                target="goToProductDetailsTab"
+                                loading="saving"
+                                class="tap-action-muted min-h-12 min-w-[9.5rem] px-5 text-sm font-semibold"
+                                variant="muted"
+                                data-testid="catalog-product-form-more-details"
+                            >
+                                {{ __('catalog.product_more_details') }}
+                            </x-ui.livewire-action>
+                        @endif
+                        <x-ui.livewire-action
+                            type="submit"
+                            target="submitProductForm"
+                            loading="saving"
+                            class="tap-action-primary min-h-12 min-w-[11.5rem] px-5 text-sm font-semibold"
+                            variant="primary"
+                            data-testid="catalog-product-form-primary"
+                        >
+                            {{ $this->productFormPrimaryLabel() }}
+                        </x-ui.livewire-action>
+                    </div>
                 </div>
             </form>
         </x-modal>
