@@ -18,7 +18,7 @@ beforeEach(function () {
     $this->branchId = Branch::query()->first()?->id;
 });
 
-it('prints modern invoice html to pdf with chromium when available', function () {
+it('prints modern standard and simplified invoice html to pdf with chromium when available', function (string $documentType) {
     $chrome = null;
     foreach (['/usr/bin/chromium', '/usr/bin/chromium-browser', '/usr/bin/google-chrome-stable'] as $candidate) {
         if (is_file($candidate)) {
@@ -31,20 +31,39 @@ it('prints modern invoice html to pdf with chromium when available', function ()
         $this->markTestSkipped('Chromium not installed in this environment.');
     }
 
+    $payload = $documentType === 'standard' ? [
+        'payment_method' => 'cash',
+        'amount_words_en' => 'Twenty-Eight Saudi Riyals and Seventy-Five Halalas only',
+        'amount_words_ar' => 'ثمانية و عشرون ريال و خمسة و سبعون هللة فقط',
+        'buyer_name_en' => 'TaskenLab Company',
+        'buyer_national_address' => [
+            'building' => '7780',
+            'street' => 'Prince Abdulaziz bin Musaed bin Jalawi Street',
+            'district' => 'Al Murabba',
+            'city' => 'Riyadh',
+            'postal_code' => '12612',
+            'additional' => '3841',
+            'country' => 'SA',
+        ],
+        'lines' => [
+            ['name' => 'QA Product A', 'quantity' => 1, 'unit_price_ex_vat' => 25, 'vat_rate' => 15],
+        ],
+    ] : [
+        'payment_method' => 'cash',
+        'amount_words_en' => 'Eleven Saudi Riyals and Fifty Halalas only',
+        'amount_words_ar' => 'أحد عشر ريال و خمسون هللة فقط',
+        'lines' => [
+            ['name' => 'Line', 'quantity' => 1, 'unit_price_ex_vat' => 10, 'vat_rate' => 15],
+        ],
+    ];
+
     $invoice = Invoice::query()->create([
         'branch_id' => $this->branchId,
-        'document_number' => 'HARNESS-CHROME-PRINT',
-        'document_type' => InvoiceDocumentType::Simplified,
+        'document_number' => 'HARNESS-CHROME-'.$documentType,
+        'document_type' => $documentType === 'standard' ? InvoiceDocumentType::Standard : InvoiceDocumentType::Simplified,
         'status' => InvoiceStatus::Issued,
         'issued_at' => now(),
-        'payload' => [
-            'payment_method' => 'cash',
-            'amount_words_en' => 'Eleven Saudi Riyals and Fifty Halalas only',
-            'amount_words_ar' => 'أحد عشر ريال و خمسون هللة فقط',
-            'lines' => [
-                ['name' => 'Line', 'quantity' => 1, 'unit_price_ex_vat' => 10, 'vat_rate' => 15],
-            ],
-        ],
+        'payload' => $payload,
     ]);
 
     auth('staff')->login($this->owner);
@@ -62,8 +81,8 @@ it('prints modern invoice html to pdf with chromium when available', function ()
         mkdir($dir, 0775, true);
     }
 
-    $htmlPath = $dir.'/harness-chrome.html';
-    $pdfPath = $dir.'/harness-chrome.pdf';
+    $htmlPath = $dir.'/harness-chrome-'.$documentType.'.html';
+    $pdfPath = $dir.'/harness-chrome-'.$documentType.'.pdf';
     file_put_contents($htmlPath, $html);
 
     $command = sprintf(
@@ -85,5 +104,5 @@ it('prints modern invoice html to pdf with chromium when available', function ()
         ->and(filesize($pdfPath))->toBeGreaterThan(1500);
 
     expect($html)->toContain('invoice-print-page-label__print')
-        ->toContain('HARNESS-CHROME-PRINT');
-});
+        ->toContain('HARNESS-CHROME-'.$documentType);
+})->with(['simplified', 'standard']);

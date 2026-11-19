@@ -6,7 +6,7 @@
         ? \App\Support\Invoicing\InvoicePrintMetaRows::modernQuotationMeta($t)
         : \App\Support\Invoicing\InvoicePrintMetaRows::modernIntroGrid($t);
     $sellerRows = \App\Support\Invoicing\ClassicPartyPrintBlock::sellerRows($t);
-    $buyerRows = \App\Support\Invoicing\ClassicPartyPrintBlock::buyerRows($t['customer'] ?? null);
+    $buyerRows = \App\Support\Invoicing\ClassicPartyPrintBlock::buyerRows($t['customer'] ?? null, $isPdf ?? false);
     $tot = $t['totals'];
 @endphp
 <x-layouts.print>

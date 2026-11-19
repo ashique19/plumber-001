@@ -21,7 +21,7 @@
             $isQuotation = ($t['document_kind'] ?? 'invoice') === 'quotation';
         @endphp
 
-        @php($buyerRows = \App\Support\Invoicing\BuyerPrintBlock::rows($t['customer'] ?? null))
+        @php($buyerRows = \App\Support\Invoicing\BuyerPrintBlock::rows($t['customer'] ?? null, $isPdf ?? false))
         @if ($isQuotation)
             <x-invoices.print-info-grid :rows="\App\Support\Invoicing\InvoicePrintMetaRows::modernQuotationMeta($t)" />
             @if (count($buyerRows) > 0)

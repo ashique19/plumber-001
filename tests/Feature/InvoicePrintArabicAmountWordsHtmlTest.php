@@ -82,7 +82,7 @@ it('renders standard modern html with two nowrap arabic amount word prelines for
     preg_match_all('/<div class="invoice-pdf-ar-preline"/', $segment, $matches);
     expect($matches[0])->toHaveCount(2);
 
-    expect($segment)->toContain('ثمانية و عشرون ريال و خمسة و سبعون');
-    expect($segment)->toContain('هللة فقط');
+    expect($segment)->toContain('ثمانية و عشرون ريال و خمسة');
+    expect($segment)->toContain('و سبعون هللة فقط');
     expect($segment)->not->toContain(SAMPLE_AMOUNT_WORDS_AR);
 });
