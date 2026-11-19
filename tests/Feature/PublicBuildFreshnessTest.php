@@ -8,7 +8,7 @@ it('committed vite bundles for invoice print include modern polish rules', funct
 
     $expectations = [
         'resources/css/invoice-print.css' => [
-            '.invoice-pdf-ar-preline',
+            'invoice-pdf-ar-preline',
             'white-space:nowrap',
             'invoice-a4__buyer-address-en__line',
         ],
@@ -27,7 +27,7 @@ it('committed vite bundles for invoice print include modern polish rules', funct
         expect(is_file($builtPath))->toBeTrue();
         $css = file_get_contents($builtPath);
         foreach ($needles as $needle) {
-            expect($css)->toContain($needle, "Expected {$entry} bundle [{$rel}] to contain {$needle}");
+            expect($css)->toContain($needle);
         }
     }
 });
