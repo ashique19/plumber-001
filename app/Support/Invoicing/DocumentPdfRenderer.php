@@ -66,9 +66,11 @@ final class DocumentPdfRenderer
     public static function wrapHtml(string $html): string
     {
         $css = self::printCss();
-        $body = self::shapeArabic(
-            DocumentPdfArabicLineWrap::apply(
-                self::inlineSarSymbolsForPdf($html),
+        $body = self::stripExternalDocumentAssets(
+            self::shapeArabic(
+                DocumentPdfArabicLineWrap::apply(
+                    self::inlineSarSymbolsForPdf($html),
+                ),
             ),
         );
 
@@ -88,7 +90,7 @@ final class DocumentPdfRenderer
         DocumentPdfFonts::assertReady();
 
         $options = new Options;
-        $options->set('isRemoteEnabled', true);
+        $options->set('isRemoteEnabled', false);
         $options->set('isHtml5ParserEnabled', true);
         $options->set('defaultFont', DocumentPdfFonts::FAMILY_LATIN);
         $options->setChroot(base_path());
@@ -426,6 +428,18 @@ final class DocumentPdfRenderer
             $img,
             $html
         );
+    }
+
+    /**
+     * Dompdf must not fetch remote stylesheets or scripts (layout drift, network dependency).
+     */
+    private static function stripExternalDocumentAssets(string $html): string
+    {
+        $html = (string) preg_replace('/<link\b[^>]*\brel\s*=\s*["\']?stylesheet["\']?[^>]*>/i', '', $html);
+        $html = (string) preg_replace('/<script\b[^>]*>.*?<\/script>/is', '', $html);
+        $html = (string) preg_replace('/<script\b[^>]*\/>/i', '', $html);
+
+        return $html;
     }
 
     private static function localizeAssetUrls(string $html): string

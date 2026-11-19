@@ -367,6 +367,12 @@
         padding-bottom: 1rem;
     }
 
+    @media (max-width: 767px) {
+        html.admin-app .catalog-product-form__panels--responsive {
+            padding-bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px));
+        }
+    }
+
     html.admin-app .catalog-product-form__basic-layout {
         display: flex;
         flex-direction: column;

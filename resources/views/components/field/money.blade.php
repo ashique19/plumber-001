@@ -3,6 +3,7 @@
 <x-form.input
     type="number"
     step="0.01"
+    min="0"
     inputmode="decimal"
     :label="$label"
     :name="$name"

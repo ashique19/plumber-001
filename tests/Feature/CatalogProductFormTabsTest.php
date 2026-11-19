@@ -139,6 +139,8 @@ it('renders product form section tabs in the product sheet', function () {
         ->and($html)->toContain("setProductFormTab('details')")
         ->and($html)->toContain(__('catalog.product_tab_details'))
         ->and($html)->toContain('productPriceInput')
+        ->and($html)->toContain('step="0.01"')
+        ->and($html)->toContain('novalidate')
         ->and($html)->not->toContain('quick-product-modal__name-field');
 
     $imagePos = strpos($html, 'form-product-image-upload');
