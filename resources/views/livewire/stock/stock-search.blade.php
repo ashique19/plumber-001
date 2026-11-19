@@ -52,7 +52,13 @@
                                 @endif
                             </td>
                             <td class="px-4 py-3 text-end tabular-nums">{{ number_format((float) $product->stock_quantity, 2) }}</td>
-                            <td class="px-4 py-3 text-end tabular-nums">{{ number_format((float) $product->cost_ex_vat, 2) }}</td>
+                            <td class="px-4 py-3 text-end tabular-nums">
+                                @if ($product->cost_ex_vat !== null)
+                                    {{ number_format((float) $product->cost_ex_vat, 2) }}
+                                @else
+                                    —
+                                @endif
+                            </td>
                             <td class="px-4 py-3 text-end">
                                 <button type="button" class="tap-action-muted text-xs" wire:click="selectProduct({{ $product->id }})">
                                     {{ __('stock.view_movements') }}

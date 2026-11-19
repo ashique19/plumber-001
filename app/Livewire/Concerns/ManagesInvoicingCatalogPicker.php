@@ -8,6 +8,7 @@ use App\Models\BusinessSetting;
 use App\Models\ProductUnit;
 use App\Support\Catalog\QuickProductCategoryOptions;
 use App\Support\Catalog\CatalogUnitsSizesSchema;
+use App\Support\Catalog\ProductCostInput;
 use App\Support\Catalog\ProductSkuGenerator;
 use App\Support\Invoicing\DocumentCatalogLineMerge;
 use App\Support\Invoicing\DocumentCreateUiSupport;
@@ -41,6 +42,8 @@ trait ManagesInvoicingCatalogPicker
     public ?int $quickProductCategoryId = null;
 
     public bool $quickProductTrackStock = false;
+
+    public string $quickProductCost = '';
 
     /**
      * @return list<array{id: int, label: string, meta: string, search: string}>
@@ -153,17 +156,22 @@ trait ManagesInvoicingCatalogPicker
 
         if (ProductStockSchema::ready()) {
             $rules['quickProductTrackStock'] = ['boolean'];
+            $rules['quickProductCost'] = ['nullable', 'numeric', 'min:0'];
         }
 
         $rules = array_merge($rules, $this->quickProductImageValidationRules());
 
         $this->validate($rules, $this->quickProductImageValidationMessages());
 
+        $costExVat = ProductStockSchema::ready()
+            ? ProductCostInput::parseOptional($this->quickProductCost)
+            : null;
+
         $attrs = [
             'name_en' => trim($this->quickProductNameEn),
             'name_ar' => trim($this->quickProductNameAr),
             'price_ex_vat' => round((float) $this->quickProductPrice, 2),
-            'cost_ex_vat' => round((float) $this->quickProductPrice, 2),
+            'cost_ex_vat' => $costExVat,
             'vat_rate' => round((float) $this->quickProductVat, 2),
             'product_category_id' => $this->quickProductCategoryId,
             'item_type' => $this->quickProductItemType,
@@ -259,6 +267,7 @@ trait ManagesInvoicingCatalogPicker
         $this->quickProductCategoryId = null;
         $this->quickProductTrackStock = false;
         $this->resetQuickProductImageUpload();
+        $this->quickProductCost = '';
         $this->resetValidation();
     }
 

@@ -19,6 +19,47 @@ beforeEach(function () {
     \App\Business\BusinessContext::set($this->tenant);
 });
 
+it('shows Next on the basic tab and Save on the last tab', function () {
+    $basic = Livewire::actingAs($this->owner, 'staff')
+        ->test(MenuManager::class)
+        ->call('startProduct')
+        ->assertSet('productFormTab', 'basic');
+
+    expect($basic->instance()->productFormPrimaryLabel())->toBe(__('catalog.next'));
+
+    $stock = Livewire::actingAs($this->owner, 'staff')
+        ->test(MenuManager::class)
+        ->call('startProduct')
+        ->set('productFormTab', 'stock');
+
+    expect($stock->instance()->productFormPrimaryLabel())->toBe(__('catalog.save'));
+});
+
+it('advances from basic to pricing when basic fields validate via submitProductForm', function () {
+    $category = ProductCategory::query()->firstOrFail();
+    $unitId = ProductUnit::query()->where('code', 'PCS')->value('id');
+
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(MenuManager::class)
+        ->call('startProduct')
+        ->set('productNameEn', 'Step Product')
+        ->set('productNameAr', 'منتج')
+        ->set('productCategoryId', $category->id)
+        ->set('productUnitId', $unitId)
+        ->call('submitProductForm')
+        ->assertHasNoErrors()
+        ->assertSet('productFormTab', 'pricing');
+});
+
+it('keeps basic tab and errors when Next is used without required basic fields', function () {
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(MenuManager::class)
+        ->call('startProduct')
+        ->call('submitProductForm')
+        ->assertHasErrors(['productNameEn', 'productNameAr', 'productCategoryId'])
+        ->assertSet('productFormTab', 'basic');
+});
+
 it('switches to the basic tab when required name fields fail validation', function () {
     Livewire::actingAs($this->owner, 'staff')
         ->test(MenuManager::class)
@@ -27,6 +68,27 @@ it('switches to the basic tab when required name fields fail validation', functi
         ->call('saveProduct')
         ->assertHasErrors(['productNameEn'])
         ->assertSet('productFormTab', 'basic');
+});
+
+it('renders price entry mode help under the select', function () {
+    app()->setLocale('bn');
+
+    $html = Livewire::actingAs($this->owner, 'staff')
+        ->test(MenuManager::class)
+        ->html();
+
+    expect($html)
+        ->toContain(__('catalog.price_mode'))
+        ->toContain('data-testid="catalog-price-mode"')
+        ->toContain(__('catalog.price_hint'))
+        ->toContain('form-field__hint--after')
+        ->and(__('catalog.price_ex_vat'))->toBe('VAT ছাড়া');
+});
+
+it('uses VAT in catalog price suffix and purchase cost labels', function () {
+    expect(__('catalog.ex_short'))->toMatch('/VAT|ضريبة/i')
+        ->and(__('catalog.purchase_price'))->toMatch('/VAT|ضريبة/i')
+        ->and(__('catalog.purchase_price', [], 'en'))->toContain('excl. VAT');
 });
 
 it('renders product form section tabs in the product sheet', function () {
@@ -92,7 +154,7 @@ it('requires opening stock when tracking inventory and records an opening moveme
     expect(ProductStockMovement::query()->where('product_id', $product->id)->where('type', 'opening')->count())->toBe(1);
 });
 
-it('shows unit and size selects on the stock tab for create and edit', function () {
+it('shows unit and size selects on the basic tab for create and edit', function () {
     $product = Product::query()->create([
         'track_stock' => true,
         'stock_quantity' => 4,

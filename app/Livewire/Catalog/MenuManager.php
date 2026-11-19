@@ -22,6 +22,8 @@ use App\Support\Catalog\CatalogI18n;
 use App\Support\Catalog\CatalogUnitsSizesSchema;
 use App\Support\Catalog\ProductReferenceGuard;
 use App\Support\Catalog\ProductSkuGenerator;
+use App\Support\Catalog\CategoryIconOptions;
+use App\Support\Catalog\ProductCostInput;
 use App\Support\Catalog\ProductCategorySchema;
 use App\Support\Catalog\ProductGallery;
 use App\Support\Catalog\ProductStorefrontVisibility;
@@ -352,7 +354,7 @@ class MenuManager extends Component
             $this->categoryDescriptionEn = ProductCategorySchema::hasDescriptionEnColumn() ? (string) ($cat->description_en ?? '') : '';
             $this->categoryDescriptionAr = ProductCategorySchema::hasDescriptionArColumn() ? (string) ($cat->description_ar ?? '') : '';
             $this->categoryDescriptionBn = ProductCategorySchema::hasDescriptionBnColumn() ? (string) ($cat->description_bn ?? '') : '';
-            $this->categoryIconKey = (string) ($cat->icon_key ?: 'cup');
+            $this->categoryIconKey = CategoryIconOptions::normalize($cat->icon_key);
             $this->categoryActive = (bool) $cat->is_active;
         }
     }
@@ -360,16 +362,25 @@ class MenuManager extends Component
     public function saveCategory(): void
     {
         $this->authorizeCatalogWrite();
-        $validated = $this->validate([
+        $rules = [
             'categoryNameEn' => ['required', 'string', 'max:120'],
             'categoryNameAr' => ['nullable', 'string', 'max:120'],
             'categoryNameBn' => ['nullable', 'string', 'max:120'],
             'categoryDescriptionEn' => ['nullable', 'string', 'max:2000'],
             'categoryDescriptionAr' => ['nullable', 'string', 'max:2000'],
             'categoryDescriptionBn' => ['nullable', 'string', 'max:2000'],
-            'categoryIconKey' => ['nullable', 'string', 'max:40'],
             'categoryActive' => ['boolean'],
-        ]);
+        ];
+
+        if (ProductCategorySchema::hasIconKeyColumn()) {
+            $rules['categoryIconKey'] = ['required', 'string', Rule::in(CategoryIconOptions::keys())];
+        }
+
+        $validated = $this->validate($rules);
+
+        if (ProductCategorySchema::hasIconKeyColumn()) {
+            $validated['categoryIconKey'] = CategoryIconOptions::normalize($validated['categoryIconKey'] ?? '');
+        }
 
         $payload = ProductCategorySchema::mutationPayload($validated);
 
@@ -429,7 +440,9 @@ class MenuManager extends Component
             if (ProductStockSchema::ready()) {
                 $this->productTrackStock = (bool) $product->track_stock;
                 $this->productLowStockThreshold = (string) ($product->low_stock_threshold ?? 0);
-                $this->productCostInput = number_format((float) $product->cost_ex_vat, 2, '.', '');
+                $this->productCostInput = $product->cost_ex_vat !== null
+                    ? number_format((float) $product->cost_ex_vat, 2, '.', '')
+                    : '';
                 $this->productOpeningStock = '';
                 $this->productCurrentStock = number_format((float) $product->stock_quantity, 3, '.', '');
             }
@@ -485,9 +498,80 @@ class MenuManager extends Component
         $this->dispatch('catalog-product-image-cleared');
     }
 
-    public function saveProduct(ProductImageService $images, ProductStockService $stock): void
+    public function submitProductForm(ProductImageService $images, ProductStockService $stock): void
     {
-        $this->authorizeCatalogWrite();
+        if ($this->isLastProductFormTab()) {
+            $this->saveProduct($images, $stock);
+
+            return;
+        }
+
+        $this->validateCurrentProductFormTabAndAdvance();
+    }
+
+    public function productFormPrimaryLabel(): string
+    {
+        return $this->isLastProductFormTab() ? __('catalog.save') : __('catalog.next');
+    }
+
+    public function isLastProductFormTab(): bool
+    {
+        $tabs = $this->productFormTabSequence();
+
+        return $this->productFormTab === $tabs[array_key_last($tabs)];
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function productFormTabSequence(): array
+    {
+        $tabs = ['basic', 'pricing'];
+        if (ProductStockSchema::ready()) {
+            $tabs[] = 'stock';
+        }
+
+        return $tabs;
+    }
+
+    private function validateCurrentProductFormTabAndAdvance(): void
+    {
+        $tab = $this->productFormTab;
+        $rules = $this->productValidationRulesForTab($tab);
+        if ($rules === []) {
+            $this->advanceProductFormTab();
+
+            return;
+        }
+
+        try {
+            $this->validate($rules, ProductImageConstraints::validationMessages(), $this->productValidationAttributes());
+        } catch (ValidationException $e) {
+            $this->focusProductFormTabForErrors(array_keys($e->validator->errors()->messages()));
+            $this->toastError(__('catalog.modal_error_summary'), persistent: true);
+
+            throw $e;
+        }
+
+        $this->advanceProductFormTab();
+    }
+
+    private function advanceProductFormTab(): void
+    {
+        $tabs = $this->productFormTabSequence();
+        $index = array_search($this->productFormTab, $tabs, true);
+        if ($index === false || ! isset($tabs[$index + 1])) {
+            return;
+        }
+
+        $this->productFormTab = $tabs[$index + 1];
+    }
+
+    /**
+     * @return array<string, list<string|Rule|callable>>
+     */
+    private function productValidationRules(): array
+    {
         $rules = [
             'productNameEn' => ['required', 'string', 'max:160'],
             'productNameAr' => ['required', 'string', 'max:160'],
@@ -501,8 +585,8 @@ class MenuManager extends Component
             'productShowOnMenu' => ['boolean'],
             'productModifierIds' => ['array'],
             'productItemType' => ['required', Rule::in(array_map(fn (ProductItemType $t) => $t->value, ProductItemType::cases()))],
+            'productNameBn' => ['nullable', 'string', 'max:160'],
         ];
-        $rules['productNameBn'] = ['nullable', 'string', 'max:160'];
 
         if (CatalogUnitsSizesSchema::ready()) {
             $rules['productCategoryId'] = ['required', 'integer', 'exists:product_categories,id'];
@@ -517,7 +601,7 @@ class MenuManager extends Component
         if (ProductStockSchema::ready()) {
             $rules['productTrackStock'] = ['boolean'];
             $rules['productLowStockThreshold'] = ['nullable', 'numeric', 'min:0'];
-            $rules['productCostInput'] = ['required', 'numeric', 'min:0'];
+            $rules['productCostInput'] = ['nullable', 'numeric', 'min:0'];
             if (! $this->editingProductId) {
                 $rules['productOpeningStock'] = [Rule::requiredIf(fn (): bool => $this->productTrackStock), 'nullable', 'numeric', 'min:0'];
             }
@@ -525,6 +609,30 @@ class MenuManager extends Component
         if ($this->productImageUpload !== null) {
             $rules['productImageUpload'] = ProductImageConstraints::componentRules();
         }
+
+        return $rules;
+    }
+
+    /**
+     * @return array<string, list<string|Rule|callable>>
+     */
+    private function productValidationRulesForTab(string $tab): array
+    {
+        if (! in_array($tab, $this->productFormTabSequence(), true)) {
+            return [];
+        }
+
+        return array_filter(
+            $this->productValidationRules(),
+            fn (string $field): bool => $this->productFormTabForField($field) === $tab,
+            ARRAY_FILTER_USE_KEY,
+        );
+    }
+
+    public function saveProduct(ProductImageService $images, ProductStockService $stock): void
+    {
+        $this->authorizeCatalogWrite();
+        $rules = $this->productValidationRules();
 
         try {
             $validated = $this->validate($rules, ProductImageConstraints::validationMessages(), $this->productValidationAttributes());
@@ -597,7 +705,7 @@ class MenuManager extends Component
         if (ProductStockSchema::ready()) {
             $payload['track_stock'] = (bool) ($validated['productTrackStock'] ?? false);
             $payload['low_stock_threshold'] = round((float) ($validated['productLowStockThreshold'] ?? 0), 3);
-            $payload['cost_ex_vat'] = round((float) ($validated['productCostInput'] ?? 0), 2);
+            $payload['cost_ex_vat'] = ProductCostInput::parseOptional($validated['productCostInput'] ?? $this->productCostInput);
         }
 
         if ($this->editingProductId) {
@@ -617,7 +725,7 @@ class MenuManager extends Component
                 $stock->recordOpeningStock(
                     $product,
                     $opening,
-                    (float) $payload['cost_ex_vat'],
+                    ProductCostInput::parseOptional($validated['productCostInput'] ?? $this->productCostInput) ?? 0.0,
                     null,
                     auth('staff')->id(),
                 );
@@ -965,7 +1073,7 @@ class MenuManager extends Component
         $this->categoryDescriptionEn = '';
         $this->categoryDescriptionAr = '';
         $this->categoryDescriptionBn = '';
-        $this->categoryIconKey = 'cup';
+        $this->categoryIconKey = CategoryIconOptions::DEFAULT;
         $this->categoryActive = true;
     }
 
@@ -1045,12 +1153,12 @@ class MenuManager extends Component
         $basic = [
             'productNameEn', 'productNameAr', 'productNameBn',
             'productDescriptionEn', 'productDescriptionAr', 'productDescriptionBn',
-            'productCategoryId', 'productSku',
+            'productCategoryId', 'productSku', 'productUnitId', 'productSizeId',
             'productImageUpload', 'productItemType', 'productModifierIds',
             'productActive', 'productShowOnHomepage', 'productShowOnMenu',
         ];
         $pricing = ['productCostInput', 'productPriceInput', 'productVatRate', 'productVatZatcaCategory'];
-        $stock = ['productTrackStock', 'productOpeningStock', 'productLowStockThreshold', 'productCurrentStock', 'productUnitId', 'productSizeId'];
+        $stock = ['productTrackStock', 'productOpeningStock', 'productLowStockThreshold', 'productCurrentStock'];
 
         if (in_array($field, $basic, true)) {
             return 'basic';

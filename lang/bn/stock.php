@@ -10,7 +10,7 @@ return array_replace_recursive($en, [
     'low_stock_only' => 'শুধু কম স্টক',
     'product' => 'পণ্য',
     'on_hand' => 'হাতে আছে',
-    'cost' => 'গড় খরচ (বিএট ছাড়া)',
+    'cost' => 'গড় খরচ (VAT ছাড়া)',
     'track_stock' => 'স্টক পরিমাণ ট্র্যাক করুন',
     'low_stock_threshold' => 'কম স্টক সীমা',
     'low_stock_badge' => 'কম',

@@ -209,7 +209,7 @@ CREATE TABLE IF NOT EXISTS `products`(
   `track_stock` tinyint(1) not null default '0',
   `stock_quantity` DECIMAL(12,3) NOT NULL default '0',
   `low_stock_threshold` DECIMAL(12,3) NOT NULL default '0',
-  `cost_ex_vat` DECIMAL(12,2) NOT NULL default '0',
+  `cost_ex_vat` DECIMAL(12,2) NULL DEFAULT NULL,
   foreign key(`branch_id`) references `branches`(`id`) on delete set null,
   foreign key(`product_category_id`) references `product_categories`(`id`) on delete set null,
   foreign key(`product_unit_id`) references `product_units`(`id`) on delete set null,

@@ -25,7 +25,7 @@ for (const profile of VIEW_PROFILES) {
         await page.getByRole('button', { name: /add product|منتج جديد/i }).click();
         await page.locator('#productNameEn, input[wire\\:model="productNameEn"]').fill(`E2E Latte ${Date.now()}`);
         await page.locator('#productPriceInput, input[wire\\:model="productPriceInput"]').fill('28.75');
-        const productForm = page.locator('form[wire\\:submit="saveProduct"]');
+        const productForm = page.locator('form[wire\\:submit="submitProductForm"]');
         await withLivewireUpdate(page, () =>
             productForm.getByRole('button', { name: /save|حفظ/i }).click(),
         );

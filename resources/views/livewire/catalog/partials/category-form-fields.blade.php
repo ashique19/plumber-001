@@ -9,6 +9,8 @@
         <x-field.textarea :label="__('catalog.description_ar')" name="categoryDescriptionAr" wire:model="categoryDescriptionAr" dir="rtl" rows="3" />
         <x-field.textarea :label="__('catalog.description_bn')" name="categoryDescriptionBn" wire:model="categoryDescriptionBn" wrapper-class="admin-modal-span-3" rows="3" />
     @endif
-    <x-field.input :label="__('catalog.icon_key')" name="categoryIconKey" wire:model="categoryIconKey" />
+    @if (\App\Support\Catalog\ProductCategorySchema::hasIconKeyColumn())
+        <x-catalog.category-icon-picker :category-icon-key="$categoryIconKey" />
+    @endif
     <x-field.toggle wire:model="categoryActive" name="categoryActive" :label="__('catalog.active')" />
 </div>

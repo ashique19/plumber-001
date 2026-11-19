@@ -23,6 +23,18 @@
         wrapper-class="quick-product-modal__name-field quick-product-modal__name-field--ar"
     />
     <x-field.input type="number" step="0.01" min="0" :label="__('catalog.price_ex_vat')" name="quickProductPrice" wire:model="quickProductPrice" :liveValidate="false" required />
+    @if (\App\Support\Inventory\ProductStockSchema::ready())
+        <x-field.input
+            type="number"
+            step="0.01"
+            min="0"
+            :label="__('catalog.purchase_price')"
+            name="quickProductCost"
+            wire:model="quickProductCost"
+            :liveValidate="false"
+            inputmode="decimal"
+        />
+    @endif
     <x-field.input type="number" step="0.01" min="0" max="100" :label="__('catalog.vat_rate')" name="quickProductVat" wire:model="quickProductVat" :liveValidate="false" required />
     <x-field.select :label="__('catalog.item_type')" name="quickProductItemType" wire:model.live="quickProductItemType">
         @foreach (\App\Enums\ProductItemType::cases() as $type)

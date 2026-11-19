@@ -19,7 +19,7 @@ return array_replace_recursive($en, [
     'line_product' => 'পণ্য',
     'choose_product' => 'পণ্য বেছে নিন',
     'quantity' => 'পরিমাণ',
-    'unit_cost_ex_vat' => 'একক খরচ (বিএট ছাড়া)',
+    'unit_cost_ex_vat' => 'একক খরচ (VAT ছাড়া)',
     'add_line' => 'লাইন যোগ',
     'remove_line' => 'লাইন সরান',
     'submit' => 'ক্রয় সংরক্ষণ',

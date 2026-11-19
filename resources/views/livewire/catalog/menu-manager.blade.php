@@ -5,7 +5,6 @@
             <h1 class="app-page-title">{{ __('catalog.title') }}</h1>
             <p class="app-page-lead">{{ __('catalog.subtitle') }}</p>
         </div>
-        <p class="text-xs text-[var(--app-muted)]">{{ __('catalog.price_hint') }}</p>
     </header>
 
     <div class="app-section-tabs app-section-tabs--scroll min-w-0 max-w-full gap-2">
@@ -30,12 +29,13 @@
                 @if ($key === 'modifiers') data-testid="catalog-tab-modifiers" @endif
             >{{ $label }}</button>
         @endforeach
-        <label class="form-field ms-auto w-full min-w-0 sm:w-auto sm:max-w-xs">
+        <label class="form-field catalog-price-mode ms-auto w-full min-w-0 sm:w-auto sm:max-w-xs">
             <span class="form-field__label">{{ __('catalog.price_mode') }}</span>
-            <select wire:model.live="priceMode" class="form-field__control w-full sm:min-w-[12rem]">
+            <select wire:model.live="priceMode" class="form-field__control w-full sm:min-w-[12rem]" data-testid="catalog-price-mode">
                 <option value="ex">{{ __('catalog.price_ex_vat') }}</option>
                 <option value="inc">{{ __('catalog.price_inc_vat') }}</option>
             </select>
+            <span class="form-field__hint form-field__hint--after type-small">{{ __('catalog.price_hint') }}</span>
         </label>
     </div>
 
@@ -48,7 +48,7 @@
                 @forelse($categories as $cat)
                     <li class="app-card flex flex-wrap items-center justify-between gap-2 p-3">
                         <div class="flex items-center gap-2">
-                            <x-app.icon :name="$cat->icon_key ?: 'cup'" class="h-5 w-5 text-[var(--app-accent)]" />
+                            <x-app.icon :name="\App\Support\Catalog\CategoryIconOptions::normalize($cat->icon_key)" class="h-5 w-5 text-[var(--app-accent)]" />
                             <div>
                                 <p class="font-medium">{{ $cat->displayName() }}</p>
                                 @if($cat->name_ar && $cat->displayName() !== $cat->name_ar)
@@ -195,7 +195,7 @@
             size="xl"
             data-testid="catalog-product-modal"
         >
-            <form id="catalog-product-form" class="x-modal-form catalog-product-form" wire:submit="saveProduct">
+            <form id="catalog-product-form" class="x-modal-form catalog-product-form" wire:submit="submitProductForm">
                 <x-modal.validation-summary :fields="[
                     'productNameEn', 'productNameAr', 'productNameBn', 'productCategoryId', 'productUnitId', 'productSizeId',
                     'productCostInput', 'productPriceInput', 'productVatRate', 'productVatZatcaCategory', 'productOpeningStock', 'productImageUpload',
@@ -206,8 +206,9 @@
                 <div class="x-modal__footer x-modal__footer--in-form">
                     <x-modal.footer
                         cancel-wire='$set("showProductForm", false)'
-                        submit-target="saveProduct"
-                        :submit-label="__('catalog.save')"
+                        submit-target="submitProductForm"
+                        :submit-label="$this->productFormPrimaryLabel()"
+                        data-testid="catalog-product-form-primary"
                     />
                 </div>
             </form>

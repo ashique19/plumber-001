@@ -10,6 +10,7 @@
         'quickProductCategoryId',
         'quickProductTrackStock',
         'quickProductImageUpload',
+        'quickProductCost',
     ];
 @endphp
 

@@ -139,7 +139,6 @@
                     name="productCostInput"
                     wire:model="productCostInput"
                     inputmode="decimal"
-                    :required="($catalogUnitsSizesReady ?? false)"
                 />
             @endif
             @if($catalogUnitsSizesReady ?? false)
@@ -150,7 +149,6 @@
                 </x-field.select>
             @endif
         </div>
-        <p class="mt-2 text-xs leading-snug text-[var(--app-muted)]">{{ __('catalog.price_hint') }}</p>
     </div>
 
     <div @class(['hidden' => $productFormTab !== 'stock']) data-testid="product-stock-tab">
