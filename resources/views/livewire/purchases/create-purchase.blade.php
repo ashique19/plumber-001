@@ -66,6 +66,10 @@
         />
 
         <x-purchases.quick-supplier-modal :show="$showQuickSupplierModal" />
-        <x-invoices.quick-product-modal :show="$showQuickProductModal" :categories="$productCategories" />
+        <x-invoices.quick-product-modal
+            :show="$showQuickProductModal"
+            :categories="$productCategories"
+            :image-preview-url="$this->quickProductImagePreviewUrl()"
+        />
     @endunless
 </div>

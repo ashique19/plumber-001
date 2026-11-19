@@ -43,6 +43,7 @@ return [
     'product_image' => [
         'label' => 'Product photo',
         'hint' => 'Square crop; resized on your device before upload.',
+        'optional_hint' => 'Optional. JPG, PNG, or WebP up to 2 MB.',
         'choose' => 'Choose photo',
         'replace' => 'Replace photo',
         'remove' => 'Remove photo',

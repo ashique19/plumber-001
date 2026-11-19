@@ -19,7 +19,7 @@ use App\Support\Invoicing\DocumentPaymentTerms;
 use App\Livewire\Concerns\ResolvesBusinessContext;
 use App\Livewire\Concerns\ValidatesFieldsLive;
 use App\Models\Invoice;
-use App\Models\ProductCategory;
+use App\Support\Catalog\QuickProductCategoryOptions;
 use App\Models\Product;
 use App\Services\InvoiceIssueService;
 use App\Services\Invoicing\InvoiceDuesLedgerService;
@@ -40,6 +40,7 @@ use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 #[Layout('layouts.pos')]
 class IssueInvoice extends Component
@@ -53,6 +54,7 @@ class IssueInvoice extends Component
     use ManagesStandardBuyerCompletion;
     use ResolvesBusinessContext;
     use ValidatesFieldsLive;
+    use WithFileUploads;
 
     public string $mode;
 
@@ -589,7 +591,7 @@ class IssueInvoice extends Component
             'addLineProductSearchResults' => $this->addLineProductSearchResults(),
             'canCreateCustomers' => $this->canCreateCustomersFromDocument(),
             'canCreateProducts' => $this->canCreateProductsFromDocument(),
-            'productCategories' => ProductCategory::query()->orderBy('name_en')->get(),
+            'productCategories' => QuickProductCategoryOptions::ordered(),
             'previewTotals' => $this->previewTotals(),
             'summaryTotals' => $this->documentSummaryTotals(),
             'paymentDueAmount' => $this->paymentDueAmount(),

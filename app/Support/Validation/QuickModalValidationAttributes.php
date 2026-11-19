@@ -34,6 +34,7 @@ final class QuickModalValidationAttributes
             'quickProductItemType' => __('validation.quick_attributes.product_item_type'),
             'quickProductCategoryId' => __('validation.quick_attributes.product_category'),
             'quickProductTrackStock' => __('validation.quick_attributes.product_track_stock'),
+            'quickProductImageUpload' => __('catalog.product_image.label'),
 
             'quickSupplierName' => __('validation.quick_attributes.supplier_name'),
             'quickSupplierNameAr' => __('validation.quick_attributes.supplier_name_ar'),
