@@ -28,7 +28,7 @@ it('lists seeded customers in a sortable table', function () {
         ->test(CustomerHub::class)
         ->assertSeeHtml('data-testid="customers-table"')
         ->assertSeeHtml('data-testid="hub-customer-row-actions"')
-        ->assertSeeHtml('data-testid="hub-row-action-more"')
+        ->assertSeeHtml('data-testid="hub-row-action-more-customer-')
         ->assertSee(__('customers.col_vat'), false)
         ->assertSee(__('customers.col_cr'), false)
         ->assertSee('Regular Customer', false)

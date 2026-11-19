@@ -126,16 +126,6 @@
         </div>
     </div>
 
-    @if ($invoices->isNotEmpty())
-        <ul class="mb-4 space-y-3 sm:hidden" data-testid="hub-invoice-cards">
-            @foreach ($invoices as $row)
-                @include('livewire.invoices.partials.hub-invoice-mobile-card', ['row' => $row])
-            @endforeach
-        </ul>
-    @else
-        <p class="mb-4 text-center text-sm text-[var(--app-muted)] sm:hidden">{{ __('invoices.empty') }}</p>
-    @endif
-
     <div class="hidden sm:block">
         <x-hub.document-table-shell :aria-label="__('invoices.table_caption')">
             <thead>
@@ -243,6 +233,16 @@
             </tbody>
         </x-hub.document-table-shell>
     </div>
+
+    @if ($invoices->isNotEmpty())
+        <ul class="mb-4 space-y-3 sm:hidden" data-testid="hub-invoice-cards">
+            @foreach ($invoices as $row)
+                @include('livewire.invoices.partials.hub-invoice-mobile-card', ['row' => $row])
+            @endforeach
+        </ul>
+    @else
+        <p class="mb-4 text-center text-sm text-[var(--app-muted)] sm:hidden">{{ __('invoices.empty') }}</p>
+    @endif
 
     <x-admin.hub-pager class="mt-4" :paginator="$invoices" />
 </div>

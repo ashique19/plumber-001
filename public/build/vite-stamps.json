@@ -60,9 +60,9 @@
         "outputSha256": "d855eb29785a7815d131a58c7799fde3285f808abcdf0295effcdfb0c7f091c2"
     },
     "resources/js/app.js": {
-        "output": "assets/app-y8pvhCOS.js",
+        "output": "assets/app-9YQNKX71.js",
         "sourceSha256": "e093072825483b0ab4ca990e0da7a0b3a70afe6d9906a3e3c686c04dcb09b19c",
-        "outputSha256": "2863b27e3ae3f33862ee1d81e9c44c17312b620e1adeea459aef30ed0c1aa1ec"
+        "outputSha256": "d2ecce670382faf250082554a39ed6209a41743c7b214d604dd2ef8e90bea244"
     },
     "resources/js/invoice-print-preview.js": {
         "output": "assets/invoice-print-preview-DPwrAWX7.js",

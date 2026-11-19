@@ -38,9 +38,10 @@ test.describe('quick product modal save (basic tab only)', () => {
         await page.locator('[data-testid="quick-product-form-primary"]').click();
 
         await expect(page.locator('[data-testid="quick-product-modal"]')).toBeHidden({ timeout: 30_000 });
-        await expect(page.locator('.invoice-document-lines__row').filter({ hasText: productName })).toBeVisible({
-            timeout: 30_000,
-        });
+        const lineRow = page
+            .locator('.document-product-lines-scroll .invoice-document-lines__row')
+            .filter({ hasText: productName });
+        await expect(lineRow).toBeVisible({ timeout: 30_000 });
     });
 
     test('decimal price is accepted on basic tab', async ({ page }) => {
@@ -59,8 +60,9 @@ test.describe('quick product modal save (basic tab only)', () => {
         await page.locator('[data-testid="quick-product-form-primary"]').click();
 
         await expect(page.locator('[data-testid="quick-product-modal"]')).toBeHidden({ timeout: 30_000 });
-        await expect(page.locator('.invoice-document-lines__row').filter({ hasText: productName })).toBeVisible({
-            timeout: 30_000,
-        });
+        const lineRow = page
+            .locator('.document-product-line-cards .invoice-document-lines__row')
+            .filter({ hasText: productName });
+        await expect(lineRow).toBeVisible({ timeout: 30_000 });
     });
 });

@@ -69,5 +69,7 @@ it('uses distinct invoice hub row more menu ids for mobile cards and desktop tab
     expect(substr_count($html, $tableMenuId))->toBe(1)
         ->and(substr_count($html, $cardMenuId))->toBe(1)
         ->and($html)->not->toContain($legacyMenuId)
-        ->and($html)->toContain(__('invoices.more_duplicate'));
+        ->and($html)->toContain(__('invoices.more_duplicate'))
+        ->and($html)->toMatch('/data-testid="hub-row-action-more-invoice-\d+-table"/')
+        ->and($html)->toMatch('/data-testid="hub-row-action-more-invoice-\d+-card"/');
 });

@@ -87,6 +87,6 @@ it('renders compact quotation actions with a more menu for secondary items', fun
     expect($html)
         ->toContain('data-testid="hub-quotation-row-actions"')
         ->toContain('data-testid="hub-row-action-print"')
-        ->toContain('data-testid="hub-row-action-more"')
+        ->toMatch('/data-testid="hub-row-action-more-quotation-\d+-(?:table|card)"/')
         ->toContain('data-testid="hub-quotation-cards"');
 });

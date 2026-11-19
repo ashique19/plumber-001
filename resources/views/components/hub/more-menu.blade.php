@@ -1,11 +1,12 @@
 @props([
     'menuId',
-    'summaryTestId' => 'hub-row-action-more',
+    'summaryTestId' => null,
     'summaryLabel' => null,
 ])
 
 @php
     $summaryLabel ??= __('invoices.action_more');
+    $summaryTestId ??= 'hub-row-action-more-'.preg_replace('/[^a-z0-9_-]+/i', '-', (string) $menuId);
 @endphp
 
 <div
@@ -17,7 +18,7 @@
     <button
         type="button"
         x-ref="trigger"
-        x-on:click.prevent.stop="toggle()"
+        x-on:click.prevent.stop="toggle($event)"
         x-bind:aria-expanded="isOpen"
         class="hub-doc-table__action hub-doc-table__action--icon hub-doc-table__action--more"
         aria-haspopup="menu"
