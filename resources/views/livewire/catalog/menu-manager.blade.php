@@ -195,7 +195,7 @@
             size="xl"
             data-testid="catalog-product-modal"
         >
-            <form id="catalog-product-form" class="x-modal-form catalog-product-form" wire:submit="saveProduct">
+            <form id="catalog-product-form" class="x-modal-form catalog-product-form" wire:submit="submitProductForm">
                 <x-modal.validation-summary :fields="[
                     'productNameEn', 'productNameAr', 'productNameBn', 'productCategoryId', 'productUnitId', 'productSizeId',
                     'productCostInput', 'productPriceInput', 'productVatRate', 'productVatZatcaCategory', 'productOpeningStock', 'productImageUpload',
@@ -206,8 +206,9 @@
                 <div class="x-modal__footer x-modal__footer--in-form">
                     <x-modal.footer
                         cancel-wire='$set("showProductForm", false)'
-                        submit-target="saveProduct"
-                        :submit-label="__('catalog.save')"
+                        submit-target="submitProductForm"
+                        :submit-label="$this->productFormPrimaryLabel()"
+                        data-testid="catalog-product-form-primary"
                     />
                 </div>
             </form>

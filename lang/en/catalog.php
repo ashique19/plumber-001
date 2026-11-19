@@ -80,6 +80,7 @@ return [
     'edit' => 'Edit',
     'delete' => 'Delete',
     'save' => 'Save',
+    'next' => 'Next',
     'save_and_select' => 'Save & select',
     'cancel' => 'Cancel',
     'modal_error_summary' => 'Please fix the errors below.',

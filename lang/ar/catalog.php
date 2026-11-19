@@ -80,6 +80,7 @@ return [
     'edit' => 'تعديل',
     'delete' => 'حذف',
     'save' => 'حفظ',
+    'next' => 'التالي',
     'save_and_select' => 'حفظ وتحديد',
     'cancel' => 'إلغاء',
     'modal_error_summary' => 'يُرجى تصحيح الأخطاء أدناه.',

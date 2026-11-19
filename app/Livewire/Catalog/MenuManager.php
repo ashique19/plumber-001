@@ -485,9 +485,80 @@ class MenuManager extends Component
         $this->dispatch('catalog-product-image-cleared');
     }
 
-    public function saveProduct(ProductImageService $images, ProductStockService $stock): void
+    public function submitProductForm(ProductImageService $images, ProductStockService $stock): void
     {
-        $this->authorizeCatalogWrite();
+        if ($this->isLastProductFormTab()) {
+            $this->saveProduct($images, $stock);
+
+            return;
+        }
+
+        $this->validateCurrentProductFormTabAndAdvance();
+    }
+
+    public function productFormPrimaryLabel(): string
+    {
+        return $this->isLastProductFormTab() ? __('catalog.save') : __('catalog.next');
+    }
+
+    public function isLastProductFormTab(): bool
+    {
+        $tabs = $this->productFormTabSequence();
+
+        return $this->productFormTab === $tabs[array_key_last($tabs)];
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function productFormTabSequence(): array
+    {
+        $tabs = ['basic', 'pricing'];
+        if (ProductStockSchema::ready()) {
+            $tabs[] = 'stock';
+        }
+
+        return $tabs;
+    }
+
+    private function validateCurrentProductFormTabAndAdvance(): void
+    {
+        $tab = $this->productFormTab;
+        $rules = $this->productValidationRulesForTab($tab);
+        if ($rules === []) {
+            $this->advanceProductFormTab();
+
+            return;
+        }
+
+        try {
+            $this->validate($rules, ProductImageConstraints::validationMessages(), $this->productValidationAttributes());
+        } catch (ValidationException $e) {
+            $this->focusProductFormTabForErrors(array_keys($e->validator->errors()->messages()));
+            $this->toastError(__('catalog.modal_error_summary'), persistent: true);
+
+            throw $e;
+        }
+
+        $this->advanceProductFormTab();
+    }
+
+    private function advanceProductFormTab(): void
+    {
+        $tabs = $this->productFormTabSequence();
+        $index = array_search($this->productFormTab, $tabs, true);
+        if ($index === false || ! isset($tabs[$index + 1])) {
+            return;
+        }
+
+        $this->productFormTab = $tabs[$index + 1];
+    }
+
+    /**
+     * @return array<string, list<string|Rule|callable>>
+     */
+    private function productValidationRules(): array
+    {
         $rules = [
             'productNameEn' => ['required', 'string', 'max:160'],
             'productNameAr' => ['required', 'string', 'max:160'],
@@ -501,8 +572,8 @@ class MenuManager extends Component
             'productShowOnMenu' => ['boolean'],
             'productModifierIds' => ['array'],
             'productItemType' => ['required', Rule::in(array_map(fn (ProductItemType $t) => $t->value, ProductItemType::cases()))],
+            'productNameBn' => ['nullable', 'string', 'max:160'],
         ];
-        $rules['productNameBn'] = ['nullable', 'string', 'max:160'];
 
         if (CatalogUnitsSizesSchema::ready()) {
             $rules['productCategoryId'] = ['required', 'integer', 'exists:product_categories,id'];
@@ -525,6 +596,30 @@ class MenuManager extends Component
         if ($this->productImageUpload !== null) {
             $rules['productImageUpload'] = ProductImageConstraints::componentRules();
         }
+
+        return $rules;
+    }
+
+    /**
+     * @return array<string, list<string|Rule|callable>>
+     */
+    private function productValidationRulesForTab(string $tab): array
+    {
+        if (! in_array($tab, $this->productFormTabSequence(), true)) {
+            return [];
+        }
+
+        return array_filter(
+            $this->productValidationRules(),
+            fn (string $field): bool => $this->productFormTabForField($field) === $tab,
+            ARRAY_FILTER_USE_KEY,
+        );
+    }
+
+    public function saveProduct(ProductImageService $images, ProductStockService $stock): void
+    {
+        $this->authorizeCatalogWrite();
+        $rules = $this->productValidationRules();
 
         try {
             $validated = $this->validate($rules, ProductImageConstraints::validationMessages(), $this->productValidationAttributes());
@@ -1045,12 +1140,12 @@ class MenuManager extends Component
         $basic = [
             'productNameEn', 'productNameAr', 'productNameBn',
             'productDescriptionEn', 'productDescriptionAr', 'productDescriptionBn',
-            'productCategoryId', 'productSku',
+            'productCategoryId', 'productSku', 'productUnitId', 'productSizeId',
             'productImageUpload', 'productItemType', 'productModifierIds',
             'productActive', 'productShowOnHomepage', 'productShowOnMenu',
         ];
         $pricing = ['productCostInput', 'productPriceInput', 'productVatRate', 'productVatZatcaCategory'];
-        $stock = ['productTrackStock', 'productOpeningStock', 'productLowStockThreshold', 'productCurrentStock', 'productUnitId', 'productSizeId'];
+        $stock = ['productTrackStock', 'productOpeningStock', 'productLowStockThreshold', 'productCurrentStock'];
 
         if (in_array($field, $basic, true)) {
             return 'basic';
