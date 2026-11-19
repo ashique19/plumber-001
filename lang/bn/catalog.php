@@ -84,7 +84,7 @@ return [
         ],
     ],
     'price' => 'মূল্য',
-    'vat_rate' => 'VAT %',
+    'vat_rate' => 'ভ্যাট %',
     'modifiers' => 'মডিফায়ার',
     'show_on_homepage' => 'হোমপেজে দেখান (ফিচার্ড)',
     'show_on_menu' => 'মেনু / সার্ভিস পেজে দেখান',
