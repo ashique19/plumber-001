@@ -73,7 +73,10 @@ export function registerHubRowMoreMenu(Alpine) {
                 if (nextOpen) {
                     this.panelReady = false;
                     this.applyInitialPosition();
-                    this.$nextTick(() => this.refineVerticalPlacement());
+                    this.$nextTick(() => {
+                        this.refineVerticalPlacement();
+                        this.refineHorizontalPlacement();
+                    });
                 } else {
                     this.panelReady = false;
                     this.panelStyle = {};
@@ -206,6 +209,65 @@ export function registerHubRowMoreMenu(Alpine) {
                 top: `${Math.round(aboveTop)}px`,
                 maxHeight: `${Math.round(Math.max(120, rect.top - margin))}px`,
             };
+        },
+
+        refineHorizontalPlacement() {
+            const rect = this.triggerRect();
+            const panel = this.$refs.panel;
+            if (! rect || ! panel || ! this.isOpen) {
+                return;
+            }
+
+            const margin = 8;
+            const viewportW = window.innerWidth;
+            const panelWidth = panel.offsetWidth;
+            if (panelWidth <= 0) {
+                return;
+            }
+
+            const rtl = document.documentElement.getAttribute('dir') === 'rtl';
+
+            if (rtl) {
+                const overflowRight = rect.left + panelWidth > viewportW - margin;
+                if (overflowRight) {
+                    this.panelStyle = {
+                        ...this.panelStyle,
+                        right: `${Math.round(Math.max(margin, viewportW - rect.right))}px`,
+                        left: 'auto',
+                    };
+
+                    return;
+                }
+
+                if (rect.left < margin) {
+                    this.panelStyle = {
+                        ...this.panelStyle,
+                        left: `${Math.round(margin)}px`,
+                        right: 'auto',
+                    };
+                }
+
+                return;
+            }
+
+            const panelLeftIfRightAnchored = rect.right - panelWidth;
+            if (panelLeftIfRightAnchored < margin) {
+                this.panelStyle = {
+                    ...this.panelStyle,
+                    left: `${Math.round(Math.max(margin, rect.left))}px`,
+                    right: 'auto',
+                };
+
+                return;
+            }
+
+            if (rect.right > viewportW - margin) {
+                this.panelStyle = {
+                    ...this.panelStyle,
+                    right: `${Math.round(margin)}px`,
+                    left: 'auto',
+                };
+            }
         },
     }));
 }

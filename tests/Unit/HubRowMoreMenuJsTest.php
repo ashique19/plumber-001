@@ -6,6 +6,7 @@ it('measures and positions hub row more menu after teleport refs are ready', fun
     expect($source)
         ->toContain('applyInitialPosition')
         ->toContain('refineVerticalPlacement')
+        ->toContain('refineHorizontalPlacement')
         ->toContain('style.right')
         ->toContain('currentTarget')
         ->toContain('scrollGuardUntil')

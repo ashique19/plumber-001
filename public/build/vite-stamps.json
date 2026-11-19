@@ -60,9 +60,9 @@
         "outputSha256": "d855eb29785a7815d131a58c7799fde3285f808abcdf0295effcdfb0c7f091c2"
     },
     "resources/js/app.js": {
-        "output": "assets/app-ByCy_jBk.js",
+        "output": "assets/app-DJbx2sr6.js",
         "sourceSha256": "e093072825483b0ab4ca990e0da7a0b3a70afe6d9906a3e3c686c04dcb09b19c",
-        "outputSha256": "2545e8fbbc9815a8d5c96b1d555b6fccf7ee3d62ffce9ffa45f8b72b51318b7d"
+        "outputSha256": "369e9b7e0ee14a2f97cca9c47e06bdf7610765d205107a0052dd339c9c929546"
     },
     "resources/js/invoice-print-preview.js": {
         "output": "assets/invoice-print-preview-DPwrAWX7.js",
