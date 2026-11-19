@@ -177,12 +177,11 @@ it('limits standard invoice arabic amount words to two pdf lines', function () {
     $sheet = PrintSheetFactory::invoice($invoice, Request::create('/', 'GET', ['template' => 'modern']), true);
     $wrapped = DocumentPdfRenderer::wrapHtml(view($sheet['view'], $sheet['data'])->render());
 
-    preg_match_all('/<div[^>]*invoice-pdf-ar-preline[^>]*>/', $wrapped, $matches);
     $wordsBlockStart = strpos($wrapped, 'invoice-print-words-block__ar');
-  expect($wordsBlockStart)->toBeInt();
+    expect($wordsBlockStart)->toBeInt();
 
     $segment = substr($wrapped, $wordsBlockStart, 2500) ?: '';
-    preg_match_all('/invoice-pdf-ar-preline/', $segment, $wordLineMatches);
+    preg_match_all('/<div class="[^"]*invoice-pdf-ar-preline/', $segment, $wordLineMatches);
     expect(count($wordLineMatches[0]))->toBeLessThanOrEqual(2);
 });
 
