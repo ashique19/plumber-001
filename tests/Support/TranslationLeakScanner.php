@@ -152,7 +152,6 @@ final class TranslationLeakScanner
             'Show on homepage',
             'Show on menu',
             'Remove from homepage',
-            'VAT %',
         ];
 
         $leaks = [];

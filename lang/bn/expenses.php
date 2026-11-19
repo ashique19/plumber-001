@@ -22,8 +22,8 @@ return [
     'vendor' => 'ভেন্ডর / প্রদানকারী',
     'description' => 'নোট',
     'spent_on' => 'তারিখ',
-    'amount_ex_vat' => 'পরিমাণ (ভ্যাট ব্যতীত)',
-    'filtered_total' => 'মোট (ভ্যাট ব্যতীত)',
+    'amount_ex_vat' => 'পরিমাণ (VAT ব্যতীত)',
+    'filtered_total' => 'মোট (VAT ব্যতীত)',
     'categories_modal' => [
         'title' => 'খরচের বিভাগ',
         'add_label' => 'নতুন বিভাগ',
