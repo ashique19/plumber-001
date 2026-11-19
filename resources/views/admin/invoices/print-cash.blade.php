@@ -134,9 +134,11 @@
                 @endif
             </table>
             <div class="invoice-print-words-block invoice-cash__words">
-                @if (filled($t['amount_words_en'] ?? null))
-                    <p class="invoice-print-words-block__en invoice-a4__words">{{ $t['amount_words_en'] }}</p>
-                @endif
+                <x-invoices.print-amount-words-en
+                    :text="$t['amount_words_en'] ?? null"
+                    :is-pdf="false"
+                    class="invoice-print-words-block__en"
+                />
                 <x-invoices.print-amount-words-ar
                     :text="$t['amount_words_ar'] ?? null"
                     :is-pdf="false"

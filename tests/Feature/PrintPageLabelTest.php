@@ -17,13 +17,14 @@ beforeEach(function () {
     app()->setLocale('en');
 });
 
-it('hides the HTML footer page label in browser print because CSS page counters are unreliable', function () {
-    $css = (string) file_get_contents(resource_path('css/invoice-print.css'));
+it('shows a print-only footer document label without css page counters', function () {
+    $css = (string) file_get_contents(resource_path('css/invoice-print.css'))
+        .(string) file_get_contents(resource_path('css/print-template-modern.css'));
 
     expect($css)
         ->toContain('@media print')
-        ->toContain('.invoice-print-page-label')
-        ->toContain('display: none !important')
+        ->toContain('.invoice-print-page-label__print')
+        ->toContain('.invoice-a4__footer .invoice-print-page-label')
         ->not->toContain('counter(page)');
 });
 
@@ -50,8 +51,8 @@ it('prints template A and B footers with a screen-only document label', function
         ]))
         ->assertOk()
         ->assertSee('invoice-print-page-label__screen', false)
+        ->assertSee('invoice-print-page-label__print', false)
         ->assertSee('SIMP-PAGE-001', false)
-        ->assertDontSee('invoice-print-page-label__print', false)
         ->assertDontSee('صفحة', false)
         ->assertDontSee('Page 0 of 0', false)
         ->assertDontSee('Page 0 / 0', false);
