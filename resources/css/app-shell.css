@@ -671,6 +671,7 @@
         min-height: 0;
         flex: 1 1 auto;
         overflow: hidden;
+        padding-inline: 1.5rem;
     }
 
     html.admin-app .catalog-product-form-tabs {
@@ -679,7 +680,8 @@
         z-index: 6;
         flex-shrink: 0;
         margin: 0;
-        padding: 0.75rem 1.25rem;
+        margin-inline: 0;
+        padding: 0.75rem 0;
         background: #fff;
         border-bottom: 1px solid var(--app-border);
     }
