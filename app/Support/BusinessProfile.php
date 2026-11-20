@@ -160,6 +160,51 @@ final class BusinessProfile
      * @param  array<string, mixed>  $na
      * @return list<string>
      */
+    /**
+     * Dompdf seller header only: plain escaped lines (no digit spans) so header typography stays uniform.
+     *
+     * @param  array<string, mixed>  $na
+     * @return list<string>
+     */
+    public static function formatNationalAddressArDompdfPlainLines(array $na): array
+    {
+        $building = trim(self::scalarString($na['building'] ?? ''));
+        $street = trim(self::scalarString($na['street_ar'] ?? $na['street'] ?? ''));
+
+        $lines = [];
+
+        $line1Text = match (true) {
+            $building !== '' && $street !== '' => $street.'، '.$building,
+            $building !== '' => $building,
+            $street !== '' => $street,
+            default => null,
+        };
+        if ($line1Text !== null) {
+            $lines[] = e($line1Text);
+        }
+
+        $district = trim(self::scalarString($na['district_ar'] ?? $na['district'] ?? ''));
+        $city = trim(self::scalarString($na['city_ar'] ?? $na['city'] ?? ''));
+        $postal = trim(self::scalarString($na['postal_code'] ?? ''));
+
+        $cityPostal = trim($city.($postal !== '' ? ' '.$postal : ''));
+        $line2Text = match (true) {
+            $district !== '' && $cityPostal !== '' => $district.'، '.$cityPostal,
+            $district !== '' => $district,
+            $cityPostal !== '' => $cityPostal,
+            default => null,
+        };
+        if ($line2Text !== null) {
+            $additional = trim(self::scalarString($na['additional'] ?? ''));
+            if ($additional !== '') {
+                $line2Text .= '، '.$additional;
+            }
+            $lines[] = e($line2Text);
+        }
+
+        return $lines;
+    }
+
     public static function formatNationalAddressArPdfLineHtml(array $na): array
     {
         $building = trim(self::scalarString($na['building'] ?? ''));
