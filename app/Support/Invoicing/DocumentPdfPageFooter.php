@@ -17,8 +17,7 @@ final class DocumentPdfPageFooter
 
     private static function paint(int $pageNumber, int $pageCount, Canvas $canvas, FontMetrics $fontMetrics): void
     {
-        $latin = $fontMetrics->getFont(DocumentPdfFonts::FAMILY_LATIN, 'normal');
-        $arabic = $fontMetrics->getFont('amiripdf', 'normal') ?? $latin;
+        $font = $fontMetrics->getFont(DocumentPdfFonts::FAMILY_LATIN, 'normal');
         $size = 8.0;
         $color = [0.45, 0.45, 0.45];
         $y = $canvas->get_height() - 20;
@@ -28,19 +27,14 @@ final class DocumentPdfPageFooter
         $sep = '  ·  ';
         $ar = $pageWordAr.' '.$pageNumber.' / '.$pageCount;
 
-        $enWidth = $canvas->get_text_width($en, $latin, $size);
-        $sepWidth = $canvas->get_text_width($sep, $latin, $size);
-        $arWidth = $canvas->get_text_width($ar, $arabic, $size);
+        $enWidth = $canvas->get_text_width($en, $font, $size);
+        $sepWidth = $canvas->get_text_width($sep, $font, $size);
+        $arWidth = $canvas->get_text_width($ar, $font, $size);
         $total = $enWidth + $sepWidth + $arWidth;
         $x = max(18, ($canvas->get_width() - $total) / 2);
 
-        $latinBaseline = $fontMetrics->getFontBaseline($latin, $size);
-        $arabicBaseline = $fontMetrics->getFontBaseline($arabic, $size);
-        $yLatin = $y;
-        $yArabic = $y + ($latinBaseline - $arabicBaseline);
-
-        $canvas->text($x, $yLatin, $en, $latin, $size, $color);
-        $canvas->text($x + $enWidth, $yLatin, $sep, $latin, $size, $color);
-        $canvas->text($x + $enWidth + $sepWidth, $yArabic, $ar, $arabic, $size, $color);
+        $canvas->text($x, $y, $en, $font, $size, $color);
+        $canvas->text($x + $enWidth, $y, $sep, $font, $size, $color);
+        $canvas->text($x + $enWidth + $sepWidth, $y, $ar, $font, $size, $color);
     }
 }
