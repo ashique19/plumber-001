@@ -58,16 +58,25 @@ if (! is_dir($artifactDir)) {
 $cases = [
     'dompdf-render-simplified' => [
         'type' => InvoiceDocumentType::Simplified,
-        'number' => 'SIMP-20261118-182356',
+        'number' => 'SIMP-HARNESS-'.uniqid(),
         'payload' => [
             'lines' => [
                 ['name' => 'Test Modal Product', 'name_ar' => 'منتج اختبار', 'quantity' => 1, 'unit_price_ex_vat' => 10, 'vat_rate' => 15],
             ],
         ],
     ],
+    'dompdf-render-credit-note' => [
+        'type' => InvoiceDocumentType::CreditNote,
+        'number' => 'CN-HARNESS-'.uniqid(),
+        'payload' => [
+            'lines' => [
+                ['name' => 'Credit line', 'name_ar' => 'بند دائن', 'quantity' => 1, 'unit_price_ex_vat' => -10, 'vat_rate' => 15],
+            ],
+        ],
+    ],
     'dompdf-render-standard' => [
         'type' => InvoiceDocumentType::Standard,
-        'number' => 'STD-20261118-998877',
+        'number' => 'STD-HARNESS-'.uniqid(),
         'due_date' => now()->addDays(30),
         'qr_tlv_base64' => $standardQrTlv,
         'payload' => [
