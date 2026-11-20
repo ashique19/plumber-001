@@ -69,7 +69,7 @@ foreach ($slugs as $slug) {
     $regions = [
         ['region' => 'header_vat_en', 'tier' => 'body', 'box' => [0.16, 0.168, 0.30, 0.182]],
         ['region' => 'header_vat_ar', 'tier' => 'body', 'box' => [0.70, 0.168, 0.84, 0.182]],
-        ['region' => 'meta_invoice_no', 'tier' => 'body', 'box' => [0.58, 0.200, 0.78, 0.208]],
+        ['region' => 'meta_invoice_no', 'tier' => 'body', 'box' => [0.58, 0.193, 0.78, 0.201]],
         ['region' => 'buyer_phone', 'tier' => 'body', 'box' => [0.58, 0.248, 0.78, 0.256]],
         ['region' => 'table_qty', 'tier' => 'body', 'box' => [0.36, 0.276, 0.44, 0.284]],
         ['region' => 'table_line_amount', 'tier' => 'body', 'box' => [0.86, 0.276, 0.96, 0.284]],
