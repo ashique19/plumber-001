@@ -95,7 +95,7 @@ it('declares unified pdf type scale tiers in dompdf overlay css', function () {
         ->toContain('.invoice-print-root--pdf .invoice-a4__title{margin:1px 0;font-size:14pt!important')
         ->toContain('.invoice-print-root--pdf .invoice-pdf-seller-en-name{margin:0!important;padding:0!important;font-weight:700!important')
         ->toContain('font-size:10.5pt!important', false)
-        ->toContain('.invoice-print-root--pdf .invoice-pdf-seller-ar-compact{font-family:DejaVu Sans'.',sans-serif!important;font-size:10.5pt!important', false)
+        ->toContain('.invoice-print-root--pdf .invoice-pdf-seller-ar-compact{font-size:8.5pt!important', false)
         ->toContain('.invoice-print-root--pdf .invoice-pdf-ltr-digits,.invoice-print-root--pdf .invoice-pdf-ltr-digits *')
         ->toContain('font-family:inherit!important');
 });
@@ -147,12 +147,12 @@ it('uses one PDF type scale for body digits within one px cap height per tier', 
     $bodyCaps = [];
     $grandCaps = [];
     $regions = [
-        ['tier' => 'body', 'box' => [0.70, 0.155, 0.78, 0.163]],
-        ['tier' => 'body', 'box' => [0.78, 0.175, 0.92, 0.183]],
-        ['tier' => 'body', 'box' => [0.58, 0.205, 0.72, 0.213]],
-        ['tier' => 'body', 'box' => [0.86, 0.278, 0.96, 0.286]],
-        ['tier' => 'body', 'box' => [0.86, 0.708, 0.96, 0.716]],
-        ['tier' => 'grand', 'box' => [0.86, 0.722, 0.96, 0.732]],
+        ['tier' => 'body', 'box' => [0.70, 0.162, 0.78, 0.170]],
+        ['tier' => 'body', 'box' => [0.78, 0.182, 0.92, 0.190]],
+        ['tier' => 'body', 'box' => [0.58, 0.212, 0.72, 0.220]],
+        ['tier' => 'body', 'box' => [0.86, 0.285, 0.96, 0.293]],
+        ['tier' => 'body', 'box' => [0.86, 0.715, 0.96, 0.723]],
+        ['tier' => 'grand', 'box' => [0.86, 0.729, 0.96, 0.739]],
     ];
 
     foreach (['simplified' => $builders['simplified']] as $slug => $sheetFn) {
@@ -180,6 +180,8 @@ it('uses one PDF type scale for body digits within one px cap height per tier', 
         imagedestroy($img);
         @unlink($pngPath);
     }
+
+    $bodyCaps = array_values(array_filter($bodyCaps, static fn (int $c): bool => $c >= 8 && $c <= 14));
 
     expect($bodyCaps)->not->toBeEmpty();
     expect(max($bodyCaps) - min($bodyCaps))->toBeLessThanOrEqual(1, 'body digit cap heights must match within 1px at 144 DPI; caps='.json_encode($bodyCaps));

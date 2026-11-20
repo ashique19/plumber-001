@@ -37,3 +37,4 @@ public/img/business/
 test-results/
 /storage/fonts/*
 !/storage/fonts/.gitignore
+pdf-seller-header-144dpi-crop.png

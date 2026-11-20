@@ -39,3 +39,22 @@ it('builds two explicit mPDF Arabic address lines with LTR digit runs', function
         ->and($lines[1])->not->toContain('invoice-pdf-ltr-digits')
         ->and(BusinessProfile::wrapPdfAddressDigitRunsInEscapedLine($lines[1]))->toContain('invoice-pdf-ltr-digits');
 });
+
+it('builds dompdf seller header arabic lines without digit spans', function () {
+    $na = [
+        'building' => '7098',
+        'street_ar' => 'أحمد بن الحسين بن شقير',
+        'district_ar' => 'حي الملز',
+        'city_ar' => 'الرياض',
+        'postal_code' => '12629',
+        'additional' => '3652',
+    ];
+
+    $lines = BusinessProfile::formatNationalAddressArDompdfPlainLines($na);
+
+    expect($lines)->toHaveCount(2)
+        ->and($lines[0])->toContain('7098')->toContain('أحمد بن الحسين بن شقير')->toContain('،')
+        ->and($lines[0])->not->toContain('invoice-pdf-ltr-digits')
+        ->and($lines[1])->toContain('12629')->toContain('3652')
+        ->and($lines[1])->not->toContain('invoice-pdf-ltr-digits');
+});
