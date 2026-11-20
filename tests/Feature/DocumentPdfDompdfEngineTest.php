@@ -100,8 +100,9 @@ it('renders simplified and standard invoices with dompdf on one page', function 
         if (trim((string) shell_exec('command -v pdffonts')) !== '') {
             $fonts = DocumentPdfRenderer::embeddedPdfFontNames($binary);
             expect($fonts)->not->toBeEmpty()
-                ->and(collect($fonts)->contains(fn (string $name): bool => str_contains($name, 'amiri')))->toBeTrue()
                 ->and(collect($fonts)->contains(fn (string $name): bool => str_contains($name, 'dejavu')))->toBeTrue()
+                ->and(collect($fonts)->contains(fn (string $name): bool => str_contains($name, 'amiri')))->toBeFalse()
+                ->and(collect($fonts)->every(fn (string $name): bool => str_contains($name, 'dejavu') || str_contains($name, 'riyal')))->toBeTrue()
                 ->and(collect($fonts)->contains(fn (string $name): bool => str_contains($name, 'times')))->toBeFalse();
         }
     }
