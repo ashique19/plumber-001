@@ -83,12 +83,19 @@ it('declares unified pdf type scale tiers in dompdf overlay css', function () {
     ]);
 
     $sheet = PrintSheetFactory::invoice($invoice, Request::create('/', 'GET', ['template' => 'modern']), true);
-    $wrapped = DocumentPdfRenderer::wrapHtml(view($sheet['view'], $sheet['data'])->render());
+    $viewData = view($sheet['view'], $sheet['data'])->render();
+    $wrapped = DocumentPdfRenderer::wrapHtml($viewData);
+    $binary = DocumentPdfRenderer::render($viewData);
+    expect(DocumentPdfRenderer::pageCountInBinary($binary))->toBe(1);
 
     expect($wrapped)
-        ->toContain('.invoice-print-root--pdf .invoice-pdf-sans-value{font-family:dejavusans!important;font-style:normal!important;font-weight:normal!important;font-size:8.5pt!important')
-        ->toContain('.invoice-print-root--pdf .invoice-pdf-sans-label{font-family:dejavusans!important;font-style:normal!important;font-weight:normal!important;font-size:7.5pt!important')
-        ->toContain('.invoice-print-root--pdf .invoice-print-totals__row--strong .invoice-print-totals__value{font-size:9.5pt!important')
+        ->toContain('.invoice-print-root--pdf .invoice-pdf-sans-value{font-family:dejavusans!important;font-style:normal!important;font-weight:normal!important;font-size:9.5pt!important')
+        ->toContain('.invoice-print-root--pdf .invoice-pdf-sans-label{font-family:dejavusans!important;font-style:normal!important;font-weight:normal!important;font-size:8pt!important')
+        ->toContain('.invoice-print-root--pdf .invoice-print-totals__row--strong .invoice-print-totals__value{font-size:12pt!important')
+        ->toContain('.invoice-print-root--pdf .invoice-a4__title{margin:1px 0;font-size:14pt!important')
+        ->toContain('.invoice-print-root--pdf .invoice-pdf-seller-en-name{margin:0!important;padding:0!important;font-weight:700!important')
+        ->toContain('font-size:10.5pt!important', false)
+        ->toContain('.invoice-print-root--pdf .invoice-pdf-seller-ar-compact{font-family:DejaVu Sans'.',sans-serif!important;font-size:10.5pt!important', false)
         ->toContain('.invoice-print-root--pdf .invoice-pdf-ltr-digits,.invoice-print-root--pdf .invoice-pdf-ltr-digits *')
         ->toContain('font-family:inherit!important');
 });
