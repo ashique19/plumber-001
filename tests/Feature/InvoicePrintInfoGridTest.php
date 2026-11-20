@@ -54,6 +54,7 @@ it('uses one fixed info grid table for seller ids and document meta on modern pr
         ->toContain('<table class="invoice-print-info-grid"', false)
         ->toContain('invoice-print-info-grid__col-en', false)
         ->toContain('invoice-print-seller-header-ids', false)
+        ->toContain('invoice-a4__seller-ar-stack', false)
         ->toContain('CR No.', false)
         ->toContain('Invoice No.', false)
         ->toContain('Issue date', false)
@@ -95,6 +96,9 @@ it('includes fixed column rules in Dompdf wrapper css', function () {
         ->toContain('invoice-a4__header-row--ids .invoice-print-seller-header-ids__line', false)
         ->toContain('font-size:7.5pt!important', false)
         ->toContain('invoice-a4__seller-side--ar{font-size:7.5pt!important', false)
+        ->toContain('invoice-a4__seller-ar-stack', false)
+        ->toContain('invoice-a4__header .invoice-national-address-ar--pdf{max-width:none!important', false)
+        ->toContain('unicode-bidi:isolate!important', false)
         ->toContain('invoice-national-address-ar--pdf{margin:0!important;line-height:1.3!important', false)
         ->not->toContain('line-height:1.45!important', false)
         ->not->toContain('invoice-print-seller-header-ids__value{font-size:9pt!important', false);

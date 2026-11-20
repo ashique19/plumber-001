@@ -425,6 +425,37 @@
     font-family: Tajawal, sans-serif;
 }
 
+.invoice-a4__seller-ar-stack {
+    width: 100%;
+    text-align: right;
+    direction: rtl;
+}
+
+.invoice-a4__header-row--ids .invoice-a4__header-cell--ar .invoice-print-seller-header-ids__line--ar {
+    width: 100%;
+    text-align: right;
+    direction: rtl;
+}
+
+.invoice-a4__seller-ar-stack .invoice-national-address-ar-lines,
+.invoice-a4__seller-ar-stack .invoice-national-address-ar__line {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    text-align: right;
+}
+
+.invoice-a4__seller-ar-stack .invoice-print-seller-header-ids__line--ar {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    text-align: right;
+    direction: rtl;
+    font-family: Tajawal, sans-serif;
+    font-size: 9pt;
+    line-height: 1.35;
+}
+
 .invoice-a4__seller-side--en .invoice-a4__seller-name-en,
 .invoice-a4__seller-side--en .invoice-a4__seller-address-en__line {
     display: block;

@@ -25,9 +25,9 @@
         "outputSha256": "e81d36ed86696802e6f8fca1ac93ef667c2ec8923a58d002f9c0ce1c4a4af3d8"
     },
     "resources/css/invoice-print.css": {
-        "output": "assets/invoice-print-DpYnjfIz.css",
-        "sourceSha256": "0a2456d7602f38d2d9e3e38eec9b6f6350b313830f999774bc2538acbac1a268",
-        "outputSha256": "39dd500daac334a1e36262545f22f0061e9bfc4a1549985b2a39634c1e783320"
+        "output": "assets/invoice-print-BQ1ZKrUM.css",
+        "sourceSha256": "0294cfa26bebd8215814e57950fdd581ed0175654e6b13b65cddc8a6410e7313",
+        "outputSha256": "d56973bdaa068d5c38956606c4a8729005637dc8fa8ecc1dd04acadd15a32c77"
     },
     "resources/css/payments-dues-hub.css": {
         "output": "assets/payments-dues-hub-D-msWZiM.css",
