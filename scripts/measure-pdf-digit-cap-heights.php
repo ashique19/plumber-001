@@ -73,8 +73,8 @@ foreach ($slugs as $slug) {
         ['region' => 'buyer_phone', 'tier' => 'body', 'box' => [0.58, 0.248, 0.78, 0.256]],
         ['region' => 'table_qty', 'tier' => 'body', 'box' => [0.36, 0.276, 0.44, 0.284]],
         ['region' => 'table_line_amount', 'tier' => 'body', 'box' => [0.86, 0.276, 0.96, 0.284]],
-        ['region' => 'total_subtotal', 'tier' => 'body', 'box' => [0.86, 0.708, 0.96, 0.716]],
-        ['region' => 'total_grand', 'tier' => 'grand', 'box' => [0.86, 0.722, 0.96, 0.732]],
+        ['region' => 'total_subtotal', 'tier' => 'body', 'box' => [0.86, 0.786, 0.96, 0.794]],
+        ['region' => 'total_grand', 'tier' => 'grand', 'box' => [0.86, 0.802, 0.96, 0.812]],
     ];
 
     foreach ($regions as $def) {
