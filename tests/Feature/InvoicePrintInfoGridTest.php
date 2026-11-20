@@ -68,6 +68,11 @@ it('uses one fixed info grid table for seller ids and document meta on modern pr
     expect($html)->not->toMatch(
         '/VAT No\.<\/td>\s*<td[^>]*invoice-print-info-grid__value[^>]*>/s',
     )->toContain('invoice-national-address-ar__line', false);
+
+    $printCss = (string) file_get_contents(resource_path('css/invoice-print.css'));
+    expect($printCss)
+        ->toContain('.invoice-a4__header-row--ids .invoice-print-seller-header-ids__line')
+        ->toMatch('/\.invoice-a4__header-row--ids \.invoice-print-seller-header-ids__line\s*\{[^}]*font-size:\s*9pt/s');
 });
 
 it('includes fixed column rules in Dompdf wrapper css', function () {
@@ -86,7 +91,10 @@ it('includes fixed column rules in Dompdf wrapper css', function () {
     expect($wrapped)
         ->toContain('invoice-print-info-grid', false)
         ->toContain('table-layout:fixed!important', false)
-        ->toContain('invoice-print-info-grid__value{text-align:left!important', false);
+        ->toContain('invoice-print-info-grid__value{text-align:left!important', false)
+        ->toContain('invoice-a4__header-row--ids .invoice-print-seller-header-ids__line', false)
+        ->toContain('font-size:7.5pt!important', false)
+        ->not->toContain('invoice-print-seller-header-ids__value{font-size:9pt!important', false);
 });
 
 it('renders cash payment values in LTR bidi order', function () {

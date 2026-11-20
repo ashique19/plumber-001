@@ -299,9 +299,9 @@
 
 .invoice-print-seller-header-ids {
     margin-top: 4px;
-    font-size: 8pt;
+    font-size: inherit;
     line-height: 1.35;
-    color: var(--inv-muted);
+    color: inherit;
     font-family: inherit;
 }
 
@@ -315,6 +315,8 @@
 
 .invoice-print-seller-header-ids__label {
     font-weight: 600;
+    font-size: inherit;
+    color: var(--inv-muted);
 }
 
 .invoice-print-seller-header-ids__label::after {
@@ -322,6 +324,8 @@
 }
 
 .invoice-print-seller-header-ids__value {
+    font-size: inherit;
+    font-weight: normal;
     font-variant-numeric: tabular-nums;
     color: #111;
 }
@@ -392,7 +396,13 @@
 
 .invoice-a4__header-row--ids .invoice-print-seller-header-ids__line {
     margin: 0;
-    line-height: 1.25;
+    line-height: 1.35;
+    font-size: 9pt;
+    color: #111;
+}
+
+.invoice-a4__header-row--ids .invoice-a4__header-cell--ar .invoice-print-seller-header-ids__line {
+    font-family: Tajawal, sans-serif;
 }
 
 .invoice-a4__header-row--ids td {
