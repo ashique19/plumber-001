@@ -85,7 +85,7 @@ it('avoids english seller text bleeding into the logo gutter at 144 dpi', functi
 
     $maxEnInkX = 0;
     $logoLaneInk = 0;
-    $logoLaneX1 = (int) floor($w * 0.398);
+    $logoLaneX1 = (int) floor($w * 0.408);
     $logoLaneX2 = (int) ceil($w * 0.545);
     for ($y = (int) floor($h * 0.10); $y <= (int) ceil($h * 0.22); $y++) {
         for ($x = (int) floor($w * 0.03); $x <= (int) ceil($w * 0.395); $x++) {
@@ -127,7 +127,7 @@ it('declares pdf-only seller wrap and meta column gaps in overlay css', function
 
     expect($wrapped)
         ->toContain('.invoice-print-root--pdf .invoice-pdf-seller-line{display:block!important;margin:0!important;padding:0!important;overflow:visible!important;white-space:normal!important')
-        ->toContain('.invoice-print-root--pdf .invoice-a4__header-cell--logo{width:20%!important')
+        ->toContain('.invoice-print-root--pdf .invoice-a4__header-cell--logo{width:18%!important')
         ->toContain('.invoice-print-root--pdf .invoice-pdf-seller-en-name{margin:0!important;padding:0!important;font-weight:700!important;white-space:normal!important;overflow-wrap:normal!important;word-break:normal!important;font-family:dejavusans!important;font-size:9.5pt!important;line-height:11pt!important')
         ->toContain('.invoice-print-root--pdf .invoice-pdf-seller-en-body{margin:0!important;padding:0!important;font-weight:normal!important;color:#111!important;white-space:normal!important;overflow-wrap:normal!important;word-break:normal!important;line-height:9.75pt!important;font-family:dejavusans!important;font-size:8.5pt!important')
         ->toContain('.invoice-print-root--pdf .invoice-a4__header .invoice-pdf-ltr-digits,.invoice-print-root--pdf .invoice-a4__header .invoice-print-ltr-num')

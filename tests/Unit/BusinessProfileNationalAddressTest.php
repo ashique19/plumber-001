@@ -56,5 +56,21 @@ it('builds dompdf seller header arabic lines without digit spans', function () {
         ->and($lines[0])->toContain('7098')->toContain('أحمد بن الحسين بن شقير')->toContain('،')
         ->and($lines[0])->not->toContain('invoice-pdf-ltr-digits')
         ->and($lines[1])->toContain('12629')->toContain('3652')
-        ->and($lines[1])->not->toContain('invoice-pdf-ltr-digits');
+        ->and($lines[1])->not->toContain('invoice-pdf-ltr-digits')
+        ->and(html_entity_decode($lines[1], ENT_QUOTES | ENT_HTML5, 'UTF-8'))
+        ->toBe("حي الملز، الرياض \u{200F}12629، \u{200F}3652");
+});
+
+it('keeps english street suffix on one dompdf header line', function () {
+    $na = [
+        'building' => '7098',
+        'street' => 'Ahmad Ibn Al Hussain Ibn Shuqair St',
+        'district' => 'Al Malaz',
+        'city' => 'Riyadh',
+        'postal_code' => '12629',
+    ];
+
+    $lines = BusinessProfile::formatNationalAddressEnDompdfPrintLines($na);
+
+    expect($lines[0])->toBe('7098, Ahmad Ibn Al Hussain Ibn Shuqair'."\u{00A0}".'St');
 });
