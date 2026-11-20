@@ -147,10 +147,10 @@ it('uses one PDF type scale for body digits within one px cap height per tier', 
     $bodyCaps = [];
     $grandCaps = [];
     $regions = [
-        ['tier' => 'body', 'box' => [0.16, 0.170, 0.30, 0.178]],
-        ['tier' => 'body', 'box' => [0.78, 0.170, 0.90, 0.178]],
-        ['tier' => 'body', 'box' => [0.58, 0.200, 0.78, 0.208]],
-        ['tier' => 'body', 'box' => [0.86, 0.276, 0.96, 0.284]],
+        ['tier' => 'body', 'box' => [0.70, 0.155, 0.78, 0.163]],
+        ['tier' => 'body', 'box' => [0.78, 0.175, 0.92, 0.183]],
+        ['tier' => 'body', 'box' => [0.58, 0.205, 0.72, 0.213]],
+        ['tier' => 'body', 'box' => [0.86, 0.278, 0.96, 0.286]],
         ['tier' => 'body', 'box' => [0.86, 0.708, 0.96, 0.716]],
         ['tier' => 'grand', 'box' => [0.86, 0.722, 0.96, 0.732]],
     ];
@@ -182,7 +182,7 @@ it('uses one PDF type scale for body digits within one px cap height per tier', 
     }
 
     expect($bodyCaps)->not->toBeEmpty();
-    expect(max($bodyCaps) - min($bodyCaps))->toBeLessThanOrEqual(3, 'body digit cap heights must match within 3px at 144 DPI (8.5pt tier); caps='.json_encode($bodyCaps));
+    expect(max($bodyCaps) - min($bodyCaps))->toBeLessThanOrEqual(1, 'body digit cap heights must match within 1px at 144 DPI; caps='.json_encode($bodyCaps));
 
     if ($grandCaps !== []) {
         expect(min($grandCaps))->toBeGreaterThanOrEqual(min($bodyCaps));

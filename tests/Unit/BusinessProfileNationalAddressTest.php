@@ -36,5 +36,6 @@ it('builds two explicit mPDF Arabic address lines with LTR digit runs', function
         ->and($lines[0])->toContain('7098')->toContain('أحمد بن الحسين بن شقير')->toContain('،')
         ->and($lines[0])->toContain('invoice-pdf-ltr-digits')
         ->and($lines[1])->toContain('حي الملز')->toContain('الرياض')->toContain('12629')
-        ->and($lines[1])->not->toContain('invoice-pdf-ltr-digits');
+        ->and($lines[1])->not->toContain('invoice-pdf-ltr-digits')
+        ->and(BusinessProfile::wrapPdfAddressDigitRunsInEscapedLine($lines[1]))->toContain('invoice-pdf-ltr-digits');
 });
