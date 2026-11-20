@@ -26,7 +26,7 @@
             </p>
         @endif
 
-        @include('print.partials.seller-header-with-ids', ['t' => $t, 'isPdf' => $isPdf ?? false])
+        @include('print.partials.seller-header-with-ids', ($isPdf ?? false) ? ['t' => $t, 'isPdf' => true] : ['t' => $t])
         <x-invoices.print-document-title :t="$t" />
 
         <x-invoices.print-info-grid :rows="\App\Support\Invoicing\InvoicePrintMetaRows::legacyA4IntroGrid($t)" />
