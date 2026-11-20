@@ -7,14 +7,12 @@
     $sellerEnLines = $na !== [] ? \App\Support\BusinessProfile::formatNationalAddressEnPrintLines($na) : [];
     $enIdLines = SellerHeaderIds::linesForSide($t, 'en');
     $arIdLines = SellerHeaderIds::linesForSide($t, 'ar');
-    $idRowCount = max(count($enIdLines), count($arIdLines));
-    $arHeaderRowSpan = max(1, 1 + $idRowCount);
 @endphp
 <section class="invoice-a4__header print-tpl-modern__seller">
     <table class="invoice-a4__header-table" role="presentation" width="100%" cellspacing="0" cellpadding="0">
         <tr class="invoice-a4__header-row invoice-a4__header-row--main">
             <td class="invoice-a4__header-cell invoice-a4__header-cell--en" width="38%" valign="top">
-                <div class="invoice-a4__seller-side invoice-a4__seller-side--en">
+                <div class="invoice-a4__seller-side invoice-a4__seller-side--en invoice-a4__seller-en-stack">
                     <strong
                         class="invoice-a4__seller-name-en"
                         @if ($isPdf ?? false)
@@ -33,6 +31,12 @@
                     @elseif ($t['address_en'])
                         <p class="m-0">{{ $t['address_en'] }}</p>
                     @endif
+                    @foreach ($enIdLines as $enLine)
+                        <p class="invoice-print-seller-header-ids__line m-0">
+                            <span class="invoice-print-seller-header-ids__label">{{ $enLine['label'] }}</span>
+                            <span class="invoice-print-seller-header-ids__value" dir="ltr">{!! $enLine['value_html'] !!}</span>
+                        </p>
+                    @endforeach
                 </div>
             </td>
             <td class="invoice-a4__header-cell invoice-a4__header-cell--logo" width="24%" valign="top">
@@ -40,12 +44,7 @@
                     <img src="{{ asset($t['logo_url']) }}" alt="" class="invoice-a4__logo">
                 @endif
             </td>
-            <td
-                class="invoice-a4__header-cell invoice-a4__header-cell--ar"
-                width="38%"
-                valign="top"
-                rowspan="{{ $arHeaderRowSpan }}"
-            >
+            <td class="invoice-a4__header-cell invoice-a4__header-cell--ar" width="38%" valign="top">
                 <div class="invoice-a4__seller-side invoice-a4__seller-side--ar invoice-print-ar invoice-a4__seller-ar-stack" dir="rtl" lang="ar">
                     <strong class="invoice-a4__seller-name-ar">{{ $t['seller_ar'] }}</strong>
                     @if ($structuredAddressLines !== [])
@@ -71,21 +70,5 @@
                 </div>
             </td>
         </tr>
-        @for ($i = 0; $i < $idRowCount; $i++)
-            @php
-                $enLine = $enIdLines[$i] ?? null;
-            @endphp
-            <tr class="invoice-a4__header-row invoice-a4__header-row--ids">
-                <td class="invoice-a4__header-cell invoice-a4__header-cell--en" valign="top">
-                    @if ($enLine)
-                        <p class="invoice-print-seller-header-ids__line m-0">
-                            <span class="invoice-print-seller-header-ids__label">{{ $enLine['label'] }}</span>
-                            <span class="invoice-print-seller-header-ids__value" dir="ltr">{!! $enLine['value_html'] !!}</span>
-                        </p>
-                    @endif
-                </td>
-                <td class="invoice-a4__header-cell invoice-a4__header-cell--logo" aria-hidden="true"></td>
-            </tr>
-        @endfor
     </table>
 </section>

@@ -72,8 +72,8 @@ it('uses one fixed info grid table for seller ids and document meta on modern pr
 
     $printCss = (string) file_get_contents(resource_path('css/invoice-print.css'));
     expect($printCss)
-        ->toContain('.invoice-a4__header-row--ids .invoice-print-seller-header-ids__line')
-        ->toMatch('/\.invoice-a4__header-row--ids \.invoice-print-seller-header-ids__line\s*\{[^}]*font-size:\s*9pt/s');
+        ->toContain('.invoice-a4__seller-en-stack .invoice-print-seller-header-ids__line')
+        ->toMatch('/\.invoice-a4__seller-en-stack \.invoice-print-seller-header-ids__line,\s*\n\.invoice-a4__seller-ar-stack \.invoice-print-seller-header-ids__line--ar\s*\{[^}]*font-size:\s*9pt/s');
 });
 
 it('includes fixed column rules in Dompdf wrapper css', function () {
@@ -94,9 +94,11 @@ it('includes fixed column rules in Dompdf wrapper css', function () {
         ->toContain('table-layout:fixed!important', false)
         ->toContain('invoice-print-info-grid__value{text-align:left!important', false)
         ->toContain('invoice-a4__header-row--ids .invoice-print-seller-header-ids__line', false)
+        ->toContain('invoice-a4__seller-en-stack .invoice-print-seller-header-ids__line', false)
         ->toContain('font-size:7.5pt!important', false)
         ->toContain('invoice-a4__seller-side--ar{font-size:7.5pt!important', false)
         ->toContain('invoice-a4__seller-ar-stack', false)
+        ->toContain('invoice-a4__seller-en-stack', false)
         ->toContain('invoice-a4__header .invoice-national-address-ar--pdf{max-width:none!important', false)
         ->toContain('unicode-bidi:isolate!important', false)
         ->toContain('invoice-national-address-ar--pdf{margin:0!important;line-height:1.3!important', false)

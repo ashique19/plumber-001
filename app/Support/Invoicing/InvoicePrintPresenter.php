@@ -96,6 +96,7 @@ final class InvoicePrintPresenter
         $totals = InvoiceDocumentTotals::compute($signingLines, $invoiceDiscount, $retentionPercent, $retentionFixed);
 
         $isSimplified = $invoice->document_type === InvoiceDocumentType::Simplified;
+        $noteUsesSimplified = self::noteUsesSimplifiedCategory($invoice);
         $amountWordsTotal = SarAmountInWords::format($totals['total_inc_vat']);
         $amountWordsNet = SarAmountInWords::format($totals['net_due_inc_vat']);
 
@@ -187,6 +188,8 @@ final class InvoicePrintPresenter
             'unified_number' => $unified,
             'trn' => $trn,
             'is_simplified' => $isSimplified,
+            'invoice_document_type' => $invoice->document_type->value,
+            'note_uses_simplified' => $noteUsesSimplified,
             'document_type_label_en' => $isSimplified ? 'Simplified' : 'Standard',
             'document_type_label_ar' => $isSimplified ? 'فاتورة مبسطة' : 'فاتورة ضريبية',
             'document_number' => $invoice->document_number,
@@ -453,5 +456,24 @@ final class InvoicePrintPresenter
             ->withoutGlobalScopes()
             ->whereIn('id', $ids)
             ->pluck('sku', 'id');
+    }
+
+    private static function noteUsesSimplifiedCategory(Invoice $invoice): bool
+    {
+        if (! in_array($invoice->document_type, [InvoiceDocumentType::CreditNote, InvoiceDocumentType::DebitNote], true)) {
+            return false;
+        }
+
+        $fromPayload = $invoice->payload['invoice_category'] ?? null;
+        if ($fromPayload === 'simplified') {
+            return true;
+        }
+        if ($fromPayload === 'standard') {
+            return false;
+        }
+
+        $referenced = $invoice->referencedInvoice;
+
+        return $referenced?->document_type === InvoiceDocumentType::Simplified;
     }
 }
