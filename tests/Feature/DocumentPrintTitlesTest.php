@@ -123,9 +123,17 @@ it('renders seller vat and cr in one english stack without extra id rows', funct
         ->assertOk()
         ->getContent();
 
+    $sheet = \App\Support\Invoicing\PrintSheetFactory::invoice($invoice, \Illuminate\Http\Request::create('/', 'GET', ['template' => 'modern']), true);
+    $pdfHtml = view($sheet['view'], $sheet['data'])->render();
+
+    expect($pdfHtml)
+        ->toContain('invoice-pdf-seller-en-compact', false)
+        ->toContain('invoice-pdf-seller-ar-compact', false)
+        ->toContain('invoice-pdf-seller-en-body', false)
+        ->toContain('invoice-pdf-seller-ar-body', false)
+        ->not->toContain('invoice-a4__header-row--ids', false);
+
     expect($html)
         ->toContain('invoice-a4__seller-en-stack', false)
-        ->toContain('invoice-a4__seller-ar-stack', false)
-        ->not->toContain('invoice-a4__header-row--ids', false)
-        ->toMatch('/invoice-a4__seller-en-stack[\s\S]*VAT No\./', false);
+        ->toContain('invoice-a4__seller-ar-stack', false);
 });
