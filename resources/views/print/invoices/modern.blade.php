@@ -12,7 +12,7 @@
         @include('print.partials.toolbar-invoice')
 
         <div class="print-tpl-modern__intro">
-        @include('print.partials.seller-header-with-ids', ['t' => $t])
+        @include('print.partials.seller-header-with-ids', ['t' => $t, 'isPdf' => $isPdf ?? false])
         <hr class="print-tpl-modern__rule" />
 
         <x-invoices.print-document-title :t="$t" />
