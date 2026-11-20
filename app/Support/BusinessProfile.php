@@ -180,7 +180,7 @@ final class BusinessProfile
             default => null,
         };
         if ($line1Text !== null) {
-            $lines[] = e($line1Text);
+            $lines[] = e(self::dompdfHeaderRtlDigitMarks($line1Text));
         }
 
         $district = trim(self::scalarString($na['district_ar'] ?? $na['district'] ?? ''));
@@ -199,10 +199,37 @@ final class BusinessProfile
             if ($additional !== '') {
                 $line2Text .= '، '.$additional;
             }
-            $lines[] = e($line2Text);
+            // Same logical string as v221 PDF line 2 (single RTL run, no LTR digit spans).
+            $lines[] = e(self::dompdfHeaderRtlDigitMarks($line2Text));
         }
 
         return $lines;
+    }
+
+    /**
+     * Dompdf seller header EN lines: keep short suffixes (St) on the same line as the street when possible.
+     *
+     * @param  array<string, mixed>  $na
+     * @return list<string>
+     */
+    public static function formatNationalAddressEnDompdfPrintLines(array $na): array
+    {
+        return array_map(
+            static fn (string $line): string => preg_replace(
+                '/(\S)\s+(St\.?)$/u',
+                '$1'."\u{00A0}".'$2',
+                $line,
+            ) ?? $line,
+            self::formatNationalAddressEnPrintLines($na),
+        );
+    }
+
+    /**
+     * Mark Western digits so Dompdf keeps them in RTL header address order (no LTR span wrappers).
+     */
+    private static function dompdfHeaderRtlDigitMarks(string $text): string
+    {
+        return preg_replace('/(\d+)/u', "\u{200F}$1", $text) ?? $text;
     }
 
     public static function formatNationalAddressArPdfLineHtml(array $na): array

@@ -95,7 +95,7 @@ it('includes fixed column rules in Dompdf wrapper css', function () {
         ->toContain('.invoice-print-root--pdf .invoice-print-info-grid__value{text-align:left!important', false)
         ->toContain('.invoice-pdf-seller-line{display:block!important;margin:0!important;padding:0!important;overflow:visible!important;white-space:normal!important', false)
         ->toContain('.invoice-pdf-seller-ar-compact{font-size:8.5pt!important', false)
-        ->toContain('.invoice-a4__header-cell--logo{width:20%!important', false)
+        ->toContain('.invoice-a4__header-cell--logo{width:18%!important', false)
         ->not->toContain('invoice-pdf-seller-line{overflow:hidden!important', false)
         ->toContain('invoice-print-root--pdf .invoice-pdf-sans-value{font-family:dejavusans!important;font-style:normal!important;font-weight:normal!important;font-size:9.5pt!important', false)
         ->toContain('invoice-print-totals__row--strong .invoice-print-totals__value{font-size:12pt!important', false)

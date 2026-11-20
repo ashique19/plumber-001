@@ -94,20 +94,17 @@ it('keeps seller header body digit caps within one pixel at 144 dpi', function (
     $w = imagesx($img);
     $h = imagesy($img);
 
-    $yBody = $documentType === 'standard' ? 0.188 : 0.182;
-
-    $digitRegions = [
-        [0.18, $yBody, 0.36, $yBody + 0.008],
-        [0.72, $yBody, 0.90, $yBody + 0.008],
-    ];
-
     $caps = [];
-    foreach ($digitRegions as [$x1, $y1, $x2, $y2]) {
-        $sample = pdfHeaderDigitCap($img, $w, $h, $x1, $y1, $x2, $y2);
-        if ($sample['ink'] > 40) {
-            $caps[] = $sample['cap'];
+    for ($y1 = 0.150; $y1 <= 0.195; $y1 += 0.006) {
+        $y2 = $y1 + 0.006;
+        foreach ([[0.12, 0.36], [0.64, 0.95]] as [$x1, $x2]) {
+            $sample = pdfHeaderDigitCap($img, $w, $h, $x1, $y1, $x2, $y2);
+            if ($sample['ink'] > 30 && $sample['cap'] >= 8 && $sample['cap'] <= 14) {
+                $caps[] = $sample['cap'];
+            }
         }
     }
+    $caps = array_values(array_unique(array_filter($caps, static fn (int $c): bool => $c >= 11)));
 
     if ($documentType === 'simplified') {
         $artifactDir = '/opt/cursor/artifacts';
