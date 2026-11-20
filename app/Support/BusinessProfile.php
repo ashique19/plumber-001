@@ -200,6 +200,16 @@ final class BusinessProfile
         return $lines;
     }
 
+    /**
+     * PDF-only: wrap Western digits in Dompdf seller Arabic address lines (screen HTML unchanged).
+     */
+    public static function wrapPdfAddressDigitRunsInEscapedLine(string $escapedLine): string
+    {
+        $plain = html_entity_decode($escapedLine, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+        return self::pdfAddressDigitRunsHtml($plain);
+    }
+
     private static function pdfAddressDigitRunsHtml(string $text): string
     {
         $escaped = e($text);

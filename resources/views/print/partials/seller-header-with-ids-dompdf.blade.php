@@ -28,7 +28,12 @@
             <div class="invoice-pdf-seller-line invoice-pdf-seller-line--name invoice-pdf-seller-ar-name">{{ $t['seller_ar'] }}</div>
             @if ($structuredAddressLines !== [])
                 @foreach ($structuredAddressLines as $line)
-                    <div class="invoice-pdf-seller-line invoice-pdf-seller-ar-body">{!! $line !!}</div>
+                    @php
+                        $arAddressLineHtml = str_contains($line, 'invoice-pdf-ltr-digits')
+                            ? $line
+                            : \App\Support\BusinessProfile::wrapPdfAddressDigitRunsInEscapedLine($line);
+                    @endphp
+                    <div class="invoice-pdf-seller-line invoice-pdf-seller-ar-body">{!! $arAddressLineHtml !!}</div>
                 @endforeach
             @elseif ($t['address_ar_html'] ?? null)
                 <div class="invoice-pdf-seller-line invoice-pdf-seller-ar-body">{!! $t['address_ar_html'] !!}</div>
