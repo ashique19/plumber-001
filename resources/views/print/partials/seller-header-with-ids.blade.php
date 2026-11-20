@@ -40,16 +40,15 @@
                 @endif
             </td>
             <td class="invoice-a4__header-cell invoice-a4__header-cell--ar" width="38%" valign="top">
-                <div class="invoice-a4__seller-side invoice-a4__seller-side--ar invoice-print-ar" dir="rtl">
-                    <strong>{{ $t['seller_ar'] }}</strong>
+                <div class="invoice-a4__seller-side invoice-a4__seller-side--ar invoice-a4__seller-ar-stack invoice-print-ar" dir="rtl" lang="ar">
+                    <strong class="invoice-a4__seller-name-ar">{{ $t['seller_ar'] }}</strong>
                     @if ($structuredAddressLines !== [])
-                        <div @class(['invoice-national-address-ar-lines', 'invoice-national-address-ar--pdf' => $isPdf ?? false]) lang="ar">
+                        <div @class(['invoice-national-address-ar-lines', 'invoice-national-address-ar--pdf' => $isPdf ?? false])>
                             @foreach ($structuredAddressLines as $line)
                                 <div @class([
                                     'invoice-national-address-ar__line',
                                     'invoice-pdf-ar-address-line' => $isPdf ?? false,
-                                    'invoice-pdf-ar-block' => $isPdf ?? false,
-                                ]) dir="rtl" style="text-align:right">{!! $line !!}</div>
+                                ])>{!! $line !!}</div>
                             @endforeach
                         </div>
                     @elseif ($t['address_ar_html'] ?? null)
@@ -75,9 +74,9 @@
                     @endif
                 </td>
                 <td class="invoice-a4__header-cell invoice-a4__header-cell--logo" aria-hidden="true"></td>
-                <td class="invoice-a4__header-cell invoice-a4__header-cell--ar invoice-print-ar" dir="rtl" lang="ar" valign="top">
+                <td class="invoice-a4__header-cell invoice-a4__header-cell--ar invoice-print-ar" valign="top">
                     @if ($arLine)
-                        <p class="invoice-print-seller-header-ids__line m-0">
+                        <p class="invoice-print-seller-header-ids__line invoice-print-seller-header-ids__line--ar m-0" dir="rtl" lang="ar">
                             <span class="invoice-print-seller-header-ids__label">{{ $arLine['label'] }}</span>
                             <span class="invoice-print-seller-header-ids__value" dir="ltr">{!! $arLine['value_html'] !!}</span>
                         </p>
