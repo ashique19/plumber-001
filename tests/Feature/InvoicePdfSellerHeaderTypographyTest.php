@@ -107,7 +107,7 @@ it('keeps seller header body digit caps within one pixel at 144 dpi', function (
     $caps = array_values(array_unique(array_filter($caps, static fn (int $c): bool => $c >= 11)));
 
     if ($documentType === 'simplified') {
-        $artifactDir = '/opt/cursor/artifacts';
+        $artifactDir = sys_get_temp_dir().'/pdf-visual-artifacts';
         if (! is_dir($artifactDir)) {
             @mkdir($artifactDir, 0755, true);
         }
