@@ -58,7 +58,7 @@ it('builds dompdf seller header arabic lines without digit spans', function () {
         ->and($lines[1])->toContain('12629')->toContain('3652')
         ->and($lines[1])->not->toContain('invoice-pdf-ltr-digits')
         ->and(html_entity_decode($lines[1], ENT_QUOTES | ENT_HTML5, 'UTF-8'))
-        ->toBe("حي الملز، الرياض \u{200F}12629، \u{200F}3652");
+        ->toBe("حي الملز، الرياض 12629، 3652");
 });
 
 it('keeps english street suffix on one dompdf header line', function () {

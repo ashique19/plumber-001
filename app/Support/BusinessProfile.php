@@ -225,11 +225,14 @@ final class BusinessProfile
     }
 
     /**
-     * Mark Western digits so Dompdf keeps them in RTL header address order (no LTR span wrappers).
+     * Dompdf seller-header Arabic lines stay a single RTL run (no LTR digit spans).
+     * RLM/LTR marks either collapse the space after Arabic letters or reorder the
+     * postal line; unicode-bidi:plaintext on the line is enough to keep
+     * "حي الملز، الرياض 12629، 3652" in the correct visual order with normal spaces.
      */
     private static function dompdfHeaderRtlDigitMarks(string $text): string
     {
-        return preg_replace('/(\d+)/u', "\u{200F}$1", $text) ?? $text;
+        return $text;
     }
 
     public static function formatNationalAddressArPdfLineHtml(array $na): array

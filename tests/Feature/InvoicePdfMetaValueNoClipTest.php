@@ -28,13 +28,15 @@ it('declares pdf meta values as visible and wrappable in overlay css', function 
     $wrapped = DocumentPdfRenderer::wrapHtml(view($sheet['view'], $sheet['data'])->render());
 
     expect($wrapped)
-        ->toContain('.invoice-print-root--pdf .invoice-print-info-grid__col-value{width:48%!important')
-        ->toContain('.invoice-print-root--pdf .invoice-print-info-grid__col-ar{width:33%!important')
+        ->toContain('.invoice-print-root--pdf .invoice-print-info-grid__col-value{width:34%!important')
+        ->toContain('.invoice-print-root--pdf .invoice-print-info-grid__col-ar{width:32%!important')
         ->toContain('.invoice-print-root--pdf .invoice-print-info-grid__value{text-align:left!important')
-        ->toContain('overflow:visible!important;white-space:normal!important;overflow-wrap:break-word!important;word-break:break-word!important')
+        ->toContain('overflow:visible!important;white-space:normal!important;overflow-wrap:normal!important;word-break:normal!important')
         ->toContain('.invoice-print-root--pdf .invoice-print-info-grid__value--nowrap')
         ->toContain('overflow:visible!important')
-        ->toContain('.invoice-print-root--pdf .invoice-print-info-grid>tbody>tr>td.invoice-print-info-grid__pair{display:block!important;width:100%!important');
+        ->toContain('.invoice-print-root--pdf .invoice-print-info-grid>tbody>tr>td.invoice-print-info-grid__pair{width:50%!important;max-width:50%!important')
+        ->toContain('.invoice-print-root--pdf .invoice-print-info-grid__ar{text-align:right!important;font-size:8pt!important')
+        ->toContain('font-family:dejavusans!important;width:32%!important');
 });
 
 it('renders full long meta values in pdf text extract', function () {
@@ -69,7 +71,10 @@ it('renders full long meta values in pdf text extract', function () {
 
     $plain = preg_replace('/[\x{061C}\x{200E}\x{200F}\x{202A}-\x{202E}]/u', '', $text ?? '') ?? '';
 
-    expect($plain)->toContain('V221-SIMP-PHONE-20261120183431')
+    // The long id may wrap at hyphens, so pdftotext can emit the prefix and suffix
+    // as separate tokens (with the Arabic label between them in extract order).
+    expect($plain)->toContain('V221-SIMP-PHONE-')
+        ->and($plain)->toContain('20261120183431')
         ->and($plain)->toContain('due on invoice date')
         ->and($plain)->not->toContain('due on invoice d'.PHP_EOL)
         ->and($plain)->toContain('Invoice No.');
