@@ -218,8 +218,8 @@
         </div>
     </x-admin.hub-sheet>
 
-    <div class="app-card mt-4 overflow-x-auto p-0">
-        <table class="w-full min-w-[36rem] text-left text-sm">
+    <div class="app-card admin-data-table-scroll mt-4 p-0">
+        <table class="admin-data-table w-full min-w-[36rem] text-left text-sm">
             <thead>
                 <tr class="border-b border-[var(--app-border)] bg-[var(--app-surface-muted)]/60 text-xs uppercase text-[var(--app-muted)]">
                     <th class="px-4 py-3">{{ __('expenses.spent_on') }}</th>
@@ -227,7 +227,7 @@
                     <th class="px-4 py-3">{{ __('expenses.vendor') }}</th>
                     <th class="px-4 py-3 text-end">{{ __('expenses.amount_ex_vat') }}</th>
                     @if ($canManage)
-                        <th class="px-4 py-3"></th>
+                        <th class="admin-data-table__actions-head px-4 py-3"></th>
                     @endif
                 </tr>
             </thead>
@@ -244,7 +244,7 @@
                         </td>
                         <td class="px-4 py-3 text-end tabular-nums font-medium">{{ number_format($expense->amount_ex_vat, 2) }}</td>
                         @if ($canManage)
-                            <td class="px-4 py-3 text-end">
+                            <td class="admin-data-table__actions-cell px-4 py-3 text-end">
                                 <button
                                     type="button"
                                     wire:click="deleteExpense({{ $expense->id }})"

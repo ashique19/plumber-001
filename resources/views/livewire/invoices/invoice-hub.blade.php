@@ -150,7 +150,7 @@
                     <th scope="col" class="hub-doc-table__status-col">{{ __('invoices.col_payment_status') }}</th>
                     <th scope="col" class="hub-doc-table__status-col">{{ __('invoices.col_invoice_status') }}</th>
                     <th scope="col" class="hub-doc-table__status-col">{{ __('invoices.col_zatca_status') }}</th>
-                    <th scope="col" class="text-end">{{ __('invoices.col_actions') }}</th>
+                    <th scope="col" class="hub-doc-table__actions-head text-end">{{ __('invoices.col_actions') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -208,7 +208,7 @@
                                 @endif
                             </div>
                         </td>
-                        <td>
+                        <td class="hub-doc-table__actions-cell">
                             <x-hub.invoice-row-actions
                                 :invoice-id="$invoice->id"
                                 :actions="$a"

@@ -96,9 +96,10 @@ it('wraps PDF HTML with an Arabic-capable default font and SAR fallback, without
     $wrapped = DocumentPdfRenderer::wrapHtml($html);
 
     expect($wrapped)
-        ->toContain('invoice-sar-symbol__svg')
-        ->toContain('data:image/svg+xml;base64,')
-        ->toContain('width:0.95em!important')
+        ->toContain('invoice-sar-symbol')
+        ->toContain('>SAR</span>')
+        ->not->toContain('data:image/svg+xml;base64,')
+        ->not->toContain('<svg')
         ->toContain('DejaVu Sans')
         ->not->toContain('???');
 
@@ -108,7 +109,7 @@ it('wraps PDF HTML with an Arabic-capable default font and SAR fallback, without
         ->and($binary)->not->toContain('???');
 });
 
-it('uses the SAR symbol and a page footer on classic template B prints', function () {
+it('uses plain SAR text and a page footer on classic template B prints', function () {
     $invoice = Invoice::query()->create([
         'branch_id' => Branch::query()->first()?->id,
         'document_number' => 'STD-CLASSIC-SAR',
@@ -125,7 +126,8 @@ it('uses the SAR symbol and a page footer on classic template B prints', functio
     $this->actingAs($this->owner, 'staff')
         ->get(route('admin.invoices.print', ['invoice' => $invoice, 'layout' => 'a4', 'template' => 'classic']))
         ->assertOk()
-        ->assertSee('invoice-sar-symbol__svg', false)
+        ->assertSee('invoice-sar-symbol', false)
+        ->assertSee('>SAR</span>', false)
         ->assertSee('print-classic__sheet-footer', false)
         ->assertSee('invoice-print-page-label', false)
         ->assertDontSee('Page 0 of 0', false);

@@ -12,7 +12,8 @@
 }
 
 .hub-doc-table {
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
     min-width: 52rem;
 }
 
@@ -460,4 +461,30 @@ html[dir='rtl'] .hub-doc-table__actions {
 
 .hub-doc-mobile-card__actions .hub-doc-table__actions {
     justify-content: flex-start;
+}
+
+.hub-doc-table thead th.hub-doc-table__actions-head,
+.hub-doc-table tbody td.hub-doc-table__actions-cell {
+    position: sticky;
+    inset-inline-end: 0;
+    z-index: 2;
+    background: var(--app-surface, #fff);
+    box-shadow: -6px 0 8px -6px rgb(15 23 42 / 0.22);
+}
+
+html[dir='rtl'] .hub-doc-table thead th.hub-doc-table__actions-head,
+html[dir='rtl'] .hub-doc-table tbody td.hub-doc-table__actions-cell,
+[dir='rtl'] .hub-doc-table thead th.hub-doc-table__actions-head,
+[dir='rtl'] .hub-doc-table tbody td.hub-doc-table__actions-cell {
+    box-shadow: 6px 0 8px -6px rgb(15 23 42 / 0.22);
+}
+
+.hub-doc-table thead th.hub-doc-table__actions-head {
+    z-index: 5;
+    top: 0;
+    background: color-mix(in srgb, var(--app-border) 35%, var(--app-surface, #fff));
+}
+
+.hub-doc-table tbody tr:hover td.hub-doc-table__actions-cell {
+    background: color-mix(in srgb, var(--plumber-safety, #c68b59) 8%, var(--app-surface, #fff));
 }

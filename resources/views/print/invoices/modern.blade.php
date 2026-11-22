@@ -8,7 +8,7 @@
         @vite(['resources/css/invoice-print.css', 'resources/css/print-template-modern.css', 'resources/js/receipt.js', 'resources/js/invoice-print-preview.js'])
     @endpush
 
-    <div @class(['invoice-print-root', 'invoice-print-sheet', 'print-tpl-modern', 'invoice-print-root--pdf' => $isPdf ?? false]) data-invoice-print data-document-number="{{ $t['document_number'] }}" data-print-footer-doc="{{ $t['document_number'] }}">
+    <div @class(['invoice-print-root', 'invoice-print-sheet', 'print-tpl-modern', 'invoice-print-root--pdf' => $isPdf ?? false]) data-invoice-print data-auto-print="{{ request()->boolean('autoprint') ? '1' : '0' }}" data-document-number="{{ $t['document_number'] }}" data-print-footer-doc="{{ $t['document_number'] }}">
         @include('print.partials.toolbar-invoice')
 
         <div class="print-tpl-modern__intro">
@@ -40,7 +40,7 @@
                 <tr>
                     <th class="col-index" scope="col"><x-invoices.print-th-label en="#" ar="م" align="center" /></th>
                     <th class="col-desc" scope="col"><x-invoices.print-th-label en="Description" ar="الوصف" /></th>
-                    <th class="col-num" scope="col"><x-invoices.print-th-label en="Qty" ar="الكمية" align="end" /></th>
+                    <th class="col-num col-qty" scope="col"><x-invoices.print-th-label en="Qty" ar="الكمية" align="center" /></th>
                     <th class="col-num" scope="col"><x-invoices.print-th-label en="Price" ar="السعر" align="end" /></th>
                     <th class="col-num col-taxable" scope="col"><x-invoices.print-th-label en="Taxable amount" ar="المبلغ الخاضع للضريبة" align="end" /></th>
                     <th class="col-num col-vat print-tpl-modern__vat-th" scope="col"><x-invoices.print-th-label en="VAT amount (+%)" ar="القيمة المضافة" align="end" /></th>
@@ -57,7 +57,7 @@
                                 <div class="invoice-a4__desc-ar invoice-print-ar" dir="rtl">{{ $line['name_ar'] }}</div>
                             @endif
                         </td>
-                        <td class="col-num tabular-nums">{{ $line['quantity_display'] }}</td>
+                        <td class="col-num col-qty tabular-nums">{{ $line['quantity_display'] }}</td>
                         <td class="col-num tabular-nums"><x-invoices.sar-symbol /> {{ number_format($line['unit_price_ex_vat'], 2) }}</td>
                         <td class="col-num tabular-nums"><x-invoices.sar-symbol /> {{ number_format($line['taxable_ex_vat'], 2) }}</td>
                         <td class="col-num tabular-nums print-tpl-modern__vat-cell">

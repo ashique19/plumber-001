@@ -3,9 +3,9 @@
 @if (filled($tlv) || filled($png))
     <div class="invoice-a4__qr">
         @if (filled($png))
-            <img src="{{ $png }}" alt="" width="180" height="180" class="invoice-a4__qr-img">
+            <img src="{{ $png }}" alt="" width="270" height="270" class="invoice-a4__qr-img">
         @else
-            <canvas id="receipt-qr" data-tlv="{{ $tlv }}" width="180" height="180"></canvas>
+            <canvas id="receipt-qr" data-tlv="{{ $tlv }}" width="270" height="270"></canvas>
         @endif
         @if ($splitCaptions)
             <div class="invoice-a4__qr-note-lines">

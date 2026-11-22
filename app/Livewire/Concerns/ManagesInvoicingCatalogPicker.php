@@ -3,6 +3,7 @@
 namespace App\Livewire\Concerns;
 
 use App\Enums\ProductItemType;
+use App\Enums\VatZatcaCategory;
 use App\Models\Product;
 use App\Models\BusinessSetting;
 use App\Models\ProductUnit;
@@ -383,5 +384,79 @@ trait ManagesInvoicingCatalogPicker
      *     unit_label: string
      * }>
      */
+
+    public function addCustomLine(): void
+    {
+        $line = DocumentCreateUiSupport::decorateCustomLine($this->emptyLine());
+        $this->lines[] = $line;
+        $index = count($this->lines) - 1;
+        $lineId = (string) ($this->lines[$index]['line_id'] ?? '');
+        $this->dispatch('document-line-added', lineId: $lineId, lineIndex: $index);
+        $this->afterCatalogLineChanged();
+    }
+
+    public function updatedLines(mixed $value, ?string $key = null): void
+    {
+        if (! is_string($key) || ! preg_match('/^(\d+)\.(product_unit_id|vat_zatca_category|vat_rate)$/', $key, $matches)) {
+            return;
+        }
+
+        $index = (int) $matches[1];
+        if (! isset($this->lines[$index]) || ! DocumentCreateUiSupport::isCustomLine($this->lines[$index])) {
+            return;
+        }
+
+        if ($matches[2] === 'product_unit_id') {
+            $this->syncCustomLineUnit($index);
+
+            return;
+        }
+
+        if ($matches[2] === 'vat_zatca_category') {
+            $this->syncCustomLineVatCategory($index);
+
+            return;
+        }
+
+        $this->syncCustomLineVatRate($index);
+    }
+
+    protected function syncCustomLineUnit(int $index): void
+    {
+        $id = (int) ($this->lines[$index]['product_unit_id'] ?? 0);
+        $unit = $id > 0 ? ProductUnit::query()->find($id) : null;
+        if ($unit === null) {
+            return;
+        }
+
+        $this->lines[$index]['unit_label'] = $unit->displayName();
+        $this->lines[$index]['unit_code'] = filled($unit->ubl_unit_code) ? (string) $unit->ubl_unit_code : 'PCE';
+    }
+
+    protected function syncCustomLineVatCategory(int $index): void
+    {
+        $category = VatZatcaCategory::tryFrom((string) ($this->lines[$index]['vat_zatca_category'] ?? ''));
+        if ($category === null) {
+            return;
+        }
+
+        $this->lines[$index]['vat_rate'] = DocumentCreateUiSupport::normalizeLineVatRate(null, $category->vatRateDefault());
+    }
+
+    protected function syncCustomLineVatRate(int $index): void
+    {
+        $rate = (float) ($this->lines[$index]['vat_rate'] ?? 0);
+        $current = VatZatcaCategory::tryFrom((string) ($this->lines[$index]['vat_zatca_category'] ?? ''));
+        if ($rate >= 0.011) {
+            $this->lines[$index]['vat_zatca_category'] = VatZatcaCategory::Standard->value;
+
+            return;
+        }
+
+        if ($current === null || $current === VatZatcaCategory::Standard) {
+            $this->lines[$index]['vat_zatca_category'] = VatZatcaCategory::Zero->value;
+        }
+    }
+
     abstract protected function emptyLine(): array;
 }

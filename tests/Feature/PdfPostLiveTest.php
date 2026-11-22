@@ -155,9 +155,10 @@ it('uses the SAR svg in PDF html and omits the Bangla quotation subtitle', funct
     $wrapped = DocumentPdfRenderer::wrapHtml($html);
 
     expect($wrapped)
-        ->toContain('invoice-sar-symbol__svg')
-        ->toContain('data:image/svg+xml;base64,')
-        ->toContain('width:0.95em!important')
+        ->toContain('invoice-sar-symbol')
+        ->toContain('>SAR</span>')
+        ->not->toContain('data:image/svg+xml;base64,')
+        ->not->toContain('<svg')
         ->toContain('.invoice-a4__title-bn,.print-classic__title-bn{display:none!important}')
         ->not->toContain('display:inline!important;font-size:.85em;font-weight:700}');
 });
@@ -193,25 +194,14 @@ it('keeps TRN digits in a separate LTR run beside Arabic labels', function () {
     expect(DocumentPdfRenderer::render($html))->toStartWith('%PDF');
 });
 
-it('inlines the SAR symbol as a dompdf-friendly data URI image', function () {
-    $html = '<span class="invoice-sar-symbol"><svg class="invoice-sar-symbol__svg" xmlns="http://www.w3.org/2000/svg"></svg></span>';
+it('strips leftover SAR SVG markup from the PDF wrapper', function () {
+    $html = '<span class="invoice-sar-symbol"><svg class="invoice-sar-symbol__svg" xmlns="http://www.w3.org/2000/svg"></svg>SAR</span>';
 
     $wrapped = DocumentPdfRenderer::wrapHtml($html);
 
     expect($wrapped)
-        ->toContain('data:image/svg+xml;base64,')
-        ->toContain('class="invoice-sar-symbol__svg"')
-        ->not->toContain('<svg');
-});
-
-it('inlines the SAR symbol as a data URI image for dompdf PDFs', function () {
-    $html = '<span class="invoice-sar-symbol"><svg class="invoice-sar-symbol__svg" xmlns="http://www.w3.org/2000/svg"></svg></span>';
-
-    $wrapped = DocumentPdfRenderer::wrapHtml($html);
-
-    expect($wrapped)
-        ->toContain('data:image/svg+xml;base64,')
-        ->toContain('class="invoice-sar-symbol__svg"')
+        ->toContain('>SAR</span>')
+        ->not->toContain('data:image/svg+xml;base64,')
         ->not->toContain('<svg');
 });
 

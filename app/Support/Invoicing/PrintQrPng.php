@@ -20,7 +20,7 @@ final class PrintQrPng
                 ->writer(new PngWriter)
                 ->data($tlv)
                 ->errorCorrectionLevel(ErrorCorrectionLevel::Medium)
-                ->size(240)
+                ->size(360)
                 ->margin(4)
                 ->build();
 

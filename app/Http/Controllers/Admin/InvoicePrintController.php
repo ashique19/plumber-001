@@ -9,6 +9,7 @@ use App\Models\Invoice;
 use App\Models\PosOrder;
 use App\Support\EnabledLocales;
 use App\Support\Invoicing\InvoicePrintPresenter;
+use App\Support\Invoicing\PrintQrPng;
 use App\Support\Invoicing\PrintTemplateResolver;
 use App\Support\Hub\HubInvoiceRowActions;
 use App\Support\Hub\HubInvoiceZatcaResubmitCopy;
@@ -54,6 +55,8 @@ class InvoicePrintController extends Controller
         } else {
             $t = InvoicePrintPresenter::fromInvoice($business, $invoice, $branch);
         }
+
+        $t['qr_png'] = PrintQrPng::dataUri($t['qr_tlv_base64'] ?? null);
 
         $returnQuery = $request->query(PrintScreenBackUrl::RETURN_PARAM);
         $returnParams = is_string($returnQuery) && $returnQuery !== ''

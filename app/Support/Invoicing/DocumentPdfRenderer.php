@@ -202,7 +202,7 @@ final class DocumentPdfRenderer
             .'.invoice-a4__title-bn,.print-classic__title-bn{display:none!important}'
             .'.invoice-print-root{padding:2mm 6mm;font-size:'.$pdfBody.'!important;max-width:none}'
             .'.invoice-print-root--pdf{padding:2mm 6mm 2mm!important}'
-            .'.invoice-print-root--pdf,.invoice-print-root--pdf *:not(.invoice-sar-symbol__svg){font-family:dejavusans!important}'
+            .'.invoice-print-root--pdf,.invoice-print-root--pdf *{font-family:dejavusans!important}'
             .'.invoice-print-root--pdf .invoice-a4__title,.invoice-print-root--pdf .invoice-a4__title-en,.invoice-print-root--pdf .invoice-a4__title-ar,.invoice-print-root--pdf .print-classic__title,.invoice-print-root--pdf .print-classic__title-ar{font-family:dejavusans!important;font-size:'.$pdfTitleEn.'!important;font-weight:700!important}'
             .'.invoice-print-root--pdf .invoice-a4__table th,.invoice-print-root--pdf .invoice-a4__table th *,.invoice-print-root--pdf .print-tpl-modern__lines thead th,.invoice-print-root--pdf .print-tpl-modern__lines thead th *,.invoice-print-root--pdf .invoice-print-th-label__en,.invoice-print-root--pdf .invoice-print-th-label__ar,.invoice-print-root--pdf .print-classic__lines th,.invoice-print-root--pdf .print-classic__lines th *{font-family:dejavusans!important;font-size:'.$pdfLabelEn.'!important;font-weight:700!important}'
             .'.invoice-print-root--pdf .invoice-print-info-grid__en,.invoice-print-root--pdf .invoice-print-info-grid__ar,.invoice-print-root--pdf .invoice-a4__buyer-table-label,.invoice-print-root--pdf .invoice-a4__buyer-table-label.ar,.invoice-print-root--pdf .invoice-print-totals__en,.invoice-print-root--pdf .invoice-print-totals__ar,.invoice-print-root--pdf .invoice-pdf-sans-label,.invoice-print-root--pdf .invoice-a4__footer,.invoice-print-root--pdf .invoice-a4__footer-ar{font-family:dejavusans!important;font-size:'.$pdfLabelEn.'!important;font-weight:normal!important}'
@@ -216,9 +216,7 @@ final class DocumentPdfRenderer
 
             .'.invoice-print-root--pdf .invoice-pdf-ltr-digits,.invoice-print-root--pdf .invoice-pdf-ltr-digits *,.invoice-print-root--pdf .invoice-print-ltr-num,.invoice-print-root--pdf .invoice-print-seller-header-ids__value,.invoice-print-root--pdf .invoice-print-seller-header-ids__value *{font-family:inherit!important;font-size:inherit!important;font-weight:inherit!important;color:inherit!important;direction:ltr!important;unicode-bidi:isolate!important;line-height:1.15!important}'
             .'.invoice-print-root--pdf .invoice-pdf-sans-value,.invoice-print-root--pdf .invoice-print-info-grid__value,.invoice-print-root--pdf .invoice-print-totals__value,.invoice-print-root--pdf .invoice-a4__table td{line-height:1.15!important}'
-            .'.invoice-sar-symbol{display:inline!important;white-space:nowrap!important;line-height:1!important}'
-            .'.invoice-sar-symbol__svg{display:inline-block!important;width:0.95em!important;height:1em!important;vertical-align:middle!important;margin:0!important}'
-            .'.invoice-sar-symbol__fallback{display:none!important}'
+            .'.invoice-sar-symbol{display:inline!important;white-space:nowrap!important;line-height:1!important;font-family:inherit!important;font-size:inherit!important;font-weight:inherit!important}'
             .'.invoice-print-money{display:inline!important;white-space:nowrap!important}'
             .'.invoice-print-root--pdf .invoice-print-totals,.invoice-print-root--pdf .print-tpl-modern__totals{font-family:'.$latin.'!important;font-weight:normal!important;font-size:'.$pdfBody.'!important}'
             .'.invoice-print-root--pdf .invoice-print-totals__en{font-family:'.$latin.'!important;font-weight:normal!important;font-size:'.$pdfLabel.'!important;color:#666!important}'
@@ -392,13 +390,13 @@ final class DocumentPdfRenderer
             .'.invoice-print-root--pdf .print-tpl-modern__closing .print-tpl-modern__words{max-width:100%!important;width:100%!important}'
             .'.invoice-print-words-block__ar{font-family:'.$arFont.'!important}'
             .'.print-tpl-modern__closing-grid{width:100%!important;table-layout:fixed!important;border-collapse:collapse!important}'
-            .'.print-tpl-modern__closing-qr{width:48mm!important;max-width:48mm!important;vertical-align:top!important;padding-right:4px!important}'
+            .'.print-tpl-modern__closing-qr{width:62mm!important;max-width:62mm!important;vertical-align:top!important;padding-right:4px!important}'
             .'.print-tpl-modern__closing-main{width:62%!important;vertical-align:top!important;text-align:right!important}'
             .'.print-tpl-modern__closing--no-qr .print-tpl-modern__closing-main{width:100%!important}'
             .'.invoice-print-root--pdf .print-tpl-modern__closing .print-tpl-modern__words{margin-top:2px!important;margin-left:auto!important;margin-bottom:2px!important;width:100%!important;max-width:26rem!important;min-width:0!important;border:1px solid #1a1a1a!important;padding:3px 5px!important;box-sizing:border-box!important;font-size:'.$pdfBodyEn.'!important;line-height:1.2!important;page-break-inside:avoid;display:block!important}'
-            .'.invoice-print-root--pdf .print-tpl-modern__qr-wrap{width:100%!important;max-width:52mm!important;margin:0!important}'
-            .'.invoice-print-root--pdf .print-tpl-modern__qr-wrap .invoice-a4__qr{text-align:center!important;margin:0 auto!important;max-width:52mm!important}'
-            .'.print-tpl-modern__closing .invoice-a4__qr-note-lines{width:100%!important;max-width:52mm!important;margin:4px auto 0!important}'
+            .'.invoice-print-root--pdf .print-tpl-modern__qr-wrap{width:100%!important;max-width:62mm!important;margin:0!important}'
+            .'.invoice-print-root--pdf .print-tpl-modern__qr-wrap .invoice-a4__qr{text-align:center!important;margin:0 auto!important;max-width:62mm!important}'
+            .'.print-tpl-modern__closing .invoice-a4__qr-note-lines{width:100%!important;max-width:62mm!important;margin:4px auto 0!important}'
             .'.print-tpl-modern__closing .invoice-a4__qr-note-en{margin:0!important;font-size:7.5pt!important;line-height:1.25!important;font-family:'.$latin.'!important;text-align:center!important;direction:ltr!important;white-space:nowrap!important}'
             .'.print-tpl-modern__closing .invoice-a4__qr-note-ar__line{margin:0!important;font-size:7.5pt!important;line-height:1.25!important;text-align:center!important;direction:rtl!important;unicode-bidi:embed!important;white-space:nowrap!important}'
             .'.print-tpl-modern__closing .invoice-a4__qr-note-ar-lines .invoice-a4__qr-note-ar__line + .invoice-a4__qr-note-ar__line{margin-top:2px!important}'
@@ -418,7 +416,14 @@ final class DocumentPdfRenderer
             .'.print-classic__closing{display:table!important;width:100%!important}'
             .'.invoice-print-words-block{display:flex!important;align-items:flex-start!important;flex-wrap:nowrap!important;gap:8px 12px!important}'
             .'.invoice-print-words-block__en,.invoice-print-words-block__ar{display:block!important;flex:1 1 0!important;min-width:0!important;margin:0!important}'
-            .'.invoice-a4__qr-img,.print-tpl-modern__qr-wrap img,.print-classic__top-right img.invoice-a4__qr-img{width:113px!important;height:113px!important;max-width:30mm!important;max-height:30mm!important;display:block!important;margin-left:auto!important;margin-right:auto!important}'
+            .'.invoice-a4__qr-img,.print-tpl-modern__qr-wrap img,.print-classic__top-right img.invoice-a4__qr-img{width:170px!important;height:170px!important;max-width:45mm!important;max-height:45mm!important;display:block!important;margin-left:auto!important;margin-right:auto!important}'
+            .'.invoice-print-root--pdf .invoice-pdf-seller-ar-compact .invoice-pdf-seller-line.invoice-pdf-seller-ar-street-wrap,.invoice-print-root--pdf .invoice-pdf-seller-ar-street-wrap{direction:ltr!important;text-align:right!important;unicode-bidi:bidi-override!important;width:100%!important;max-width:100%!important}'
+            .'.invoice-print-root--pdf .invoice-pdf-seller-ar-street-wrap .invoice-pdf-ar-street-line__name,.invoice-print-root--pdf .invoice-pdf-seller-ar-street-wrap .invoice-pdf-ar-street-line__building{display:inline!important;direction:ltr!important;unicode-bidi:normal!important;font:inherit!important;font-size:inherit!important;font-family:inherit!important;line-height:inherit!important;color:inherit!important;white-space:nowrap!important}'
+            .'.invoice-print-root--pdf .invoice-pdf-seller-ar-street-wrap .invoice-pdf-ar-street-line__building{padding:0 0 0 4px!important}'
+            .'.invoice-print-root--pdf .invoice-a4__table--product-lines th.col-qty,.invoice-print-root--pdf .invoice-a4__table--product-lines td.col-qty,.invoice-print-root--pdf .print-classic__lines th.col-qty,.invoice-print-root--pdf .print-classic__lines td.col-qty{text-align:center!important}'
+            .'.invoice-print-root--pdf .invoice-print-info-grid,.invoice-print-root--pdf .invoice-print-info-grid-field,.invoice-print-root--pdf .print-tpl-modern__totals,.invoice-print-root--pdf .invoice-print-totals{border-collapse:collapse!important}'
+            .'.invoice-print-root--pdf .invoice-print-info-grid > tbody > tr > td,.invoice-print-root--pdf .invoice-print-info-grid-field td{border:1px solid #1a1a1a!important}'
+            .'.invoice-print-root--pdf .print-tpl-modern__totals td,.invoice-print-root--pdf .invoice-print-totals td{border:1px solid #1a1a1a!important}'
             .'.print-tpl-modern,.print-tpl-classic{padding-bottom:1mm}'
             .'.print-tpl-modern__closing{page-break-inside:avoid!important;margin-top:4px!important}'
             .'.invoice-a4__logo,.print-classic__logo{max-height:40px}'
@@ -481,32 +486,12 @@ final class DocumentPdfRenderer
         return is_string($out) ? $out : $html;
     }
 
-    private static function sarSymbolDataUri(): string
-    {
-        static $uri = null;
-        if ($uri !== null) {
-            return $uri;
-        }
-
-        $path = resource_path('images/sar-riyal-symbol.svg');
-        $svg = is_file($path) ? (string) file_get_contents($path) : '';
-        $uri = 'data:image/svg+xml;base64,'.base64_encode($svg);
-
-        return $uri;
-    }
-
     private static function inlineSarSymbolsForPdf(string $html): string
     {
-        if (! str_contains($html, 'invoice-sar-symbol__svg')) {
-            return $html;
-        }
-
-        $src = self::sarSymbolDataUri();
-        $img = '<img class="invoice-sar-symbol__svg" alt="" src="'.$src.'" style="width:1em;height:1em;vertical-align:-0.12em;display:inline-block" />';
-
+        // Currency is plain "SAR" text in the Blade component; keep any leftover SVG out of the PDF.
         return (string) preg_replace(
             '/<svg[^>]*class="[^"]*invoice-sar-symbol__svg[^"]*"[^>]*>.*?<\/svg>/s',
-            $img,
+            '',
             $html
         );
     }

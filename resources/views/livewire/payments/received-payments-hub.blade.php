@@ -102,7 +102,7 @@
                             <th class="px-3 py-3 font-medium">{{ __('payments.customer') }}</th>
                             <th class="px-3 py-3 font-medium">{{ __('payments.method.label') }}</th>
                             <th class="px-3 py-3 text-end font-medium">{{ __('payments.amount') }}</th>
-                            <th class="px-3 py-3 text-end font-medium">{{ __('payments.received.actions') }}</th>
+                            <th class="admin-data-table__actions-head hub-doc-table__actions-head px-3 py-3 text-end font-medium">{{ __('payments.received.actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -124,7 +124,7 @@
                                     @endif
                                 </td>
                                 <td class="px-3 py-2.5 text-end tabular-nums font-medium">{{ number_format($row['amount'], 2) }}</td>
-                                <td class="px-3 py-2.5 text-end">
+                                <td class="admin-data-table__actions-cell hub-doc-table__actions-cell px-3 py-2.5 text-end">
                                     <div class="hub-doc-table__actions hub-doc-table__actions--compact inline-flex justify-end">
                                         @if ($row['view_url'])
                                             <x-hub.row-action-icon

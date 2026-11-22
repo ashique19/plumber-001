@@ -70,7 +70,7 @@
                         </button>
                     </th>
                     <th scope="col">{{ __('quotations.col_amount') }}</th>
-                    <th scope="col" class="text-end">{{ __('quotations.col_actions') }}</th>
+                    <th scope="col" class="hub-doc-table__actions-head text-end">{{ __('quotations.col_actions') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -87,7 +87,7 @@
                         <td class="hub-doc-table__amount">
                             <x-invoices.sar-symbol /> {{ number_format($row['total_inc_vat'], 2) }}
                         </td>
-                        <td>
+                        <td class="hub-doc-table__actions-cell">
                             <x-hub.quotation-row-actions
                                 :quotation-id="$quotation->id"
                                 :print-url="$urls['print']"

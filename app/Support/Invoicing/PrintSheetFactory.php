@@ -42,9 +42,9 @@ final class PrintSheetFactory
             $t = InvoicePrintPresenter::fromInvoice($business, $invoice, $branch);
         }
 
-        if ($forPdf) {
-            $t['qr_png'] = PrintQrPng::dataUri($t['qr_tlv_base64'] ?? null);
-        }
+        // HTML A4 print and PDF both need a raster QR. Canvas rendering is a
+        // progressive enhancement; without the PNG the print view can omit the code.
+        $t['qr_png'] = PrintQrPng::dataUri($t['qr_tlv_base64'] ?? null);
 
         $template = PrintTemplateResolver::forInvoice($business, $request)->value;
         $view = $layout === 'cash' && ! $forPdf

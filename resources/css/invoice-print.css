@@ -184,6 +184,7 @@
 .invoice-print-info-grid > tbody > tr > td {
     padding: 2px 4px;
     vertical-align: top;
+    border: 1px solid var(--inv-border);
 }
 
 .invoice-print-info-grid-field {
@@ -195,6 +196,7 @@
 .invoice-print-info-grid-field td {
     padding: 2px 3px;
     vertical-align: top;
+    border: 1px solid var(--inv-border);
 }
 
 .invoice-print-info-grid__col-en {
@@ -795,6 +797,13 @@
     text-align: start;
 }
 
+.invoice-a4__table--product-lines th.col-qty,
+.invoice-a4__table--product-lines td.col-qty,
+.print-classic__lines th.col-qty,
+.print-classic__lines td.col-qty {
+    text-align: center;
+}
+
 .invoice-a4__table--product-lines th.col-num,
 .invoice-a4__table--product-lines td.col-num {
     text-align: end;
@@ -855,8 +864,10 @@
 .invoice-a4__qr-img {
     display: block;
     margin: 0 auto;
-    max-width: 200px;
-    height: auto;
+    width: 45mm;
+    height: 45mm;
+    max-width: 45mm;
+    max-height: 45mm;
 }
 
 .invoice-a4__qr-note,
@@ -920,12 +931,14 @@
 }
 
 .invoice-print-totals {
+    border-collapse: collapse;
     width: 100%;
     border-collapse: collapse;
     table-layout: fixed;
 }
 
 .invoice-print-totals td {
+    border: 1px solid var(--inv-border);
     padding: 4px 6px;
     vertical-align: middle;
 }

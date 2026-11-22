@@ -40,7 +40,7 @@ it('builds two explicit mPDF Arabic address lines with LTR digit runs', function
         ->and(BusinessProfile::wrapPdfAddressDigitRunsInEscapedLine($lines[1]))->toContain('invoice-pdf-ltr-digits');
 });
 
-it('builds dompdf seller header arabic lines without digit spans', function () {
+it('builds typography-safe dompdf seller header arabic lines with the building number after the street', function () {
     $na = [
         'building' => '7098',
         'street_ar' => 'أحمد بن الحسين بن شقير',
@@ -53,8 +53,10 @@ it('builds dompdf seller header arabic lines without digit spans', function () {
     $lines = BusinessProfile::formatNationalAddressArDompdfPlainLines($na);
 
     expect($lines)->toHaveCount(2)
-        ->and($lines[0])->toContain('7098')->toContain('أحمد بن الحسين بن شقير')->toContain('،')
-        ->and($lines[0])->not->toContain('invoice-pdf-ltr-digits')
+        ->and($lines[0])->toContain('invoice-pdf-ar-street-line')
+        ->and($lines[0])->toContain('>7098</span>')
+        ->and($lines[0])->toContain('أحمد بن الحسين بن شقير،')
+        ->and(strpos($lines[0], 'شقير،') < strpos($lines[0], '>7098</span>'))->toBeTrue()
         ->and($lines[1])->toContain('12629')->toContain('3652')
         ->and($lines[1])->not->toContain('invoice-pdf-ltr-digits')
         ->and(html_entity_decode($lines[1], ENT_QUOTES | ENT_HTML5, 'UTF-8'))

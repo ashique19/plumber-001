@@ -39,7 +39,7 @@ it('committed vite bundles for invoice print include modern polish rules', funct
             'invoice-a4__buyer-address-en__line',
         ],
         'resources/css/print-template-modern.css' => [
-            'min-width:200px',
+            'min-width:170px',
             'invoice-a4__qr-note-ar',
             'white-space:nowrap',
         ],

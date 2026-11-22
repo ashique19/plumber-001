@@ -41,7 +41,7 @@
                 <tr>
                     <th class="col-index" scope="col"><x-invoices.print-th-label en="#" ar="م" align="center" /></th>
                     <th class="col-desc" scope="col"><x-invoices.print-th-label en="Description" ar="الوصف" /></th>
-                    <th class="col-num" scope="col"><x-invoices.print-th-label en="Qty" ar="الكمية" align="end" /></th>
+                    <th class="col-num col-qty" scope="col"><x-invoices.print-th-label en="Qty" ar="الكمية" align="center" /></th>
                     <th class="col-num" scope="col"><x-invoices.print-th-label en="Unit price" ar="سعر الوحدة" align="end" /></th>
                     <th class="col-num" scope="col"><x-invoices.print-th-label en="Taxable" ar="الخاضع" align="end" /></th>
                     <th class="col-num" scope="col"><x-invoices.print-th-label en="VAT" ar="الضريبة" align="end" /></th>
@@ -58,7 +58,7 @@
                                 <div class="invoice-a4__desc-ar invoice-print-ar" dir="rtl">{{ $line['name_ar'] }}</div>
                             @endif
                         </td>
-                        <td class="col-num tabular-nums">{{ $line['quantity_display'] }}</td>
+                        <td class="col-num col-qty tabular-nums">{{ $line['quantity_display'] }}</td>
                         <td class="col-num tabular-nums"><x-invoices.sar-symbol /> {{ number_format($line['unit_price_ex_vat'], 2) }}</td>
                         <td class="col-num tabular-nums"><x-invoices.sar-symbol /> {{ number_format($line['taxable_ex_vat'], 2) }}</td>
                         <td class="col-num tabular-nums">{{ number_format($line['vat_rate'], 0) }}% · <x-invoices.sar-symbol /> {{ number_format($line['vat_amount'], 2) }}</td>

@@ -613,3 +613,61 @@ html.admin-app .app-main--with-sidebar .document-create-footer {
 .document-sticky-action-bar {
     z-index: 36;
 }
+
+.document-create-footer__label-short {
+    display: inline;
+}
+
+.document-create-footer__label-full {
+    display: none;
+}
+
+@media (min-width: 640px) {
+    .document-create-footer__label-short {
+        display: none;
+    }
+
+    .document-create-footer__label-full {
+        display: inline;
+    }
+}
+
+.document-create-footer--with-print .document-create-footer__primary {
+    order: -2;
+    grid-column: auto;
+}
+
+.document-create-footer--with-print .document-create-footer__print {
+    order: -1;
+}
+
+@media (min-width: 640px) {
+    .document-create-footer--with-print .document-create-footer__actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .document-create-footer--with-print .document-create-footer__primary,
+    .document-create-footer--with-print .document-create-footer__print {
+        grid-column: auto;
+    }
+}
+
+@media (min-width: 1024px) {
+    .document-create-footer--with-print .document-create-footer__print,
+    .document-create-footer--with-print .document-create-footer__primary {
+        order: 4;
+        width: auto;
+    }
+}
+
+
+.invoice-add-custom-line {
+    margin-top: 0.5rem;
+}
+
+.invoice-add-custom-line__btn {
+    min-height: 2.75rem;
+    padding-inline: 0.85rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+}

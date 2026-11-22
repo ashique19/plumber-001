@@ -133,6 +133,9 @@
             :submit-label="__('invoices.issue_submit')"
             wire-target="issue"
             form="invoice-issue-form"
+            print-target="issueAndPrint"
+            :print-label="__('invoices.issue_and_print')"
+            :print-short-label="__('invoices.issue_and_print_short')"
         />
 
         <x-documents.create-footer
@@ -142,6 +145,9 @@
             form-id="invoice-issue-form"
             draft-target="saveDraft"
             preview-target="previewDocument"
+            print-target="issueAndPrint"
+            :print-label="__('invoices.issue_and_print')"
+            :print-short-label="__('invoices.issue_and_print_short')"
         />
     </form>
 

@@ -54,8 +54,9 @@ it('renders a4 with bilingual labels buyer vat cr and phase1 qr', function () {
         ->assertSee('300000000000003', false)
         ->assertSee(__('invoices.print_not_cleared'), false)
         ->assertDontSee('receipt-qr', false)
-        ->assertSee('invoice-sar-symbol__svg', false)
-        ->assertSee('viewBox="0 0 1124.14 1256.39"', false)
+        ->assertSee('invoice-sar-symbol', false)
+        ->assertSee('>SAR</span>', false)
+        ->assertDontSee('invoice-sar-symbol__svg', false)
         ->assertDontSee('একীভূত', false);
 });
 
