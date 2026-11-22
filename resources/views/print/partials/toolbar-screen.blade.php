@@ -2,36 +2,39 @@
     $screenToolbar = ! ($isPdf ?? false) && ! request()->boolean('embed');
     $canDownloadPdf = (bool) ($canDownloadPdf ?? true);
     $pdfBlockedTitle = __('invoices.pdf_available_after_clearance');
+    $closeFallbackUrl = $closeFallbackUrl ?? $fallbackBackUrl ?? route('admin.invoices');
+    $backUrl = $fallbackBackUrl ?? route('admin.invoices');
+    $backLabel = $backLabel ?? (($invoice ?? null) ? __('print.back_to_invoice') : __('print.back'));
+    $currentPrintLayout = (string) request()->query('layout', '');
 @endphp
 @if ($screenToolbar)
-    <header class="invoice-print-toolbar invoice-print-toolbar--screen no-print flex flex-wrap items-center gap-2 p-2" data-testid="print-screen-toolbar">
+    <header class="invoice-print-toolbar invoice-print-toolbar--screen no-print flex flex-wrap items-center gap-2 p-2" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}" data-testid="print-screen-toolbar">
         <a
-            href="{{ $fallbackBackUrl ?? route('admin.invoices') }}"
+            href="{{ $backUrl }}"
             class="tap-action-muted min-h-11 inline-flex items-center"
             data-testid="print-screen-back"
-        >{{ __('print.back') }}</a>
-        @if ($canDownloadPdf)
-            <button type="button" class="tap-action-primary min-h-11" data-print-trigger>{{ __('pos.print') }}</button>
-        @else
-            <button
-                type="button"
-                class="tap-action-primary min-h-11 opacity-60"
-                disabled
-                title="{{ $pdfBlockedTitle }}"
-                data-testid="print-toolbar-print-disabled"
-            >{{ __('pos.print') }}</button>
-        @endif
+        >{{ $backLabel }}</a>
+        <button
+            type="button"
+            class="tap-action-primary min-h-11"
+            data-print-trigger
+            data-testid="print-screen-print-again"
+        >{{ __('print.print_again') }}</button>
+        <button
+            type="button"
+            class="tap-action-muted min-h-11"
+            data-print-close
+            data-close-fallback="{{ $closeFallbackUrl }}"
+            data-testid="print-screen-close"
+        >{{ __('print.close_window') }}</button>
         @if ($receiptUrl ?? null)
-            <a class="tap-action-muted min-h-11" href="{{ $receiptUrl }}">{{ __('invoices.layout_receipt') }}</a>
+            <a class="tap-action-muted min-h-11" href="{{ $receiptUrl }}" data-testid="print-screen-layout-receipt">{{ __('invoices.layout_receipt') }}</a>
         @endif
-        @php
-            $currentPrintLayout = (string) request()->query('layout', '');
-        @endphp
         @if (($cashUrl ?? null) && $currentPrintLayout !== 'cash')
-            <a class="tap-action-muted min-h-11" href="{{ $cashUrl }}">{{ __('print.layout_thermal') }}</a>
+            <a class="tap-action-muted min-h-11" href="{{ $cashUrl }}" data-testid="print-screen-layout-cash">{{ __('print.layout_thermal') }}</a>
         @endif
         @if (($a4Url ?? null) && $currentPrintLayout !== 'a4')
-            <a class="tap-action-muted min-h-11" href="{{ $a4Url }}">{{ __('print.layout_a4') }}</a>
+            <a class="tap-action-muted min-h-11" href="{{ $a4Url }}" data-testid="print-screen-layout-a4">{{ __('print.layout_a4') }}</a>
         @endif
         @if ($canDownloadPdf && ($pdfUrl ?? null))
             <a

@@ -67,3 +67,47 @@ it('requires english and arabic names on a custom line', function () {
         ->call('issue')
         ->assertHasErrors(['lines.0.name']);
 });
+
+
+it('shows a friendly localized custom-line error, highlights the field, and includes an inline message', function () {
+    app()->setLocale('en');
+
+    $html = Livewire::actingAs($this->owner, 'staff')
+        ->test(IssueInvoice::class, ['mode' => 'simplified'])
+        ->call('addCustomLine')
+        ->set('lines.0.name', 'Emergency callout')
+        ->set('lines.0.name_ar', '')
+        ->set('lines.0.unit_price', '10')
+        ->call('issue')
+        ->assertHasErrors(['lines.0.name_ar'])
+        ->assertSee('Line 1: Arabic name is required')
+        ->assertDontSee('product_id is not present')
+        ->html();
+
+    expect($html)
+        ->toContain('form-field__control--invalid')
+        ->toContain('data-line-error="lines.0.name_ar"')
+        ->toContain('data-testid="line-field-error"');
+});
+
+it('numbers a later custom line in the validation message', function () {
+    app()->setLocale('en');
+    $unit = ProductUnit::query()->where('is_active', true)->first();
+
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(IssueInvoice::class, ['mode' => 'simplified'])
+        ->call('addCustomLine')
+        ->set('lines.0.name', 'First')
+        ->set('lines.0.name_ar', 'الأول')
+        ->set('lines.0.unit_price', '10')
+        ->set('lines.0.product_unit_id', $unit?->id)
+        ->call('addCustomLine')
+        ->set('lines.1.name', 'Second')
+        ->set('lines.1.name_ar', '')
+        ->set('lines.1.unit_price', '10')
+        ->call('issue')
+        ->assertHasErrors(['lines.1.name_ar'])
+        ->assertSee('Line 2: Arabic name is required')
+        ->assertDontSee('The নাম')
+        ->assertDontSee('product_id is not present');
+});

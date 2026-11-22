@@ -8,8 +8,9 @@
         @vite(['resources/css/invoice-print.css', 'resources/css/print-template-modern.css', 'resources/js/receipt.js', 'resources/js/invoice-print-preview.js'])
     @endpush
 
+    @include('print.partials.toolbar-invoice')
+
     <div @class(['invoice-print-root', 'invoice-print-sheet', 'print-tpl-modern', 'invoice-print-root--pdf' => $isPdf ?? false]) data-invoice-print data-auto-print="{{ request()->boolean('autoprint') ? '1' : '0' }}" data-document-number="{{ $t['document_number'] }}" data-print-footer-doc="{{ $t['document_number'] }}">
-        @include('print.partials.toolbar-invoice')
 
         <div class="print-tpl-modern__intro">
         @include('print.partials.seller-header-with-ids', ($isPdf ?? false) ? ['t' => $t, 'isPdf' => true] : ['t' => $t])

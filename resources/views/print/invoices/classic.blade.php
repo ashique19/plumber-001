@@ -15,8 +15,9 @@
         @vite(['resources/css/invoice-print.css', 'resources/css/print-template-classic.css', 'resources/js/receipt.js', 'resources/js/invoice-print-preview.js'])
     @endpush
 
+    @include('print.partials.toolbar-invoice')
+
     <div @class(['invoice-print-root', 'invoice-print-sheet', 'print-tpl-classic', 'invoice-print-root--pdf' => $isPdf ?? false]) data-invoice-print data-auto-print="{{ request()->boolean('autoprint') ? '1' : '0' }}" data-document-number="{{ $t['document_number'] }}">
-        @include('print.partials.toolbar-invoice')
 
         @include('print.partials.seller-header-with-ids', ($isPdf ?? false) ? ['t' => $t, 'isPdf' => true] : ['t' => $t])
         <hr class="print-tpl-modern__rule" />

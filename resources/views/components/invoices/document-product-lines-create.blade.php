@@ -48,15 +48,18 @@
                                 <div class="grid grid-cols-1 gap-2">
                                     <label class="block text-xs font-medium text-[var(--app-muted)]">
                                         {{ __('invoices.line_name_en') }}
-                                        <input type="text" class="form-field__control mt-1 w-full" wire:model.live="lines.{{ $index }}.name" required />
+                                        <input type="text" class="form-field__control mt-1 w-full {{ $errors->has('lines.'.$index.'.name') ? 'form-field__control--invalid' : '' }}" wire:model.live="lines.{{ $index }}.name" @if ($errors->has('lines.'.$index.'.name')) aria-invalid="true" @endif />
+                                        <x-invoices.document-line-field-error :name="'lines.'.$index.'.name'" />
                                     </label>
                                     <label class="block text-xs font-medium text-[var(--app-muted)]">
                                         {{ __('invoices.line_name_ar') }}
-                                        <input type="text" dir="rtl" class="form-field__control mt-1 w-full" wire:model.live="lines.{{ $index }}.name_ar" required />
+                                        <input type="text" dir="rtl" class="form-field__control mt-1 w-full {{ $errors->has('lines.'.$index.'.name_ar') ? 'form-field__control--invalid' : '' }}" wire:model.live="lines.{{ $index }}.name_ar" @if ($errors->has('lines.'.$index.'.name_ar')) aria-invalid="true" @endif />
+                                        <x-invoices.document-line-field-error :name="'lines.'.$index.'.name_ar'" />
                                     </label>
                                     <label class="block text-xs font-medium text-[var(--app-muted)]">
                                         {{ __('invoices.line_name_bn') }}
-                                        <input type="text" class="form-field__control mt-1 w-full" wire:model.live="lines.{{ $index }}.name_bn" />
+                                        <input type="text" class="form-field__control mt-1 w-full {{ $errors->has('lines.'.$index.'.name_bn') ? 'form-field__control--invalid' : '' }}" wire:model.live="lines.{{ $index }}.name_bn" @if ($errors->has('lines.'.$index.'.name_bn')) aria-invalid="true" @endif />
+                                        <x-invoices.document-line-field-error :name="'lines.'.$index.'.name_bn'" />
                                     </label>
                                 </div>
                             @else
@@ -168,19 +171,34 @@
                                     @if ($isCustom)
                                         <p class="m-0 mb-1 text-xs font-semibold text-[var(--app-muted)]">{{ __('invoices.custom_line') }}</p>
                                         <div class="grid grid-cols-1 gap-1.5 xl:grid-cols-2">
-                                            <input type="text" class="form-field__control w-full" wire:model.live="lines.{{ $index }}.name" placeholder="{{ __('invoices.line_name_en') }}" required />
-                                            <input type="text" dir="rtl" class="form-field__control w-full" wire:model.live="lines.{{ $index }}.name_ar" placeholder="{{ __('invoices.line_name_ar') }}" required />
-                                            <input type="text" class="form-field__control w-full xl:col-span-2" wire:model.live="lines.{{ $index }}.name_bn" placeholder="{{ __('invoices.line_name_bn') }}" />
-                                            <select class="form-field__control w-full" wire:model.live="lines.{{ $index }}.item_type" aria-label="{{ __('invoices.line_item_type') }}">
-                                                @foreach ($itemTypeOptions as $option)
-                                                    <option value="{{ $option['value'] }}">{{ $option['label'] }}</option>
-                                                @endforeach
-                                            </select>
-                                            <select class="form-field__control w-full" wire:model.live="lines.{{ $index }}.vat_zatca_category" aria-label="{{ __('invoices.line_vat_category') }}">
-                                                @foreach ($vatCategoryOptions as $option)
-                                                    <option value="{{ $option['value'] }}">{{ $option['label'] }}</option>
-                                                @endforeach
-                                            </select>
+                                            <div>
+                                                <input type="text" class="form-field__control w-full {{ $errors->has('lines.'.$index.'.name') ? 'form-field__control--invalid' : '' }}" wire:model.live="lines.{{ $index }}.name" placeholder="{{ __('invoices.line_name_en') }}" @if ($errors->has('lines.'.$index.'.name')) aria-invalid="true" @endif />
+                                                <x-invoices.document-line-field-error :name="'lines.'.$index.'.name'" />
+                                            </div>
+                                            <div>
+                                                <input type="text" dir="rtl" class="form-field__control w-full {{ $errors->has('lines.'.$index.'.name_ar') ? 'form-field__control--invalid' : '' }}" wire:model.live="lines.{{ $index }}.name_ar" placeholder="{{ __('invoices.line_name_ar') }}" @if ($errors->has('lines.'.$index.'.name_ar')) aria-invalid="true" @endif />
+                                                <x-invoices.document-line-field-error :name="'lines.'.$index.'.name_ar'" />
+                                            </div>
+                                            <div class="xl:col-span-2">
+                                                <input type="text" class="form-field__control w-full {{ $errors->has('lines.'.$index.'.name_bn') ? 'form-field__control--invalid' : '' }}" wire:model.live="lines.{{ $index }}.name_bn" placeholder="{{ __('invoices.line_name_bn') }}" @if ($errors->has('lines.'.$index.'.name_bn')) aria-invalid="true" @endif />
+                                                <x-invoices.document-line-field-error :name="'lines.'.$index.'.name_bn'" />
+                                            </div>
+                                            <div>
+                                                <select class="form-field__control w-full {{ $errors->has('lines.'.$index.'.item_type') ? 'form-field__control--invalid' : '' }}" wire:model.live="lines.{{ $index }}.item_type" aria-label="{{ __('invoices.line_item_type') }}" @if ($errors->has('lines.'.$index.'.item_type')) aria-invalid="true" @endif>
+                                                    @foreach ($itemTypeOptions as $option)
+                                                        <option value="{{ $option['value'] }}">{{ $option['label'] }}</option>
+                                                    @endforeach
+                                                </select>
+                                                <x-invoices.document-line-field-error :name="'lines.'.$index.'.item_type'" />
+                                            </div>
+                                            <div>
+                                                <select class="form-field__control w-full {{ $errors->has('lines.'.$index.'.vat_zatca_category') ? 'form-field__control--invalid' : '' }}" wire:model.live="lines.{{ $index }}.vat_zatca_category" aria-label="{{ __('invoices.line_vat_category') }}" @if ($errors->has('lines.'.$index.'.vat_zatca_category')) aria-invalid="true" @endif>
+                                                    @foreach ($vatCategoryOptions as $option)
+                                                        <option value="{{ $option['value'] }}">{{ $option['label'] }}</option>
+                                                    @endforeach
+                                                </select>
+                                                <x-invoices.document-line-field-error :name="'lines.'.$index.'.vat_zatca_category'" />
+                                            </div>
                                         </div>
                                     @else
                                         <p class="m-0 font-medium">{{ $line['name'] }}</p>
@@ -196,19 +214,21 @@
                             </div>
                         </td>
                         <td>
-                            <div class="document-qty-stepper" data-testid="line-qty-stepper-{{ $lineId }}">
+                            <div class="document-qty-stepper {{ $errors->has('lines.'.$index.'.quantity') ? 'form-field__control--invalid' : '' }}" data-testid="line-qty-stepper-{{ $lineId }}">
                                 <button type="button" wire:click="adjustLineQuantity({{ $index }}, -1)">−</button>
                                 <span>{{ $line['quantity'] }}</span>
                                 <button type="button" wire:click="adjustLineQuantity({{ $index }}, 1)">+</button>
                             </div>
+                            <x-invoices.document-line-field-error :name="'lines.'.$index.'.quantity'" />
                         </td>
                         <td>
                             @if ($isCustom)
-                                <select class="form-field__control w-full min-w-[5.5rem]" wire:model.live="lines.{{ $index }}.product_unit_id" aria-label="{{ __('invoices.line_unit') }}">
+                                <select class="form-field__control w-full min-w-[5.5rem] {{ $errors->has('lines.'.$index.'.product_unit_id') ? 'form-field__control--invalid' : '' }}" wire:model.live="lines.{{ $index }}.product_unit_id" aria-label="{{ __('invoices.line_unit') }}" @if ($errors->has('lines.'.$index.'.product_unit_id')) aria-invalid="true" @endif>
                                     @foreach ($unitOptions as $unit)
                                         <option value="{{ $unit['id'] }}">{{ $unit['label'] }}</option>
                                     @endforeach
                                 </select>
+                                <x-invoices.document-line-field-error :name="'lines.'.$index.'.product_unit_id'" />
                             @else
                                 <span class="text-xs font-medium">{{ $line['unit_label'] ?: 'PCS' }}</span>
                             @endif
@@ -224,11 +244,12 @@
                             </select>
                         </td>
                         <td class="min-w-[5rem]">
-                            <select class="form-field__control w-full" wire:model.live="lines.{{ $index }}.vat_rate">
+                            <select class="form-field__control w-full {{ $errors->has('lines.'.$index.'.vat_rate') ? 'form-field__control--invalid' : '' }}" wire:model.live="lines.{{ $index }}.vat_rate" @if ($errors->has('lines.'.$index.'.vat_rate')) aria-invalid="true" @endif>
                                 @foreach ($vatOptions as $value => $label)
                                     <option value="{{ $value }}">{{ $label }}</option>
                                 @endforeach
                             </select>
+                            <x-invoices.document-line-field-error :name="'lines.'.$index.'.vat_rate'" />
                         </td>
                         <td class="tabular-nums font-semibold">{{ number_format($amounts['line_inc_vat'], 2) }}</td>
                         <td>

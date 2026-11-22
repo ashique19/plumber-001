@@ -310,6 +310,12 @@ select.app-input {
 }
 
 .form-field--invalid .form-field__control,
+.form-field__control--invalid,
+[data-line-error],
+[data-testid="line-field-error"] {
+    scroll-margin-block: 6rem;
+}
+
 .form-field__control.form-field__control--invalid {
     border-color: rgb(190 24 24);
     box-shadow: 0 0 0 2px color-mix(in srgb, rgb(190 24 24) 18%, transparent);
