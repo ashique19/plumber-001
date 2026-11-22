@@ -23,6 +23,7 @@
         -webkit-overflow-scrolling: touch;
     }
 
+    body:has(> .invoice-print-preview-host),
     body:has(> .invoice-print-root.invoice-print-sheet),
     body:has(> .invoice-print-preview-scale) {
         overflow-x: hidden;
@@ -37,6 +38,26 @@
 .invoice-print-toolbar {
     margin-bottom: 1rem;
 }
+
+@media screen {
+    .invoice-print-toolbar--screen {
+        position: sticky;
+        top: 0;
+        z-index: 40;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem;
+        width: 100%;
+        box-sizing: border-box;
+        margin: 0 0 0.75rem;
+        padding: 0.5rem 0.75rem;
+        background: #fff;
+        border-bottom: 1px solid #e5e7eb;
+        box-shadow: 0 1px 2px rgb(15 23 42 / 0.06);
+    }
+}
+
 
 .invoice-sar-symbol {
     display: inline-flex;
@@ -177,42 +198,46 @@
     max-width: 100%;
     table-layout: fixed;
     border-collapse: collapse;
+    border-spacing: 0;
     margin-bottom: 8px;
     font-size: 9pt;
 }
 
 .invoice-print-info-grid > tbody > tr > td {
-    padding: 2px 4px;
-    vertical-align: top;
-    border: 1px solid var(--inv-border);
-}
-
-.invoice-print-info-grid-field {
-    width: 100%;
-    table-layout: fixed;
-    border-collapse: collapse;
-}
-
-.invoice-print-info-grid-field td {
-    padding: 2px 3px;
-    vertical-align: top;
-    border: 1px solid var(--inv-border);
+    padding: 2.5pt 3pt;
+    vertical-align: middle;
+    line-height: 1.35;
+    border: 0.5pt solid var(--inv-border);
 }
 
 .invoice-print-info-grid__col-en {
-    width: 28%;
+    width: 10%;
 }
 
 .invoice-print-info-grid__col-value {
-    width: 46%;
+    width: 25%;
 }
 
 .invoice-print-info-grid__col-ar {
-    width: 26%;
+    width: 15%;
 }
 
-.invoice-print-info-grid__pair {
-    width: 50%;
+.invoice-print-info-grid__en,
+.invoice-print-info-grid__value,
+.invoice-print-info-grid__ar {
+    border: 0.5pt solid var(--inv-border);
+}
+
+.invoice-print-info-grid__en .invoice-pdf-sans-label,
+.invoice-print-info-grid__value .invoice-pdf-sans-value,
+.invoice-print-info-grid__value .invoice-print-bidi-value {
+    display: inline;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    width: auto;
+    max-width: none;
+    background: none;
 }
 
 .invoice-print-info-grid__en {
@@ -221,17 +246,10 @@
     font-weight: 600;
     font-size: 8pt;
     color: var(--inv-muted);
-    padding-left: 0;
-    padding-right: 6px;
-    white-space: normal;
-    overflow-wrap: break-word;
+    white-space: nowrap;
+    overflow-wrap: normal;
     word-break: normal;
-    line-height: 1.25;
-    vertical-align: middle;
-    width: 28%;
-    min-width: 0;
-    max-width: 28%;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .invoice-print-info-grid__value {
@@ -240,20 +258,14 @@
     font-size: 9pt;
     color: #111;
     font-variant-numeric: tabular-nums;
-    overflow-wrap: anywhere;
-    width: 46%;
-    min-width: 0;
-    padding-left: 4px;
-    padding-right: 4px;
-    vertical-align: middle;
+    overflow-wrap: normal;
+    word-break: normal;
 }
 
 .invoice-print-info-grid__value--nowrap {
     white-space: nowrap;
     overflow-wrap: normal;
     word-break: normal;
-    font-size: 8.5pt;
-    letter-spacing: -0.01em;
 }
 
 .invoice-print-info-grid__ar {
@@ -263,17 +275,10 @@
     font-size: 8pt;
     font-weight: 600;
     color: var(--inv-muted);
-    padding-right: 0;
-    padding-left: 4px;
-    white-space: normal;
-    overflow-wrap: break-word;
+    white-space: nowrap;
+    overflow-wrap: normal;
     word-break: normal;
-    line-height: 1.25;
-    width: 26%;
-    min-width: 0;
-    max-width: 26%;
-    overflow: hidden;
-    vertical-align: middle;
+    overflow: visible;
 }
 
 .invoice-print-bidi-value {
@@ -295,8 +300,9 @@
     overflow-wrap: break-word;
 }
 
-.invoice-print-info-grid__spacer {
+.invoice-print-info-grid__empty {
     padding: 0;
+    border: 0.5pt solid var(--inv-border);
 }
 
 .invoice-print-seller-header-ids {
@@ -692,9 +698,6 @@
     font-weight: 400;
 }
 
-.invoice-print-info-grid-field td {
-    vertical-align: middle;
-}
 
 .invoice-a4__buyer-table-split-cell {
     padding: 0 !important;

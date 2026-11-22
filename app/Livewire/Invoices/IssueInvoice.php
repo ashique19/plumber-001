@@ -821,12 +821,12 @@ class IssueInvoice extends Component
      */
     protected function messages(): array
     {
-        return [
+        return array_merge(DocumentCreateUiSupport::lineValidationMessages($this->lines), [
             'buyerVat.required_if' => __('invoices.errors.buyer_id_required'),
             'buyerAltIdType.required_if' => __('invoices.errors.buyer_id_required'),
             'buyerAltIdNumber.required_if' => __('invoices.errors.buyer_id_required'),
             'selectedCustomerId.required' => __('invoices.errors.customer_required'),
-        ];
+        ]);
     }
 
     /**

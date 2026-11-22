@@ -1,0 +1,1 @@
+document.addEventListener(`click`,e=>{if(e.target.closest(`[data-print-trigger]`)){e.preventDefault(),window.print();return}let t=e.target.closest(`[data-print-close]`);if(!t)return;e.preventDefault();let n=t.getAttribute(`data-close-fallback`)||`/admin/invoices`;window.close(),window.setTimeout(()=>{window.closed||window.location.assign(n)},150)});

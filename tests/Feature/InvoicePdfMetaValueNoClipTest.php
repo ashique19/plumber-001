@@ -28,15 +28,17 @@ it('declares pdf meta values as visible and wrappable in overlay css', function 
     $wrapped = DocumentPdfRenderer::wrapHtml(view($sheet['view'], $sheet['data'])->render());
 
     expect($wrapped)
-        ->toContain('.invoice-print-root--pdf .invoice-print-info-grid__col-value{width:34%!important')
-        ->toContain('.invoice-print-root--pdf .invoice-print-info-grid__col-ar{width:32%!important')
-        ->toContain('.invoice-print-root--pdf .invoice-print-info-grid__value{text-align:left!important')
+        ->toContain('.invoice-print-root--pdf .invoice-print-info-grid__col-value{width:25%!important')
+        ->toContain('.invoice-print-root--pdf .invoice-print-info-grid__col-ar{width:15%!important')
+        ->toContain('.invoice-print-root--pdf .invoice-print-info-grid__value{display:table-cell!important;text-align:left!important')
         ->toContain('overflow:visible!important;white-space:normal!important;overflow-wrap:normal!important;word-break:normal!important')
         ->toContain('.invoice-print-root--pdf .invoice-print-info-grid__value--nowrap')
         ->toContain('overflow:visible!important')
-        ->toContain('.invoice-print-root--pdf .invoice-print-info-grid>tbody>tr>td.invoice-print-info-grid__pair{width:50%!important;max-width:50%!important')
-        ->toContain('.invoice-print-root--pdf .invoice-print-info-grid__ar{text-align:right!important;font-size:8pt!important')
-        ->toContain('font-family:dejavusans!important;width:32%!important');
+        ->toContain('border-collapse:collapse!important')
+        ->toContain('border:0.5pt solid #1a1a1a!important')
+        ->not->toContain('invoice-print-info-grid__pair')
+        ->toContain('.invoice-print-root--pdf .invoice-print-info-grid__ar{display:table-cell!important;text-align:right!important')
+        ->toContain('.invoice-print-root--pdf .invoice-print-info-grid__col-en{width:10%!important');
 });
 
 it('renders full long meta values in pdf text extract', function () {
@@ -71,11 +73,14 @@ it('renders full long meta values in pdf text extract', function () {
 
     $plain = preg_replace('/[\x{061C}\x{200E}\x{200F}\x{202A}-\x{202E}]/u', '', $text ?? '') ?? '';
 
-    // The long id may wrap at hyphens, so pdftotext can emit the prefix and suffix
-    // as separate tokens (with the Arabic label between them in extract order).
-    expect($plain)->toContain('V221-SIMP-PHONE-')
+    // The long id wraps at hyphens; pdftotext may split tokens or drop a
+    // trailing hyphen at a line break, but every segment must still appear.
+    expect($plain)->toContain('V221')
+        ->and($plain)->toContain('SIMP')
+        ->and($plain)->toContain('PHONE')
         ->and($plain)->toContain('20261120183431')
-        ->and($plain)->toContain('due on invoice date')
+        ->and($plain)->toContain('due on')
+        ->and($plain)->toContain('invoice date')
         ->and($plain)->not->toContain('due on invoice d'.PHP_EOL)
         ->and($plain)->toContain('Invoice No.');
 })->group('pdf-visual');

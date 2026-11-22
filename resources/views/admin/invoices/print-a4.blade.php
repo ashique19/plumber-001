@@ -7,24 +7,9 @@
         @vite(['resources/css/invoice-print.css', 'resources/js/receipt.js', 'resources/js/invoice-print-preview.js'])
     @endpush
 
+    @include('print.partials.toolbar-invoice')
+
     <div class="invoice-print-root invoice-print-sheet" data-invoice-print data-document-number="{{ $t['document_number'] }}">
-        <header class="invoice-print-toolbar no-print flex flex-wrap gap-2 p-2">
-            <button type="button" class="tap-action-primary min-h-11" onclick="window.print()">{{ __('pos.print') }}</button>
-            @if ($receiptUrl ?? null)
-                <a class="tap-action-muted min-h-11" href="{{ $receiptUrl }}">{{ __('invoices.layout_receipt') }}</a>
-            @endif
-            @if ($cashUrl ?? null)
-                <a class="tap-action-muted min-h-11" href="{{ $cashUrl }}">{{ __('invoices.layout_cash') }}</a>
-            @endif
-        </header>
-
-        @include('print.partials.not-cleared-watermark')
-
-        @if ($zatcaNotSent ?? false)
-            <p class="invoice-zatca-notice no-print m-2 rounded-xl border border-amber-300/80 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-950" role="status">
-                {{ __('invoices.signing.zatca_not_sent') }}
-            </p>
-        @endif
 
         @include('print.partials.seller-header-with-ids', ($isPdf ?? false) ? ['t' => $t, 'isPdf' => true] : ['t' => $t])
         <x-invoices.print-document-title :t="$t" />

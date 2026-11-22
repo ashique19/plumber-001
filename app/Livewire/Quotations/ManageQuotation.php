@@ -568,6 +568,14 @@ class ManageQuotation extends Component
   /**
    * @return array<string, string>
    */
+  /**
+   * @return array<string, string>
+   */
+  protected function messages(): array
+  {
+      return DocumentCreateUiSupport::lineValidationMessages($this->lines);
+  }
+
   protected function validationAttributes(): array
   {
       return array_merge(\App\Support\Validation\QuickModalValidationAttributes::map(), [

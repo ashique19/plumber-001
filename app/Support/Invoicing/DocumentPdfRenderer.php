@@ -187,9 +187,9 @@ final class DocumentPdfRenderer
         $pdfHeaderBody = '8.5pt';
         $pdfHeaderBodyLh = '9.75pt';
         $pdfHeaderNameLh = '11pt';
-        $pdfMetaColEn = 34;
-        $pdfMetaColVal = 34;
-        $pdfMetaColAr = 32;
+        $pdfMetaColEn = InvoicePrintInfoGrid::PDF_COL_EN_PCT;
+        $pdfMetaColVal = InvoicePrintInfoGrid::PDF_COL_VALUE_PCT;
+        $pdfMetaColAr = InvoicePrintInfoGrid::PDF_COL_AR_PCT;
         $pdfBody = $pdfBodyEn;
         $pdfLabel = $pdfLabelEn;
 
@@ -200,8 +200,8 @@ final class DocumentPdfRenderer
             .$arBlocks.'{font-family:'.$arFont.'!important;direction:rtl!important;text-align:right!important;unicode-bidi:normal!important;display:block!important}'
             .'.invoice-pdf-ltr-digits{direction:ltr!important;unicode-bidi:embed!important}'
             .'.invoice-a4__title-bn,.print-classic__title-bn{display:none!important}'
-            .'.invoice-print-root{padding:2mm 6mm;font-size:'.$pdfBody.'!important;max-width:none}'
-            .'.invoice-print-root--pdf{padding:2mm 6mm 2mm!important}'
+            .'.invoice-print-root{padding:2mm 4mm;font-size:'.$pdfBody.'!important;max-width:none}'
+            .'.invoice-print-root--pdf{padding:2mm 4mm 2mm!important}'
             .'.invoice-print-root--pdf,.invoice-print-root--pdf *{font-family:dejavusans!important}'
             .'.invoice-print-root--pdf .invoice-a4__title,.invoice-print-root--pdf .invoice-a4__title-en,.invoice-print-root--pdf .invoice-a4__title-ar,.invoice-print-root--pdf .print-classic__title,.invoice-print-root--pdf .print-classic__title-ar{font-family:dejavusans!important;font-size:'.$pdfTitleEn.'!important;font-weight:700!important}'
             .'.invoice-print-root--pdf .invoice-a4__table th,.invoice-print-root--pdf .invoice-a4__table th *,.invoice-print-root--pdf .print-tpl-modern__lines thead th,.invoice-print-root--pdf .print-tpl-modern__lines thead th *,.invoice-print-root--pdf .invoice-print-th-label__en,.invoice-print-root--pdf .invoice-print-th-label__ar,.invoice-print-root--pdf .print-classic__lines th,.invoice-print-root--pdf .print-classic__lines th *{font-family:dejavusans!important;font-size:'.$pdfLabelEn.'!important;font-weight:700!important}'
@@ -337,7 +337,6 @@ final class DocumentPdfRenderer
             .'.print-tpl-modern__vat-pct{text-align:right!important}'
             .'.invoice-print-root--pdf .print-tpl-modern__lines{font-size:'.$pdfBody.'!important;margin-bottom:3px;width:100%!important}'
             .'.invoice-print-root--pdf .invoice-a4__table td,.invoice-print-root--pdf .invoice-a4__table td .invoice-pdf-sans-value,.invoice-print-root--pdf .print-tpl-modern__lines tbody td,.invoice-print-root--pdf .print-tpl-modern__lines tbody td *:not(.invoice-print-ar):not(.ar){font-size:'.$pdfBody.'!important;font-family:'.$latin.'!important;color:#111!important}'
-            .'.invoice-print-root--pdf .invoice-print-info-grid-field{}'
             .'.invoice-print-root--pdf .print-tpl-modern__lines th,.invoice-print-root--pdf .print-tpl-modern__lines td{padding:1px 3px!important;line-height:1.2!important;vertical-align:middle!important;font-family:'.$latin.'!important;color:#111!important}'
             .'.invoice-print-root--pdf .print-tpl-modern__lines tbody td .ar,.invoice-print-root--pdf .print-tpl-modern__lines tbody td .invoice-a4__desc-ar,.invoice-print-root--pdf .invoice-a4__table td .ar{font-size:'.$pdfBodyAr.'!important;font-family:'.$arFont.'!important}'
             .'.invoice-print-root--pdf .invoice-a4__desc-en,.invoice-print-root--pdf .invoice-a4__desc-en *{font-family:'.$latin.'!important;color:#111!important}'
@@ -350,30 +349,22 @@ final class DocumentPdfRenderer
             .'.invoice-print-labeled-row__en{text-align:left!important;font-family:'.$latin.'!important;font-weight:600!important}'
             .'.invoice-print-labeled-row__value{text-align:left!important;font-family:'.$latin.'!important}'
             .'.invoice-print-labeled-row__ar{text-align:right!important}'
-            .'.invoice-print-root--pdf .invoice-print-info-grid,.invoice-print-root--pdf .invoice-print-meta-grid{width:100%!important;max-width:100%!important;table-layout:fixed!important;border-collapse:collapse!important;margin-bottom:3px!important;font-size:'.$pdfBody.'!important;line-height:1.3!important}'
-            .'.invoice-print-root--pdf .invoice-print-info-grid>tbody>tr{width:100%!important}'
-            .'.invoice-print-root--pdf .invoice-print-info-grid>tbody>tr>td.invoice-print-info-grid__pair{width:50%!important;max-width:50%!important;padding:1px 6px 1px 0!important;vertical-align:top!important;overflow:visible!important}'
-            .'.invoice-print-root--pdf .invoice-print-info-grid>tbody>tr>td.invoice-print-info-grid__spacer{width:50%!important;padding:0!important}'
-            .'.invoice-print-info-grid>tbody>tr>td{padding:0 4px!important;vertical-align:middle!important;line-height:1.3!important}'
-            .'.invoice-print-info-grid__pair{padding:0!important;vertical-align:middle!important}'
-            .'.invoice-print-info-grid-field{width:100%!important;table-layout:fixed!important;border-collapse:collapse!important}'
-            .'.invoice-print-info-grid-field td{padding:2px 4px!important;vertical-align:middle!important;overflow:visible!important;line-height:1.3!important}'
+            .'.invoice-print-root--pdf .invoice-print-info-grid,.invoice-print-root--pdf .invoice-print-meta-grid{width:100%!important;max-width:100%!important;table-layout:fixed!important;border-collapse:collapse!important;border-spacing:0!important;margin-bottom:3px!important;font-size:'.$pdfBody.'!important;line-height:1.35!important}'
+            .'.invoice-print-root--pdf .invoice-print-info-grid>tbody>tr>td{display:table-cell!important;padding:2.5pt 3pt!important;vertical-align:middle!important;line-height:1.35!important;border:0.5pt solid #1a1a1a!important;box-sizing:border-box!important}'
+            .'.invoice-print-root--pdf .invoice-print-info-grid__empty{padding:2.5pt 3pt!important;border:0.5pt solid #1a1a1a!important}'
             .'.invoice-print-root--pdf .invoice-print-info-grid__col-en{width:'.$pdfMetaColEn.'%!important}'
             .'.invoice-print-root--pdf .invoice-print-info-grid__col-value{width:'.$pdfMetaColVal.'%!important}'
             .'.invoice-print-root--pdf .invoice-print-info-grid__col-ar{width:'.$pdfMetaColAr.'%!important}'
-            .'.invoice-print-root--pdf .invoice-print-info-grid__en{text-align:left!important;direction:ltr!important;unicode-bidi:embed!important;font-weight:normal!important;font-size:'.$pdfLabelEn.'!important;font-family:dejavusans!important;color:#666!important;width:'.$pdfMetaColEn.'%!important;min-width:0!important;max-width:'.$pdfMetaColEn.'%!important;padding:1px 6px 1px 2px!important;white-space:nowrap!important;overflow:visible!important;line-height:1.2!important;vertical-align:middle!important}'
-            .'.invoice-print-root--pdf .invoice-print-info-grid__ar{text-align:right!important;font-size:'.$pdfLabelEn.'!important;font-weight:normal!important;color:#666!important;font-family:dejavusans!important;width:'.$pdfMetaColAr.'%!important;min-width:0!important;max-width:'.$pdfMetaColAr.'%!important;padding:1px 2px 1px 10px!important;white-space:nowrap!important;overflow:visible!important;line-height:1.2!important;vertical-align:middle!important}'
             .'.invoice-print-info-grid__col-en{width:'.InvoicePrintInfoGrid::COL_EN_PCT.'%!important}'
             .'.invoice-print-info-grid__col-value{width:'.InvoicePrintInfoGrid::COL_VALUE_PCT.'%!important}'
             .'.invoice-print-info-grid__col-ar{width:'.InvoicePrintInfoGrid::COL_AR_PCT.'%!important}'
-            .'.invoice-print-root--pdf .invoice-print-info-grid__value{text-align:left!important;direction:ltr!important;unicode-bidi:embed!important;font-family:'.$latin.'!important;font-size:'.$pdfBody.'!important;color:#111!important;width:'.$pdfMetaColVal.'%!important;min-width:0!important;max-width:'.$pdfMetaColVal.'%!important;padding:1px 10px 1px 2px!important;overflow:visible!important;white-space:normal!important;overflow-wrap:normal!important;word-break:normal!important;vertical-align:middle!important;line-height:1.2!important}'
+            .'.invoice-print-root--pdf .invoice-print-info-grid__en{text-align:left!important;direction:ltr!important;unicode-bidi:embed!important;font-weight:normal!important;font-size:'.$pdfLabelEn.'!important;font-family:dejavusans!important;color:#666!important;white-space:nowrap!important;overflow:visible!important;line-height:1.35!important;vertical-align:middle!important}'
+            .'.invoice-print-root--pdf .invoice-print-info-grid__ar{display:table-cell!important;text-align:right!important;direction:rtl!important;unicode-bidi:embed!important;font-size:'.$pdfLabelEn.'!important;font-weight:normal!important;color:#666!important;font-family:dejavusans!important;white-space:nowrap!important;overflow:visible!important;line-height:1.35!important;vertical-align:middle!important}'
+            .'.invoice-print-root--pdf .invoice-print-info-grid__value{display:table-cell!important;text-align:left!important;direction:ltr!important;unicode-bidi:embed!important;font-family:'.$latin.'!important;font-size:'.$pdfBody.'!important;color:#111!important;overflow:visible!important;white-space:normal!important;overflow-wrap:normal!important;word-break:normal!important;vertical-align:middle!important;line-height:1.35!important}'
+            .'.invoice-print-root--pdf .invoice-print-info-grid td .invoice-pdf-sans-label,.invoice-print-root--pdf .invoice-print-info-grid td .invoice-pdf-sans-value,.invoice-print-root--pdf .invoice-print-info-grid td .invoice-print-bidi-value{display:inline!important;width:auto!important;max-width:none!important;margin:0!important;padding:0!important;border:0!important;background:none!important;box-sizing:border-box!important;font-size:inherit!important;letter-spacing:normal!important}'
             .'.invoice-pdf-ar-address-line{margin:0!important;padding:0!important;line-height:1.3!important;font-size:7.5pt!important;font-weight:normal!important;text-align:right!important}'
-            .'.invoice-print-root--pdf .invoice-print-info-grid__value--nowrap,.invoice-print-root--pdf .invoice-print-info-grid__value .invoice-pdf-sans-value{white-space:normal!important;overflow:visible!important;overflow-wrap:normal!important;word-break:normal!important;font-size:'.$pdfBody.'!important;letter-spacing:normal!important;max-width:100%!important}'
-            .'.invoice-print-root--pdf .invoice-print-info-grid__label--nowrap{white-space:nowrap!important;overflow:visible!important;overflow-wrap:normal!important;font-size:'.$pdfLabelEn.'!important;line-height:1.2!important}'
-            .'.invoice-print-root--pdf .invoice-print-info-grid-field{table-layout:auto!important}'
-            .'.invoice-print-root--pdf .invoice-print-info-grid__col-en,.invoice-print-root--pdf .invoice-print-info-grid__en{width:auto!important;max-width:none!important;white-space:nowrap!important}'
-            .'.invoice-print-root--pdf .invoice-print-info-grid__col-ar,.invoice-print-root--pdf .invoice-print-info-grid__ar{width:auto!important;max-width:none!important;white-space:nowrap!important}'
-            .'.invoice-print-root--pdf .invoice-print-info-grid__col-value,.invoice-print-root--pdf .invoice-print-info-grid__value,.invoice-print-root--pdf .invoice-print-info-grid__value--nowrap{width:auto!important;max-width:none!important}'
+            .'.invoice-print-root--pdf .invoice-print-info-grid__value--nowrap{white-space:normal!important;overflow:visible!important;overflow-wrap:normal!important;word-break:normal!important;font-size:'.$pdfBody.'!important;letter-spacing:normal!important}'
+            .'.invoice-print-root--pdf .invoice-print-info-grid__label--nowrap{white-space:nowrap!important;overflow:visible!important;overflow-wrap:normal!important;font-size:'.$pdfLabelEn.'!important;line-height:1.35!important}'
             .'.invoice-national-address-ar--pdf{margin:0!important;line-height:1.3!important;font-size:7.5pt!important}'
             .'.invoice-a4__table--product-lines th.col-index,.invoice-a4__table--product-lines td.col-index{text-align:center!important}'
             .'.invoice-a4__table--product-lines th.col-num,.invoice-a4__table--product-lines td.col-num{text-align:right!important}'
@@ -421,14 +412,13 @@ final class DocumentPdfRenderer
             .'.invoice-print-root--pdf .invoice-pdf-seller-ar-street-wrap .invoice-pdf-ar-street-line__name,.invoice-print-root--pdf .invoice-pdf-seller-ar-street-wrap .invoice-pdf-ar-street-line__building{display:inline!important;direction:ltr!important;unicode-bidi:normal!important;font:inherit!important;font-size:inherit!important;font-family:inherit!important;line-height:inherit!important;color:inherit!important;white-space:nowrap!important}'
             .'.invoice-print-root--pdf .invoice-pdf-seller-ar-street-wrap .invoice-pdf-ar-street-line__building{padding:0 0 0 4px!important}'
             .'.invoice-print-root--pdf .invoice-a4__table--product-lines th.col-qty,.invoice-print-root--pdf .invoice-a4__table--product-lines td.col-qty,.invoice-print-root--pdf .print-classic__lines th.col-qty,.invoice-print-root--pdf .print-classic__lines td.col-qty{text-align:center!important}'
-            .'.invoice-print-root--pdf .invoice-print-info-grid,.invoice-print-root--pdf .invoice-print-info-grid-field,.invoice-print-root--pdf .print-tpl-modern__totals,.invoice-print-root--pdf .invoice-print-totals{border-collapse:collapse!important}'
-            .'.invoice-print-root--pdf .invoice-print-info-grid > tbody > tr > td,.invoice-print-root--pdf .invoice-print-info-grid-field td{border:1px solid #1a1a1a!important}'
+            .'.invoice-print-root--pdf .invoice-print-info-grid,.invoice-print-root--pdf .print-tpl-modern__totals,.invoice-print-root--pdf .invoice-print-totals{border-collapse:collapse!important;border-spacing:0!important}'
             .'.invoice-print-root--pdf .print-tpl-modern__totals td,.invoice-print-root--pdf .invoice-print-totals td{border:1px solid #1a1a1a!important}'
             .'.print-tpl-modern,.print-tpl-classic{padding-bottom:1mm}'
             .'.print-tpl-modern__closing{page-break-inside:avoid!important;margin-top:4px!important}'
             .'.invoice-a4__logo,.print-classic__logo{max-height:40px}'
-            .'.invoice-print-root--pdf .invoice-print-info-grid-field td.invoice-print-info-grid__en,.invoice-print-root--pdf .invoice-print-info-grid-field td.invoice-print-info-grid__en *,.invoice-print-root--pdf .invoice-print-info-grid-field td.invoice-print-info-grid__ar,.invoice-print-root--pdf .invoice-print-info-grid-field td.invoice-print-info-grid__ar *,.invoice-print-root--pdf .invoice-a4__buyer-table-label,.invoice-print-root--pdf .invoice-a4__buyer-table-label *,.invoice-print-root--pdf .invoice-print-totals td.invoice-print-totals__en,.invoice-print-root--pdf .invoice-print-totals td.invoice-print-totals__en *,.invoice-print-root--pdf .invoice-print-totals td.invoice-print-totals__ar,.invoice-print-root--pdf .invoice-print-totals td.invoice-print-totals__ar *{font-family:dejavusans!important;font-size:8pt!important;font-weight:normal!important}.invoice-print-root--pdf .invoice-print-totals__row--strong td.invoice-print-totals__en,.invoice-print-root--pdf .invoice-print-totals__row--strong td.invoice-print-totals__en *,.invoice-print-root--pdf .invoice-print-totals__row--strong td.invoice-print-totals__ar,.invoice-print-root--pdf .invoice-print-totals__row--strong td.invoice-print-totals__ar *{font-family:dejavusans!important;font-size:8pt!important;font-weight:bold!important}.invoice-print-root--pdf .invoice-print-totals__row--strong td.invoice-print-totals__value,.invoice-print-root--pdf .invoice-print-totals__row--strong td.invoice-print-totals__value *{font-size:12pt!important;font-weight:bold!important}'
-            .'@page{margin:6mm 9mm 12mm}';
+            .'.invoice-print-root--pdf .invoice-print-info-grid td.invoice-print-info-grid__en,.invoice-print-root--pdf .invoice-print-info-grid td.invoice-print-info-grid__en *,.invoice-print-root--pdf .invoice-print-info-grid td.invoice-print-info-grid__ar,.invoice-print-root--pdf .invoice-print-info-grid td.invoice-print-info-grid__ar *,.invoice-print-root--pdf .invoice-a4__buyer-table-label,.invoice-print-root--pdf .invoice-a4__buyer-table-label *,.invoice-print-root--pdf .invoice-print-totals td.invoice-print-totals__en,.invoice-print-root--pdf .invoice-print-totals td.invoice-print-totals__en *,.invoice-print-root--pdf .invoice-print-totals td.invoice-print-totals__ar,.invoice-print-root--pdf .invoice-print-totals td.invoice-print-totals__ar *{font-family:dejavusans!important;font-size:8pt!important;font-weight:normal!important}.invoice-print-root--pdf .invoice-print-totals__row--strong td.invoice-print-totals__en,.invoice-print-root--pdf .invoice-print-totals__row--strong td.invoice-print-totals__en *,.invoice-print-root--pdf .invoice-print-totals__row--strong td.invoice-print-totals__ar,.invoice-print-root--pdf .invoice-print-totals__row--strong td.invoice-print-totals__ar *{font-family:dejavusans!important;font-size:8pt!important;font-weight:bold!important}.invoice-print-root--pdf .invoice-print-totals__row--strong td.invoice-print-totals__value,.invoice-print-root--pdf .invoice-print-totals__row--strong td.invoice-print-totals__value *{font-size:12pt!important;font-weight:bold!important}'
+            .'@page{margin:6mm 6mm 12mm}';
     }
 
     private static function printCss(): string

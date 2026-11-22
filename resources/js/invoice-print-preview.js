@@ -1,13 +1,19 @@
 const A4_REFERENCE_PX = 794;
 
-function ensurePreviewHost(root) {
-    const parent = root.parentElement;
-    if (! parent) {
-        return root;
+function ensurePreviewHost(wrap) {
+    const parent = wrap.parentElement;
+    if (parent?.classList?.contains('invoice-print-preview-host')) {
+        return parent;
     }
-    parent.classList.add('invoice-print-preview-host');
 
-    return parent;
+    // Wrap only the sheet so the screen toolbar (a sibling) is not flexed
+    // beside the preview or clipped by the host's overflow.
+    const host = document.createElement('div');
+    host.className = 'invoice-print-preview-host';
+    parent?.insertBefore(host, wrap);
+    host.appendChild(wrap);
+
+    return host;
 }
 
 function ensureScaleWrap(root) {

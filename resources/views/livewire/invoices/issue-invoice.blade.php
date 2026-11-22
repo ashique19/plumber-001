@@ -37,7 +37,7 @@
             stepper?.querySelector('button')?.focus({ preventScroll: true });
             stepper?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
         })"
-        x-on:document-validation-failed.window="$nextTick(() => document.getElementById('document-validation-summary')?.scrollIntoView({ behavior: 'smooth', block: 'start' }))"
+        x-on:document-validation-failed.window="$nextTick(() => { const err = document.querySelector('[data-line-error]'); const input = document.querySelector('.form-field__control--invalid, [aria-invalid=\'true\']'); (input || err || document.getElementById('document-validation-summary'))?.scrollIntoView({ behavior: 'smooth', block: 'center' }); input?.focus?.({ preventScroll: true }); })"
     >
         <x-invoices.document-validation-summary />
 

@@ -41,7 +41,7 @@ it('renders quotation modern meta in the invoice info grid without buyer split r
         ]))
         ->assertOk()
         ->assertSee('invoice-print-info-grid', false)
-        ->assertSee('invoice-print-info-grid-field', false)
+        ->assertDontSee('invoice-print-info-grid-field', false)
         ->assertSee('Quotation number', false)
         ->assertSee('HARNESS-QUO-001', false)
         ->assertSee('Payment terms', false)

@@ -473,6 +473,51 @@ final class DocumentCreateUiSupport
     }
 
     /**
+     * Friendly, localized messages for custom-line fields, with a 1-based line number.
+     *
+     * @param  list<array<string, mixed>>  $lines
+     * @return array<string, string>
+     */
+    public static function lineValidationMessages(array $lines): array
+    {
+        $messages = [];
+        $rules = ['required', 'required_without', 'numeric', 'min', 'max', 'in', 'integer', 'exists'];
+        $fields = [
+            'name',
+            'name_ar',
+            'name_bn',
+            'item_type',
+            'product_unit_id',
+            'unit_code',
+            'vat_zatca_category',
+            'quantity',
+            'unit_price',
+            'vat_rate',
+            'discount_percent',
+        ];
+
+        foreach (array_keys($lines) as $index) {
+            $row = is_array($lines[$index] ?? null) ? $lines[$index] : [];
+            if (! self::isCustomLine($row) && filled($row['product_id'] ?? null)) {
+                continue;
+            }
+            if (! self::lineIsPresent($row) && ! self::isCustomLine($row)) {
+                continue;
+            }
+
+            $lineNo = (int) $index + 1;
+            foreach ($fields as $field) {
+                $text = __('invoices.custom_line_errors.'.$field, ['line' => $lineNo]);
+                foreach ($rules as $rule) {
+                    $messages["lines.$index.$field.$rule"] = $text;
+                }
+            }
+        }
+
+        return $messages;
+    }
+
+    /**
      * @return list<array{id:int, label:string, code:string}>
      */
     public static function productUnitOptions(): array

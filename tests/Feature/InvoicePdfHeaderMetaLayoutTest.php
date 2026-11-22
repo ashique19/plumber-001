@@ -134,7 +134,7 @@ it('declares pdf-only seller wrap and meta column gaps in overlay css', function
         ->toContain('font-size:inherit!important;font-family:inherit!important;font-weight:inherit!important;color:inherit!important;line-height:inherit!important')
         ->toContain('.invoice-print-root--pdf .invoice-print-info-grid__value')
         ->toContain('overflow:visible!important;white-space:normal!important;overflow-wrap:normal!important;word-break:normal!important')
-        ->toContain('padding:1px 10px 1px 2px!important')
+        ->toContain('padding:2.5pt 3pt!important')
         ->toContain('.invoice-print-root--pdf .invoice-print-info-grid__ar')
-        ->toContain('padding:1px 2px 1px 10px!important');
+        ->toContain('padding:2.5pt 3pt!important');
 });

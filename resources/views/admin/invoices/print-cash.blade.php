@@ -4,20 +4,21 @@
         @vite(['resources/css/invoice-print.css', 'resources/js/receipt.js'])
     @endpush
 
+    @include('print.partials.toolbar-invoice', [
+        'invoice' => $invoice,
+        'receiptUrl' => $receiptUrl ?? null,
+        'cashUrl' => $cashUrl ?? null,
+        'a4Url' => $a4Url ?? null,
+        'zatcaNotSent' => $zatcaNotSent ?? false,
+        'fallbackBackUrl' => $fallbackBackUrl ?? route('admin.invoices'),
+        'pdfUrl' => $pdfUrl ?? null,
+        'canDownloadPdf' => $canDownloadPdf ?? true,
+        'canResubmitZatca' => $canResubmitZatca ?? false,
+        'zatcaResubmitUrl' => $zatcaResubmitUrl ?? null,
+        'zatcaResubmitLabel' => $zatcaResubmitLabel ?? null,
+    ])
+
     <div class="invoice-print-root invoice-print-sheet invoice-print-sheet--cash" data-invoice-print data-auto-print="{{ request()->boolean('autoprint') ? '1' : '0' }}" data-document-number="{{ $t['document_number'] }}">
-        @include('print.partials.toolbar-invoice', [
-            'invoice' => $invoice,
-            'receiptUrl' => $receiptUrl ?? null,
-            'cashUrl' => $cashUrl ?? null,
-            'a4Url' => $a4Url ?? null,
-            'zatcaNotSent' => $zatcaNotSent ?? false,
-            'fallbackBackUrl' => $fallbackBackUrl ?? route('admin.invoices'),
-            'pdfUrl' => $pdfUrl ?? null,
-            'canDownloadPdf' => $canDownloadPdf ?? true,
-            'canResubmitZatca' => $canResubmitZatca ?? false,
-            'zatcaResubmitUrl' => $zatcaResubmitUrl ?? null,
-            'zatcaResubmitLabel' => $zatcaResubmitLabel ?? null,
-        ])
 
         <x-invoices.print-document-title :t="$t" />
 
