@@ -414,7 +414,29 @@ final class DocumentCreateUiSupport
      * @param  array<string, mixed>  $row
      * @return array<string, mixed>
      */
-    public static function payloadLineFromFormRow(array $row): array
+    /**
+     * Copy the single custom-line name into name, name_ar, and name_bn.
+     *
+     * @param  list<array<string, mixed>>  $lines
+     * @return list<array<string, mixed>>
+     */
+    public static function applySharedCustomLineNames(array $lines): array
+    {
+        foreach ($lines as $index => $row) {
+            if (! is_array($row) || ! self::isCustomLine($row)) {
+                continue;
+            }
+
+            $name = trim((string) ($row['name'] ?? ''));
+            $lines[$index]['name'] = $name;
+            $lines[$index]['name_ar'] = $name;
+            $lines[$index]['name_bn'] = $name;
+        }
+
+        return $lines;
+    }
+
+        public static function payloadLineFromFormRow(array $row): array
     {
         $item = [
             'name' => trim((string) ($row['name'] ?? '')),
@@ -440,6 +462,9 @@ final class DocumentCreateUiSupport
             $item['product_id'] = (int) $productId;
         } else {
             $item['is_custom'] = true;
+            $name = $item['name'];
+            $item['name_ar'] = $name;
+            $item['name_bn'] = $name;
         }
 
         if (filled($row['product_unit_id'] ?? null)) {
@@ -459,7 +484,7 @@ final class DocumentCreateUiSupport
             'lines.*.product_id' => ['nullable', 'integer', 'exists:products,id'],
             'lines.*.is_custom' => ['sometimes', 'boolean'],
             'lines.*.name' => ['required', 'string', 'max:200'],
-            'lines.*.name_ar' => ['required_without:lines.*.product_id', 'nullable', 'string', 'max:200'],
+            'lines.*.name_ar' => ['nullable', 'string', 'max:200'],
             'lines.*.name_bn' => ['nullable', 'string', 'max:200'],
             'lines.*.item_type' => ['nullable', 'string', Rule::in(array_column(ProductItemType::cases(), 'value'))],
             'lines.*.product_unit_id' => ['nullable', 'integer', 'exists:product_units,id'],

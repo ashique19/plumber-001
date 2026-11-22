@@ -260,6 +260,7 @@ class ManageQuotation extends Component
   {
       $this->pruneEmptyDocumentLines();
       $this->hydrateCatalogLineNames();
+      $this->lines = DocumentCreateUiSupport::applySharedCustomLineNames($this->lines);
 
       if ($this->lines === []) {
           $this->addError('document', __('invoices.errors.lines_required'));
