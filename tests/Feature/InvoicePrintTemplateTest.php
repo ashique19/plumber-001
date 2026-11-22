@@ -77,9 +77,9 @@ it('renders cash simplified title and bilingual table headers', function () {
     $this->actingAs($this->owner, 'staff')
         ->get(route('admin.invoices.print', ['invoice' => $invoice, 'layout' => 'cash']))
         ->assertOk()
-        ->assertSee(__('pos.receipt_title_simplified_en'), false)
-        ->assertSee(__('pos.receipt_title_simplified_ar'), false)
-        ->assertSee('Unit price', false)
-        ->assertSee('سعر الوحدة', false)
+        ->assertSee('SIMPLIFIED TAX INVOICE', false)
+        ->assertSee('فاتورة ضريبية مبسطة', false)
+        ->assertSee('invoice-cash80__item', false)
+        ->assertSee('x ', false)
         ->assertDontSee('cash_net_amount', false);
 });

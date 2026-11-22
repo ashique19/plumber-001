@@ -1175,3 +1175,260 @@
         z-index: 5;
     }
 }
+
+
+/* 80mm thermal / cash invoice receipt (A4 @page and layout are unchanged). */
+.invoice-print-sheet--cash.invoice-cash80 {
+    --cash80-width: 80mm;
+    --cash80-pad: 4mm;
+    box-sizing: border-box;
+    width: var(--cash80-width);
+    max-width: 80mm;
+    margin: 0 auto;
+    padding: var(--cash80-pad);
+    font-family: "DejaVu Sans", "Instrument Sans", system-ui, sans-serif;
+    font-size: 9pt;
+    line-height: 1.3;
+    color: #111;
+    background: #fff;
+}
+
+@media screen {
+    .invoice-print-sheet--cash.invoice-cash80 {
+        margin: 0.75rem auto 1.5rem;
+        box-shadow: 0 1px 6px rgb(15 23 42 / 0.12);
+    }
+}
+
+.invoice-cash80__seller {
+    text-align: center;
+    margin: 0 0 6px;
+}
+
+.invoice-cash80__logo {
+    display: block;
+    margin: 0 auto 4px;
+    max-width: 28mm;
+    max-height: 16mm;
+    object-fit: contain;
+}
+
+.invoice-cash80__seller-name {
+    font-weight: 700;
+    font-size: 10pt;
+    line-height: 1.25;
+}
+
+.invoice-cash80__seller-name--ar,
+.invoice-cash80__seller-ar,
+.invoice-cash80__seller-ar .invoice-print-ar,
+.invoice-cash80 .invoice-national-address-ar__line {
+    text-align: center !important;
+    direction: rtl;
+}
+
+.invoice-cash80__seller-line,
+.invoice-cash80__seller-id,
+.invoice-cash80 .invoice-national-address-ar__line {
+    font-size: 8pt;
+    line-height: 1.3;
+    margin: 0;
+}
+
+.invoice-cash80__qr {
+    text-align: center;
+    margin: 6px 0;
+}
+
+.invoice-cash80__qr-img,
+.invoice-cash80__qr canvas {
+    display: inline-block;
+    width: 38mm;
+    height: 38mm;
+}
+
+.invoice-cash80__title {
+    text-align: center;
+    margin: 6px 0 4px;
+    font-size: 9.5pt;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.invoice-cash80__title-en,
+.invoice-cash80__title-ar {
+    display: block;
+}
+
+.invoice-cash80__rule {
+    border: 0;
+    border-top: 1px dashed #444;
+    margin: 5px 0;
+    height: 0;
+}
+
+.invoice-cash80__row {
+    display: grid;
+    grid-template-columns: 0.9fr 1.2fr 0.9fr;
+    gap: 2px 4px;
+    align-items: baseline;
+    font-size: 8pt;
+    margin: 1px 0;
+}
+
+.invoice-cash80__label {
+    text-align: start;
+    color: #333;
+}
+
+.invoice-cash80__value {
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    word-break: break-word;
+}
+
+.invoice-cash80__label-ar {
+    text-align: end;
+    color: #333;
+}
+
+.invoice-cash80__row--id {
+    margin: 1px auto 0;
+    max-width: 100%;
+}
+
+.invoice-cash80__row--stack {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+        "label label-ar"
+        "value value";
+}
+
+.invoice-cash80__row--stack .invoice-cash80__label {
+    grid-area: label;
+}
+
+.invoice-cash80__row--stack .invoice-cash80__label-ar {
+    grid-area: label-ar;
+}
+
+.invoice-cash80__row--stack .invoice-cash80__value {
+    grid-area: value;
+    overflow-wrap: anywhere;
+}
+
+.invoice-cash80__item {
+    margin: 0 0 6px;
+}
+
+.invoice-cash80__item-name {
+    font-weight: 600;
+    font-size: 8.5pt;
+}
+
+.invoice-cash80__item-name--ar {
+    text-align: right;
+    font-weight: 500;
+}
+
+.invoice-cash80__item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+    font-size: 8.5pt;
+    font-variant-numeric: tabular-nums;
+}
+
+.invoice-cash80__vat-rate {
+    color: #444;
+    font-size: 7.5pt;
+}
+
+.invoice-cash80__item-amt {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.invoice-cash80__grand {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+    margin: 2px 0 6px;
+    font-weight: 800;
+}
+
+.invoice-cash80__grand-label {
+    font-size: 10pt;
+}
+
+.invoice-cash80__grand-amt {
+    font-size: 12pt;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.invoice-cash80__vat-heading {
+    display: flex;
+    justify-content: space-between;
+    font-size: 8pt;
+    font-weight: 600;
+    margin-bottom: 3px;
+}
+
+.invoice-cash80__vat-head,
+.invoice-cash80__vat-row {
+    display: grid;
+    grid-template-columns: 0.7fr 1.1fr 1.1fr 0.8fr;
+    gap: 2px 4px;
+    font-size: 7.5pt;
+    font-variant-numeric: tabular-nums;
+    text-align: end;
+}
+
+.invoice-cash80__vat-head {
+    font-weight: 700;
+    margin-bottom: 1px;
+}
+
+.invoice-cash80__footer {
+    text-align: center;
+    margin-top: 6px;
+    font-size: 8pt;
+    font-weight: 400;
+    border-top: 0;
+    padding-top: 0;
+}
+
+.invoice-cash80__footer-line,
+.invoice-cash80__footer-meta {
+    margin: 1px 0;
+}
+
+.invoice-cash80__footer-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    font-variant-numeric: tabular-nums;
+}
+
+.invoice-cash80__footer-no {
+    overflow-wrap: anywhere;
+    max-width: 100%;
+}
+
+.invoice-cash80__thanks {
+    margin-top: 4px;
+    font-weight: 600;
+}
+
+.invoice-cash80__barcode {
+    display: block;
+    width: 100%;
+    max-width: 68mm;
+    height: 16mm;
+    margin: 6px auto 0;
+}

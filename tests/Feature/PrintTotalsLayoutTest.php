@@ -48,7 +48,7 @@ it('renders modern A4 totals as three columns per row without stacked Arabic', f
         ->not->toContain('পৃষ্ঠা');
 });
 
-it('uses the same three-column totals on thermal cash, quotation print, and PDF HTML', function () {
+it('uses receipt totals on thermal cash and three-column totals on quotation print and PDF HTML', function () {
     $invoice = Invoice::query()->create([
         'branch_id' => $this->branchId,
         'document_number' => 'SIMP-TOTALS-3COL',
@@ -67,7 +67,11 @@ it('uses the same three-column totals on thermal cash, quotation print, and PDF 
         ->assertOk()
         ->getContent();
 
-    assertInvoicePrintTotalsThreeColumns($cash, 'invoice-cash__totals');
+    expect($cash)
+        ->toContain('invoice-cash80__grand')
+        ->toContain('invoice-sar-symbol')
+        ->toContain('11.50')
+        ->not->toContain('invoice-cash__totals');
 
     $quotation = Quotation::query()->create([
         'branch_id' => $this->branchId,

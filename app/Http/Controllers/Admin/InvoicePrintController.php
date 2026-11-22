@@ -111,6 +111,7 @@ class InvoicePrintController extends Controller
             return view('admin.invoices.print-cash', array_merge($shared, [
                 'cashUrl' => null,
                 'a4Url' => $printRoute('a4'),
+                'order' => $order,
             ]));
         }
 

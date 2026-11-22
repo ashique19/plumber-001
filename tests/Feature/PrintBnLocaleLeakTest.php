@@ -81,7 +81,9 @@ it('keeps invoice A4, cash, and PDF output free of Bangla UI strings', function 
         ->assertOk()
         ->getContent();
 
-    expect($cash)->toContain('invoice-print-totals__ar');
+    expect($cash)
+        ->toContain('invoice-cash80')
+        ->not->toContain('পৃষ্ঠা');
 
     $sheet = PrintSheetFactory::quotation(
         Quotation::query()->create([

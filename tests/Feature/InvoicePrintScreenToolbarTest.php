@@ -48,7 +48,7 @@ it('renders a screen-only toolbar on the A4 and cash print views', function (str
         ->toContain('data-close-fallback');
 
     expect(strpos($html, 'data-testid="print-screen-toolbar"'))
-        ->toBeLessThan(strpos($html, 'invoice-print-root'));
+        ->toBeLessThan(strpos($html, 'data-invoice-print'));
 })->with(['a4', 'cash']);
 
 it('hides the print toolbar in print and PDF css', function () {
