@@ -42,10 +42,10 @@
                     <th class="col-index" scope="col"><x-invoices.print-th-label en="#" ar="م" align="center" /></th>
                     <th class="col-desc" scope="col"><x-invoices.print-th-label en="Description" ar="الوصف" /></th>
                     <th class="col-num col-qty" scope="col"><x-invoices.print-th-label en="Qty" ar="الكمية" align="center" /></th>
-                    <th class="col-num" scope="col"><x-invoices.print-th-label en="Price" ar="السعر" align="end" /></th>
-                    <th class="col-num col-taxable" scope="col"><x-invoices.print-th-label en="Taxable amount" ar="المبلغ الخاضع للضريبة" align="end" /></th>
-                    <th class="col-num col-vat print-tpl-modern__vat-th" scope="col"><x-invoices.print-th-label en="VAT amount (+%)" ar="القيمة المضافة" align="end" /></th>
-                    <th class="col-num" scope="col"><x-invoices.print-th-label en="Line amount" ar="المجموع" align="end" /></th>
+                    <th class="col-num" scope="col"><x-invoices.print-th-label en="Price (SAR)" ar="السعر" align="end" /></th>
+                    <th class="col-num col-taxable" scope="col"><x-invoices.print-th-label en="Taxable amount (SAR)" ar="المبلغ الخاضع للضريبة" align="end" /></th>
+                    <th class="col-num col-vat print-tpl-modern__vat-th" scope="col"><x-invoices.print-th-label en="VAT amount (SAR)" ar="القيمة المضافة" align="end" /></th>
+                    <th class="col-num" scope="col"><x-invoices.print-th-label en="Line amount (SAR)" ar="المجموع" align="end" /></th>
                 </tr>
             </thead>
             <tbody>
@@ -59,13 +59,13 @@
                             @endif
                         </td>
                         <td class="col-num col-qty tabular-nums">{{ $line['quantity_display'] }}</td>
-                        <td class="col-num tabular-nums"><x-invoices.sar-symbol /> {{ number_format($line['unit_price_ex_vat'], 2) }}</td>
-                        <td class="col-num tabular-nums"><x-invoices.sar-symbol /> {{ number_format($line['taxable_ex_vat'], 2) }}</td>
+                        <td class="col-num tabular-nums">{{ number_format($line['unit_price_ex_vat'], 2) }}</td>
+                        <td class="col-num tabular-nums">{{ number_format($line['taxable_ex_vat'], 2) }}</td>
                         <td class="col-num tabular-nums print-tpl-modern__vat-cell">
-                            <span><x-invoices.sar-symbol /> {{ number_format($line['vat_amount'], 2) }}</span>
+                            <span>{{ number_format($line['vat_amount'], 2) }}</span>
                             <span class="print-tpl-modern__vat-pct">{{ number_format($line['vat_rate'], 0) }}%</span>
                         </td>
-                        <td class="col-num tabular-nums"><x-invoices.sar-symbol /> {{ number_format($line['line_amount_inc_vat'], 2) }}</td>
+                        <td class="col-num tabular-nums">{{ number_format($line['line_amount_inc_vat'], 2) }}</td>
                     </tr>
                 @endforeach
             </tbody>

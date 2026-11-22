@@ -24,11 +24,16 @@ final class BuyerAddressPrintHtml
             if ($fallback === '') {
                 return '';
             }
+            $enLines = preg_split('/\r\n|\n|\r/', $fallback) ?: [];
+        }
 
-            return '<div class="invoice-a4__buyer-address-cell">'
-                .'<div class="invoice-a4__buyer-address-en">'
-                .self::encodeLine($fallback, $forPdf)
-                .'</div></div>';
+        $places = [
+            (string) ($na['district'] ?? ''),
+            (string) ($na['city'] ?? $customer['city'] ?? ''),
+        ];
+        $enLines = BusinessProfile::normalizePrintAddressLines($enLines, $places);
+        if ($enLines === []) {
+            return '';
         }
 
         $enHtml = '';

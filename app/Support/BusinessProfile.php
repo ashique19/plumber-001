@@ -179,7 +179,7 @@ final class BusinessProfile
             // wrapper so 7098 paints at the physical right (start of the RTL
             // line), matching the HTML print preview. Nested tables are
             // flattened by the seller-header overlay CSS.
-            $lines[] = '<span class="invoice-pdf-ar-street-line invoice-pdf-ar-street-line__name">'.e($street).'،</span>'
+            $lines[] = '<span class="invoice-pdf-ar-street-line invoice-pdf-ar-street-line__name">'.e($street).'</span>'
                 .'<span class="invoice-pdf-ar-street-line__building">'.e($building).'</span>';
         } else {
             $line1Text = match (true) {
@@ -258,7 +258,7 @@ final class BusinessProfile
             default => null,
         };
         if ($line1Text !== null) {
-            $lines[] = self::pdfAddressDigitRunsHtml($line1Text.'،');
+            $lines[] = self::pdfAddressDigitRunsHtml($line1Text);
         }
 
         $district = trim(self::scalarString($na['district_ar'] ?? $na['district'] ?? ''));
@@ -364,18 +364,22 @@ final class BusinessProfile
     /**
      * Explicit EN lines for invoice print/PDF (building + street, district/city/postal, additional).
      * Omits country when SA; never duplicates district when equal to city.
+     * Strips trailing separators and peels district/city off a street or free-text
+     * line when those places already appear on a later line.
      *
      * @param  array<string, mixed>  $na
      * @return list<string>
      */
     public static function formatNationalAddressEnPrintLines(array $na): array
     {
-        $building = trim(self::scalarString($na['building'] ?? ''));
-        $street = trim(self::scalarString($na['street'] ?? ''));
-        $district = trim(self::scalarString($na['district'] ?? ''));
-        $city = trim(self::scalarString($na['city'] ?? ''));
-        $postal = trim(self::scalarString($na['postal_code'] ?? $na['postal'] ?? ''));
-        $additional = trim(self::scalarString($na['additional'] ?? ''));
+        $building = self::trimAddressSeparators(self::scalarString($na['building'] ?? ''));
+        $street = self::trimAddressSeparators(self::scalarString($na['street'] ?? ''));
+        $district = self::trimAddressSeparators(self::scalarString($na['district'] ?? ''));
+        $city = self::trimAddressSeparators(self::scalarString($na['city'] ?? ''));
+        $postal = self::trimAddressSeparators(self::scalarString($na['postal_code'] ?? $na['postal'] ?? ''));
+        $additional = self::trimAddressSeparators(self::scalarString($na['additional'] ?? ''));
+
+        $street = self::stripTrailingCoveredPlaceTokens($street, [], [$district, $city]);
 
         $lines = [];
 
@@ -387,6 +391,16 @@ final class BusinessProfile
         };
         if ($line1 !== null) {
             $lines[] = $line1;
+        } else {
+            $freeText = trim(self::scalarString($na['address_line'] ?? $na['address'] ?? $na['line'] ?? ''));
+            if ($freeText !== '') {
+                foreach (preg_split('/\r\n|\n|\r/', $freeText) ?: [] as $ftLine) {
+                    $ftLine = self::trimAddressSeparators($ftLine);
+                    if ($ftLine !== '') {
+                        $lines[] = $ftLine;
+                    }
+                }
+            }
         }
 
         $cityPostal = trim($city.($postal !== '' ? ' '.$postal : ''));
@@ -413,7 +427,126 @@ final class BusinessProfile
             $lines[] = $country;
         }
 
-        return $lines;
+        return self::normalizePrintAddressLines($lines, [$district, $city]);
+    }
+
+    /**
+     * Collapse printed EN address lines: strip trailing separators, drop lines
+     * already contained in a richer neighbour, and peel trailing district/city
+     * tokens off a street or free-text line when they are repeated below.
+     *
+     * @param  list<string>|array<int|string, mixed>  $lines
+     * @param  list<string>|array<int|string, mixed>  $places
+     * @return list<string>
+     */
+    public static function normalizePrintAddressLines(array $lines, array $places = []): array
+    {
+        $places = array_values(array_filter(array_map(
+            static fn (mixed $v): string => self::trimAddressSeparators(self::scalarString($v)),
+            $places,
+        ), static fn (string $v): bool => $v !== ''));
+
+        $normalized = [];
+        foreach ($lines as $line) {
+            $line = self::trimAddressSeparators(self::scalarString($line));
+            if ($line !== '') {
+                $normalized[] = $line;
+            }
+        }
+
+        $count = count($normalized);
+        for ($i = 0; $i < $count; $i++) {
+            $later = array_slice($normalized, $i + 1);
+            $normalized[$i] = self::stripTrailingCoveredPlaceTokens($normalized[$i], $later, $places);
+        }
+
+        $kept = [];
+        foreach ($normalized as $i => $line) {
+            if ($line === '' || self::isRedundantAddressLine($line, $normalized, $i)) {
+                continue;
+            }
+            $kept[] = $line;
+        }
+
+        return array_values($kept);
+    }
+
+    private static function trimAddressSeparators(string $value): string
+    {
+        return trim($value, " \t\n\r\0\x0B,،");
+    }
+
+    /**
+     * @param  list<string>  $laterLines
+     * @param  list<string>  $places
+     */
+    private static function stripTrailingCoveredPlaceTokens(string $line, array $laterLines, array $places): string
+    {
+        $parts = preg_split('/\s*,\s*/u', $line) ?: [];
+        $parts = array_values(array_filter(
+            array_map(static fn (string $part): string => trim($part), $parts),
+            static fn (string $part): bool => $part !== '',
+        ));
+
+        while (count($parts) > 1) {
+            $last = $parts[count($parts) - 1];
+            if (! self::tokenCoveredByLaterLineOrPlace($last, $laterLines, $places)) {
+                break;
+            }
+            array_pop($parts);
+        }
+
+        return implode(', ', $parts);
+    }
+
+    /**
+     * @param  list<string>  $laterLines
+     * @param  list<string>  $places
+     */
+    private static function tokenCoveredByLaterLineOrPlace(string $token, array $laterLines, array $places): bool
+    {
+        foreach ($places as $place) {
+            if (strcasecmp($token, $place) === 0) {
+                return true;
+            }
+        }
+
+        foreach ($laterLines as $later) {
+            if (preg_match('/(?<![\p{L}\p{N}])'.preg_quote($token, '/').'(?=$|,|\s)/iu', (string) $later) === 1) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param  list<string>  $lines
+     */
+    private static function isRedundantAddressLine(string $line, array $lines, int $index): bool
+    {
+        foreach ($lines as $j => $other) {
+            if ($j === $index || $other === '') {
+                continue;
+            }
+            if (strcasecmp($line, $other) === 0) {
+                return $index > $j;
+            }
+            if (self::addressLineIsCoveredBy($line, $other)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static function addressLineIsCoveredBy(string $shorter, string $longer): bool
+    {
+        if (mb_strlen($shorter) >= mb_strlen($longer)) {
+            return false;
+        }
+
+        return preg_match('/^'.preg_quote($shorter, '/').'(?=$|,|\s)/iu', $longer) === 1;
     }
 
     /**

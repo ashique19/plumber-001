@@ -72,9 +72,20 @@
                 @if (! empty($t['customer']['cr_number']))
                     <x-invoices.print-labeled-row en="CR No." ar="السجل التجاري" :value="$t['customer']['cr_number']" :nowrap="true" />
                 @endif
-                @if (! empty($t['customer']['address']))
-                    <div class="invoice-cash__customer-address">{{ $t['customer']['address'] }}</div>
-                @endif
+                @php
+                    $cashAddressLines = $t['customer']['address_en_lines'] ?? null;
+                    if (! is_array($cashAddressLines) || $cashAddressLines === []) {
+                        $cashAddressLines = preg_split('/\r\n|\n|\r/', (string) ($t['customer']['address'] ?? '')) ?: [];
+                    }
+                    $cashAddressLines = \App\Support\BusinessProfile::normalizePrintAddressLines($cashAddressLines, [
+                        (string) ($t['customer']['city'] ?? ''),
+                        (string) (($t['customer']['address_parts']['district'] ?? '')),
+                        (string) (($t['customer']['address_parts']['city'] ?? '')),
+                    ]);
+                @endphp
+                @foreach ($cashAddressLines as $cashAddressLine)
+                    <div class="invoice-cash__customer-address">{{ $cashAddressLine }}</div>
+                @endforeach
             </div>
         @endif
 
@@ -84,9 +95,9 @@
                     <th class="col-index" scope="col"><x-invoices.print-th-label en="#" ar="م" align="center" /></th>
                     <th class="col-desc" scope="col"><x-invoices.print-th-label en="Description" ar="الوصف" /></th>
                     <th class="col-num col-qty" scope="col"><x-invoices.print-th-label en="Qty" ar="الكمية" align="center" /></th>
-                    <th class="col-num" scope="col"><x-invoices.print-th-label en="Unit price" ar="سعر الوحدة" align="end" /></th>
+                    <th class="col-num" scope="col"><x-invoices.print-th-label en="Unit price (SAR)" ar="سعر الوحدة" align="end" /></th>
                     <th class="col-num" scope="col"><x-invoices.print-th-label en="VAT %" ar="ضريبة" align="end" /></th>
-                    <th class="col-num" scope="col"><x-invoices.print-th-label en="Line total" ar="إجمالي البند" align="end" /></th>
+                    <th class="col-num" scope="col"><x-invoices.print-th-label en="Line total (SAR)" ar="إجمالي البند" align="end" /></th>
                 </tr>
             </thead>
             <tbody>
@@ -100,9 +111,9 @@
                             @endif
                         </td>
                         <td class="col-num col-qty tabular-nums">{{ $line['quantity_display'] }}</td>
-                        <td class="col-num tabular-nums"><x-invoices.sar-symbol /> {{ number_format($line['unit_price_ex_vat'], 2) }}</td>
+                        <td class="col-num tabular-nums">{{ number_format($line['unit_price_ex_vat'], 2) }}</td>
                         <td class="col-num tabular-nums">{{ number_format($line['vat_rate'], 0) }}%</td>
-                        <td class="col-num tabular-nums"><x-invoices.sar-symbol /> {{ number_format($line['line_amount_inc_vat'], 2) }}</td>
+                        <td class="col-num tabular-nums">{{ number_format($line['line_amount_inc_vat'], 2) }}</td>
                     </tr>
                 @endforeach
             </tbody>
@@ -112,22 +123,22 @@
         <section class="invoice-cash__amount-block">
             <table class="invoice-print-totals invoice-cash__totals" role="presentation">
                 <x-invoices.print-totals-row en="Subtotal (ex VAT)" ar="المجموع (بدون ضريبة)">
-                    <x-invoices.sar-symbol /> {{ number_format($tot['subtotal_ex_vat'], 2) }}
+                    {{ number_format($tot['subtotal_ex_vat'], 2) }}
                 </x-invoices.print-totals-row>
                 @if (($tot['invoice_discount_ex_vat'] ?? 0) > 0)
                     <x-invoices.print-totals-row en="Discount" ar="الخصم">
-                        - <x-invoices.sar-symbol /> {{ number_format($tot['invoice_discount_ex_vat'], 2) }}
+                        - {{ number_format($tot['invoice_discount_ex_vat'], 2) }}
                     </x-invoices.print-totals-row>
                 @endif
                 <x-invoices.print-totals-row en="Total VAT" ar="مجموع الضريبة">
-                    <x-invoices.sar-symbol /> {{ number_format($tot['total_vat'], 2) }}
+                    {{ number_format($tot['total_vat'], 2) }}
                 </x-invoices.print-totals-row>
                 <x-invoices.print-totals-row en="Total (inc VAT)" ar="الإجمالي (شامل الضريبة)" :strong="true">
                     <x-invoices.sar-symbol /> {{ number_format($tot['total_inc_vat'], 2) }}
                 </x-invoices.print-totals-row>
                 @if (($tot['retention_amount'] ?? 0) > 0)
                     <x-invoices.print-totals-row en="Retention" ar="المحجوز">
-                        - <x-invoices.sar-symbol /> {{ number_format($tot['retention_amount'], 2) }}
+                        - {{ number_format($tot['retention_amount'], 2) }}
                     </x-invoices.print-totals-row>
                     <x-invoices.print-totals-row en="Net due" ar="الصافي المستحق" :strong="true">
                         <x-invoices.sar-symbol /> {{ number_format($t['net_due_inc_vat'], 2) }}

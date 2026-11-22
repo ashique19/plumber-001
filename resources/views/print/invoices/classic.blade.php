@@ -92,13 +92,13 @@
                 <tr>
                     <th>Nature of goods or services<span class="ar invoice-print-ar" dir="rtl">تفاصيل السلع أو الخدمات</span></th>
                     <th>Line Num<span class="ar invoice-print-ar" dir="rtl">السطر</span></th>
-                    <th>Unit Price<span class="ar invoice-print-ar" dir="rtl">سعر الوحدة</span></th>
+                    <th>Unit Price (SAR)<span class="ar invoice-print-ar" dir="rtl">سعر الوحدة</span></th>
                     <th class="col-qty">Quantity<span class="ar invoice-print-ar" dir="rtl">الكمية</span></th>
-                    <th>Taxable Amount<span class="ar invoice-print-ar" dir="rtl">المبلغ الخاضع للضريبة</span></th>
-                    <th>Discount<span class="ar invoice-print-ar" dir="rtl">خصومات</span></th>
+                    <th>Taxable Amount (SAR)<span class="ar invoice-print-ar" dir="rtl">المبلغ الخاضع للضريبة</span></th>
+                    <th>Discount (SAR)<span class="ar invoice-print-ar" dir="rtl">خصومات</span></th>
                     <th>Tax Rate<span class="ar invoice-print-ar" dir="rtl">نسبة الضريبة</span></th>
-                    <th>Tax Amount<span class="ar invoice-print-ar" dir="rtl">مبلغ الضريبة</span></th>
-                    <th>Item Subtotal (Including VAT)<span class="ar invoice-print-ar" dir="rtl">المجموع شامل ضريبة القيمة المضافة</span></th>
+                    <th>Tax Amount (SAR)<span class="ar invoice-print-ar" dir="rtl">مبلغ الضريبة</span></th>
+                    <th>Item Subtotal (SAR)<span class="ar invoice-print-ar" dir="rtl">المجموع شامل ضريبة القيمة المضافة</span></th>
                 </tr>
             </thead>
             <tbody>
@@ -126,13 +126,13 @@
         <div class="print-classic__totals-wrap">
             <table class="print-classic__totals invoice-print-totals">
                 <x-invoices.print-totals-row en="Total Excluding Vat" ar="الإجمالي (غير شامل ضريبة القيمة المضافة)">
-                    <x-invoices.sar-symbol /> {{ number_format($tot['subtotal_ex_vat'], 2) }}
+                    {{ number_format($tot['subtotal_ex_vat'], 2) }}
                 </x-invoices.print-totals-row>
                 <x-invoices.print-totals-row en="Total Taxable Amount" ar="الإجمالي الخاضع للضريبة">
-                    <x-invoices.sar-symbol /> {{ number_format($tot['subtotal_ex_vat'] - ($tot['invoice_discount_ex_vat'] ?? 0), 2) }}
+                    {{ number_format($tot['subtotal_ex_vat'] - ($tot['invoice_discount_ex_vat'] ?? 0), 2) }}
                 </x-invoices.print-totals-row>
                 <x-invoices.print-totals-row en="Total Vat" ar="مجموع ضريبة القيمة المضافة">
-                    <x-invoices.sar-symbol /> {{ number_format($tot['total_vat'], 2) }}
+                    {{ number_format($tot['total_vat'], 2) }}
                 </x-invoices.print-totals-row>
                 <x-invoices.print-totals-row en="Total Amount Due" ar="اجمالي المبلغ المستحق" :strong="true">
                     <x-invoices.sar-symbol /> {{ number_format($tot['net_due_inc_vat'] ?? $tot['total_inc_vat'], 2) }}

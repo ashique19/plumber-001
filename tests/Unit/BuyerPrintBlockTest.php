@@ -72,3 +72,27 @@ it('formats saudi mobile numbers for print', function () {
         ->and(BuyerPhonePrint::format('+966562331303'))->toBe('+966 562331303')
         ->and(BuyerPhonePrint::format('562331303'))->toBe('+966 562331303');
 });
+
+it('formats the murabba national address as two buyer lines without a trailing comma', function () {
+    $rows = BuyerPrintBlock::rows([
+        'name' => 'TaskenLab Company',
+        'address_parts' => [
+            'building' => '7780',
+            'street' => 'Prince Abdulaziz bin Musaed bin Jalawi Street',
+            'district' => 'Al Murabba',
+            'city' => 'Riyadh',
+            'postal_code' => '12612',
+            'additional' => '3841',
+            'country' => 'SA',
+        ],
+    ]);
+
+    $addressHtml = collect($rows)->firstWhere('en', 'Address')['html'];
+
+    expect($addressHtml)
+        ->toContain('7780, Prince Abdulaziz bin Musaed bin Jalawi Street')
+        ->toContain('Al Murabba, Riyadh 12612, 3841')
+        ->not->toContain('Street,')
+        ->and(substr_count($addressHtml, 'invoice-a4__buyer-address-en__line'))->toBe(2)
+        ->and(substr_count($addressHtml, 'Al Murabba'))->toBe(1);
+});
