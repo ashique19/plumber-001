@@ -36,4 +36,14 @@
             </ul>
         @endif
     </x-admin.typeahead-control>
+    <div class="invoice-add-custom-line">
+        <button
+            type="button"
+            class="invoice-add-custom-line__btn tap-action-muted"
+            wire:click="addCustomLine"
+            data-testid="add-custom-line"
+        >
+            {{ __('invoices.add_custom_line') }}
+        </button>
+    </div>
 </div>

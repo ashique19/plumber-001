@@ -71,7 +71,8 @@ it('includes totals rows, QR image, and Arabic address in wrapped PDF html', fun
         ->toContain('invoice-pdf-ltr-digits')
         ->toContain('7098')
         ->toContain('invoice-national-address-ar__line')
-        ->toContain('data:image/svg+xml;base64,')
+        ->toContain('>SAR</span>')
+        ->not->toContain('data:image/svg+xml;base64,')
         ->not->toContain('Issue date &amp; time')
         ->toContain('invoice-print-info-grid__col-en', false)
         ->not->toMatch('/class="[^"]*print-tpl-modern__totals-net/');

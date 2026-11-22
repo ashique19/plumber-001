@@ -173,14 +173,23 @@ final class BusinessProfile
 
         $lines = [];
 
-        $line1Text = match (true) {
-            $building !== '' && $street !== '' => $street.'، '.$building,
-            $building !== '' => $building,
-            $street !== '' => $street,
-            default => null,
-        };
-        if ($line1Text !== null) {
-            $lines[] = e(self::dompdfHeaderRtlDigitMarks($line1Text));
+        if ($building !== '' && $street !== '') {
+            // shapeArabic() pre-shapes this street into visual LTR glyphs.
+            // Keep the building AFTER the street in an LTR / bidi-override
+            // wrapper so 7098 paints at the physical right (start of the RTL
+            // line), matching the HTML print preview. Nested tables are
+            // flattened by the seller-header overlay CSS.
+            $lines[] = '<span class="invoice-pdf-ar-street-line invoice-pdf-ar-street-line__name">'.e($street).'،</span>'
+                .'<span class="invoice-pdf-ar-street-line__building">'.e($building).'</span>';
+        } else {
+            $line1Text = match (true) {
+                $building !== '' => $building,
+                $street !== '' => $street,
+                default => null,
+            };
+            if ($line1Text !== null) {
+                $lines[] = e(self::dompdfHeaderRtlDigitMarks($line1Text));
+            }
         }
 
         $district = trim(self::scalarString($na['district_ar'] ?? $na['district'] ?? ''));

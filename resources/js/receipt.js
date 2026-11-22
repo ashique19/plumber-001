@@ -15,7 +15,7 @@ function renderReceiptQr() {
     QRCode.toCanvas(canvas, payload, {
         errorCorrectionLevel: 'M',
         margin: 1,
-        width: 240,
+        width: 360,
         color: {
             dark: '#000000',
             light: '#ffffff',

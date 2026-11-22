@@ -362,7 +362,7 @@
     "isEntry": true
   },
   "resources/css/app.css": {
-    "file": "assets/app-BdfJsq_E.css",
+    "file": "assets/app-QaNPF9Q4.css",
     "name": "app",
     "names": [
       "app.css"
@@ -465,7 +465,7 @@
     "isEntry": true
   },
   "resources/css/hub-document-table.css": {
-    "file": "assets/hub-document-table-BhorYrpP.css",
+    "file": "assets/hub-document-table-C6yqMh7F.css",
     "name": "hub-document-table",
     "names": [
       "hub-document-table.css"
@@ -474,7 +474,7 @@
     "isEntry": true
   },
   "resources/css/invoice-print.css": {
-    "file": "assets/invoice-print-B-bG0XHh.css",
+    "file": "assets/invoice-print-yYv4n6PE.css",
     "name": "invoice-print",
     "names": [
       "invoice-print.css"
@@ -492,7 +492,7 @@
     "isEntry": true
   },
   "resources/css/print-template-classic.css": {
-    "file": "assets/print-template-classic-Cif1KGE3.css",
+    "file": "assets/print-template-classic-DEzuyI3D.css",
     "name": "print-template-classic",
     "names": [
       "print-template-classic.css"
@@ -501,7 +501,7 @@
     "isEntry": true
   },
   "resources/css/print-template-modern.css": {
-    "file": "assets/print-template-modern-NMIhWiJQ.css",
+    "file": "assets/print-template-modern-ClfH9Jyz.css",
     "name": "print-template-modern",
     "names": [
       "print-template-modern.css"
@@ -560,7 +560,7 @@
     "isEntry": true
   },
   "resources/js/receipt.js": {
-    "file": "assets/receipt-Dd-k7eC2.js",
+    "file": "assets/receipt-zwhP2i0m.js",
     "name": "receipt",
     "src": "resources/js/receipt.js",
     "isEntry": true,

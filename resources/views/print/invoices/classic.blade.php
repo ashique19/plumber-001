@@ -15,7 +15,7 @@
         @vite(['resources/css/invoice-print.css', 'resources/css/print-template-classic.css', 'resources/js/receipt.js', 'resources/js/invoice-print-preview.js'])
     @endpush
 
-    <div @class(['invoice-print-root', 'invoice-print-sheet', 'print-tpl-classic', 'invoice-print-root--pdf' => $isPdf ?? false]) data-invoice-print data-document-number="{{ $t['document_number'] }}">
+    <div @class(['invoice-print-root', 'invoice-print-sheet', 'print-tpl-classic', 'invoice-print-root--pdf' => $isPdf ?? false]) data-invoice-print data-auto-print="{{ request()->boolean('autoprint') ? '1' : '0' }}" data-document-number="{{ $t['document_number'] }}">
         @include('print.partials.toolbar-invoice')
 
         @include('print.partials.seller-header-with-ids', ($isPdf ?? false) ? ['t' => $t, 'isPdf' => true] : ['t' => $t])
@@ -92,7 +92,7 @@
                     <th>Nature of goods or services<span class="ar invoice-print-ar" dir="rtl">تفاصيل السلع أو الخدمات</span></th>
                     <th>Line Num<span class="ar invoice-print-ar" dir="rtl">السطر</span></th>
                     <th>Unit Price<span class="ar invoice-print-ar" dir="rtl">سعر الوحدة</span></th>
-                    <th>Quantity<span class="ar invoice-print-ar" dir="rtl">الكمية</span></th>
+                    <th class="col-qty">Quantity<span class="ar invoice-print-ar" dir="rtl">الكمية</span></th>
                     <th>Taxable Amount<span class="ar invoice-print-ar" dir="rtl">المبلغ الخاضع للضريبة</span></th>
                     <th>Discount<span class="ar invoice-print-ar" dir="rtl">خصومات</span></th>
                     <th>Tax Rate<span class="ar invoice-print-ar" dir="rtl">نسبة الضريبة</span></th>
@@ -111,7 +111,7 @@
                         </td>
                         <td class="col-index tabular-nums">{{ $line['line_no'] }}</td>
                         <td class="col-num tabular-nums">{{ number_format($line['unit_price_ex_vat'], 2) }}</td>
-                        <td class="col-num tabular-nums">{{ $line['quantity_display'] }}</td>
+                        <td class="col-num col-qty tabular-nums">{{ $line['quantity_display'] }}</td>
                         <td class="col-num tabular-nums">{{ number_format($line['taxable_ex_vat'], 2) }}</td>
                         <td class="col-num tabular-nums">{{ number_format($line['discount_ex_vat'] ?? 0, 2) }}</td>
                         <td class="col-num tabular-nums">{{ number_format($line['vat_rate'], 0) }} %</td>

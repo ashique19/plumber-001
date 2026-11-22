@@ -23,12 +23,12 @@
         z-index: 2;
         min-width: 9.5rem;
         background: var(--app-surface);
-        box-shadow: -1px 0 0 var(--app-border);
+        box-shadow: -6px 0 8px -6px rgb(15 23 42 / 0.22);
     }
 
     [dir='rtl'] .admin-data-table__actions-head,
     [dir='rtl'] .admin-data-table__actions-cell {
-        box-shadow: 1px 0 0 var(--app-border);
+        box-shadow: 6px 0 8px -6px rgb(15 23 42 / 0.22);
     }
 
     .admin-data-table thead .admin-data-table__actions-head {

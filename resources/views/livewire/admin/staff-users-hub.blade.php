@@ -84,7 +84,7 @@
                             <th class="px-3 py-3 font-medium" scope="col">{{ __('staff_users.col_role') }}</th>
                             <th class="px-3 py-3 font-medium" scope="col">{{ __('staff_users.col_language') }}</th>
                             <th class="px-3 py-3 font-medium" scope="col">{{ __('staff_users.col_status') }}</th>
-                            <th class="px-3 py-3 text-end font-medium" scope="col">{{ __('staff_users.col_actions') }}</th>
+                            <th class="admin-data-table__actions-head px-3 py-3 text-end font-medium" scope="col">{{ __('staff_users.col_actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -111,7 +111,7 @@
                                         'pos-status-pill--cancelled' => ! $row->is_active,
                                     ])>{{ $row->is_active ? __('staff_users.active') : __('staff_users.inactive') }}</span>
                                 </td>
-                                <td class="px-3 py-2.5 text-end">
+                                <td class="admin-data-table__actions-cell px-3 py-2.5 text-end">
                                     <x-hub.staff-user-row-actions
                                         :user-id="$row->id"
                                         :is-active="(bool) $row->is_active"

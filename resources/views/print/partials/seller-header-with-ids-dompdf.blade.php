@@ -33,7 +33,11 @@
             <div class="invoice-pdf-seller-line invoice-pdf-seller-line--name invoice-pdf-seller-ar-name">{{ $t['seller_ar'] }}</div>
             @if ($arDompdfAddressLines !== [])
                 @foreach ($arDompdfAddressLines as $line)
-                    <div class="invoice-pdf-seller-line invoice-pdf-seller-ar-body">{!! $line !!}</div>
+                    @if (str_contains($line, 'invoice-pdf-ar-street-line'))
+                        <div class="invoice-pdf-seller-line invoice-pdf-seller-ar-street-wrap" dir="ltr">{!! $line !!}</div>
+                    @else
+                        <div class="invoice-pdf-seller-line invoice-pdf-seller-ar-body">{!! $line !!}</div>
+                    @endif
                 @endforeach
             @elseif ($t['address_ar_html'] ?? null)
                 <div class="invoice-pdf-seller-line invoice-pdf-seller-ar-body">{!! $t['address_ar_html'] !!}</div>

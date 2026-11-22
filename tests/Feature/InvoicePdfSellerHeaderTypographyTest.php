@@ -95,7 +95,7 @@ it('keeps seller header body digit caps within one pixel at 144 dpi', function (
     $h = imagesy($img);
 
     $caps = [];
-    for ($y1 = 0.150; $y1 <= 0.195; $y1 += 0.006) {
+    for ($y1 = 0.028; $y1 <= 0.100; $y1 += 0.006) {
         $y2 = $y1 + 0.006;
         foreach ([[0.12, 0.36], [0.64, 0.95]] as [$x1, $x2]) {
             $sample = pdfHeaderDigitCap($img, $w, $h, $x1, $y1, $x2, $y2);
@@ -111,8 +111,8 @@ it('keeps seller header body digit caps within one pixel at 144 dpi', function (
         if (! is_dir($artifactDir)) {
             @mkdir($artifactDir, 0755, true);
         }
-        $cropTop = (int) floor($h * 0.10);
-        $cropH = (int) ceil($h * 0.16);
+        $cropTop = 0;
+        $cropH = (int) ceil($h * 0.14);
         $cropImg = imagecreatefrompng($png);
         $crop = imagecreatetruecolor($w, $cropH);
         imagecopy($crop, $cropImg, 0, 0, 0, $cropTop, $w, $cropH);

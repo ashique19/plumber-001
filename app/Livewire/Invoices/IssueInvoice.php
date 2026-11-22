@@ -130,6 +130,8 @@ class IssueInvoice extends Component
     public ?int $draftInvoiceId = null;
 
     #[Locked]
+    public bool $pendingPrintAfterIssue = false;
+
     public string $issueSubmissionToken = '';
 
     public bool $simplifiedCustomerExpanded = false;
@@ -276,6 +278,17 @@ class IssueInvoice extends Component
 
     public function issue(InvoiceIssueService $issuer): void
     {
+        $this->performIssue($issuer, printAfter: false);
+    }
+
+    public function issueAndPrint(InvoiceIssueService $issuer): void
+    {
+        $this->performIssue($issuer, printAfter: true);
+    }
+
+    private function performIssue(InvoiceIssueService $issuer, bool $printAfter): void
+    {
+        $this->pendingPrintAfterIssue = $printAfter;
         $this->pruneEmptyDocumentLines();
         $this->hydrateCatalogLineNames();
 
@@ -301,7 +314,7 @@ class IssueInvoice extends Component
         $actorId = auth('staff')->id();
         $existingIssuedId = HubFormSubmissionIdempotency::storedResourceId('invoice_issue', $this->issueSubmissionToken, $actorId);
         if ($existingIssuedId !== null) {
-            $this->redirect(route('admin.invoices'), navigate: true);
+            $this->redirectAfterIssue((int) $existingIssuedId);
 
             return;
         }
@@ -310,7 +323,7 @@ class IssueInvoice extends Component
         if ($lock === null) {
             $replayId = HubFormSubmissionIdempotency::waitForStoredResourceId('invoice_issue', $this->issueSubmissionToken, $actorId);
             if ($replayId !== null) {
-                $this->redirect(route('admin.invoices'), navigate: true);
+                $this->redirectAfterIssue((int) $replayId);
             }
 
             return;
@@ -319,7 +332,7 @@ class IssueInvoice extends Component
         try {
             $replayId = HubFormSubmissionIdempotency::storedResourceId('invoice_issue', $this->issueSubmissionToken, $actorId);
             if ($replayId !== null) {
-                $this->redirect(route('admin.invoices'), navigate: true);
+                $this->redirectAfterIssue((int) $replayId);
 
                 return;
             }
@@ -362,7 +375,7 @@ class IssueInvoice extends Component
             }
 
             $this->toastSuccess(__('invoices.issue_success', ['number' => $issued->document_number]));
-            $this->redirect(route('admin.invoices'), navigate: true);
+            $this->redirectAfterIssue((int) $issued->id);
         } finally {
             $lock->release();
         }
@@ -430,24 +443,10 @@ class IssueInvoice extends Component
      */
     private function buildLineItems(): array
     {
-        return array_map(function (array $row): array {
-            $item = [
-                'name' => trim($row['name']),
-                'quantity' => round((float) $row['quantity'], 3),
-                'unit_price_ex_vat' => (float) $row['unit_price'],
-                'vat_rate' => (float) $row['vat_rate'],
-            ];
-            $ar = trim((string) ($row['name_ar'] ?? ''));
-            if ($ar !== '') {
-                $item['name_ar'] = $ar;
-            }
-            $productId = $row['product_id'] ?? null;
-            if ($productId !== null && (int) $productId > 0) {
-                $item['product_id'] = (int) $productId;
-            }
-
-            return $item;
-        }, $this->lines);
+        return array_map(
+            static fn (array $row): array => DocumentCreateUiSupport::payloadLineFromFormRow($row),
+            $this->lines,
+        );
     }
 
     /**
@@ -574,7 +573,22 @@ class IssueInvoice extends Component
 
     protected function afterStandardBuyerCompletionConfirmed(): void
     {
-        $this->issue(app(InvoiceIssueService::class));
+        $this->performIssue(app(InvoiceIssueService::class), printAfter: $this->pendingPrintAfterIssue);
+    }
+
+    private function redirectAfterIssue(int $invoiceId): void
+    {
+        if ($this->pendingPrintAfterIssue) {
+            $this->redirect(route('admin.invoices.print', [
+                'invoice' => $invoiceId,
+                'layout' => 'a4',
+                'autoprint' => 1,
+            ]), navigate: true);
+
+            return;
+        }
+
+        $this->redirect(route('admin.invoices'), navigate: true);
     }
 
     public function render(): View
@@ -634,7 +648,7 @@ class IssueInvoice extends Component
     {
         $lines = [];
         foreach ($this->lines as $row) {
-            if (! filled($row['product_id'] ?? null)) {
+            if (! DocumentCreateUiSupport::lineIsPresent($row)) {
                 continue;
             }
             $name = trim((string) ($row['name'] ?? ''));
@@ -742,23 +756,7 @@ class IssueInvoice extends Component
      */
     protected function emptyLine(): array
     {
-        return [
-            'line_id' => DocumentCreateUiSupport::newLineId(),
-            'name' => '',
-            'name_ar' => '',
-            'name_bn' => '',
-            'quantity' => '1',
-            'unit_price' => '',
-            'vat_rate' => '15',
-            'discount_percent' => '0',
-            'product_id' => null,
-            'product_unit_id' => null,
-            'product_size_id' => null,
-            'unit_label' => '',
-            'product_image_url' => '',
-            'track_stock' => false,
-            'stock_quantity' => '',
-        ];
+        return DocumentCreateUiSupport::emptyFormLine();
     }
 
     /**
@@ -766,22 +764,15 @@ class IssueInvoice extends Component
      */
     private function rulesForMode(bool $relaxedDueDate = false): array
     {
-        $lineRules = [
-            'lines' => ['required', 'array', 'min:1'],
-            'lines.*.product_id' => ['required', 'integer', 'exists:products,id'],
-            'lines.*.name' => ['required', 'string', 'max:200'],
-            'lines.*.name_ar' => ['nullable', 'string', 'max:200'],
-            'lines.*.quantity' => ['required', 'numeric', 'min:0.001'],
+        $lineRules = array_merge(DocumentCreateUiSupport::lineValidationRules(), [
             'invoiceDiscountExVat' => ['nullable', 'numeric', 'min:0'],
             'retentionPercent' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'retentionFixed' => ['nullable', 'numeric', 'min:0'],
             'buyerPhone' => ['nullable', 'string', 'max:32'],
             'buyerEmail' => ['nullable', 'email', 'max:120'],
-            'lines.*.unit_price' => ['required', 'numeric', 'min:0'],
-            'lines.*.vat_rate' => ['required', 'numeric', 'min:0', 'max:100'],
             'supplyDate' => ['nullable', 'date'],
             'documentNotes' => ['nullable', 'string', 'max:2000'],
-        ];
+        ]);
 
         if ($this->mode === 'simplified') {
             return $lineRules;
@@ -813,7 +804,7 @@ class IssueInvoice extends Component
     {
         $this->lines = array_values(array_filter(
             $this->lines,
-            fn (array $row): bool => filled($row['product_id'] ?? null),
+            fn (array $row): bool => DocumentCreateUiSupport::lineIsPresent($row),
         ));
     }
 
@@ -863,6 +854,11 @@ class IssueInvoice extends Component
             'amountReceived' => __('invoices.payment_received_amount'),
             'buyerCountry' => __('invoices.buyer_country'),
             'lines.*.name' => __('invoices.line_name'),
+            'lines.*.name_ar' => __('invoices.line_name_ar'),
+            'lines.*.name_bn' => __('invoices.line_name_bn'),
+            'lines.*.item_type' => __('invoices.line_item_type'),
+            'lines.*.product_unit_id' => __('invoices.line_unit'),
+            'lines.*.vat_zatca_category' => __('invoices.line_vat_category'),
             'lines.*.quantity' => __('invoices.line_qty'),
             'lines.*.unit_price' => __('invoices.line_price_ex_vat'),
             'lines.*.vat_rate' => __('invoices.line_vat'),

@@ -60,9 +60,9 @@
 }
 
 .print-tpl-modern__closing-qr {
-    width: 34%;
-    min-width: 52mm;
-    max-width: 56mm;
+    width: 38%;
+    min-width: 58mm;
+    max-width: 66mm;
     vertical-align: top;
     padding-right: 8px;
 }
@@ -79,8 +79,8 @@
 
 .print-tpl-modern__qr-wrap {
     width: 100%;
-    min-width: 200px;
-    max-width: 52mm;
+    min-width: 170px;
+    max-width: 62mm;
     margin: 0;
 }
 
@@ -88,22 +88,22 @@
     margin: 0 auto;
     text-align: center;
     width: 100%;
-    min-width: 200px;
-    max-width: 52mm;
+    min-width: 170px;
+    max-width: 62mm;
 }
 
 .print-tpl-modern__qr-wrap .invoice-a4__qr canvas,
 .print-tpl-modern__qr-wrap .invoice-a4__qr-img {
-    width: 30mm !important;
-    height: 30mm !important;
-    max-width: 30mm;
-    max-height: 30mm;
+    width: 45mm !important;
+    height: 45mm !important;
+    max-width: 45mm;
+    max-height: 45mm;
 }
 
 .print-tpl-modern__qr-wrap .invoice-a4__qr-note-lines {
     width: 100%;
-    min-width: 200px;
-    max-width: 52mm;
+    min-width: 170px;
+    max-width: 62mm;
     margin: 4px auto 0;
 }
 
@@ -169,6 +169,8 @@
 
 .print-tpl-modern__totals td {
     display: table-cell !important;
+    border: 1px solid var(--inv-border);
+    padding: 3px 6px;
 }
 
 .print-tpl-modern__totals-total td {

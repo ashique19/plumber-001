@@ -94,7 +94,7 @@ it('declares unified pdf type scale tiers in dompdf overlay css', function () {
         ->toContain('.invoice-print-root--pdf .invoice-print-totals__row--strong .invoice-print-totals__value{font-size:12pt!important')
         ->toContain('.invoice-print-root--pdf .invoice-a4__title{margin:1px 0;font-size:14pt!important')
         ->toContain('.invoice-print-root--pdf .invoice-pdf-seller-en-name{margin:0!important;padding:0!important;font-weight:700!important')
-        ->toContain('.invoice-print-root--pdf,.invoice-print-root--pdf *:not(.invoice-sar-symbol__svg){font-family:dejavusans!important', false)
+        ->toContain('.invoice-print-root--pdf,.invoice-print-root--pdf *{font-family:dejavusans!important', false)
         ->toContain('invoice-a4__title-ar{font-size:14pt!important', false)
         ->toContain('.invoice-print-root--pdf .invoice-pdf-seller-ar-compact{font-size:8.5pt!important', false)
         ->toContain('.invoice-print-root--pdf .invoice-pdf-ltr-digits,.invoice-print-root--pdf .invoice-pdf-ltr-digits *')

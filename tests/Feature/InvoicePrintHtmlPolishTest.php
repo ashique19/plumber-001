@@ -21,7 +21,7 @@ it('styles qr captions at least qr width and keeps pre-broken en lines', functio
     $modernCss = (string) file_get_contents(resource_path('css/print-template-modern.css'));
 
     expect($modernCss)
-        ->toContain('min-width: 200px')
+        ->toContain('min-width: 170px')
         ->toContain('.print-tpl-modern__qr-wrap .invoice-a4__qr-note-lines')
         ->toContain('white-space: nowrap');
 });

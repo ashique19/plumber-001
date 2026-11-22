@@ -25,7 +25,7 @@ it('enlarges the centered print logo and right-aligns Arabic print text', functi
     expect($css)
         ->toContain('max-height: 96px')
         ->toContain("text-align: right")
-        ->toContain('invoice-sar-symbol__svg');
+        ->toContain('invoice-sar-symbol');
 });
 
 it('keeps modern totals as separate English, Arabic, and amount columns', function () {
@@ -62,7 +62,7 @@ it('keeps modern totals as separate English, Arabic, and amount columns', functi
         ->toContain('invoice-print-totals__value');
 });
 
-it('renders an inline Saudi riyal SVG on invoice print', function () {
+it('renders plain SAR text on invoice print', function () {
     $invoice = Invoice::query()->create([
         'branch_id' => Branch::query()->first()?->id,
         'document_number' => 'STD-SAR-001',
@@ -79,8 +79,9 @@ it('renders an inline Saudi riyal SVG on invoice print', function () {
     $this->actingAs($this->owner, 'staff')
         ->get(route('admin.invoices.print', ['invoice' => $invoice, 'layout' => 'a4', 'locale' => 'en']))
         ->assertOk()
-        ->assertSee('invoice-sar-symbol__svg', false)
-        ->assertSee('viewBox="0 0 1124.14 1256.39"', false)
+        ->assertSee('invoice-sar-symbol', false)
+        ->assertSee('>SAR</span>', false)
+        ->assertDontSee('invoice-sar-symbol__svg', false)
         ->assertDontSee('sar-riyal-symbol.svg', false);
 });
 
@@ -165,6 +166,9 @@ function quotationInvoiceTypeLeaks(): array
 
 function assertNoQuotationInvoiceTypeLeaks(string $html, array $leaks): void
 {
+    // Custom-line VAT category labels use "Standard 15%" / similar catalog copy.
+    $html = str_replace(['Standard 15%', 'Zero-rated'], '', $html);
+
     foreach ($leaks as $leak) {
         expect($html)->not->toContain($leak);
     }

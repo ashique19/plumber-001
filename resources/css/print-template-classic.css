@@ -73,9 +73,10 @@
     font-size: 8pt;
 }
 
-.print-classic__top-right .invoice-a4__qr canvas {
-    width: 96px !important;
-    height: 96px !important;
+.print-classic__top-right .invoice-a4__qr canvas,
+.print-classic__top-right .invoice-a4__qr-img {
+    width: 144px !important;
+    height: 144px !important;
 }
 
 .print-classic__meta-table,
@@ -112,6 +113,11 @@
 .print-classic__lines td.col-num {
     text-align: end;
     font-variant-numeric: tabular-nums;
+}
+
+.print-classic__lines th.col-qty,
+.print-classic__lines td.col-qty {
+    text-align: center;
 }
 
 .print-classic__lines thead th .ar {

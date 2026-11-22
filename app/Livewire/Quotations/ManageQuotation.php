@@ -177,15 +177,7 @@ class ManageQuotation extends Component
           if (! is_array($row)) {
               continue;
           }
-          $this->lines[] = [
-              'name' => (string) ($row['name'] ?? ''),
-              'name_ar' => (string) ($row['name_ar'] ?? ''),
-              'quantity' => (string) ($row['quantity'] ?? '1'),
-              'unit_price' => (string) ($row['unit_price_ex_vat'] ?? $row['unit_price'] ?? ''),
-              'vat_rate' => (string) ($row['vat_rate'] ?? '15'),
-              'product_id' => $row['product_id'] ?? null,
-              'unit_label' => (string) ($row['unit_label'] ?? ''),
-          ];
+          $this->lines[] = DocumentCreateUiSupport::formLineFromPayloadRow($row);
       }
 
       $this->supplyDate = (string) ($payload['supply_date'] ?? $this->supplyDate);
@@ -327,23 +319,10 @@ class ManageQuotation extends Component
    */
   private function buildPayload(): array
   {
-      $lineItems = array_map(function (array $row): array {
-          $item = [
-              'name' => trim($row['name']),
-              'quantity' => round((float) $row['quantity'], 3),
-              'unit_price_ex_vat' => (float) $row['unit_price'],
-              'vat_rate' => (float) $row['vat_rate'],
-          ];
-          $ar = trim((string) ($row['name_ar'] ?? ''));
-          if ($ar !== '') {
-              $item['name_ar'] = $ar;
-          }
-          if (filled($row['product_id'] ?? null)) {
-              $item['product_id'] = (int) $row['product_id'];
-          }
-
-          return $item;
-      }, $this->lines);
+      $lineItems = array_map(
+          static fn (array $row): array => DocumentCreateUiSupport::payloadLineFromFormRow($row),
+          $this->lines,
+      );
 
       $payload = ['lines' => $lineItems];
 
@@ -448,7 +427,7 @@ class ManageQuotation extends Component
   {
       $lines = [];
       foreach ($this->lines as $row) {
-          if (! filled($row['product_id'] ?? null)) {
+          if (! DocumentCreateUiSupport::lineIsPresent($row)) {
               continue;
           }
           $name = trim((string) ($row['name'] ?? ''));
@@ -545,23 +524,7 @@ class ManageQuotation extends Component
    */
   protected function emptyLine(): array
   {
-      return [
-          'line_id' => DocumentCreateUiSupport::newLineId(),
-          'name' => '',
-          'name_ar' => '',
-          'name_bn' => '',
-          'quantity' => '1',
-          'unit_price' => '',
-          'vat_rate' => '15',
-          'discount_percent' => '0',
-          'product_id' => null,
-          'product_unit_id' => null,
-          'product_size_id' => null,
-          'unit_label' => '',
-          'product_image_url' => '',
-          'track_stock' => false,
-          'stock_quantity' => '',
-      ];
+      return DocumentCreateUiSupport::emptyFormLine();
   }
 
   /**
@@ -569,26 +532,19 @@ class ManageQuotation extends Component
    */
   private function rules(): array
   {
-      $lineRules = [
-          'lines' => ['required', 'array', 'min:1'],
-          'lines.*.product_id' => ['required', 'integer', 'exists:products,id'],
-          'lines.*.name' => ['required', 'string', 'max:200'],
-          'lines.*.name_ar' => ['nullable', 'string', 'max:200'],
-          'lines.*.quantity' => ['required', 'numeric', 'min:0.001'],
+      $lineRules = array_merge(DocumentCreateUiSupport::lineValidationRules(), [
           'invoiceDiscountExVat' => ['nullable', 'numeric', 'min:0'],
           'retentionPercent' => ['nullable', 'numeric', 'min:0', 'max:100'],
           'retentionFixed' => ['nullable', 'numeric', 'min:0'],
           'buyerPhone' => ['nullable', 'string', 'max:32'],
           'buyerEmail' => ['nullable', 'email', 'max:120'],
-          'lines.*.unit_price' => ['required', 'numeric', 'min:0'],
-          'lines.*.vat_rate' => ['required', 'numeric', 'min:0', 'max:100'],
           'validityUntil' => ['required', 'date'],
           'supplyDate' => ['nullable', 'date'],
           'documentNotes' => ['nullable', 'string', 'max:2000'],
           'termsAndConditions' => ['nullable', 'string', 'max:6000'],
           'buyerName' => ['nullable', 'string', 'max:200'],
           'paymentTerms' => ['required', \Illuminate\Validation\Rule::in(DocumentPaymentTerms::codes())],
-      ];
+      ]);
 
       return $lineRules;
   }
@@ -597,7 +553,7 @@ class ManageQuotation extends Component
   {
       $this->lines = array_values(array_filter(
           $this->lines,
-          fn (array $row): bool => filled($row['product_id'] ?? null),
+          fn (array $row): bool => DocumentCreateUiSupport::lineIsPresent($row),
       ));
   }
 
