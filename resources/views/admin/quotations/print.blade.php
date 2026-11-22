@@ -46,9 +46,9 @@
                 <tr>
                     <th class="col-desc" scope="col"><x-invoices.print-th-label en="Description" ar="البيان" /></th>
                     <th class="col-num" scope="col"><x-invoices.print-th-label en="Qty" ar="الكمية" align="end" /></th>
-                    <th class="col-num" scope="col"><x-invoices.print-th-label en="Unit (ex VAT)" ar="السعر (بدون ضريبة)" align="end" /></th>
+                    <th class="col-num" scope="col"><x-invoices.print-th-label en="Unit (ex VAT) (SAR)" ar="السعر (بدون ضريبة)" align="end" /></th>
                     <th class="col-num" scope="col"><x-invoices.print-th-label en="VAT %" ar="الضريبة %" align="end" /></th>
-                    <th class="col-num" scope="col"><x-invoices.print-th-label en="Line total" ar="الإجمالي" align="end" /></th>
+                    <th class="col-num" scope="col"><x-invoices.print-th-label en="Line total (SAR)" ar="الإجمالي" align="end" /></th>
                 </tr>
             </thead>
             <tbody>
@@ -61,9 +61,9 @@
                             @endif
                         </td>
                         <td class="col-num tabular-nums">{{ number_format($line['qty'], 3) }}</td>
-                        <td class="col-num tabular-nums"><x-invoices.sar-symbol /> {{ number_format($line['unit_price'], 2) }}</td>
+                        <td class="col-num tabular-nums">{{ number_format($line['unit_price'], 2) }}</td>
                         <td class="col-num tabular-nums">{{ number_format($line['vat_rate'], 0) }}%</td>
-                        <td class="col-num tabular-nums"><x-invoices.sar-symbol /> {{ number_format($line['line_inc_vat'], 2) }}</td>
+                        <td class="col-num tabular-nums">{{ number_format($line['line_inc_vat'], 2) }}</td>
                     </tr>
                 @endforeach
             </tbody>
@@ -72,10 +72,10 @@
         <section class="invoice-cash__amount-block">
             <table class="invoice-print-totals invoice-cash__totals" role="presentation">
                 <x-invoices.print-totals-row en="Subtotal (ex VAT)" ar="المجموع (بدون ضريبة)">
-                    <x-invoices.sar-symbol /> {{ number_format($t['totals']['subtotal_ex_vat'], 2) }}
+                    {{ number_format($t['totals']['subtotal_ex_vat'], 2) }}
                 </x-invoices.print-totals-row>
                 <x-invoices.print-totals-row en="VAT" ar="ضريبة القيمة المضافة">
-                    <x-invoices.sar-symbol /> {{ number_format($t['totals']['total_vat'], 2) }}
+                    {{ number_format($t['totals']['total_vat'], 2) }}
                 </x-invoices.print-totals-row>
                 <x-invoices.print-totals-row en="Total (inc VAT)" ar="الإجمالي (شامل الضريبة)" :strong="true">
                     <x-invoices.sar-symbol /> {{ number_format($t['totals']['total_inc_vat'], 2) }}

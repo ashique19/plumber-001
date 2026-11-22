@@ -33,7 +33,8 @@ it('builds two explicit mPDF Arabic address lines with LTR digit runs', function
     $lines = BusinessProfile::formatNationalAddressArPdfLineHtml($na);
 
     expect($lines)->toHaveCount(2)
-        ->and($lines[0])->toContain('7098')->toContain('أحمد بن الحسين بن شقير')->toContain('،')
+        ->and($lines[0])->toContain('7098')->toContain('أحمد بن الحسين بن شقير')
+        ->and($lines[0])->not->toContain('شقير،')
         ->and($lines[0])->toContain('invoice-pdf-ltr-digits')
         ->and($lines[1])->toContain('حي الملز')->toContain('الرياض')->toContain('12629')
         ->and($lines[1])->not->toContain('invoice-pdf-ltr-digits')
@@ -55,8 +56,9 @@ it('builds typography-safe dompdf seller header arabic lines with the building n
     expect($lines)->toHaveCount(2)
         ->and($lines[0])->toContain('invoice-pdf-ar-street-line')
         ->and($lines[0])->toContain('>7098</span>')
-        ->and($lines[0])->toContain('أحمد بن الحسين بن شقير،')
-        ->and(strpos($lines[0], 'شقير،') < strpos($lines[0], '>7098</span>'))->toBeTrue()
+        ->and($lines[0])->toContain('أحمد بن الحسين بن شقير')
+        ->and($lines[0])->not->toContain('شقير،')
+        ->and(strpos($lines[0], 'شقير') < strpos($lines[0], '>7098</span>'))->toBeTrue()
         ->and($lines[1])->toContain('12629')->toContain('3652')
         ->and($lines[1])->not->toContain('invoice-pdf-ltr-digits')
         ->and(html_entity_decode($lines[1], ENT_QUOTES | ENT_HTML5, 'UTF-8'))

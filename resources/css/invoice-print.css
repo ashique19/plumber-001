@@ -813,6 +813,10 @@
     font-variant-numeric: tabular-nums;
 }
 
+.invoice-a4__table--product-lines thead th.col-num .invoice-print-th-label__en {
+    white-space: nowrap;
+}
+
 .invoice-a4__table th .ar {
     display: block;
     direction: rtl;

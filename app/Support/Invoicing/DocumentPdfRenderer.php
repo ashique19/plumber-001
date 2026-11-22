@@ -344,7 +344,7 @@ final class DocumentPdfRenderer
             .'.invoice-print-root--pdf .print-tpl-modern__lines thead th{font-size:'.$pdfLabel.'!important;line-height:1.2!important;vertical-align:middle!important;padding:2px 3px!important}'
             .'.invoice-print-root--pdf .print-tpl-modern__lines thead th .invoice-print-th-label__en{font-size:'.$pdfLabel.'!important;white-space:nowrap!important;display:block!important}'
             .'.invoice-print-root--pdf .print-tpl-modern__lines thead th .ar{font-size:'.$pdfLabelAr.'!important;display:block!important;margin-top:1px!important}'
-            .'.invoice-print-root--pdf .print-tpl-modern__lines th.col-taxable,.invoice-print-root--pdf .print-tpl-modern__lines th.col-vat{white-space:nowrap!important;font-size:'.$pdfLabel.'!important}'
+            .'.invoice-print-root--pdf .print-tpl-modern__lines thead th.col-num,.invoice-print-root--pdf .print-tpl-modern__lines thead th.col-num .invoice-print-th-label__en,.invoice-print-root--pdf .invoice-a4__table--product-lines thead th.col-num .invoice-print-th-label__en{white-space:nowrap!important;font-size:'.$pdfLabel.'!important}'
             .'.invoice-print-labeled-row{display:grid!important;grid-template-columns:22% 1fr 24%!important;align-items:center!important;width:100%!important;gap:4px 6px!important}'
             .'.invoice-print-labeled-row__en{text-align:left!important;font-family:'.$latin.'!important;font-weight:600!important}'
             .'.invoice-print-labeled-row__value{text-align:left!important;font-family:'.$latin.'!important}'

@@ -23,6 +23,10 @@
     font-size: 7.5pt;
 }
 
+.print-tpl-modern__lines thead th.col-num .invoice-print-th-label__en {
+    white-space: nowrap;
+}
+
 .print-tpl-modern__lines tbody tr {
     border-bottom: 1px solid color-mix(in srgb, var(--inv-border) 45%, transparent);
 }

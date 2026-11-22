@@ -25,9 +25,9 @@
         "outputSha256": "8926d02fbc26735fff8eecc2e76cf21971527f27d47f1ab2584384d9363ef6a0"
     },
     "resources/css/invoice-print.css": {
-        "output": "assets/invoice-print-Aqs02peT.css",
-        "sourceSha256": "cbe906a0ad63c5bdd52e56d1f4537f8c80d7939392c4e4f665c730e2b9cc1d7a",
-        "outputSha256": "1c8acab30069bc760e5c5558a1091ea08f571e9049743558c8727d2a2c4a8094"
+        "output": "assets/invoice-print-CsnJJXHl.css",
+        "sourceSha256": "6e1527e94cf946fb2864573ec862eaeee60474756dca8490f5bded7f940adbf6",
+        "outputSha256": "9cf94775b0d827bcade2f26936f021a86637d16dd5ab4dfb25dacdc6ed1eb20c"
     },
     "resources/css/payments-dues-hub.css": {
         "output": "assets/payments-dues-hub-D-msWZiM.css",
@@ -40,9 +40,9 @@
         "outputSha256": "b48824a70efaa577c8e6e24fc193a336f5d228407cdafe750370ac01eb6f7814"
     },
     "resources/css/print-template-modern.css": {
-        "output": "assets/print-template-modern-ClfH9Jyz.css",
-        "sourceSha256": "c0c08632d80e891b4964b282b1b84dcd1381de173d0f5e10a583a650228fe39c",
-        "outputSha256": "bac479b9de53af34519e749f9e97585103db25efbf9de0ba8c3a157e0ce84fd5"
+        "output": "assets/print-template-modern-DuUnQslO.css",
+        "sourceSha256": "55f6b6874687c65c2eb7e644af974103c2cf14f792bdb8c708d300aac833a655",
+        "outputSha256": "a6dff41e6a2d3d17c431efa046082bb73a27c563761b074f2cc9855d57b3e2b0"
     },
     "resources/css/receipt.css": {
         "output": "assets/receipt-BugLb1ap.css",
