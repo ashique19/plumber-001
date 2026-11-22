@@ -39,9 +39,6 @@
     <div class="invoice-print-root invoice-print-sheet invoice-print-sheet--cash invoice-cash80" data-invoice-print data-auto-print="{{ request()->boolean('autoprint') ? '1' : '0' }}" data-document-number="{{ $t['document_number'] }}">
 
         <header class="invoice-cash80__seller">
-            @if ($t['logo_url'])
-                <img src="{{ asset($t['logo_url']) }}" alt="" class="invoice-cash80__logo">
-            @endif
             <div class="invoice-cash80__seller-name">{{ $t['seller_en'] }}</div>
             <div class="invoice-cash80__seller-name invoice-cash80__seller-name--ar invoice-print-ar" dir="rtl">{{ $t['seller_ar'] }}</div>
             @foreach ($cash['seller_en_lines'] as $line)

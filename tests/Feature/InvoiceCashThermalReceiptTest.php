@@ -26,6 +26,7 @@ beforeEach(function () {
         'district_ar' => 'حي الملز',
         'city_ar' => 'الرياض',
     ]);
+    data_set($settings, 'theme.logo_url', 'images/plumber/hero.webp');
     $business->settings = $settings;
     $business->save();
     $this->owner = StaffUser::query()->where('email', 'owner@example.test')->firstOrFail();
@@ -65,6 +66,8 @@ it('renders an 80mm cash receipt from the national address without line-item tab
         ->toContain('7098, Ahmad Ibn Al Hussain Ibn Shuqair St')
         ->toContain('أحمد بن الحسين بن شقير')
         ->not->toContain('Al Olaya Street')
+        ->not->toContain('invoice-cash80__logo')
+        ->not->toContain('images/plumber/hero.webp')
         ->toContain('Shah Jamal')
         ->toContain('1 x 5.75')
         ->toContain('قبعة حجاب نسائية')
