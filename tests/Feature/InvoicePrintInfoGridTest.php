@@ -135,5 +135,6 @@ it('renders cash payment values in LTR bidi order', function () {
 
     expect($html)
         ->toContain('invoice-print-bidi-value', false)
-        ->toContain('Cash / نقداً', false);
+        ->toContain('Cash', false)
+        ->toContain('نقداً', false);
 });

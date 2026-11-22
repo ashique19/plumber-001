@@ -65,8 +65,8 @@ it('marks Arabic print labels with invoice-print-ar, dir rtl, and right-align CS
 
     expect($cashHtml)
         ->toMatch('/invoice-print-ar[^>]*dir="rtl"/')
-        ->toContain('invoice-print-info-grid')
-        ->toContain('invoice-print-info-grid__ar invoice-print-ar')
+        ->toContain('invoice-cash80')
+        ->toContain('invoice-national-address-ar__line')
         ->not->toMatch('/print-label[^>]+>:/');
 
     $quotation = Quotation::query()->create([

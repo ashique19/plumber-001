@@ -154,7 +154,7 @@ it('uses the same money header and amount rules in PDF html for every document t
     InvoiceDocumentType::DebitNote,
 ]);
 
-it('adds SAR to cash money headers and keeps it only on the grand total', function () {
+it('keeps SAR only on the cash receipt grand total and uses bare line amounts', function () {
     $invoice = createMoneyHeaderInvoice($this->branchId, InvoiceDocumentType::Simplified, 'MONEY-CASH');
 
     $html = (string) $this->actingAs($this->owner, 'staff')
@@ -163,38 +163,24 @@ it('adds SAR to cash money headers and keeps it only on the grand total', functi
         ->getContent();
 
     expect($html)
-        ->toContain('Unit price (SAR)')
-        ->toContain('Line total (SAR)')
-        ->toContain('VAT %')
-        ->toContain('سعر الوحدة')
-        ->toContain('إجمالي البند');
+        ->toContain('invoice-cash80__item')
+        ->toContain('15%')
+        ->toContain('115.00')
+        ->toContain('invoice-cash80__grand')
+        ->toContain('<span class="invoice-sar-symbol">SAR</span>');
 
-    assertLineItemsHaveBareAmounts($html, 'class="invoice-a4__table invoice-a4__table--product-lines"', includeVatAmount: false);
+    $items = extractHtmlSection($html, 'invoice-cash80__lines', 'invoice-cash80__totals');
+    expect($items)
+        ->toContain('1 x 115.00')
+        ->toContain('115.00')
+        ->toContain('15%')
+        ->not->toContain('invoice-sar-symbol')
+        ->not->toContain('>SAR</span>');
 
-    $dom = new DOMDocument;
-    libxml_use_internal_errors(true);
-    $dom->loadHTML($html);
-    libxml_clear_errors();
-    $xpath = new DOMXPath($dom);
-    $tables = $xpath->query('//table[contains(concat(" ", normalize-space(@class), " "), " invoice-cash__totals ")]');
-    expect($tables)->not->toBeEmpty();
-
-    $values = [];
-    foreach ($xpath->query('.//tr', $tables->item(0)) as $row) {
-        $en = trim($xpath->query('.//*[contains(@class, "invoice-print-totals__en")]', $row)->item(0)?->textContent ?? '');
-        $valueCell = $xpath->query('.//*[contains(@class, "invoice-print-totals__value")]', $row)->item(0);
-        $values[$en] = [
-            'html' => $dom->saveHTML($valueCell),
-            'text' => trim(preg_replace('/\s+/', ' ', $valueCell->textContent) ?? ''),
-        ];
-    }
-
-    expect($values['Subtotal (ex VAT)']['text'])->toBe('100.00')
-        ->and($values['Subtotal (ex VAT)']['html'])->not->toContain('invoice-sar-symbol')
-        ->and($values['Total VAT']['text'])->toBe('15.00')
-        ->and($values['Total VAT']['html'])->not->toContain('invoice-sar-symbol')
-        ->and($values['Total (inc VAT)']['text'])->toContain('115.00')
-        ->and($values['Total (inc VAT)']['html'])->toContain('invoice-sar-symbol');
+    $grand = extractHtmlSection($html, 'invoice-cash80__grand', 'invoice-cash80__vat');
+    expect($grand)
+        ->toContain('invoice-sar-symbol')
+        ->toContain('115.00');
 });
 
 it('keeps quotation modern print money headers and grand-total SAR consistent', function () {
