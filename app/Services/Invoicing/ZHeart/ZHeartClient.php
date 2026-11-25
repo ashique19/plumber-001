@@ -77,6 +77,7 @@ final class ZHeartClient
                 'reason' => 'not_configured',
                 'card' => null,
                 'warnings' => [],
+                'request_id' => $requestId ?? null,
             ];
         }
 
@@ -95,6 +96,7 @@ final class ZHeartClient
         $authStatus = null;
         /** @var array<string, mixed>|null $authBody */
         $authBody = null;
+        $auth = null;
 
         try {
             $auth = Http::timeout($timeout)
@@ -107,6 +109,8 @@ final class ZHeartClient
         } catch (\Throwable) {
             $authStatus = null;
         }
+
+        $requestId = self::requestIdFrom($auth);
 
         if ($authStatus === 200 && is_array($authBody) && ($authBody['status'] ?? '') === 'ok') {
             $report = ZHeartConnectionTestReport::successFromAuthPayload($authBody, $business);
@@ -124,11 +128,12 @@ final class ZHeartClient
                 'warnings' => $report['warnings'],
                 'ready' => $report['ready'],
                 'issues' => $report['issues'],
+                'request_id' => $requestId,
             ];
         }
 
         if ($authStatus === 404) {
-            $failure = ZHeartConnectionTestReport::failureReason(404, $healthOk, $authBody);
+            $failure = ZHeartConnectionTestReport::failureReason(404, $healthOk, $authBody, $requestId);
 
             return [
                 'ok' => false,
@@ -140,11 +145,12 @@ final class ZHeartClient
                 'reason' => $failure['reason'],
                 'card' => null,
                 'warnings' => [],
+                'request_id' => $requestId ?? null,
             ];
         }
 
         if (in_array($authStatus, [401, 403], true)) {
-            $failure = ZHeartConnectionTestReport::failureReason($authStatus, $healthOk, $authBody);
+            $failure = ZHeartConnectionTestReport::failureReason($authStatus, $healthOk, $authBody, $requestId);
 
             return [
                 'ok' => false,
@@ -156,10 +162,11 @@ final class ZHeartClient
                 'reason' => $failure['reason'],
                 'card' => null,
                 'warnings' => [],
+                'request_id' => $requestId ?? null,
             ];
         }
 
-        $failure = ZHeartConnectionTestReport::failureReason($authStatus, $healthOk, $authBody);
+        $failure = ZHeartConnectionTestReport::failureReason($authStatus, $healthOk, $authBody, $requestId);
 
         return [
             'ok' => false,
@@ -171,6 +178,7 @@ final class ZHeartClient
             'reason' => $failure['reason'],
             'card' => null,
             'warnings' => [],
+            'request_id' => $requestId,
         ];
     }
 
@@ -277,6 +285,24 @@ final class ZHeartClient
         ]);
 
         throw new ZHeartApiException(__('zheart_api.server_error', ['id' => '—']), 503, null, null, $lastException);
+    }
+
+    private static function requestIdFrom(mixed $response): ?string
+    {
+        if (! $response instanceof \Illuminate\Http\Client\Response) {
+            return null;
+        }
+
+        $id = $response->header('X-Request-Id');
+        if (! is_string($id) || $id === '') {
+            try {
+                $id = $response->json('request_id');
+            } catch (\Throwable) {
+                $id = null;
+            }
+        }
+
+        return is_string($id) && $id !== '' ? $id : null;
     }
 
     private function baseUrl(): string

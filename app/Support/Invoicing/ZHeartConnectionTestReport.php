@@ -161,48 +161,59 @@ final class ZHeartConnectionTestReport
         ?int $authStatus,
         bool $healthOk,
         ?array $authBody = null,
+        ?string $requestId = null,
     ): array {
+        $requestId ??= is_string(data_get($authBody, 'request_id')) ? (string) data_get($authBody, 'request_id') : null;
+        $id = $requestId !== null && $requestId !== '' ? $requestId : '—';
+        $remote = is_string(data_get($authBody, 'message')) ? trim((string) data_get($authBody, 'message')) : '';
+        $errorCode = is_string(data_get($authBody, 'data.error')) ? (string) data_get($authBody, 'data.error') : '';
+
         if ($authStatus === 404) {
-            return [
-                'reason' => 'outdated',
-                'message' => __('business.zheart.test_reason_outdated'),
-            ];
+            return ['reason' => 'outdated', 'message' => __('business.zheart.test_reason_outdated')];
         }
 
+        // 401 / 403: the key or the account was refused. Only these count as authentication problems.
         if ($authStatus === 401) {
-            return [
-                'reason' => 'bad_key',
-                'message' => __('business.zheart.test_reason_bad_key'),
-            ];
+            return match (true) {
+                str_contains(strtolower($remote), 'revoked') => ['reason' => 'key_revoked', 'message' => __('business.zheart.test_reason_key_revoked')],
+                str_contains(strtolower($remote), 'expired') => ['reason' => 'key_expired', 'message' => __('business.zheart.test_reason_key_expired')],
+                default => ['reason' => 'bad_key', 'message' => __('business.zheart.test_reason_bad_key')],
+            };
         }
 
         if ($authStatus === 403) {
-            $errorCode = is_string(data_get($authBody, 'data.error')) ? (string) data_get($authBody, 'data.error') : null;
-            $reason = $errorCode === 'ip_not_allowed' ? 'ip_not_allowed' : 'ip_not_allowed';
+            return match ($errorCode !== '' ? $errorCode : $remote) {
+                'client_suspended' => ['reason' => 'client_suspended', 'message' => __('business.zheart.test_reason_client_suspended')],
+                'client_not_active', 'Client is not active.' => ['reason' => 'client_not_active', 'message' => __('business.zheart.test_reason_client_not_active')],
+                default => ['reason' => 'ip_not_allowed', 'message' => __('business.zheart.test_reason_ip_not_allowed')],
+            };
+        }
 
+        // 5xx: a fault inside Z-Heart, never an authentication problem.
+        if ($authStatus !== null && $authStatus >= 500) {
             return [
-                'reason' => $reason,
-                'message' => __('business.zheart.test_reason_ip_not_allowed'),
+                'reason' => 'server_error',
+                'message' => $id !== '—'
+                    ? __('business.zheart.test_reason_server_error', ['id' => $id])
+                    : __('business.zheart.test_reason_server_error_no_id'),
             ];
         }
 
-        if (! $healthOk && $authStatus === null) {
-            return [
-                'reason' => 'unreachable',
-                'message' => __('business.zheart.test_reason_unreachable'),
-            ];
+        if ($authStatus === null) {
+            return ['reason' => 'unreachable', 'message' => __('business.zheart.test_reason_unreachable')];
         }
 
-        if ($healthOk && $authStatus !== null) {
+        // 2xx that is not the expected JSON (e.g. an HTML error page or a proxy reply).
+        if ($authStatus >= 200 && $authStatus < 300) {
             return [
-                'reason' => 'auth_failed',
-                'message' => __('business.zheart.test_reason_auth_failed'),
+                'reason' => 'bad_response',
+                'message' => __('business.zheart.test_reason_bad_response', ['status' => $authStatus, 'id' => $id]),
             ];
         }
 
         return [
-            'reason' => 'unreachable',
-            'message' => __('business.zheart.test_reason_unreachable'),
+            'reason' => 'unexpected_status',
+            'message' => __('business.zheart.test_reason_unexpected_status', ['status' => $authStatus, 'id' => $id]),
         ];
     }
 

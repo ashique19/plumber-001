@@ -35,6 +35,12 @@
             </p>
         @endif
 
+        @if (filled($zheartTestRequestId ?? null))
+            <p class="mt-1 break-all font-mono text-xs opacity-80" dir="ltr" data-testid="business-zheart-test-request-id">
+                {{ __('business.zheart.test_request_id', ['id' => $zheartTestRequestId]) }}
+            </p>
+        @endif
+
         @if (is_array($zheartTestCard))
             <dl class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2" data-testid="business-zheart-test-card">
                 <div class="min-w-0 sm:col-span-2">
