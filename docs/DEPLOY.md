@@ -33,6 +33,8 @@ To align stored business UI defaults with Bangla, run **`docs/sql/2026-11-14-def
 
 For invoice due dates on existing databases, run **`docs/sql/2026-11-14-invoice-due-date.sql`** once (idempotent).
 
+For Z-Heart seller blocks on invoices (Z-Heart is the source of seller identity), add `invoices.zheart_seller`: run **`php artisan migrate --force`**, or import **`docs/sql/2026-11-25-invoice-zheart-seller.sql`** once in phpMyAdmin (MariaDB, idempotent; also records the migration). Do one or the other.
+
 When Artisan is available:
 
 ```bash

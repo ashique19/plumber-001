@@ -61,28 +61,31 @@ it('persists brand save for plumber install.sql shape with bn locale', function 
         ->assertSet('displayNameEn', 'Dhaka Plumbing Co');
 });
 
-it('persists legal tab for plumber install.sql shape with bn locale', function () {
+it('persists only the editable legal-tab fields for plumber install.sql shape with bn locale', function () {
     app()->setLocale('bn');
 
     Livewire::test(BusinessSettings::class)
         ->set('section', 'legal')
         ->set('legalNameAr', 'شركة أنابيب الرياض')
         ->set('crNumber', '1010998877')
-        ->set('addressAr', 'الرياض، العليا')
+        ->set('legalEmail', 'office@pipes.test')
+        ->set('naDistrictAr', 'العليا')
         ->call('saveLegal')
         ->assertHasNoErrors()
         ->assertDispatched('toast');
 
     $row = BusinessSetting::primary()->fresh();
 
-    expect(data_get($row->settings, 'business.legal.name_ar'))->toBe('شركة أنابيب الرياض')
-        ->and(data_get($row->settings, 'business.legal.cr_number'))->toBe('1010998877')
-        ->and(data_get($row->settings, 'legal_entity.cr_number'))->toBe('1010998877');
+    expect(data_get($row->settings, 'business.legal.name_ar'))->not->toBe('شركة أنابيب الرياض')
+        ->and(data_get($row->settings, 'legal_entity.cr_number'))->not->toBe('1010998877')
+        ->and(data_get($row->settings, 'legal_entity.email'))->toBe('office@pipes.test')
+        ->and(data_get($row->settings, 'legal_entity.national_address.district_ar'))->toBe('العليا');
 
     Livewire::test(BusinessSettings::class)
         ->set('section', 'legal')
-        ->assertSet('legalNameAr', 'شركة أنابيب الرياض')
-        ->assertSet('crNumber', '1010998877');
+        ->assertSet('legalEmail', 'office@pipes.test')
+        ->assertSet('naDistrictAr', 'العليا')
+        ->assertSee('Z-Heart');
 });
 
 it('surfaces brand validation errors with toast warning', function () {
@@ -118,12 +121,12 @@ it('does not block legal save when legacy postal in json is invalid', function (
 
     Livewire::test(BusinessSettings::class)
         ->set('section', 'legal')
-        ->set('legalNameAr', 'اسم محدث')
+        ->set('legalMobile', '+966500000002')
         ->call('saveLegal')
         ->assertHasNoErrors();
 
-    expect(data_get(BusinessSetting::primary()->fresh()->settings, 'business.legal.name_ar'))
-        ->toBe('اسم محدث');
+    expect(data_get(BusinessSetting::primary()->fresh()->settings, 'legal_entity.mobile'))
+        ->toBe('+966500000002');
 });
 
 it('logs validation failures without throwing server errors', function () {

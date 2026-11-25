@@ -133,6 +133,7 @@ final class ZHeartInvoiceSigningGateway implements InvoiceSigningGateway
             'xml' => $xml,
             'hash' => isset($data['invoice_hash']) ? (string) $data['invoice_hash'] : null,
             'qr' => isset($data['qr']) ? (string) $data['qr'] : null,
+            'seller' => is_array($data['seller'] ?? null) ? $data['seller'] : null,
             'icv' => isset($data['icv']) ? (int) $data['icv'] : null,
             'previous_invoice_hash' => isset($data['pih']) ? (string) $data['pih'] : null,
             'invoice_uuid' => (string) ($data['uuid'] ?? $invoiceUuid),

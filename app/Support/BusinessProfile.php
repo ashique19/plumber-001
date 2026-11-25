@@ -123,6 +123,27 @@ final class BusinessProfile
     }
 
     /**
+     * Z-Heart seller addresses come without Arabic parts; repeating the English
+     * parts in the Arabic slot would print the address twice.
+     *
+     * @param  array<string, mixed>  $na
+     */
+    public static function suppressArabicAddressFallback(array $na): bool
+    {
+        if (($na['ar_fallback'] ?? true) !== false) {
+            return false;
+        }
+
+        foreach (['street_ar', 'district_ar', 'city_ar'] as $key) {
+            if (trim(self::scalarString($na[$key] ?? '')) !== '') {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * @param  array<string, mixed>  $na
      */
     public static function formatNationalAddressAr(array $na): ?string
@@ -168,6 +189,10 @@ final class BusinessProfile
      */
     public static function formatNationalAddressArDompdfPlainLines(array $na): array
     {
+        if (self::suppressArabicAddressFallback($na)) {
+            return [];
+        }
+
         $building = trim(self::scalarString($na['building'] ?? ''));
         $street = trim(self::scalarString($na['street_ar'] ?? $na['street'] ?? ''));
 
@@ -246,6 +271,10 @@ final class BusinessProfile
 
     public static function formatNationalAddressArPdfLineHtml(array $na): array
     {
+        if (self::suppressArabicAddressFallback($na)) {
+            return [];
+        }
+
         $building = trim(self::scalarString($na['building'] ?? ''));
         $street = trim(self::scalarString($na['street_ar'] ?? $na['street'] ?? ''));
 
@@ -311,6 +340,10 @@ final class BusinessProfile
      */
     public static function nationalAddressArParts(array $na): array
     {
+        if (self::suppressArabicAddressFallback($na)) {
+            return [];
+        }
+
         $buildingStreet = self::nationalAddressBuildingStreetAr($na);
 
         return array_values(array_filter([

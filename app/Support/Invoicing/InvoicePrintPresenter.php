@@ -28,7 +28,7 @@ final class InvoicePrintPresenter
         ?Branch $branch,
     ): array {
         $payload = $invoice->payload ?? [];
-        $legal = $business->settings['legal_entity'] ?? [];
+        $legal = ZHeartSellerLegal::forInvoice($business, $invoice);
         $theme = $business->settings['theme'] ?? [];
         $contentKey = $business->isPlumberTheme() ? 'plumber' : null;
         $content = $contentKey ? data_get($business->settings, "content.{$contentKey}", []) : [];
@@ -54,7 +54,7 @@ final class InvoicePrintPresenter
     public static function fromInvoice(BusinessSetting $business, Invoice $invoice, ?Branch $branch = null): array
     {
         $payload = $invoice->payload ?? [];
-        $legal = $business->settings['legal_entity'] ?? [];
+        $legal = ZHeartSellerLegal::forInvoice($business, $invoice);
         $theme = $business->settings['theme'] ?? [];
         $contentKey = $business->isPlumberTheme() ? 'plumber' : null;
         $content = $contentKey ? data_get($business->settings, "content.{$contentKey}", []) : [];

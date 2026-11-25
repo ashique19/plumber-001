@@ -116,6 +116,12 @@ return [
         'optional_hint' => 'All fields are optional. Only filled values appear on printed invoices.',
         'logo_on_brand' => 'Upload your invoice logo under Brand → Logo.',
         'zheart_note' => 'These details must match your Z-Heart client profile when signing via Z-Heart. Editing here does not by itself guarantee signing service compliance.',
+        'managed_by_zheart' => 'Managed by Z-Heart. Contact us to change.',
+        'source_zheart' => 'As on your latest Z-Heart invoice.',
+        'source_local' => 'No Z-Heart invoice yet. These are the details saved earlier in this app; new invoices use Z-Heart.',
+        'not_set' => 'Not set',
+        'print_extras_heading' => 'Invoice contact and Arabic spelling',
+        'print_extras_hint' => 'Contact lines printed on invoices, and the Arabic spelling of the street, district and city from Z-Heart.',
     ],
     'contact' => [
         'section_phone' => 'Phone & email',

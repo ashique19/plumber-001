@@ -211,23 +211,33 @@ class BusinessSettingsService
         $block['legal'] = $legalBlock;
         $settings['business'] = $block;
 
+        // Only mirror the keys that were passed, so a partial save never blanks the
+        // legacy legal fields (kept to display older invoices).
         $legal = (array) ($settings['legal_entity'] ?? []);
-        $legal['name_en'] = (string) ($legalBlock['name_en'] ?? '');
-        $legal['name_ar'] = (string) ($legalBlock['name_ar'] ?? '');
-        $legal['vat_number'] = preg_replace('/\D/', '', (string) ($legalBlock['vat_number'] ?? '')) ?? '';
-        $legal['cr_number'] = (string) ($legalBlock['cr_number'] ?? '');
-        $legal['unified_number'] = (string) ($legalBlock['unified_number'] ?? '');
-        $legal['email'] = (string) ($legalBlock['email'] ?? '');
-        $legal['mobile'] = (string) ($legalBlock['mobile'] ?? '');
-        $legal['mobile_secondary'] = (string) ($legalBlock['mobile_secondary'] ?? '');
-        $legal['short_national_address'] = (string) ($legalBlock['short_national_address'] ?? '');
-        $legal['address'] = (string) ($legalBlock['address_en'] ?? '');
-        $legal['address_ar'] = (string) ($legalBlock['address_ar'] ?? '');
-        $legal['national_address'] = (array) ($legalBlock['national_address'] ?? []);
+        $map = [
+            'name_en' => 'name_en', 'name_ar' => 'name_ar', 'cr_number' => 'cr_number',
+            'unified_number' => 'unified_number', 'email' => 'email', 'mobile' => 'mobile',
+            'mobile_secondary' => 'mobile_secondary', 'short_national_address' => 'short_national_address',
+            'address_en' => 'address', 'address_ar' => 'address_ar',
+        ];
+        foreach ($map as $from => $to) {
+            if (array_key_exists($from, $input)) {
+                $legal[$to] = (string) ($legalBlock[$from] ?? '');
+            }
+        }
+        if (array_key_exists('vat_number', $input)) {
+            $legal['vat_number'] = preg_replace('/\D/', '', (string) ($legalBlock['vat_number'] ?? '')) ?? '';
+        }
+        if (array_key_exists('national_address', $input)) {
+            $legal['national_address'] = array_merge(
+                (array) ($legal['national_address'] ?? []),
+                (array) $input['national_address'],
+            );
+        }
         $settings['legal_entity'] = $legal;
 
         $this->persist($business, $settings);
-        $this->audit->record($business, 'business.settings.legal', ['vat' => $legal['vat_number']], $actor);
+        $this->audit->record($business, 'business.settings.legal', ['vat' => $legal['vat_number'] ?? null, 'keys' => array_keys($input)], $actor);
 
         return $business->fresh();
     }

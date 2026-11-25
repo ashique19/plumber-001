@@ -16,7 +16,7 @@ final class QuotationPrintPresenter
     public static function fromQuotation(BusinessSetting $business, Quotation $quotation, ?Branch $branch): array
     {
         $payload = $quotation->payload ?? [];
-        $legal = $business->settings['legal_entity'] ?? [];
+        $legal = ZHeartSellerLegal::forQuotation($business);
         $theme = $business->settings['theme'] ?? [];
         $na = (array) ($legal['national_address'] ?? []);
         $lines = is_array($payload['lines'] ?? null) ? $payload['lines'] : [];

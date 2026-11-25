@@ -16,16 +16,17 @@ trait FakesZHeartSigning
         ]);
 
         Http::fake([
-            'https://z-heart.test/api/v1/invoices/sign' => Http::response([
+            'https://z-heart.test/api/v1/invoices/sign' => fn () => Http::response([
                 'status' => 'ok',
-                'data' => [
+                'data' => array_filter([
                     'signed_xml' => base64_encode('<Invoice/>'),
                     'invoice_hash' => 'aGFzaA==',
                     'qr' => 'cXI=',
                     'uuid' => '550e8400-e29b-41d4-a716-446655440099',
                     'icv' => 1,
                     'pih' => '',
-                ],
+                    'seller' => ZHeartFakeSeller::$block,
+                ], fn ($v) => $v !== null),
                 'request_id' => 'req-test',
             ], 200),
         ]);

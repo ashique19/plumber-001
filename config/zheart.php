@@ -24,6 +24,4 @@ return [
       env('ZHEART_SUBMIT_TO_ZATCA', env('ZHEART_AUTO_SUBMIT', false)),
       FILTER_VALIDATE_BOOL
   ),
-
-  'allow_seller_override' => filter_var(env('ZHEART_ALLOW_SELLER_OVERRIDE', false), FILTER_VALIDATE_BOOL),
 ];

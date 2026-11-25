@@ -12,6 +12,7 @@ use App\Support\AuthRoleProvisioner;
 use App\Support\Pos\ReceiptThermalPresenter;
 use Database\Seeders\DemoStaffSeeder;
 use Livewire\Livewire;
+use Tests\Support\ZHeartFakeSeller;
 
 beforeEach(function () {
     $this->withoutVite();
@@ -21,25 +22,12 @@ beforeEach(function () {
     $this->actingAs($this->owner, 'staff');
 });
 
-it('reflects legal and contact seller fields on thermal receipt and HTTP receipt', function () {
+it('prints the Z-Heart seller with contact fields from business settings on the thermal and HTTP receipt', function () {
+    ZHeartFakeSeller::$block = ZHeartFakeSeller::sample();
     ['business' => $business, 'branch' => $branch, 'cashier' => $cashier, 'product' => $product] = posBusinessSetup();
     BusinessContext::set($business);
 
-    $vat = '300000000000003';
-
-    Livewire::test(BusinessSettings::class)
-        ->set('section', 'legal')
-        ->set('legalNameEn', 'Riyadh Pipe Pros LLC')
-        ->set('legalNameAr', 'شركة أنابيب الرياض')
-        ->set('vatNumber', $vat)
-        ->set('addressEn', 'King Fahd Rd, Riyadh')
-        ->set('naBuilding', '7243')
-        ->set('naStreet', 'King Fahd Rd')
-        ->set('naDistrict', 'Al Olaya')
-        ->set('naCity', 'Riyadh')
-        ->set('naPostal', '12211')
-        ->call('saveLegal')
-        ->assertHasNoErrors();
+    $vat = '399999999900003';
 
     Livewire::test(BusinessSettings::class)
         ->set('section', 'contact')
@@ -50,11 +38,6 @@ it('reflects legal and contact seller fields on thermal receipt and HTTP receipt
 
     $business = $business->fresh();
     $settings = app(BusinessSettingsService::class)->ensureHydrated($business);
-    $legal = $settings->settings['legal_entity'] ?? [];
-
-    expect($legal['name_en'])->toBe('Riyadh Pipe Pros LLC')
-        ->and($legal['vat_number'])->toBe($vat)
-        ->and($legal['address'])->toBe('King Fahd Rd, Riyadh');
 
     $orders = app(PosOrderService::class);
     $checkout = app(PosCheckoutService::class);
@@ -68,18 +51,15 @@ it('reflects legal and contact seller fields on thermal receipt and HTTP receipt
 
     $thermal = ReceiptThermalPresenter::compose($settings, $paid, $invoice, $branch);
 
-    expect($thermal['seller_en'])->toBe('Riyadh Pipe Pros LLC')
+    expect($thermal['seller_en'])->toBe('ZH Plumbing Placeholder LLC')
         ->and($thermal['phone'])->toBe('+966501112233')
         ->and($thermal['email'])->toBe('dispatch@pipepros.test')
-        ->and($thermal['trn'])->toBe($vat)
-        ->and($legal['address'])->toBe('King Fahd Rd, Riyadh')
-        ->and(collect($thermal['branch_lines'])->join(' '))->toContain('King Fahd Rd');
+        ->and($thermal['trn'])->toBe($vat);
 
     $response = $this->get(route('admin.pos.receipt', [$paid, 'locale' => 'en', 'layout' => 'receipt']));
     $response->assertOk();
-    $response->assertSee('Riyadh Pipe Pros LLC', false);
+    $response->assertSee('ZH Plumbing Placeholder LLC', false);
     $response->assertSee('+966501112233', false);
     $response->assertSee('dispatch@pipepros.test', false);
     $response->assertSee($vat, false);
-    $response->assertSee('King Fahd Rd', false);
 });

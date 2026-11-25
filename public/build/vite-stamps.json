@@ -10,9 +10,9 @@
         "outputSha256": "408f701687894c7db2ccd6676403c7dea1014c0dc8959a185041f4ad64deb15e"
     },
     "resources/css/app.css": {
-        "output": "assets/app-BVx_xCuP.css",
+        "output": "assets/app-DBiFmt3j.css",
         "sourceSha256": "ede9d1cb14b4b54ddf7463f049edab637ae272191996449ab292992c0f86cfb2",
-        "outputSha256": "60e4b77208899d95ddedfdd1f77d60fcca62785e610abd3540a3cd897c0325c0"
+        "outputSha256": "679c901190530193b640f64e9cb62ffcd73a40ea8a4e97faa0d9fcdd65bc143d"
     },
     "resources/css/error-pages.css": {
         "output": "assets/error-pages-Z7snqgLZ.css",
