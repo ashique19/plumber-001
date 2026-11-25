@@ -39,6 +39,9 @@
             <x-invoices.hub-invoice-status-pill :invoice="$invoice" kind="invoice" />
             <x-invoices.hub-invoice-status-pill :invoice="$invoice" kind="zatca" :zatca-error="$row['zatca_error']" />
         </div>
+        @if ($a['show_simplified_correction_guidance'] ?? false)
+            <p class="text-xs text-[var(--app-muted)]" data-testid="invoice-simplified-correction-guidance">{{ __('invoices.correction.simplified_guidance') }}</p>
+        @endif
     </dl>
     @if (filled($rowUrl))
         </a>

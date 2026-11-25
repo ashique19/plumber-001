@@ -253,6 +253,7 @@ CREATE TABLE IF NOT EXISTS `invoices`(
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `branch_id` BIGINT UNSIGNED,
   `document_number` VARCHAR(255) NOT NULL,
+  `official_number` VARCHAR(127),
   `document_type` VARCHAR(32) NOT NULL NOT NULL,
   `status` VARCHAR(32) NOT NULL default 'draft',
   `referenced_invoice_id` BIGINT UNSIGNED,
@@ -263,6 +264,7 @@ CREATE TABLE IF NOT EXISTS `invoices`(
   `previous_invoice_hash` VARCHAR(512),
   `signed_xml` LONGTEXT,
   `qr_tlv_base64` TEXT,
+  `zheart_seller` JSON,
   `payload` JSON,
   `issued_at` datetime,
   `due_date` date,
@@ -281,6 +283,9 @@ CREATE INDEX `invoices_status_issued_at_index` on `invoices`(
 );
 CREATE UNIQUE INDEX `invoices_document_number_unique` on `invoices`(
   `document_number`
+);
+CREATE UNIQUE INDEX `invoices_official_number_unique` on `invoices`(
+  `official_number`
 );
 CREATE TABLE IF NOT EXISTS `invoice_audit_logs`(
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,

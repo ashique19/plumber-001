@@ -224,7 +224,7 @@ class IssueInvoice extends Component
             return;
         }
 
-        $this->toastSuccess(__('invoices.draft_saved', ['number' => $invoice->document_number]));
+        $this->toastSuccess(__('invoices.draft_saved', ['number' => $invoice->displayNumber()]));
     }
 
     public function previewDocument(InvoiceIssueService $issuer): void
@@ -371,11 +371,11 @@ class IssueInvoice extends Component
             if (! $outcome->signingSucceeded) {
                 $zatcaMessage = filled($outcome->signingFailureMessage)
                     ? $outcome->signingFailureMessage
-                    : __('invoices.issue_saved_not_sent_zatca', ['number' => $issued->document_number]);
+                    : __('invoices.issue_saved_not_sent_zatca', ['number' => $issued->displayNumber()]);
                 $this->toastWarning($zatcaMessage, persistent: true, dedupe: false);
             }
 
-            $this->toastSuccess(__('invoices.issue_success', ['number' => $issued->document_number]));
+            $this->toastSuccess(__('invoices.issue_success', ['number' => $issued->displayNumber()]));
             $this->redirectAfterIssue((int) $issued->id);
         } finally {
             $lock->release();
@@ -433,7 +433,7 @@ class IssueInvoice extends Component
             $draft->forceFill(['document_type' => $type])->save();
         }
 
-        $payload = $this->buildIssuePayload($type);
+        $payload = array_merge($draft->payload ?? [], $this->buildIssuePayload($type));
         $draft->forceFill(['payload' => $payload, 'branch_id' => $branch->id])->save();
         $this->draftInvoiceId = $draft->id;
 
@@ -598,7 +598,7 @@ class IssueInvoice extends Component
         $isStandard = $this->mode === 'standard';
 
         $draft = $this->draftInvoiceId !== null ? Invoice::query()->find($this->draftInvoiceId) : null;
-        $documentNumberLabel = $draft?->document_number ?? DocumentCreateUiSupport::pendingInvoiceNumberLabel();
+        $documentNumberLabel = $draft?->displayNumber() ?? DocumentCreateUiSupport::pendingInvoiceNumberLabel();
 
         return view('livewire.invoices.issue-invoice', [
             'pageTitle' => __('invoices.create_heading'),

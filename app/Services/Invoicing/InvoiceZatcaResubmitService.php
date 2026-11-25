@@ -40,6 +40,14 @@ final class InvoiceZatcaResubmitService
             return InvoiceZatcaResubmitResult::notEligible();
         }
 
+        if ($invoice->isSubmissionRejected()) {
+            return InvoiceZatcaResubmitResult::failure(
+                'rejected',
+                __('invoices.errors.resubmit_rejected'),
+                $invoice,
+            );
+        }
+
         if (InvoiceZatcaSubmissionGuard::shouldSkipResubmit($invoice)) {
             return InvoiceZatcaResubmitResult::alreadySuccess();
         }
@@ -122,6 +130,9 @@ final class InvoiceZatcaResubmitService
                 $merged['zheart_last_error_at'] = now()->toIso8601String();
             }
             $attributes = ['payload' => $merged];
+            if (filled($signed['invoice_number'] ?? null)) {
+                $attributes['official_number'] = $signed['invoice_number'];
+            }
 
             if (! $preserveChain) {
                 $attributes = array_merge($attributes, [

@@ -10,7 +10,7 @@ final class HubInvoiceListLabel
     public static function forHub(Invoice $invoice): string
     {
         if ($invoice->status !== InvoiceStatus::Draft) {
-            return (string) $invoice->document_number;
+            return $invoice->displayNumber();
         }
 
         if (self::hasReservedFinalNumber($invoice)) {

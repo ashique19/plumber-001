@@ -6,6 +6,7 @@ use App\Data\InvoiceLineData;
 use App\Rules\SaudiVatNumber;
 use App\Services\Invoicing\Signing\InvoiceSigningRequest;
 use App\Support\Invoicing\InvoiceDocumentTotals;
+use App\Support\Invoicing\InvoiceNumberSeries;
 use App\Support\Invoicing\ZHeartBuyerAddressMapper;
 use Illuminate\Support\Facades\Validator;
 
@@ -25,9 +26,11 @@ final class ZHeartInvoicePayloadBuilder
             default => 'invoice',
         };
 
+        $series = InvoiceNumberSeries::sanitize((string) ($request->numberSeries ?: InvoiceNumberSeries::DEFAULT));
+
         $payload = [
             'uuid' => $request->invoiceUuid,
-            'invoice_number' => $request->documentNumber,
+            'number_series' => $series,
             'issue_date' => $issued->format('Y-m-d'),
             'issue_time' => $issued->format('H:i:s'),
             'supply_date' => self::resolveSupplyDate($request->invoicePayload, $issued),

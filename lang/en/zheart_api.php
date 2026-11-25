@@ -14,4 +14,5 @@ return [
     'not_configured' => 'Z-Heart base URL or API key is missing for this business.',
     'health_ok' => 'Z-Heart health check passed.',
     'health_failed' => 'Z-Heart health check failed.',
+    'request_id_suffix' => 'Request id :id.',
 ];

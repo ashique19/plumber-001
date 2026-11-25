@@ -13,6 +13,7 @@ use App\Services\Inventory\ProductStockService;
 use App\Services\Invoicing\InvoiceIssueResult;
 use App\Services\Invoicing\Signing\InvoiceSigningGatewayFactory;
 use App\Services\Invoicing\Signing\InvoiceSigningRequestFactory;
+use App\Support\Invoicing\InvoiceNumberSeries;
 use App\Support\Invoicing\InvoiceZatcaSubmissionGuard;
 use App\Support\Invoicing\StandardInvoiceBuyerSnapshotRefresh;
 use App\Support\Invoicing\StandardInvoiceZatcaPayloadPrecheck;
@@ -51,6 +52,7 @@ class InvoiceIssueService
             'referenced_invoice_id' => $referencedInvoice?->id,
             'payload' => [
                 'lines' => $lineItems,
+                'invoice_uuid' => (string) Str::uuid(),
             ],
         ]);
 
@@ -101,7 +103,8 @@ class InvoiceIssueService
         $now = Carbon::now('UTC');
         $referenced = $invoice->referencedInvoice;
         $invoiceCategory = $this->resolveInvoiceCategory($invoice, $referenced);
-        $invoiceUuid = (string) (($invoice->payload['invoice_uuid'] ?? null) ?: Str::uuid());
+        $invoiceUuid = $invoice->ensureInvoiceUuid();
+        $invoice->refresh();
 
         $payload = $invoice->payload ?? [];
 
@@ -186,7 +189,7 @@ class InvoiceIssueService
                 $signResult = $localSign;
 
                 $mergedPayload = array_merge($payload, [
-                    'invoice_uuid' => (string) ($localSign['invoice_uuid'] ?? $invoiceUuid),
+                    'invoice_uuid' => $invoiceUuid,
                 ]);
 
                 Invoice::withoutEvents(function () use (
@@ -261,11 +264,16 @@ class InvoiceIssueService
 
         $invoice->refresh();
 
-        Invoice::withoutEvents(function () use ($invoice, $signed, $payloadMerge): void {
+        $official = is_string($signed['invoice_number'] ?? null) && $signed['invoice_number'] !== ''
+            ? (string) $signed['invoice_number']
+            : $invoice->official_number;
+
+        Invoice::withoutEvents(function () use ($invoice, $signed, $payloadMerge, $official): void {
             $invoice->forceFill([
                 'signed_xml' => $signed['cleared_xml'] ?? $signed['xml'] ?? $invoice->signed_xml,
                 'qr_tlv_base64' => filled($signed['qr'] ?? null) ? $signed['qr'] : $invoice->qr_tlv_base64,
                 'zheart_seller' => is_array($signed['seller'] ?? null) ? $signed['seller'] : $invoice->zheart_seller,
+                'official_number' => $official,
                 'payload' => $payloadMerge,
             ])->save();
         });

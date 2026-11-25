@@ -10,6 +10,7 @@ use App\Livewire\Concerns\ValidatesFieldsLive;
 use App\Models\Invoice;
 use App\Services\Invoicing\HubDraftInvoiceIssueService;
 use App\Services\Invoicing\InvoiceDuesLedgerService;
+use App\Services\Invoicing\InvoiceCorrectedDocumentService;
 use App\Services\Invoicing\InvoiceZatcaResubmitService;
 use App\Support\Hub\HubChronologicalSort;
 use App\Support\Hub\HubInvoiceDraftLifecycle;
@@ -161,6 +162,64 @@ class InvoiceHub extends Component
         } finally {
             unset($this->resubmitting[$invoiceId]);
         }
+    }
+
+    public function issueCorrectiveCreditNote(int $invoiceId): void
+    {
+        abort_unless(auth('staff')->user()?->can('invoices.issue'), 403);
+
+        $invoice = Invoice::query()->whereKey($invoiceId)->firstOrFail();
+
+        try {
+            $result = app(InvoiceCorrectedDocumentService::class)->issueCreditNote($invoice);
+        } catch (\Throwable $e) {
+            $this->toastError($e->getMessage());
+
+            return;
+        }
+
+        $this->toastForCorrectedDocument($result, credit: true);
+    }
+
+    public function issueCorrectedInvoice(int $invoiceId): void
+    {
+        abort_unless(auth('staff')->user()?->can('invoices.issue'), 403);
+
+        $invoice = Invoice::query()->whereKey($invoiceId)->firstOrFail();
+
+        try {
+            $result = app(InvoiceCorrectedDocumentService::class)->issueCorrectedInvoice($invoice);
+        } catch (\Throwable $e) {
+            $this->toastError($e->getMessage());
+
+            return;
+        }
+
+        $this->toastForCorrectedDocument($result, credit: false);
+    }
+
+    private function toastForCorrectedDocument(\App\Services\Invoicing\InvoiceIssueResult $result, bool $credit): void
+    {
+        $issued = $result->invoice;
+        $number = $issued->displayNumber();
+
+        if ($issued->isSubmissionRetry()) {
+            $this->toastWarning(__('invoices.issue_sending', ['number' => $number]));
+
+            return;
+        }
+
+        if ($issued->isSubmissionRejected() || ! $result->signingSucceeded) {
+            $this->toastError(__('invoices.issue_rejected', [
+                'number' => $number,
+                'reason' => $result->signingFailureMessage ?: __('invoices.zatca_resubmit_failed'),
+            ]));
+
+            return;
+        }
+
+        $key = $credit ? 'invoices.correction.credit_issued' : 'invoices.correction.invoice_issued';
+        $this->toastSuccess(__($key, ['number' => $number]));
     }
 
     public function authorizeDraft(int $invoiceId, HubDraftInvoiceIssueService $service): void

@@ -79,6 +79,11 @@ final class ZHeartApiValidationErrors
 
         $line = self::stripNoisePrefixes($line);
 
+        $mapped422 = self::mapNumberingMessage($line);
+        if ($mapped422 !== null) {
+            return $mapped422;
+        }
+
         if (str_contains($line, ':')) {
             [$field, $message] = explode(':', $line, 2);
 
@@ -277,6 +282,11 @@ final class ZHeartApiValidationErrors
             return __('invoices.zatca_precheck.'.$mapped);
         }
 
+        $fromMessage = self::mapNumberingMessage($field.' '.$message);
+        if ($fromMessage !== null) {
+            return $fromMessage;
+        }
+
         if ($message !== '' && (preg_match('/^(the |buyer |invoice\.)/i', $message) || ! str_contains($field, '.'))) {
             return $message;
         }
@@ -301,6 +311,22 @@ final class ZHeartApiValidationErrors
         }
 
         return $message;
+    }
+
+    private static function mapNumberingMessage(string $line): ?string
+    {
+        $lower = mb_strtolower($line);
+        if (str_contains($lower, 'invoice.number_series') && (str_contains($lower, 'not both') || str_contains($lower, 'prohibits'))) {
+            return __('invoices.errors.number_series_with_number');
+        }
+        if (str_contains($lower, 'already used by another document') || (str_contains($lower, 'invoice.invoice_number') && str_contains($lower, 'unique'))) {
+            return __('invoices.errors.invoice_number_taken');
+        }
+        if (str_contains($lower, 'send either invoice.invoice_number or invoice.number_series')) {
+            return __('invoices.errors.number_series_with_number');
+        }
+
+        return null;
     }
 
     private static function mapFieldToPrecheckKey(string $field): ?string

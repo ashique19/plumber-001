@@ -30,7 +30,29 @@ final class ZatcaSubmissionOutcome
      */
     public static function fromPersistedInvoice(Invoice $invoice, array $signed, string $invoiceCategory): self
     {
-        $number = $invoice->document_number;
+        $number = $invoice->officialOrDocumentNumber();
+        $outcome = \App\Support\Invoicing\ZHeartSubmissionOutcome::normalize(data_get($invoice->payload, 'zheart_outcome'));
+        if ($outcome === \App\Support\Invoicing\ZHeartSubmissionOutcome::RETRY) {
+            return new self(
+                self::PENDING,
+                false,
+                'warning',
+                __('invoices.issue_sending', ['number' => $number]),
+                null,
+            );
+        }
+        if ($outcome === \App\Support\Invoicing\ZHeartSubmissionOutcome::REJECTED) {
+            $reason = HubInvoiceZatcaTab::shortError($invoice) ?? self::extractReason($signed) ?? __('invoices.zatca_resubmit_failed');
+
+            return new self(
+                self::REJECTED,
+                false,
+                'error',
+                __('invoices.zatca_resubmit_rejected', ['number' => $number, 'reason' => $reason]),
+                $reason,
+            );
+        }
+
         $status = InvoiceZatcaSubmissionGuard::effectiveReportingStatus($invoice);
         $reason = HubInvoiceZatcaTab::shortError($invoice) ?? self::extractReason($signed);
 

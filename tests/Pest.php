@@ -11,6 +11,7 @@ pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
     ->use(FakesZHeartSigning::class)
     ->beforeEach(function () {
+        app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
         $this->fakeZHeartSigning();
         config([
             'app.locale' => 'bn',

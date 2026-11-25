@@ -55,6 +55,26 @@ final class ZatcaSubmissionPayloadPersistence
             $payload['invoice_uuid'] = $signed['invoice_uuid'];
         }
 
+        if (filled($signed['invoice_number'] ?? null)) {
+            $payload['zheart_invoice_number'] = $signed['invoice_number'];
+        }
+
+        if (isset($signed['outcome']) && is_string($signed['outcome']) && $signed['outcome'] !== '') {
+            $payload['zheart_outcome'] = $signed['outcome'];
+        }
+
+        if (array_key_exists('duplicate', $signed)) {
+            $payload['zheart_duplicate'] = (bool) $signed['duplicate'];
+        }
+
+        if (array_key_exists('retryable', $signed)) {
+            $payload['zheart_retryable'] = (bool) $signed['retryable'];
+        }
+
+        if (($signed['outcome'] ?? null) === \App\Support\Invoicing\ZHeartSubmissionOutcome::RETRY) {
+            unset($payload['zheart_last_error']);
+        }
+
         return $payload;
     }
 

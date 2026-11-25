@@ -6,6 +6,7 @@ use App\Enums\InvoiceDocumentType;
 use App\Models\BusinessSetting;
 use App\Models\Invoice;
 use App\Support\Invoicing\InvoiceLineDataFactory;
+use App\Support\Invoicing\InvoiceNumberSeries;
 use Illuminate\Support\Carbon;
 
 final class InvoiceSigningRequestFactory
@@ -30,12 +31,13 @@ final class InvoiceSigningRequestFactory
             invoicePayload: $payload,
             issueDateTimeUtc: $issuedAt->copy()->utc(),
             invoiceUuid: $invoiceUuid,
-            referencedInvoiceNumber: $referenced?->document_number,
+            referencedInvoiceNumber: $referenced?->officialOrDocumentNumber(),
             referencedInvoiceUuid: $referenced
                 ? (string) ($referenced->payload['invoice_uuid'] ?? '')
                 : null,
             noteReason: self::resolveNoteReason($invoice),
             documentDiscountExVat: (float) ($payload['invoice_discount_ex_vat'] ?? 0),
+            numberSeries: InvoiceNumberSeries::forInvoice($invoice),
         );
     }
 

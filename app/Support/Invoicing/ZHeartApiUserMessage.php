@@ -12,6 +12,15 @@ final class ZHeartApiUserMessage
         $remoteMessage = is_string($json['message'] ?? null) ? trim((string) $json['message']) : '';
         $errorCode = is_string(data_get($json, 'data.error')) ? (string) data_get($json, 'data.error') : null;
 
+        if ($status === 422) {
+            $numbering = self::numberingMessage($json, $remoteMessage, $errorCode);
+            if ($numbering !== null) {
+                $suffix = $id !== '—' ? ' '.__('zheart_api.request_id_suffix', ['id' => $id]) : '';
+
+                return $numbering.$suffix;
+            }
+        }
+
         return match ($status) {
             401 => self::joinMessage($remoteMessage, $errorCode)
                 ?: __('zheart_api.auth_failed', ['id' => $id]),
@@ -41,6 +50,25 @@ final class ZHeartApiUserMessage
     public static function forException(ZHeartApiException $e): string
     {
         return $e->getMessage();
+    }
+
+    /**
+     * @param  array<string, mixed>|null  $json
+     */
+    private static function numberingMessage(?array $json, string $remoteMessage, ?string $errorCode): ?string
+    {
+        $fieldLines = ZHeartApiValidationErrors::collect($json);
+        foreach (array_merge($fieldLines, [$remoteMessage, (string) $errorCode]) as $candidate) {
+            if (! is_string($candidate) || $candidate === '') {
+                continue;
+            }
+            $mapped = ZHeartApiValidationErrors::present($candidate);
+            if (in_array($mapped, [__('invoices.errors.invoice_number_taken'), __('invoices.errors.number_series_with_number')], true)) {
+                return $mapped;
+            }
+        }
+
+        return null;
     }
 
     private static function joinMessage(string $message, ?string $errorCode): string
