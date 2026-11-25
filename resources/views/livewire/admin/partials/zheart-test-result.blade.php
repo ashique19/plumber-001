@@ -16,6 +16,19 @@
             <p class="font-medium">{{ __('business.zheart.test_connected_heading') }}</p>
         @endif
 
+        @if ($zheartTestReason === 'not_ready')
+            <div class="mt-2" data-testid="business-zheart-test-issues">
+                <p class="text-xs">{{ __('business.zheart.test_not_ready_hint') }}</p>
+                @if (! empty($zheartTestIssues))
+                    <ul class="mt-2 list-disc space-y-1 ps-5">
+                        @foreach ($zheartTestIssues as $issue)
+                            <li>{{ $issue }}</li>
+                        @endforeach
+                    </ul>
+                @endif
+            </div>
+        @endif
+
         @if ($zheartTestHttpStatus !== null)
             <p class="mt-1 text-xs opacity-80" data-testid="business-zheart-test-http-status">
                 {{ __('business.zheart.test_http_status', ['status' => $zheartTestHttpStatus]) }}
