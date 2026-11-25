@@ -86,9 +86,10 @@ it('saves the legal tab independently of brand fields on install.sql-shaped sett
 
     $legal = data_get($business->fresh()->settings, 'business.legal');
 
-    expect($legal['cr_number'])->toBe('1010999888')
-        ->and($legal['address_ar'])->toBe('')
-        ->and(data_get($legal, 'national_address.street_ar'))->toBe('شارع الأمير');
+    // CR is managed by Z-Heart and ignored here; Arabic spellings still save.
+    expect($legal['cr_number'] ?? null)->not->toBe('1010999888')
+        ->and(data_get($legal, 'national_address.street_ar'))->toBe('شارع الأمير')
+        ->and(data_get($legal, 'national_address.city_ar'))->toBe('الرياض');
 });
 
 it('surfaces legal validation errors with toast instead of failing silently', function () {
@@ -96,9 +97,9 @@ it('surfaces legal validation errors with toast instead of failing silently', fu
 
     Livewire::test(BusinessSettings::class)
         ->set('section', 'legal')
-        ->set('vatNumber', '123')
+        ->set('legalEmail', 'not-an-email')
         ->call('saveLegal')
-        ->assertHasErrors(['vatNumber'])
+        ->assertHasErrors(['legalEmail'])
         ->assertDispatched('toast')
         ->assertSet('tabsWithErrors', ['legal']);
 });

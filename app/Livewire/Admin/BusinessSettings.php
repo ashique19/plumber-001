@@ -389,28 +389,14 @@ class BusinessSettings extends Component
         ]);
 
         try {
+            // Legal name, VAT, CR, unified number and the national address are managed by Z-Heart.
             $this->runSectionValidation([
-            'legalNameEn' => 'nullable|string|max:200',
-            'legalNameAr' => 'nullable|string|max:200',
-            'vatNumber' => ['nullable', 'string', new SaudiVatNumber],
-            'crNumber' => 'nullable|string|max:32',
-            'unifiedNumber' => 'nullable|string|max:32',
             'legalEmail' => 'nullable|email|max:120',
             'legalMobile' => 'nullable|string|max:40',
             'legalMobileSecondary' => 'nullable|string|max:40',
-            'shortNationalAddress' => 'nullable|string|max:500',
-            'addressEn' => 'nullable|string|max:500',
-            'addressAr' => 'nullable|string|max:500',
-            'naBuilding' => 'nullable|string|max:20',
-            'naStreet' => 'nullable|string|max:120',
             'naStreetAr' => 'nullable|string|max:120',
-            'naDistrict' => 'nullable|string|max:120',
             'naDistrictAr' => 'nullable|string|max:120',
-            'naCity' => 'nullable|string|max:80',
             'naCityAr' => 'nullable|string|max:80',
-            'naPostal' => 'nullable|digits:5',
-            'naCountry' => 'nullable|string|size:2',
-            'naAdditional' => 'nullable|string|max:20',
             ], 'legal');
         } catch (ValidationException) {
             return;
@@ -418,29 +404,14 @@ class BusinessSettings extends Component
 
         try {
             $business = $service->saveLegal($this->business(), [
-            'name_en' => $this->legalNameEn,
-            'name_ar' => $this->legalNameAr,
-            'vat_number' => $this->vatNumber,
-            'cr_number' => $this->crNumber,
-            'unified_number' => $this->unifiedNumber,
             'email' => $this->legalEmail,
             'mobile' => $this->legalMobile,
             'mobile_secondary' => $this->legalMobileSecondary,
-            'short_national_address' => $this->shortNationalAddress,
-            'address_en' => $this->addressEn,
-            'address_ar' => $this->addressAr,
-            'national_address' => array_filter([
-                'building' => $this->naBuilding,
-                'street' => $this->naStreet,
+            'national_address' => [
                 'street_ar' => $this->naStreetAr,
-                'district' => $this->naDistrict,
                 'district_ar' => $this->naDistrictAr,
-                'city' => $this->naCity,
                 'city_ar' => $this->naCityAr,
-                'postal_code' => $this->naPostal,
-                'country' => $this->naCountry !== '' ? strtoupper($this->naCountry) : 'SA',
-                'additional' => $this->naAdditional,
-            ], static fn (string $v): bool => $v !== ''),
+            ],
         ], auth('staff')->user());
         } catch (Throwable $e) {
             $this->failSave('legal', $e);
@@ -712,6 +683,7 @@ class BusinessSettings extends Component
 
         return view('livewire.admin.business-settings', [
             'business' => $business,
+            'zheartSeller' => $this->section === 'legal' ? \App\Support\Invoicing\ZHeartSellerLegal::latestSeller() : null,
             'colorOptions' => BusinessProfile::brandColorOptions($business),
             'teamUrl' => route('admin.team'),
             'usersUrl' => ($staffUser && $staffUser->hasRole('owner')) ? route('admin.users') : null,

@@ -131,8 +131,14 @@ final class InvoiceZatcaResubmitService
                     'signed_xml' => $signed['cleared_xml'] ?? $signed['xml'],
                     'qr_tlv_base64' => $signed['qr'],
                 ]);
+                if (is_array($signed['seller'] ?? null)) {
+                    $attributes['zheart_seller'] = $signed['seller'];
+                }
             } elseif (blank($invoice->qr_tlv_base64) && filled($signed['qr'] ?? null)) {
                 $attributes['qr_tlv_base64'] = $signed['qr'];
+            }
+            if ($preserveChain && blank($invoice->zheart_seller) && is_array($signed['seller'] ?? null)) {
+                $attributes['zheart_seller'] = $signed['seller'];
             }
 
             $this->persistIssuedInvoice($invoice, $attributes);

@@ -31,15 +31,14 @@ it('reloads brand and legal fields after save', function () {
     Livewire::actingAs($this->owner, 'staff')
         ->test(BusinessSettings::class)
         ->set('section', 'legal')
-        ->set('vatNumber', '')
-        ->set('legalNameAr', 'شركة تجريبية')
-        ->set('addressAr', 'الرياض')
+        ->set('legalMobile', '+966500000001')
+        ->set('naCityAr', 'الرياض')
         ->call('saveLegal')
         ->assertHasNoErrors();
 
     Livewire::actingAs($this->owner, 'staff')
         ->test(BusinessSettings::class)
         ->set('section', 'legal')
-        ->assertSet('legalNameAr', 'شركة تجريبية')
-        ->assertSet('addressAr', 'الرياض');
+        ->assertSet('legalMobile', '+966500000001')
+        ->assertSet('naCityAr', 'الرياض');
 });

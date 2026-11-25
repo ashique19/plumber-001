@@ -20,6 +20,7 @@ pest()->extend(TestCase::class)
     })
     ->afterEach(function () {
         BusinessContext::clear();
+        \Tests\Support\ZHeartFakeSeller::$block = null;
     })
     ->in('Feature');
 

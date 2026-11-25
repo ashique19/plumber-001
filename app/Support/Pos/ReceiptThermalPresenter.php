@@ -25,7 +25,7 @@ final class ReceiptThermalPresenter
         Invoice $invoice,
         ?Branch $branch,
     ): array {
-        $legal = $business->settings['legal_entity'] ?? [];
+        $legal = \App\Support\Invoicing\ZHeartSellerLegal::forInvoice($business, $invoice);
         $theme = $business->settings['theme'] ?? [];
         $contentKey = $business->isPlumberTheme() ? 'plumber' : null;
         $content = $contentKey ? data_get($business->settings, "content.{$contentKey}", []) : [];

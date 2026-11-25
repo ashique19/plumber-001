@@ -17,7 +17,6 @@ final class ZHeartInvoicePayloadBuilder
     public function build(InvoiceSigningRequest $request): array
     {
         $issued = $request->issueDateTimeUtc->copy()->timezone('Asia/Riyadh');
-        $legal = $request->business->settings['legal_entity'] ?? [];
 
         $type = $request->invoiceCategory === 'simplified' ? 'simplified' : 'standard';
         $documentType = match ($request->documentType->value) {
@@ -60,13 +59,7 @@ final class ZHeartInvoicePayloadBuilder
             $payload['buyer'] = $buyerBlock;
         }
 
-        if (config('zheart.allow_seller_override', false)) {
-            $payload['seller'] = array_filter([
-                'name' => $legal['name_en'] ?? $request->business->name,
-                'vat_number' => $legal['vat_number'] ?? null,
-            ]);
-        }
-
+        // No seller block: Z-Heart builds the seller from its client profile and returns it.
         return $payload;
     }
 

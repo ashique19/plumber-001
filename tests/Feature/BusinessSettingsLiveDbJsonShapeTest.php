@@ -116,6 +116,7 @@ it('invokes saveLegal and touches row on live json shape', function () {
     $component
         ->set('section', 'legal')
         ->set('legalNameAr', 'شركة السباكة المحدثة')
+        ->set('naStreetAr', 'شارع الملك فهد')
         ->call('saveLegal')
         ->assertHasNoErrors()
         ->assertDispatched('toast', type: 'success');
@@ -123,7 +124,8 @@ it('invokes saveLegal and touches row on live json shape', function () {
     $row = BusinessSetting::primary()->fresh();
 
     expect($row->updated_at->equalTo(Carbon::parse('2026-11-14 17:55:00', 'UTC')))->toBeTrue()
-        ->and(data_get($row->settings, 'business.legal.name_ar'))->toBe('شركة السباكة المحدثة');
+        ->and(data_get($row->settings, 'business.legal.name_ar'))->not->toBe('شركة السباكة المحدثة')
+        ->and(data_get($row->settings, 'business.legal.national_address.street_ar'))->toBe('شارع الملك فهد');
 
     Carbon::setTestNow();
 });

@@ -205,6 +205,7 @@ class InvoiceIssueService
                         'previous_invoice_hash' => $localSign['previous_invoice_hash'],
                         'signed_xml' => $localSign['xml'],
                         'qr_tlv_base64' => $localSign['qr'],
+                        'zheart_seller' => is_array($localSign['seller'] ?? null) ? $localSign['seller'] : null,
                         'payload' => $mergedPayload,
                     ])->save();
                 });
@@ -264,6 +265,7 @@ class InvoiceIssueService
             $invoice->forceFill([
                 'signed_xml' => $signed['cleared_xml'] ?? $signed['xml'] ?? $invoice->signed_xml,
                 'qr_tlv_base64' => filled($signed['qr'] ?? null) ? $signed['qr'] : $invoice->qr_tlv_base64,
+                'zheart_seller' => is_array($signed['seller'] ?? null) ? $signed['seller'] : $invoice->zheart_seller,
                 'payload' => $payloadMerge,
             ])->save();
         });
@@ -395,6 +397,7 @@ class InvoiceIssueService
                 'previous_invoice_hash' => null,
                 'signed_xml' => null,
                 'qr_tlv_base64' => null,
+                'zheart_seller' => null,
                 'issued_at' => $issuedAt,
                 'due_date' => $dueDate,
             ]);

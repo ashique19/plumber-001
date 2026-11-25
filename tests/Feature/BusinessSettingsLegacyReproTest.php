@@ -114,8 +114,10 @@ it('validates legal tab inline', function () {
     Livewire::test(BusinessSettings::class)
         ->set('section', 'legal')
         ->set('vatNumber', '123')
+        ->set('legalEmail', 'not-an-email')
         ->call('saveLegal')
-        ->assertHasErrors(['vatNumber']);
+        ->assertHasNoErrors(['vatNumber'])
+        ->assertHasErrors(['legalEmail']);
 });
 
 it('saves hours tab for legacy tenant', function () {
