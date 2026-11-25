@@ -272,3 +272,20 @@ it('shows a z-heart 500 as an internal error with the request id in bangla', fun
         ->assertSeeHtml('data-testid="business-zheart-test-request-id"')
         ->assertDontSee(__('business.zheart.test_reason_auth_failed'), false);
 });
+
+it('keeps the request id readable in arabic and escapes it', function () {
+    app()->setLocale('ar');
+    Http::fake([
+        'https://z-heart.example.test/api/v1/health' => Http::response(['status' => 'ok'], 200),
+        'https://z-heart.example.test/api/v1/auth' => Http::response(['status' => 'error'], 500, ['X-Request-Id' => '<b>rid</b>']),
+    ]);
+
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(BusinessSettings::class)
+        ->set('section', 'invoicing')
+        ->set('zheartBaseUrl', 'https://z-heart.example.test')
+        ->set('zheartApiKeyInput', 'zh_test1234.AbcdEfGhIjKlMnOpQrStUvWxYz0123456789')
+        ->call('testZheartConnection')
+        ->assertSeeHtml('<bdi dir="ltr" class="break-all font-mono">&lt;b&gt;rid&lt;/b&gt;</bdi>')
+        ->assertDontSeeHtml('<b>rid</b>');
+});
