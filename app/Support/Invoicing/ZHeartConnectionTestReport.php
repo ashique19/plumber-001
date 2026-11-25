@@ -10,7 +10,7 @@ final class ZHeartConnectionTestReport
 {
     /**
      * @param  array<string, mixed>  $authBody
-     * @return array{message: string, card: array<string, mixed>, warnings: list<string>}
+     * @return array{message: string, card: array<string, mixed>, warnings: list<string>, ready: ?bool, issues: list<string>}
      */
     public static function successFromAuthPayload(array $authBody, ?BusinessSetting $business = null): array
     {
@@ -99,11 +99,59 @@ final class ZHeartConnectionTestReport
             'onboarded' => $onboardingLabel,
         ]);
 
+        // Older Z-Heart versions do not send readiness; treat that as unknown (null), not as a problem.
+        $ready = array_key_exists('ready', $authBody) && is_bool($authBody['ready']) ? $authBody['ready'] : null;
+        $issues = $ready === false
+            ? self::issueMessages($authBody['issues'] ?? [], $environment)
+            : [];
+
+        if ($ready === false) {
+            $message = __('business.zheart.test_not_ready');
+        }
+
         return [
             'message' => $message,
             'card' => $card,
             'warnings' => $warnings,
+            'ready' => $ready,
+            'issues' => $issues,
         ];
+    }
+
+    /**
+     * Z-Heart readiness issues as plain sentences in the current language.
+     * Known fields use our own translation; anything else shows Z-Heart's message.
+     *
+     * @return list<string>
+     */
+    public static function issueMessages(mixed $issues, string $environment = ''): array
+    {
+        if (! is_array($issues)) {
+            return [];
+        }
+
+        $envLabel = $environment !== '' ? ucfirst(strtolower($environment)) : '—';
+        $out = [];
+
+        foreach ($issues as $issue) {
+            if (! is_array($issue)) {
+                continue;
+            }
+            $field = is_string($issue['field'] ?? null) ? trim($issue['field']) : '';
+            $remote = is_string($issue['message'] ?? null) ? trim($issue['message']) : '';
+
+            $key = 'business.zheart.issues.'.$field;
+            $local = ($field !== '' && preg_match('/^[a-z0-9_.]+$/', $field) && is_string(__($key)) && __($key) !== $key)
+                ? __($key, ['environment' => $envLabel])
+                : null;
+
+            $text = $local ?? $remote;
+            if ($text !== '' && ! in_array($text, $out, true)) {
+                $out[] = $text;
+            }
+        }
+
+        return $out;
     }
 
     /**
