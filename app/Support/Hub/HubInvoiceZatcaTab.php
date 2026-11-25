@@ -36,6 +36,10 @@ final class HubInvoiceZatcaTab
             return false;
         }
 
+        if ($invoice->isSubmissionAccepted() && data_get($invoice->payload, 'zheart_remote_submitted') === true) {
+            return true;
+        }
+
         if (data_get($invoice->payload, 'zheart_remote_submitted') !== true) {
             return false;
         }
@@ -50,7 +54,7 @@ final class HubInvoiceZatcaTab
 
     public static function isFailed(Invoice $invoice): bool
     {
-        if (! $invoice->isIssued() || self::isSuccess($invoice)) {
+        if (! $invoice->isIssued() || self::isSuccess($invoice) || $invoice->isSubmissionRetry()) {
             return false;
         }
 
@@ -111,6 +115,7 @@ final class HubInvoiceZatcaTab
     public static function canResend(Invoice $invoice): bool
     {
         return self::needsZatcaResubmit($invoice)
+            && ! $invoice->isSubmissionRejected()
             && ZatcaSubmissionStatus::canSubmitToZatca();
     }
 

@@ -206,6 +206,9 @@
                                 @if (\App\Support\Hub\HubInvoiceStatusDisplay::showsClearanceHint($invoice))
                                     <p class="hub-doc-table__status-hint">{{ __('invoices.zatca_clearance_hint') }}</p>
                                 @endif
+                                @if ($a['show_simplified_correction_guidance'] ?? false)
+                                    <p class="hub-doc-table__status-hint" data-testid="invoice-simplified-correction-guidance">{{ __('invoices.correction.simplified_guidance') }}</p>
+                                @endif
                             </div>
                         </td>
                         <td class="hub-doc-table__actions-cell">

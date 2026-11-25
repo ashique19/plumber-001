@@ -114,6 +114,30 @@
                 />
             @endif
         @endif
+        @if ($actions['show_simplified_correction_guidance'] ?? false)
+            <x-hub.row-action-icon
+                icon="credit"
+                accent
+                :label="__('invoices.correction.issue_credit')"
+                :tooltip="__('invoices.correction.issue_credit')"
+                wire:click="issueCorrectiveCreditNote({{ $invoiceId }})"
+                wire:loading.attr="disabled"
+                wire:target="issueCorrectiveCreditNote({{ $invoiceId }})"
+                test-id="hub-row-action-issue-credit"
+            />
+        @endif
+        @if ($actions['correct_rejected'] ?? false)
+            <x-hub.row-action-icon
+                icon="document"
+                accent
+                :label="__('invoices.correction.issue_new')"
+                :tooltip="__('invoices.correction.issue_new')"
+                wire:click="issueCorrectedInvoice({{ $invoiceId }})"
+                wire:loading.attr="disabled"
+                wire:target="issueCorrectedInvoice({{ $invoiceId }})"
+                test-id="hub-row-action-issue-corrected"
+            />
+        @endif
         @if (($actions['record_payment'] ?? false) && $recordPaymentOnPage)
             <x-hub.row-action-icon
                 icon="payment"

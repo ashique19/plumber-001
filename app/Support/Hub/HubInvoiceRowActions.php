@@ -94,6 +94,13 @@ final class HubInvoiceRowActions
             'resend_zatca_label' => HubInvoiceZatcaTab::needsZatcaResubmit($invoice)
                 ? HubInvoiceZatcaResubmitCopy::actionLabel($invoice)
                 : null,
+            'correct_rejected' => $invoice->isSubmissionRejected()
+                && $invoice->document_type !== \App\Enums\InvoiceDocumentType::CreditNote,
+            'show_simplified_correction_guidance' => $invoice->isSubmissionRejected()
+                && (
+                    $invoice->document_type === \App\Enums\InvoiceDocumentType::Simplified
+                    || data_get($invoice->payload, 'invoice_category') === 'simplified'
+                ),
         ];
     }
 }

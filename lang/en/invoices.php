@@ -78,6 +78,7 @@ return [
         'reported_warnings' => 'Reported (warnings)',
         'cleared' => 'Cleared',
         'rejected' => 'Rejected / failed',
+        'auto_retry' => 'Sending (auto-retry)',
     ],
     'print_not_cleared' => 'Not cleared',
     'print_not_cleared_notice' => 'This standard invoice is not ZATCA-cleared yet. The QR is hidden until clearance. Download/Print from the hub is disabled until cleared.',
@@ -348,5 +349,23 @@ return [
         'lines_required' => 'Add at least one line item before issuing.',
         'amount_received_exceeds_total' => 'Amount received cannot exceed the grand total.',
         'cash_terms_full_payment' => 'Cash terms require the full grand total unless you switch to credit terms.',
+        'invoice_number_taken' => 'This invoice number is already used by another document. Send a new number, or let Z-Heart assign one from a number series.',
+        'number_series_with_number' => 'Send either an invoice number or a number series, not both.',
+        'resubmit_rejected' => 'A rejected invoice cannot be resent. Issue a corrected document with a new number.',
+        'correct_only_rejected' => 'Only a rejected invoice can be replaced with a corrected document.',
+        'correct_credit_not_supported' => 'Issue a new credit note from the original invoice instead.',
+
     ],
+    'pending_number' => 'Pending number',
+    'issue_sending' => 'Invoice :number is sending (auto-retry). The number is kept.',
+    'issue_rejected' => 'Invoice :number was rejected. :reason',
+    'correction' => [
+        'simplified_guidance' => 'This simplified invoice was rejected. Issue a credit note for it, then create a new invoice. The new invoice gets a new number.',
+        'issue_credit' => 'Issue credit note',
+        'issue_new' => 'Issue corrected invoice',
+        'credit_reason' => 'Correction of rejected invoice :number',
+        'credit_issued' => 'Credit note :number issued.',
+        'invoice_issued' => 'Corrected invoice :number issued.',
+    ],
+
 ];

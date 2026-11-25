@@ -63,6 +63,7 @@ final class HubInvoiceStatusDisplay
             HubInvoiceZatcaBadge::Reported => 'paid',
             HubInvoiceZatcaBadge::ReportedWithWarnings => 'warning',
             HubInvoiceZatcaBadge::Rejected => 'cancelled',
+            HubInvoiceZatcaBadge::AutoRetry => 'info',
             default => 'warning',
         };
     }

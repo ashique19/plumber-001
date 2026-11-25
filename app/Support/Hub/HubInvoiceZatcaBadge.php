@@ -24,6 +24,8 @@ final class HubInvoiceZatcaBadge
 
     public const Rejected = 'rejected';
 
+    public const AutoRetry = 'auto_retry';
+
   /**
    * @return list<string>
    */
@@ -32,6 +34,7 @@ final class HubInvoiceZatcaBadge
         return [
             self::ReportingPending,
             self::ClearancePending,
+            self::AutoRetry,
             self::NotSent,
         ];
     }
@@ -43,6 +46,31 @@ final class HubInvoiceZatcaBadge
 
     public static function badgeKey(Invoice $invoice): string
     {
+        $outcome = \App\Support\Invoicing\ZHeartSubmissionOutcome::normalize(data_get($invoice->payload, 'zheart_outcome'));
+        if ($outcome === \App\Support\Invoicing\ZHeartSubmissionOutcome::RETRY) {
+            return self::AutoRetry;
+        }
+        if ($outcome === \App\Support\Invoicing\ZHeartSubmissionOutcome::REJECTED) {
+            return self::Rejected;
+        }
+        if ($outcome === \App\Support\Invoicing\ZHeartSubmissionOutcome::ACCEPTED
+            && data_get($invoice->payload, 'zheart_remote_submitted') === true) {
+            $isSimplified = in_array($invoice->document_type, [InvoiceDocumentType::Simplified], true)
+                || data_get($invoice->payload, 'invoice_category') === 'simplified';
+            $raw = strtolower((string) (
+                data_get($invoice->payload, 'zheart_zatca.status')
+                ?? data_get($invoice->payload, 'zheart_reporting_status', '')
+            ));
+            if (in_array($raw, ['warning', 'warnings'], true)) {
+                return self::ReportedWithWarnings;
+            }
+            if (! $isSimplified && in_array($raw, ['cleared', 'clear', 'accepted'], true)) {
+                return self::Cleared;
+            }
+
+            return $isSimplified ? self::Reported : (in_array($raw, ['reported'], true) ? self::Reported : self::Cleared);
+        }
+
         if (filled(data_get($invoice->payload, 'zheart_last_error'))) {
             return self::Rejected;
         }
