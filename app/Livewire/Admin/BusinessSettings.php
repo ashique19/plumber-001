@@ -172,6 +172,8 @@ class BusinessSettings extends Component
     /** @var list<string> Plain-language reasons Z-Heart cannot sign invoices yet. */
     public array $zheartTestIssues = [];
 
+    public ?string $zheartTestRequestId = null;
+
     /** @var list<string> */
     public array $tabsWithErrors = [];
 
@@ -669,6 +671,9 @@ class BusinessSettings extends Component
         $this->zheartTestCard = is_array($result['card'] ?? null) ? $result['card'] : null;
         $this->zheartTestWarnings = is_array($result['warnings'] ?? null) ? $result['warnings'] : [];
         $this->zheartTestIssues = is_array($result['issues'] ?? null) ? array_values($result['issues']) : [];
+        $this->zheartTestRequestId = is_string($result['request_id'] ?? null) && $result['request_id'] !== ''
+            ? $result['request_id']
+            : null;
 
         if (($result['severity'] ?? 'error') === 'ok') {
             $this->toastSuccess($result['message']);
@@ -870,6 +875,7 @@ class BusinessSettings extends Component
         $this->zheartTestCard = null;
         $this->zheartTestWarnings = [];
         $this->zheartTestIssues = [];
+        $this->zheartTestRequestId = null;
 
         $this->sanitizeLegacyFieldFormats();
     }

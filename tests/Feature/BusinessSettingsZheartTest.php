@@ -247,3 +247,28 @@ it('stays green when z-heart reports ready, and when an older z-heart sends no r
     'ready' => [['ready' => true, 'issues' => []]],
     'older z-heart' => [[]],
 ]);
+
+it('shows a z-heart 500 as an internal error with the request id in bangla', function () {
+    app()->setLocale('bn');
+    Http::fake([
+        'https://z-heart.example.test/api/v1/health' => Http::response(['status' => 'ok'], 200),
+        'https://z-heart.example.test/api/v1/auth' => Http::response(
+            ['status' => 'error', 'message' => 'Unexpected error.', 'data' => null],
+            500,
+            ['X-Request-Id' => '834b9521-ed79-4604-8ad9-5b46b510287a'],
+        ),
+    ]);
+
+    Livewire::actingAs($this->owner, 'staff')
+        ->test(BusinessSettings::class)
+        ->set('section', 'invoicing')
+        ->set('zheartBaseUrl', 'https://z-heart.example.test')
+        ->set('zheartApiKeyInput', 'zh_test1234.AbcdEfGhIjKlMnOpQrStUvWxYz0123456789')
+        ->call('testZheartConnection')
+        ->assertSet('zheartTestStatus', 'error')
+        ->assertSet('zheartTestReason', 'server_error')
+        ->assertSet('zheartTestRequestId', '834b9521-ed79-4604-8ad9-5b46b510287a')
+        ->assertSee(__('business.zheart.test_reason_server_error', ['id' => '834b9521-ed79-4604-8ad9-5b46b510287a']), false)
+        ->assertSeeHtml('data-testid="business-zheart-test-request-id"')
+        ->assertDontSee(__('business.zheart.test_reason_auth_failed'), false);
+});
