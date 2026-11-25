@@ -36,8 +36,8 @@
         @endif
 
         @if (filled($zheartTestRequestId ?? null))
-            <p class="mt-1 break-all font-mono text-xs opacity-80" dir="ltr" data-testid="business-zheart-test-request-id">
-                {{ __('business.zheart.test_request_id', ['id' => $zheartTestRequestId]) }}
+            <p class="mt-1 text-xs opacity-80" data-testid="business-zheart-test-request-id">
+                {!! str_replace('%ID%', '<bdi dir="ltr" class="break-all font-mono">'.e($zheartTestRequestId).'</bdi>', e(__('business.zheart.test_request_id', ['id' => '%ID%']))) !!}
             </p>
         @endif
 
