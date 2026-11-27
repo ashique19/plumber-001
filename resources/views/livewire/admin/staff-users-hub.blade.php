@@ -138,27 +138,23 @@
         size="xl"
     >
         <form class="x-modal-form" wire:submit="save" novalidate data-testid="staff-user-form">
-            <div class="x-modal-form__fields x-modal-form__fields--2 app-admin-form">
+            <div class="x-modal-form__fields x-modal-form__fields--2 app-admin-form app-admin-form--staff-user">
                 <x-field.input :label="__('staff_users.name')" name="name" wire:model="name" required />
                 <x-field.input type="email" :label="__('staff_users.email')" name="email" wire:model="email" required />
-                <x-field.input
-                    type="password"
-                    :label="$editingId ? __('staff_users.password_optional') : __('staff_users.password')"
-                    name="password"
-                    wire:model="password"
-                    wrapper-class="col-span-full"
-                    @if(!$editingId) required @endif
-                />
-                <x-field.select :label="__('staff_users.role')" name="role" wire:model="role" required :liveValidate="false">
+                <x-field.select :label="__('staff_users.role')" name="role" wire:model="role" required :liveValidate="false" wrapper-class="staff-user-hub-field">
                     @foreach ($roleOptions as $roleKey)
                         <option value="{{ $roleKey }}">{{ __('staff_users.roles.'.$roleKey) }}</option>
                     @endforeach
                 </x-field.select>
-                <x-field.select :label="__('staff_users.language')" name="locale" wire:model="locale" required :liveValidate="false">
+                <x-field.select :label="__('staff_users.language')" name="locale" wire:model="locale" required :liveValidate="false" wrapper-class="staff-user-hub-field">
                     @foreach ($localeOptions as $code => $label)
                         <option value="{{ $code }}" @selected($locale === $code)>{{ $label }}</option>
                     @endforeach
                 </x-field.select>
+                <x-admin.staff-user-password-fields
+                    :creating="$editingId === null"
+                    :generated-password-plain="$generatedPasswordPlain"
+                />
             </div>
             <div class="x-modal__footer x-modal__footer--in-form">
                 <x-modal.footer
